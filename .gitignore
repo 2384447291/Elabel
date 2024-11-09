@@ -1,2 +1,3 @@
 build/
 .vscode/
+/main/global_message/Firmware_define.h
