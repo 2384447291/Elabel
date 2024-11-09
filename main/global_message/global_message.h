@@ -8,6 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
+#include "Firmware_define.h"
 
 #define FIRMWARE_VERSION "2.0.0"
 
