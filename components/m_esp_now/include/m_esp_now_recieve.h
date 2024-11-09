@@ -19,7 +19,7 @@ uint8_t m_broadcast_mac[ESP_NOW_ETH_ALEN] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 void deal_recieve_esp_now_msg(m_espnow_event_recv_cb_t* m_deal_recieve)
 {
     //如果通道是0xFF，0xFF, 0xFF, 0xFF, 0xFF, 0xFF，表示是广播
-    if(memcmp(m_deal_recieve->mac_addr,m_broadcast_mac,6)==0)
+    if(memcmp(m_deal_recieve->data,m_broadcast_mac,6) == 0)
     {
         #ifdef HOST_TAG
         uint8_t peer_MAC[6];
@@ -47,7 +47,7 @@ void deal_recieve_esp_now_msg(m_espnow_event_recv_cb_t* m_deal_recieve)
         #ifdef SLAVE_TAG
         //接收消息
         uint8_t msg_host_MAC[6];
-        memcpy(msg_host_MAC,m_deal_recieve->data,6);
+        memcpy(msg_host_MAC,m_deal_recieve->mac_addr,6);
         uint8_t msg_wifi_channel = m_deal_recieve->data[6];
 
         if(memcmp(msg_host_MAC,host_tag_mac,6)!=0)

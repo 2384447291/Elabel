@@ -115,7 +115,7 @@ static void m_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int l
     }
     else  
     {
-        ESP_LOGI(ESP_NOW, "Receive data from "MACSTR", len: %d\n", MAC2STR(mac_addr), len);
+        ESP_LOGI(ESP_NOW, "Receive data from "MACSTR", len: %d", MAC2STR(mac_addr), len);
         print_uint8_array(recv_cb.data, recv_cb.data_len);
     }
 }
@@ -152,7 +152,7 @@ static void esp_now_send_update(void *pvParameter)
 
             uint8_t send_msg[7];
             for (size_t i = 0; i < 6; i++) {
-                send_msg[i] = get_global_data()->mac_uint[i];
+                send_msg[i] = m_broadcast_mac[i];
             }
             send_msg[6] = wifi_channel;
             // 发送广播数据
@@ -251,8 +251,6 @@ void m_espnow_init(void)
    //-----------------------------添加配对设备广播设置0xFF通道-----------------------------//
     Add_peer(PEER_CHANEEL,m_broadcast_mac);
    //-----------------------------添加配对设备广播设置0xFF通道-----------------------------//
-
-
 
     // 启动espnow线程
      xTaskCreate(&esp_now_send_update, "esp_now_task", 4096, NULL, 10, NULL);

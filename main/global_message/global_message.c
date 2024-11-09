@@ -385,5 +385,5 @@ void print_uint8_array(uint8_t *array, size_t length) {
     }
 
     // 使用 ESP_LOGI 打印整个数组
-    ESP_LOGI("data", "Array: %s", buffer);
+    ESP_LOGI("data", "Array: %s\n", buffer);
 }
