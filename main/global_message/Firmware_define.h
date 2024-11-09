@@ -1,1 +1,0 @@
-#define SLAVE_TAG
