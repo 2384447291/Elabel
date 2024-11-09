@@ -10,7 +10,6 @@
 #include "freertos/event_groups.h"
 
 #define FIRMWARE_VERSION "2.0.0"
-#define SLAVE_TAG
 
 //--------------------------------------事件标志组(自定义中断函数)-----------------------------------------//
 #define ENCODER_TASK_BIT ( 1UL << 0UL )
