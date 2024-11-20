@@ -89,10 +89,10 @@ static void m_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t stat
 	{
 		ESP_LOGE(ESP_NOW, "Send error");
 	}
-	else
-	{
-		ESP_LOGI(ESP_NOW, "Send success");
-	}
+	// else
+	// {
+	// 	ESP_LOGI(ESP_NOW, "Send success");
+	// }
 }
 
 static void m_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int len)
@@ -163,11 +163,11 @@ static void esp_now_send_update(void *pvParameter)
                 ESP_LOGE(ESP_NOW, "Send peer broadcat error.\n");
                 ESP_LOGE(ESP_NOW, "Error occurred: %s", esp_err_to_name(err)); // 打印错误信息
 		    }
-            else
-            {
-                ESP_LOGI(ESP_NOW, "Send peer broadcat .\n");
-                print_uint8_array(send_msg,7);
-            } 
+            // else
+            // {
+            //     ESP_LOGI(ESP_NOW, "Send peer broadcat .\n");
+            //     print_uint8_array(send_msg,7);
+            // } 
         }
         #endif
 

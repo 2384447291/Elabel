@@ -4,7 +4,7 @@
 
 #include "touch_driver.h"
 #include "tp_spi.h"
-#include "tp_i2c.h"
+
 
 void touch_driver_init(void)
 {
@@ -12,14 +12,6 @@ void touch_driver_init(void)
     xpt2046_init();
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_FT6X06)
     ft6x06_init(FT6236_I2C_SLAVE_ADDR);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_L58)
-    l58_init();
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
-    gt911_init(0x5d);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_TT21100)
-    tt21100_init(0x24);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_TMA445)
-    tma445_init(0x24);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_STMPE610)
     stmpe610_init();
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_ADCRAW)
@@ -28,10 +20,16 @@ void touch_driver_init(void)
     /* nothing to do */
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_RA8875)
     ra8875_touch_init();
+#elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
+    gt911_init(GT911_I2C_SLAVE_ADDR);
 #endif
 }
 
+#if LVGL_VERSION_MAJOR >= 8
+void touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+#else
 bool touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+#endif
 {
     bool res = false;
 
@@ -39,14 +37,6 @@ bool touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
     res = xpt2046_read(drv, data);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_FT6X06)
     res = ft6x36_read(drv, data);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_L58)
-    res = l58_read(drv, data);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
-    res = gt911_read(drv, data);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_TT21100)
-    res = tt21100_read(drv, data);
-#elif defined (CONFIG_LV_TOUCH_CONTROLLER_TMA445)
-    res = tma445_read(drv, data);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_STMPE610)
     res = stmpe610_read(drv, data);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_ADCRAW)
@@ -55,8 +45,14 @@ bool touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
     res = FT81x_read(drv, data);
 #elif defined (CONFIG_LV_TOUCH_CONTROLLER_RA8875)
     res = ra8875_touch_read(drv, data);
+#elif defined (CONFIG_LV_TOUCH_CONTROLLER_GT911)
+    res = gt911_read(drv, data);
 #endif
 
+#if LVGL_VERSION_MAJOR >= 8
+    data->continue_reading = res;
+#else
     return res;
+#endif
 }
 

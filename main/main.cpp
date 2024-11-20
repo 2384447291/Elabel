@@ -7,7 +7,7 @@
 #include "control_driver.h"
 #include "ElabelController.hpp"
 #include "m_esp_now.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 bool is_elabel_init = false;
 
@@ -22,10 +22,8 @@ void e_label_init()
     HTTP_syset_time();
     get_unix_time();
 
-    #ifdef HOST_TAG
     //mqtt服务器初始化
     mqtt_client_init();
-    #endif
 
     //获取最新版本固件
     http_get_latest_version(true);
@@ -40,12 +38,8 @@ void e_label_init()
     http_get_todo_list(true);
     http_bind_user(true);
 
-    m_espnow_init();  
+    // m_espnow_init();  
 
-    #ifdef SLAVE_TAG
-    //断开wifi保持电量
-    m_wifi_disconnect();
-    #endif
     ESP_LOGE("fuck fuck","start your new day!!!\n");
 }
 

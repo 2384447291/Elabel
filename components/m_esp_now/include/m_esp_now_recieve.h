@@ -39,8 +39,25 @@ void deal_recieve_esp_now_msg(m_espnow_event_recv_cb_t* m_deal_recieve)
         {
             memcpy(peer_mac_addr[peer_count], peer_MAC, 6);
             peer_count++;
+            Add_peer(PEER_CHANEEL, peer_MAC);
             ESP_LOGI(ESP_NOW,"MAC "MACSTR" successful peer.\n",MAC2STR(peer_MAC));
         }
+        //并且反馈一条收到了的消息
+        uint8_t send_msg[7];
+        for (size_t i = 0; i < 6; i++) {
+            send_msg[i] = m_broadcast_mac[i];
+        }
+        send_msg[6] = 0xFF;
+        // 发送广播数据
+        esp_err_t err;
+        err = esp_now_send(peer_MAC, (uint8_t *)send_msg, sizeof(send_msg));
+        if (err!= ESP_OK)
+        {
+            ESP_LOGE(ESP_NOW, "Send peer broadcat error.\n");
+            ESP_LOGE(ESP_NOW, "Error occurred: %s", esp_err_to_name(err)); // 打印错误信息
+        }   
+
+
         #endif
 
 
