@@ -1,10 +1,10 @@
-#ifndef CHOOSINGTASKSTATE_HPP
-#define CHOOSINGTASKSTATE_HPP
+#ifndef FOCUSTASKSTATE_HPP
+#define FOCUSTASKSTATE_HPP
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 
-class ChoosingTaskState : public State<ElabelController>
+class FocusTaskState : public State<ElabelController>
 {
 private:
 
@@ -14,15 +14,11 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    void scroll_to_center(lv_obj_t *container, lv_obj_t *child);
-    void resize_task();
-
-    static ChoosingTaskState* Instance()
+    static FocusTaskState* Instance()
     {
-        static ChoosingTaskState instance;
+        static FocusTaskState instance;
         return &instance;
     }
 };
-
 
 #endif

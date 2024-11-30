@@ -22,6 +22,7 @@ extern "C" {
 #endif
 void control_gpio_init(void);
 button_interrupt get_button_interrupt(void);
+encoder_interrupt get_encoder_interrupt(void); 
 #ifdef __cplusplus
 }
 #endif

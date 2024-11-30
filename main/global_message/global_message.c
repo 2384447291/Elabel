@@ -21,6 +21,10 @@ EventGroupHandle_t get_eventgroupe(void) {
 bool is_syset_time = false;
 time_t now = 0;
 struct tm timeinfo = {0};
+uint32_t elabelUpdateTick = 0;
+TaskNode *task_list = NULL;
+uint8_t tasklen = 0;
+uint8_t last_tasklen = 0;
 //--------------------------------------SNTP时间同步函数-----------------------------------------//
 // void initialize_sntp(void)
 // {
@@ -337,6 +341,195 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
     list->size++;
     ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, focus state is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus);
 }
+
+TaskNode* create_task(const char* task_content) {
+    TaskNode *new_task = (TaskNode *)malloc(sizeof(TaskNode));
+    if (new_task == NULL) {
+        printf("内存分配失败\n");
+        return NULL;
+    }
+    printf("create_task before dup: %s\n",task_content);
+    new_task->task = strdup(task_content);  // 复制任务内容
+    new_task->next = NULL;
+    return new_task;
+}
+
+//修改任务内容
+void modify_task(TaskNode *head, int position, const char *task_content) {
+    TaskNode *temp = head;
+    int index = 0;
+
+    // 遍历链表直到找到指定位置的任务
+    while (temp != NULL) {
+        if (index == position) {
+            free(temp->task);  // 释放原任务字符串的内存
+            temp->task = strdup(task_content);  // 复制新的任务内容
+            printf("任务 \"%s\" 修改成功！\n", task_content);
+            lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
+            lv_obj_t *ui_tmpLabel = lv_obj_get_child(ui_tmpButton, 0);
+            lv_label_set_text(ui_tmpLabel, task_content);
+            return;
+        }
+        temp = temp->next;
+        index++;
+    }
+    // 如果超出了链表长度，打印错误信息
+    printf("指定位置的任务不存在！\n");
+}
+
+// 添加任务到链表末尾
+void add_task(TaskNode **head, const char *task_content) {
+
+    if(get_task_position(*head,task_content) != -1)
+    {
+        printf("任务已存在！\n");
+        return;
+    }
+
+    TaskNode *new_task = create_task(task_content);
+    if (*head == NULL) {
+        *head = new_task;  // 如果链表为空，设置为头结点
+    } else {
+        TaskNode *temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = new_task;
+    }
+    lv_obj_t *ui_tmpButton = lv_btn_create(ui_Container3);
+    lv_obj_set_width(ui_tmpButton, 130);
+    lv_obj_set_height(ui_tmpButton, 24);
+    lv_obj_set_align(ui_tmpButton, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_tmpButton, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_tmpButton, lv_color_hex(0xF6F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_tmpButton, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_tmpButton, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *ui_tmpLabel = lv_label_create(ui_tmpButton);
+    lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_tmpLabel, "Task3");
+    lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    printf("任务 \"%s\" 添加成功！\n", task_content);
+    tasklen++;
+}
+
+// 删除指定位置的任务
+void delete_task(TaskNode **head, int position) {
+    if (*head == NULL) {
+        printf("任务列表为空，无法删除任务！\n");
+        return;
+    }
+
+    if(position >= tasklen || position < 0)
+    {
+        printf("指定位置的任务不存在！\n");
+        return;
+    }
+
+    TaskNode *temp = *head;
+
+    // 删除头结点
+    if (position == 0) {
+        *head = temp->next;
+        printf("任务 \"%s\" 已删除\n", temp->task);
+        free(temp->task);  // 释放任务字符串的内存
+        free(temp);        // 释放节点的内存
+        tasklen--;
+        return;
+    }
+
+    // 找到要删除任务的前一个节点
+    for (int i = 0; temp != NULL && i < position - 1; i++) {
+        temp = temp->next;
+    }
+
+    // 如果找不到任务
+    if (temp == NULL || temp->next == NULL) {
+        printf("指定位置的任务不存在！\n");
+        return;
+    }
+
+    TaskNode *next = temp->next->next;
+    printf("任务 \"%s\" 已删除\n", temp->next->task);
+    tasklen--;
+    free(temp->next->task);  // 释放任务字符串的内存
+    free(temp->next);        // 释放节点的内存
+
+    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
+    lv_obj_del(ui_tmpButton);
+
+    temp->next = next;
+}
+
+// 打印任务列表
+void print_tasks(TaskNode *head) {
+    TaskNode *temp = head;
+    int index = 0;
+    printf("任务列表:\n");
+    while (temp != NULL) {
+        printf("任务[%d]: %s\n", index, temp->task);
+        temp = temp->next;
+        index++;
+    }
+}
+
+// 释放所有任务的内存
+void free_tasks(TaskNode *head) {
+    TaskNode *temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp->task);  // 释放任务字符串的内存
+        free(temp);        // 释放节点的内存
+    }
+    task_list = NULL;
+    tasklen = 0;
+}
+
+char* find_task_by_position(TaskNode *head, int position) {
+    TaskNode *temp = head;
+    int index = 0;
+
+    // 遍历链表直到找到指定位置的任务
+    while (temp != NULL) {
+        if (index == position) {
+            return temp->task;  // 找到任务，返回节点指针
+        }
+        temp = temp->next;
+        index++;
+    }
+
+    // 如果超出了链表长度，返回 NULL
+    return NULL;
+}
+
+int get_task_position(TaskNode *head, const char *task_content)
+{
+    TaskNode *temp = head;
+    int index = 0;
+
+    // 遍历链表直到找到指定位置的任务
+    while (temp != NULL) {
+        if (strcmp(temp->task,task_content) == 0) {
+            return index;  // 找到任务，返回节点指针
+        }
+        temp = temp->next;
+        index++;
+    }
+
+    // 如果超出了链表长度，返回 NULL
+    return -1;
+}
+
+
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 
 

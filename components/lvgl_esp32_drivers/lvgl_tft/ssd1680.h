@@ -18,8 +18,15 @@ extern "C"
 #endif
 #include "sdkconfig.h"
 
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 250
+/* Backward compatibility for LV_HOR_RES_MAX & LV_VER_RES_MAX */
+#define LV_HOR_RES_MAX 128
+#define LV_VER_RES_MAX 250
+
 #define EPD_PANEL_WIDTH          LV_HOR_RES_MAX   /* 128 */
 #define EPD_PANEL_HEIGHT         LV_VER_RES_MAX  /* 296 */
+
 
 /* 128 = panel width */
 #define SSD1680_COLUMNS          (EPD_PANEL_WIDTH / 8)

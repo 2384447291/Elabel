@@ -162,7 +162,7 @@ extern "C" {
 #elif defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_PCD8544)
 #define SPI_TFT_CLOCK_SPEED_HZ  (4*1000*1000)
 #else
-#define SPI_TFT_CLOCK_SPEED_HZ  (40*1000*1000)
+#define SPI_TFT_CLOCK_SPEED_HZ  (10*1000*1000)
 #endif
 
 #endif
