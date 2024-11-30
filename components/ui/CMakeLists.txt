@@ -1,0 +1,14 @@
+idf_component_register(SRCS screens/ui_HalfmindScreen.c
+    screens/ui_OTAScreen.c
+    screens/ui_ActivateScreen.c
+    screens/ui_TaskScreen.c
+    screens/ui_FocusScreen.c
+    ui.c
+    components/ui_comp_hook.c
+    ui_helpers.c
+    images/ui_img_1859145046.c
+    images/ui_img_1460800525.c
+    images/ui_img_1747580854.c
+    images/ui_img_erweima_png.c
+    INCLUDE_DIRS "."
+    REQUIRES lvgl)

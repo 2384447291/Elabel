@@ -44,7 +44,7 @@
 #define SSD1680_PANEL_LAST_GATE	        (EPD_PANEL_NUMOF_COLUMS - 1)
 
 #define SSD1680_PIXELS_PER_BYTE		    8
-#define EPD_PARTIAL_CNT                 5
+#define EPD_PARTIAL_CNT                 0
 
 //uint8_t ssd1680_scan_mode = SSD1680_DATA_ENTRY_XIYDX; //another approach
 uint8_t ssd1680_scan_mode = SSD1680_DATA_ENTRY_XIYIY; //as per the il3820 driver
@@ -74,44 +74,135 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
 {
     /* Each byte holds the data of 8 pixels, linelen is the number of bytes
      * we need to cover a line of the display. */
-    size_t linelen = EPD_PANEL_WIDTH / 8; //SSD1680_COLUMNS = (EPD_PANEL_WIDTH / 8)
+    size_t linelen = (EPD_PANEL_WIDTH / 8); //SSD1680_COLUMNS = (EPD_PANEL_WIDTH / 8)
     uint8_t *buffer = (uint8_t *) color_map;
     uint16_t x_addr_counter = 0;
     uint16_t y_addr_counter = 0;
     
     /* Set the cursor at the beginning of the graphic RAM */
-#if defined (CONFIG_LV_DISPLAY_ORIENTATION_PORTRAIT)
-    x_addr_counter = EPD_PANEL_WIDTH - 1;
-    y_addr_counter = EPD_PANEL_HEIGHT - 1;
-#endif
-    ssd1680_init();
+// #if defined (CONFIG_LV_DISPLAY_ORIENTATION_PORTRAIT)
+//     x_addr_counter = EPD_PANEL_WIDTH - 1;
+//     y_addr_counter = EPD_PANEL_HEIGHT - 1;
+// #endif
+    // ssd1680_init();
     
+    // if (!partial_counter) {
+    //     ESP_LOGD(TAG, "Refreshing in FULL");
+    //     ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+    //     for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+    //         ssd1680_send_data(buffer, linelen);
+    //         buffer += SSD1680_COLUMNS;
+    //     }
+    //     ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+    //     for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+    //         ssd1680_send_data(buffer, linelen);
+    //         buffer += SSD1680_COLUMNS;
+    //     }
+    //     ssd1680_update_display(false);
+    //     partial_counter = EPD_PARTIAL_CNT;
+    // } else {
+    //     //update partial
+    //     ssd1680_hw_reset();
+    //     ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_part, 1);
+    //     ssd1680_set_window(area->x1, area->x2, area->y1, area->y2);
+    //     ssd1680_set_cursor(x_addr_counter, y_addr_counter);
+        
+    //     ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+    //     for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++) {
+    //         ssd1680_send_data(buffer, linelen);
+    //         buffer += SSD1680_COLUMNS; //(128/8)x296 = 4736
+    //     }
+    //     ssd1680_update_display(true);
+    //     partial_counter--;
+    // }
+    // ssd1680_deep_sleep();
+    // /* IMPORTANT!!!
+    //  * Inform the graphics library that you are ready with the flushing */
+    // lv_disp_flush_ready(drv);
+
     if (!partial_counter) {
-        ESP_LOGD(TAG, "Refreshing in FULL");
+        ssd1680_init();
+        // ssd1680_set_cursor(area->y1, area->x1);
+
         ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
         for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
             ssd1680_send_data(buffer, linelen);
             buffer += SSD1680_COLUMNS;
         }
+
+        buffer = (uint8_t *) color_map;
+        
+        ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+        for(int i = 0;i < 4000;i++)
+        {
+            uint8_t val_buf = ~buffer[i];
+            ssd1680_send_data(&val_buf, 1);
+        }
+        ssd1680_update_display(false);
+        partial_counter = EPD_PARTIAL_CNT;
+    } else {
+        ssd1680_init();
+        // ssd1680_hw_reset();
+        // ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_init, 1);
+        //     // X = 122 - y - 1;
+        //     // Y = x;
+        // uint16_t X1 = 122 - area->y2 - 1;
+        // uint16_t X2 = 122 - area->y1 - 1;
+        // uint16_t Y1 = area->x1;
+        // uint16_t Y2 = area->x2;
+        // ssd1680_set_window(Y1, Y2, X1, X2);
+        // ssd1680_set_cursor(Y1, X2);
+
+        // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+
+        // buffer += (X1+8) * Y1 / 8;
+
+        // int new_line_len = ((Y2 - Y1 + 1)) / 8;
+        ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+            ssd1680_send_data(buffer, linelen);
+            buffer += SSD1680_COLUMNS;
+        }
+
+        buffer = (uint8_t *) color_map;
+        
+        ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+        for(int i = 0;i < 4000;i++)
+        {
+            uint8_t val_buf = ~buffer[i];
+            ssd1680_send_data(&val_buf, 1);
+        }
+        uint8_t tmp_data = 0xF4;
+        ssd1680_write_cmd(0x22, &tmp_data, 1);
+        ssd1680_write_cmd(0x20, NULL, 0);
+        ssd1680_waitbusy(20);
+        ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+            ssd1680_send_data(buffer, linelen);
+            buffer += SSD1680_COLUMNS;
+        }
+
+        buffer = (uint8_t *) color_map;
+        
         ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
         for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
             ssd1680_send_data(buffer, linelen);
             buffer += SSD1680_COLUMNS;
         }
-        ssd1680_update_display(false);
-        partial_counter = EPD_PARTIAL_CNT;
-    } else {
-        //update partial
-        ssd1680_hw_reset();
-        ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_part, 1);
-        ssd1680_set_window(area->x1, area->x2, area->y1, area->y2);
-        ssd1680_set_cursor(x_addr_counter, y_addr_counter);
-        
+        uint16_t X1 = 122 - area->y2 - 1;
+        uint16_t X2 = 122 - area->y1 - 1;
+        uint16_t Y1 = area->x1;
+        uint16_t Y2 = area->x2;
+        ssd1680_set_window(X1,X2,Y1,Y2);
+        ssd1680_set_cursor(X1,Y1);
+
         ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++) {
-            ssd1680_send_data(buffer, linelen);
-            buffer += SSD1680_COLUMNS; //(128/8)x296 = 4736
+        buffer = X1/8 + Y1*16;
+        for(int i = 0;i<(X2-X1+1)*(Y2-Y1+1)/8;i++)
+        {
+            ssd1680_send_data(&buffer[i], 1);
         }
+
         ssd1680_update_display(true);
         partial_counter--;
     }
@@ -133,8 +224,19 @@ static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, ui
 {
     uint8_t tmp[4] = {0};
 
-    tmp[0] = sx / 8;
-    tmp[1] = ex / 8; //0x0F-->(15+1)*8=128 -> ex = EPD_PANEL_WIDTH
+    if(!partial_counter)
+    {
+        tmp[0] = sx / 8;
+        tmp[1] = ex / 8; //0x0F-->(15+1)*8=128 -> ex = EPD_PANEL_WIDTH
+    }
+    else
+    {
+        tmp[0] = sx;
+        tmp[1] = ex;
+    }
+
+    // tmp[0] = 0;
+    // tmp[1] = 0x0F; //0x0F-->(15+1)*8=128 -> ex = EPD_PANEL_WIDTH
     //tmp[1] = (ex / 8) - 1;
 
     /* Set X address start/end */
@@ -142,10 +244,25 @@ static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, ui
 
     //0x0127-->(295+1)=296
     //a % b = a - (a/b)*b
-    tmp[0] = ys % 256;
-    tmp[1] = ys / 256;
-    tmp[2] = ye % 256;
-    tmp[3] = ye / 256;
+    if(!partial_counter)
+    {
+        tmp[0] = ye % 256;
+        tmp[1] = ye / 256;
+        tmp[2] = ys % 256;
+        tmp[3] = ys / 256;
+    }
+    else
+    {
+        tmp[0] = ys % 256;
+        tmp[1] = ys / 256;
+        tmp[2] = ye % 256;
+        tmp[3] = ye / 256;
+    }
+
+    // tmp[0] = 0x27;
+    // tmp[1] = 0x01;
+    // tmp[2] = 0x00;
+    // tmp[3] = 0x00;
     /* Set Y address start/end */
     ssd1680_write_cmd(SSD1680_CMD_RAM_YPOS_CTRL, tmp, 4);
 }
@@ -160,11 +277,21 @@ static inline void ssd1680_set_cursor(uint16_t sx, uint16_t ys)
 {
     uint8_t tmp[2] = {0};
 
-    tmp[0] = sx / 8;
+    if (!partial_counter)
+    {
+        tmp[0] = sx / 8;
+    }
+    else
+    {
+        tmp[0] = sx;
+    }
+    // tmp[0] = 0x00;
     ssd1680_write_cmd(SSD1680_CMD_RAM_XPOS_CNTR, tmp, 1);
 
     tmp[0] = ys % 256;
     tmp[1] = ys / 256;
+    // tmp[0] = 0x27;
+    // tmp[1] = 0x01;
     ssd1680_write_cmd(SSD1680_CMD_RAM_YPOS_CNTR, tmp, 2);
 }
 
@@ -177,11 +304,13 @@ static void ssd1680_update_display(bool isPartial)
     uint8_t tmp = 0;
 
     if(isPartial) {
-    tmp = 0xFF; //Display mode 2 - Partial update
+    tmp = 0x1C; //Display mode 2 - Partial update
     } else {
-    tmp = 0xF7; //Display mode 1 - Full update
+    tmp = 0xC7; //Display mode 1 - Full update
     }
+    // tmp = 0xF7;
     /* Display Update Control */
+    // ssd1680_write_cmd(SSD1680_CMD_UPDATE_CTRL2, &tmp, 1);
     ssd1680_write_cmd(SSD1680_CMD_UPDATE_CTRL2, &tmp, 1);
     /* Activate Display Update Sequence */
     ssd1680_write_cmd(SSD1680_CMD_MASTER_ACTIVATION, NULL, 0);
@@ -201,36 +330,81 @@ void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf,
     uint16_t byte_index = 0;
     uint8_t  bit_index = 0;
     
-#if defined (CONFIG_LV_DISPLAY_ORIENTATION_PORTRAIT)
+// #if defined (CONFIG_LV_DISPLAY_ORIENTATION_PORTRAIT)
     //This part doesn't work for now. Display prints random dots.
-    byte_index = x + ((y >> 3) * EPD_PANEL_HEIGHT);
-    bit_index  = y & 0x7;
+    // byte_index = x + ((y >> 3) * EPD_PANEL_HEIGHT);
+    // bit_index  = y & 0x7;
 
-    if (color.full) {
-        BIT_SET(buf[byte_index], 7 - bit_index);
-    } else {
-        uint16_t mirrored_idx = (EPD_PANEL_HEIGHT - x) + ((y >> 3) * EPD_PANEL_HEIGHT);
-        BIT_CLEAR(buf[mirrored_idx], 7 - bit_index);
-    }
-#elif defined (CONFIG_LV_DISPLAY_ORIENTATION_LANDSCAPE)
-    byte_index = y + ((x >> 3) * EPD_PANEL_HEIGHT);
-    bit_index  = x & 0x7;
+    // if (color.full) {
+    //     BIT_SET(buf[byte_index], 7 - bit_index);
+    // } else {
+    //     uint16_t mirrored_idx = (EPD_PANEL_HEIGHT - x) + ((y >> 3) * EPD_PANEL_HEIGHT);
+    //     BIT_CLEAR(buf[mirrored_idx], 7 - bit_index);
+    // }
+    // uint32_t byte_index = (y * (buf_w / 8)) + (x / 8);
+    // uint8_t bit_index = 7-(x % 8); // Adjust for the correct bit in the byte
 
-    if (color.full) {
-        BIT_SET(buf[byte_index], 7 - bit_index);
+    // // Assuming color.full gives you the grayscale value (0-255)
+    // uint8_t grayscale_value = color.full; // Full 8-bit grayscale
+
+    // // Set the corresponding buffer value based on grayscale
+    // if (grayscale_value > 127) {
+    //     // Set the pixel to black
+    //     BIT_SET(buf[byte_index], bit_index);
+    // } else {
+    //     // Clear the pixel (white)
+    //     BIT_CLEAR(buf[byte_index], bit_index);
+    // }
+// #elif defined (CONFIG_LV_DISPLAY_ORIENTATION_LANDSCAPE)
+    // byte_index = y + ((x >> 3) * EPD_PANEL_HEIGHT);
+    // bit_index  = x & 0x7;
+
+    // if (color.full) {
+    //     BIT_SET(buf[byte_index], 7 - bit_index);
+    // } else {
+    //     BIT_CLEAR(buf[byte_index], 7 - bit_index);
+    // }
+/* mirrored index */
+    // uint16_t mirrored_idx = (EPD_PANEL_HEIGHT - x) + ((y >> 3) * EPD_PANEL_HEIGHT);
+    // byte_index = x + ((y >> 3) * EPD_PANEL_HEIGHT);
+    // bit_index  = y & 0x7;
+    // /* 1 means white, 0 means black */
+    // /* note that the bit index is inverted in place */
+    // if (color.full == 0) {
+    //     BIT_SET(buf[mirrored_idx - 1], 7 - bit_index);
+    // } else {
+    //     BIT_CLEAR(buf[mirrored_idx - 1], 7 - bit_index);
+    // }
+    
+    uint16_t X,Y;
+    uint32_t addr;
+    uint8_t Rdata;
+    X = 122 - y - 1;
+    Y = x;
+    uint16_t widthByte = 16;
+    addr = X/8 + Y * widthByte;
+    Rdata = buf[addr];
+    if(color.full == 0) {
+        buf[addr] = Rdata & ~(0x80 >> (X % 8));
     } else {
-        BIT_CLEAR(buf[byte_index], 7 - bit_index);
+        buf[addr] = Rdata | (0x80 >> (X % 8));
     }
-#else
-#error "Unsupported orientation used"
-#endif
+
+// #else
+// #error "Unsupported orientation used"
+// #endif
 }
 
 /* Required by LVGL */
 void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area)
 {
-    area->x1 = area->x1 & ~(0x7);
-    area->x2 = area->x2 |  (0x7);
+    // area->y1 = area->y1 & ~(0x7);
+    // area->y2 = area->y2 |  (0x7);
+    area->x1 = 0;
+    area->x2 = 250 - 1;
+    area->y1 = 0;
+    area->y2 = 122 - 1;
+    // printf("area->x1: %d, area->x2: %d, area->y1: %d, area->y2: %d\n", area->x1, area->x2, area->y1, area->y2);
     
     /* Update the areas as needed.
      * For example it makes the area to start only on 8th rows and have Nx8 pixel height.*/
@@ -240,6 +414,7 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area)
 void ssd1680_init(void)
 {
     uint8_t tmp[3] = {0};
+    uint8_t tmpdata = 0;
 
     /* Initialize non-SPI GPIOs */
     gpio_pad_select_gpio(SSD1680_DC_PIN);
@@ -264,34 +439,58 @@ void ssd1680_init(void)
 
     ssd1680_waitbusy(SSD1680_WAIT);
 
-    /* Driver output control */
-    tmp[0] = (EPD_PANEL_HEIGHT - 1) & 0xFF; //0x27
-    tmp[1] = (EPD_PANEL_HEIGHT >> 8 );      //0x01
-    tmp[2] = 0x00; // GD = 0; SM = 0; TB = 0;  //0x00
-    ssd1680_write_cmd(SSD1680_CMD_GDO_CTRL, tmp, 3);
+    if(!partial_counter)
+    {
+        tmpdata = 0x80;
+        ssd1680_write_cmd(0x18, &tmpdata, 1);
+        tmpdata = 0xB1;
+        ssd1680_write_cmd(0x22, &tmpdata, 1);
+        ssd1680_write_cmd(0x20, NULL, 0);
+        ssd1680_waitbusy(SSD1680_WAIT);
+        tmp[0] = 0x5A;
+        tmp[1] = 0x00;
+        ssd1680_write_cmd(0x1A, tmp, 2);
+        tmpdata = 0x91;
+        ssd1680_write_cmd(0x22, &tmpdata, 1);
+        ssd1680_write_cmd(0x20, NULL, 0);
+    }
+    else
+    {
+        /* Driver output control */
+        tmp[0] = (EPD_PANEL_HEIGHT - 1) & 0xFF; //0x27
+        tmp[1] = (EPD_PANEL_HEIGHT >> 8 );      //0x01
+        tmp[2] = 0x00; // GD = 0; SM = 0; TB = 0;  //0x00
+        // tmp[0] = 0x27; //0x27
+        // tmp[1] = 0x01;      //0x01
+        // tmp[2] = 0x00; // GD = 0; SM = 0; TB = 0;  //0x00
+        ssd1680_write_cmd(SSD1680_CMD_GDO_CTRL, tmp, 3);
 
-    /* Configure entry mode  */
-    ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &ssd1680_scan_mode, 1);
-    
-    /* Configure the window */
-    ssd1680_set_window(0, EPD_PANEL_WIDTH - 1, 0, EPD_PANEL_HEIGHT - 1);
-    
-    /* Select border waveform for VBD */
-    ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_init, 1);
-    
-    /* Display update control 1 */
-    tmp[0] = 0x00; //A7:0 Normal RAM content option
-    tmp[1] = 0x80; //B7 Source Output Mode: Available source from S8 to S167
-    tmp[2] = 0x00; //do not send
-    ssd1680_write_cmd(SSD1680_CMD_UPDATE_CTRL1, tmp, 2);
-    
-    /* Read Build-in Temperature sensor */
-    tmp[0] = 0x80; //A7:0 Internal sensor
-    tmp[1] = 0x00; //do not send
-    ssd1680_write_cmd(SSD1680_CMD_READ_INT_TEMP, tmp, 1);
-    
-    /*set RAM x (0) and y (295)  address count */
-    ssd1680_set_cursor(0, EPD_PANEL_HEIGHT - 1);
+        // /* Configure entry mode  */
+        // // ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &ssd1680_scan_mode, 1);
+        tmpdata = 0x01;
+        ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &tmpdata, 1);
+        
+        // /* Configure the window */
+        ssd1680_set_window(0, EPD_PANEL_WIDTH - 1, 0, 296 - 1);
+        
+        // /* Select border waveform for VBD */
+        ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_init, 1);
+        
+        // /* Display update control 1 */
+        tmp[0] = 0x00; //A7:0 Normal RAM content option
+        tmp[1] = 0x80; //B7 Source Output Mode: Available source from S8 to S167
+        tmp[2] = 0x00; //do not send
+        ssd1680_write_cmd(SSD1680_CMD_UPDATE_CTRL1, tmp, 2);
+        
+        // /* Read Build-in Temperature sensor */
+        tmp[0] = 0x80; //A7:0 Internal sensor
+        tmp[1] = 0x00; //do not send
+        ssd1680_write_cmd(SSD1680_CMD_READ_INT_TEMP, tmp, 1);
+        
+        // /*set RAM x (0) and y (295)  address count */
+        ssd1680_set_cursor(0, 296-1);
+    }
+
     ssd1680_waitbusy(SSD1680_WAIT);
 }
 

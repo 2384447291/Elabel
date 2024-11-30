@@ -13,7 +13,7 @@ public:
     virtual void Enter(ElabelController* pOwner);
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
-
+    uint32_t enterOperatingTime;
     static OperatingTaskState* Instance()
     {
         static OperatingTaskState instance;

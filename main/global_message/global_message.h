@@ -9,6 +9,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "Firmware_define.h"
+#include "ui.h"
 
 #define FIRMWARE_VERSION "2.0.0"
 
@@ -83,9 +84,36 @@ typedef struct {
     int size;         // 当前数组中的元素数量
 } TodoList;
 
+typedef struct TaskNode {
+    char *task;               // 任务字符串
+    struct TaskNode *next;    // 下一个任务节点
+} TaskNode;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// 创建新任务
+TaskNode* create_task(const char* task_content);
+
+void modify_task(TaskNode *head, int position, const char *task_content);
+
+// 添加任务到链表末尾
+void add_task(TaskNode **head, const char *task_content);
+
+// 删除指定位置的任务
+void delete_task(TaskNode **head, int position);
+
+// 打印任务列表
+void print_tasks(TaskNode *head);
+
+// 释放所有任务的内存
+void free_tasks(TaskNode *head);
+
+char* find_task_by_position(TaskNode *head, int position);
+
+int get_task_position(TaskNode *head, const char *task_content);
+
 task_list_state get_task_list_state(void);
 
 void set_task_list_state(task_list_state _task_list_state);
@@ -130,6 +158,18 @@ typedef struct
     char *createTime;
 
 } Global_data;
+
+typedef enum {
+    TASK_NO_CHANGE,
+    ADD_TASK,
+    DELETE_TASK,
+    UPDATE_TASK,
+} APP_task_state;
+
+extern uint32_t elabelUpdateTick;
+extern TaskNode *task_list;
+extern uint8_t tasklen;
+extern uint8_t last_tasklen;
 
 #ifdef __cplusplus
 extern "C" {

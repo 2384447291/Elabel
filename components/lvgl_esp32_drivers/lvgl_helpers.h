@@ -19,11 +19,11 @@ extern "C" {
 #include "lvgl_tft/esp_lcd_backlight.h"
 #include "lvgl_touch/touch_driver.h"
 
-#define DISPLAY_WIDTH 250
-#define DISPLAY_HEIGHT 112
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 250
 /* Backward compatibility for LV_HOR_RES_MAX & LV_VER_RES_MAX */
-#define LV_HOR_RES_MAX 250
-#define LV_VER_RES_MAX 112
+#define LV_HOR_RES_MAX 128
+#define LV_VER_RES_MAX 250
 
 /*********************
  *      DEFINES
@@ -73,7 +73,7 @@ extern "C" {
 #elif defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_IL3820)
 #define DISP_BUF_SIZE (LV_VER_RES_MAX * IL3820_COLUMNS)
 #elif defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_SSD1680)
-#define DISP_BUF_SIZE (LV_VER_RES_MAX * SSD1680_COLUMNS)
+#define DISP_BUF_SIZE ((LV_VER_RES_MAX * LV_VER_RES_MAX) / 8)
 #elif defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_RA8875
 #define DISP_BUF_SIZE  (LV_HOR_RES_MAX * 40)
 #elif defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_GC9A01)
