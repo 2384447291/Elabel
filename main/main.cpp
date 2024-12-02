@@ -6,6 +6,7 @@
 #include "freertos/timers.h"
 #include "ui.h"
 #include "lvgl_helpers.h"
+#include "ssd1680.h"
 
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
@@ -48,7 +49,35 @@ void e_label_init()
     http_get_latest_version(true);
     if(get_global_data()->newest_firmware_url!=NULL)
     {
-        start_ota();
+        _ui_screen_change(&ui_OTAScreen,LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_OTAScreen_screen_init);
+        lv_label_set_text(ui_Label3, get_global_data()->version);
+
+        ElabelStateSet(ELSE_STATE);
+        uint32_t ota_Wait_tick = 0;
+        while(true)
+        {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            ota_Wait_tick++;
+            EventBits_t bits;
+            bits = xEventGroupWaitBits(get_eventgroupe(), BUTTON_TASK_BIT | ENCODER_TASK_BIT, pdTRUE, pdFALSE, 0); //不阻塞等待
+            if (bits & BUTTON_TASK_BIT) {
+                button_interrupt temp_interrupt = get_button_interrupt();
+                if(temp_interrupt == short_press)
+                {
+                    start_ota();
+                    break;
+                }
+            }
+            if(bits & ENCODER_TASK_BIT)
+            {
+                encoder_interrupt temp_interrupt = get_encoder_interrupt();
+                break;
+            }
+            if(ota_Wait_tick >= 300)
+            {
+                break;
+            }
+        }
     }
     else{
         ESP_LOGI("OTA", "No need OTA, newest version");
@@ -176,7 +205,10 @@ extern "C" void app_main(void)
     ElabelController::Instance()->Init();//Elabel控制器初始化
     print_memory_status();
     vTaskDelay(3000 / portTICK_PERIOD_MS);
-    _ui_screen_change(&uic_TaskScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_TaskScreen_screen_init);
+
+    _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
+    ElabelStateSet(HALFMIND_STATE);
+
     print_memory_status();
     elabelUpdateTick = 0;
     while(1)
@@ -185,12 +217,21 @@ extern "C" void app_main(void)
         {
             printf("elabelUpdateTick = %d",elabelUpdateTick);
         }
-        ElabelController::Instance()->Update();
-
         // 检查 Wi-Fi 状态
         if (get_wifi_status() == 2) {
             e_label_init();
+
         }
+        else
+        {
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            elabelUpdateTick++;
+            continue;
+        }
+
+        ElabelController::Instance()->Update();
+
+
         vTaskDelay(10 / portTICK_PERIOD_MS);
         elabelUpdateTick++;
     }

@@ -6,6 +6,15 @@
 #ifndef SSD1680_H
 #define SSD1680_H
 
+typedef enum
+{
+    ELSE_STATE,
+    HALFMIND_STATE,
+    QRCODE_STATE,
+} bitmap_state;
+
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -112,10 +121,16 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area);
 void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w, lv_coord_t x, lv_coord_t y, lv_color_t color, lv_opa_t opa);
 
 void ssd1680_deep_sleep(void);
+void ElabelStateSet(bitmap_state state);
+bitmap_state GetElabelState();
+
+
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
+
+
 
 
 #endif /* __SSD1680_REGS_H__ */

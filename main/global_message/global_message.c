@@ -25,6 +25,7 @@ uint32_t elabelUpdateTick = 0;
 TaskNode *task_list = NULL;
 uint8_t tasklen = 0;
 uint8_t last_tasklen = 0;
+bool stop_mainTask = false;
 //--------------------------------------SNTP时间同步函数-----------------------------------------//
 // void initialize_sntp(void)
 // {
@@ -366,8 +367,11 @@ void modify_task(TaskNode *head, int position, const char *task_content) {
             temp->task = strdup(task_content);  // 复制新的任务内容
             printf("任务 \"%s\" 修改成功！\n", task_content);
             lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
-            lv_obj_t *ui_tmpLabel = lv_obj_get_child(ui_tmpButton, 0);
-            lv_label_set_text(ui_tmpLabel, task_content);
+            for(int i =0;i<5;i++)
+            {
+                lv_obj_t *ui_tmpLabel = lv_obj_get_child(ui_tmpButton, i);
+                lv_label_set_text(ui_tmpLabel, task_content);
+            }
             return;
         }
         temp = temp->next;
@@ -409,13 +413,41 @@ void add_task(TaskNode **head, const char *task_content) {
     lv_obj_set_style_border_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_tmpButton, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t *ui_tmpLabel = lv_label_create(ui_tmpButton);
-    lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_tmpLabel, "Task3");
-    lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    for(int i = 0;i<5;i++)
+    {
+        lv_obj_t *ui_tmpLabel = lv_label_create(ui_tmpButton);
+        lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);   /// 1
+        lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
+        lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tmpLabel, "Task3");
+        lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        if(i == 0)
+        {
+            lv_obj_set_x(ui_tmpLabel, 0);
+            lv_obj_set_y(ui_tmpLabel, 0);
+        }
+        else if(i == 1)
+        {
+            lv_obj_set_x(ui_tmpLabel, 1);
+            lv_obj_set_y(ui_tmpLabel, 0);
+        }
+        else if(i == 2)
+        {
+            lv_obj_set_x(ui_tmpLabel, -1);
+            lv_obj_set_y(ui_tmpLabel, 0);
+        }
+        else if(i == 3)
+        {
+            lv_obj_set_x(ui_tmpLabel, 0);
+            lv_obj_set_y(ui_tmpLabel, 1);
+        }
+        else if(i == 4)
+        {
+            lv_obj_set_x(ui_tmpLabel, 0);
+            lv_obj_set_y(ui_tmpLabel, -1);
+        }
+    }
 
     printf("任务 \"%s\" 添加成功！\n", task_content);
     tasklen++;

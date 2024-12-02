@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "global_message.h"
 
+
 class ElabelController;
 
 class ElabelFsm : public StateMachine<ElabelController>
@@ -27,7 +28,6 @@ class ElabelController
         void Init();
         APP_task_state APP_TASK(void);
         bool APP_FocusState_update(); 
-        bool stop_mainTask = false;
         bool first_time_to_sync_tasklist = true;
         uint32_t TimeCountdownOffset;
         uint32_t TimeCountdown;

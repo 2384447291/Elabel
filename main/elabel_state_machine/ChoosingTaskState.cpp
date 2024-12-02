@@ -19,13 +19,11 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     {
         _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
-        _ui_flag_modify(uic_textlabel5, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(uic_textlabel6, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
     else
     {
-        _ui_flag_modify(uic_textlabel5, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-        _ui_flag_modify(uic_textlabel6, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
         _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
@@ -79,15 +77,13 @@ void ChoosingTaskState::Execute(ElabelController* pOwner)
     {
         _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
 
-        _ui_flag_modify(uic_textlabel5, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-        _ui_flag_modify(uic_textlabel6, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
     else if(!tasklen && last_tasklen)
     {
         _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
-        _ui_flag_modify(uic_textlabel5, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(uic_textlabel6, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
     last_tasklen = tasklen;
 
@@ -150,19 +146,28 @@ void ChoosingTaskState::resize_task()
         lv_obj_get_coords(child, &child_area);
         lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
         lv_coord_t diff_y = LV_ABS(y_center - child_y_center);
-        lv_obj_t *label_child = lv_obj_get_child(child, 0);
         if(diff_y < 14)
         {
             lv_obj_set_size(child, 200, 36);
-            lv_obj_set_style_text_font(label_child, &lv_font_montserrat_16, 0);
             lv_obj_set_style_bg_color(child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_text_color(label_child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+            
+            for(int j = 0;j<lv_obj_get_child_cnt(child);j++)
+            {
+                lv_obj_t *label_child = lv_obj_get_child(child, j);
+                lv_obj_set_style_text_font(label_child, &lv_font_montserrat_22, 0);
+                lv_obj_set_style_text_color(label_child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+            }
         }
         else {
             lv_obj_set_size(child, 130, 24);
-            lv_obj_set_style_text_font(label_child, &lv_font_montserrat_12, 0);
             lv_obj_set_style_bg_color(child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_style_text_color(label_child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+
+            for(int j = 0;j<lv_obj_get_child_cnt(child);j++)
+            {
+                lv_obj_t *label_child = lv_obj_get_child(child, j);
+                lv_obj_set_style_text_font(label_child, &lv_font_montserrat_18, 0);
+                lv_obj_set_style_text_color(label_child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+            }
         }
     }
 }
