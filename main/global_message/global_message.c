@@ -400,6 +400,14 @@ void add_task(TaskNode **head, const char *task_content) {
         }
         temp->next = new_task;
     }
+
+    uint8_t child_count = lv_obj_get_child_cnt(ui_Container3);
+    lv_obj_t *empty_label = lv_obj_get_child(ui_Container3, child_count-1);
+    if(empty_label != NULL)
+    {
+        lv_obj_del(empty_label);
+    }
+
     lv_obj_t *ui_tmpButton = lv_btn_create(ui_Container3);
     lv_obj_set_width(ui_tmpButton, 130);
     lv_obj_set_height(ui_tmpButton, 24);
@@ -419,7 +427,7 @@ void add_task(TaskNode **head, const char *task_content) {
         lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);   /// 1
         lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
         lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
-        lv_label_set_text(ui_tmpLabel, "Task3");
+        lv_label_set_text(ui_tmpLabel, task_content);
         lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         if(i == 0)
@@ -449,6 +457,12 @@ void add_task(TaskNode **head, const char *task_content) {
         }
     }
 
+    ui_endlabel = lv_label_create(ui_Container3);
+    lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_endlabel, "\n\n\n");
+    
     printf("任务 \"%s\" 添加成功！\n", task_content);
     tasklen++;
 }

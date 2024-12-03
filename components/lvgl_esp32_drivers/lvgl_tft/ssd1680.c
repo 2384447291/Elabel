@@ -629,7 +629,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         ssd1680_init();
         if(elabel_state_bitmap == ELSE_STATE)
         {
-            // uint8_t *buffer = (uint8_t *) color_map;
+            buffer = (uint8_t *) color_map;
             // ssd1680_set_cursor(area->y1, area->x1);
 
             ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
@@ -778,7 +778,7 @@ static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, ui
     if(!partial_counter)
     {
         tmp[0] = sx / 8;
-        tmp[1] = ex / 8; //0x0F-->(15+1)*8=128 -> ex = EPD_PANEL_WIDTH
+        tmp[1] = ex / 8 ; //0x0F-->(15+1)*8=128 -> ex = EPD_PANEL_WIDTH
     }
     else
     {
@@ -930,7 +930,8 @@ void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf,
     uint16_t X,Y;
     uint32_t addr;
     uint8_t Rdata;
-    X = 122 - y - 1;
+    // X = 122 - y - 1;
+    X = y;
     Y = x;
     uint16_t widthByte = 16;
     addr = X/8 + Y * widthByte;
@@ -998,9 +999,11 @@ void ssd1680_init(void)
         ssd1680_write_cmd(0x22, &tmpdata, 1);
         ssd1680_write_cmd(0x20, NULL, 0);
         ssd1680_waitbusy(SSD1680_WAIT);
+
         tmp[0] = 0x5A;
         tmp[1] = 0x00;
         ssd1680_write_cmd(0x1A, tmp, 2);
+
         tmpdata = 0x91;
         ssd1680_write_cmd(0x22, &tmpdata, 1);
         ssd1680_write_cmd(0x20, NULL, 0);

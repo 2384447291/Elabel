@@ -49,10 +49,10 @@ void e_label_init()
     http_get_latest_version(true);
     if(get_global_data()->newest_firmware_url!=NULL)
     {
+        ElabelStateSet(ELSE_STATE);
         _ui_screen_change(&ui_OTAScreen,LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_OTAScreen_screen_init);
         lv_label_set_text(ui_Label3, get_global_data()->version);
 
-        ElabelStateSet(ELSE_STATE);
         uint32_t ota_Wait_tick = 0;
         while(true)
         {
@@ -201,15 +201,19 @@ extern "C" void app_main(void)
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     printf("Starting LVGL example\n");
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
-    print_memory_status();
+    // print_memory_status();
+    // vTaskDelay(2000 / portTICK_PERIOD_MS);
     ElabelController::Instance()->Init();//Elabel控制器初始化
-    print_memory_status();
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    // print_memory_status();
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
     ElabelStateSet(HALFMIND_STATE);
+    _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-    print_memory_status();
+    // print_memory_status();
     elabelUpdateTick = 0;
     while(1)
     {

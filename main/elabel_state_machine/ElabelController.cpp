@@ -15,7 +15,7 @@ ElabelController::ElabelController() : m_elabelFsm(this){}
 
 void ElabelController::Init()
 {
-    tasklen = 3;
+    tasklen = 0;
     last_tasklen = 0;
     task_list = NULL;
     TimeCountdownOffset = TimeCountdown = 300;
@@ -66,11 +66,11 @@ void ElabelFsm::HandleInput()
     //     }
     // }
 
-    if(elabelUpdateTick == 500)
-    {
-        _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
-        ElabelStateSet(HALFMIND_STATE);
-    }
+    // if(elabelUpdateTick == 500)
+    // {
+    //     _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
+    //     ElabelStateSet(HALFMIND_STATE);
+    // }
 
 }
 

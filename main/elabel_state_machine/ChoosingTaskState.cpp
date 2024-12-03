@@ -4,6 +4,7 @@
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"
+#include "ssd1306.h"
 
 void ChoosingTaskState::Init(ElabelController* pOwner)
 {
@@ -13,9 +14,11 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
     //ui
+    ElabelStateSet(ELSE_STATE);
+    ESP_LOGI("fucking enter"," fuck you %d\n",pOwner->chosenTaskNum);
     _ui_screen_change(&uic_TaskScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_TaskScreen_screen_init);
 
-    if(tasklen)
+    if(!tasklen)
     {
         _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
@@ -34,6 +37,15 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
+    if(lv_scr_act() != ui_TaskScreen)
+    {
+        ChoosingTaskState* pState = this;
+        pState->Enter(pOwner);
+        ESP_LOGI("choosing Task"," fuckyou %d\n",pOwner->chosenTaskNum);
+        
+        return;
+    }
+
     EventBits_t bits;
     // 等待事件位pdTRUE 表示当 BUTTON_TASK_BIT 被设置时，函数将清除该位。
     //pdFALSE 表示不关心其他位的状态,只有BUTTON_TASK_BIT 被设置时才会被触发
@@ -64,7 +76,7 @@ void ChoosingTaskState::Execute(ElabelController* pOwner)
             }
             pOwner->needFlashEpaper = true;
         }
-        if(elabelUpdateTick % 300 == 0)
+        if(elabelUpdateTick % 1000 == 0)
         {
             pOwner->chosenTaskNum++;
             if(pOwner->chosenTaskNum >= tasklen) pOwner->chosenTaskNum = 0;
@@ -87,7 +99,7 @@ void ChoosingTaskState::Execute(ElabelController* pOwner)
     }
     last_tasklen = tasklen;
 
-    if(pOwner->needFlashEpaper)
+    if(pOwner->needFlashEpaper && tasklen > 0)
     {
         //调用lvgl刷新屏幕
         // lv_roller_set_selected(ui_Roller1, chosenTaskNum, LV_ANIM_OFF);

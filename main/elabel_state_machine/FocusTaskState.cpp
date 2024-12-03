@@ -26,7 +26,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     for(int i=0;i<lv_obj_get_child_cnt(ui_Container5);i++)
     {
         lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
-        lv_label_set_text(child, "fuck");
+        lv_label_set_text(child, get_global_data()->m_todo_list->items[pOwner->chosenTaskNum].title);
     }
     char timestr[10] = "00:00";
     uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
