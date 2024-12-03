@@ -36,7 +36,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     sprintf(timestr, "%02d:%02d", minutes, seconds);
     for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
     {
-        lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+        lv_obj_t *child = lv_obj_get_child(ui_Container6, i);
         lv_label_set_text(child, timestr);
     }
 
@@ -99,7 +99,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         sprintf(timestr, "%02d:%02d", minutes, seconds);
         for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
         {
-            lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+            lv_obj_t *child = lv_obj_get_child(ui_Container6, i);
             lv_label_set_text(child, timestr);
         }
 
