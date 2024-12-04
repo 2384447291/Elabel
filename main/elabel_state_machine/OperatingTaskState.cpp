@@ -13,13 +13,11 @@ void OperatingTaskState::Init(ElabelController* pOwner)
 void OperatingTaskState::Enter(ElabelController* pOwner)
 {
     pOwner->TimeCountdown = pOwner->TimeCountdownOffset = 300;
-    lv_arc_set_bg_angles(ui_Arc1, 0, 30);
     // ui
     _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
-    _ui_flag_modify(uic_textlabel7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    _ui_flag_modify(ui_Container4, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
-    _ui_flag_modify(uic_textlabel3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    _ui_flag_modify(ui_Arc1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    _ui_flag_modify(ui_Container2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     pOwner->needFlashEpaper = true;
     enterOperatingTime = elabelUpdateTick;
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.\n");
@@ -64,9 +62,12 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
         uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
         // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
         sprintf(timestr, "%02d:%02d", minutes, seconds);
-        lv_label_set_text(uic_textlabel3, timestr);
-        uint16_t angle_value = ((float)total_seconds / 300.0f) * 30;
-        lv_arc_set_bg_angles(ui_Arc1, 0, angle_value);
+
+        for(int i = 0;i<lv_obj_get_child_cnt(ui_Container2);i++)
+        {
+            lv_obj_t *uic_textlabel = lv_obj_get_child(ui_Container2, i);
+            lv_label_set_text(uic_textlabel, timestr);
+        }
 
         pOwner->needFlashEpaper = false;
     }

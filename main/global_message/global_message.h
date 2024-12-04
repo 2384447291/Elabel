@@ -170,6 +170,7 @@ extern uint32_t elabelUpdateTick;
 extern TaskNode *task_list;
 extern uint8_t tasklen;
 extern uint8_t last_tasklen;
+extern bool stop_mainTask;
 
 #ifdef __cplusplus
 extern "C" {

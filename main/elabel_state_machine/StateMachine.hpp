@@ -19,7 +19,9 @@ public:
                                               m_pPreviousState(nullptr)
     {}
 
-    void SetCurrentState(State<controller_type>* _state){ m_pCurrentState = _state; }
+    void SetCurrentState(State<controller_type>* _state){ 
+        m_pCurrentState = _state;
+        }
     void SetPreviousState(State<controller_type>* _state){ m_pPreviousState = _state; }
 
     void Update()

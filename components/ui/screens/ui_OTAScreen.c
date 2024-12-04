@@ -13,38 +13,141 @@ void ui_OTAScreen_screen_init(void)
     ui_textlabel = lv_label_create(ui_OTAScreen);
     lv_obj_set_width(ui_textlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_textlabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_textlabel, 1);
-    lv_obj_set_y(ui_textlabel, -38);
+    lv_obj_set_x(ui_textlabel, 0);
+    lv_obj_set_y(ui_textlabel, -37);
     lv_obj_set_align(ui_textlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_textlabel, "New Firmware\n      Available");
-    lv_obj_set_style_text_color(ui_textlabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_textlabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_textlabel, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_textlabel, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_textlabel1 = lv_label_create(ui_OTAScreen);
     lv_obj_set_width(ui_textlabel1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_textlabel1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_textlabel1, 2);
-    lv_obj_set_y(ui_textlabel1, 0);
+    lv_obj_set_x(ui_textlabel1, -1);
+    lv_obj_set_y(ui_textlabel1, -37);
     lv_obj_set_align(ui_textlabel1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_textlabel1, "Click - Apply");
-    lv_obj_set_style_text_color(ui_textlabel1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_textlabel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_textlabel1, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_textlabel1, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel1, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_textlabel2 = lv_label_create(ui_OTAScreen);
     lv_obj_set_width(ui_textlabel2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_textlabel2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_textlabel2, 3);
-    lv_obj_set_y(ui_textlabel2, 30);
+    lv_obj_set_x(ui_textlabel2, -1);
+    lv_obj_set_y(ui_textlabel2, -37);
     lv_obj_set_align(ui_textlabel2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_textlabel2, "Rotate - Skip");
-    lv_obj_set_style_text_color(ui_textlabel2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_textlabel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_textlabel2, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_textlabel2, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel2, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel3 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel3, -1);
+    lv_obj_set_y(ui_textlabel3, -37);
+    lv_obj_set_align(ui_textlabel3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel3, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel3, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel4 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel4, 0);
+    lv_obj_set_y(ui_textlabel4, -37);
+    lv_obj_set_align(ui_textlabel4, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel4, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel4, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel5 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel5, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel5, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel5, 0);
+    lv_obj_set_y(ui_textlabel5, -37);
+    lv_obj_set_align(ui_textlabel5, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel5, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel5, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel6 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel6, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel6, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel6, 0);
+    lv_obj_set_y(ui_textlabel6, -37);
+    lv_obj_set_align(ui_textlabel6, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel6, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel6, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel7 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel7, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel7, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel7, -1);
+    lv_obj_set_y(ui_textlabel7, -37);
+    lv_obj_set_align(ui_textlabel7, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel7, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel7, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel8 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel8, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel8, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel8, 0);
+    lv_obj_set_y(ui_textlabel8, -37);
+    lv_obj_set_align(ui_textlabel8, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel8, "New Firmware");
+    lv_obj_set_style_text_font(ui_textlabel8, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel9 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel9, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel9, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel9, -2);
+    lv_obj_set_y(ui_textlabel9, 27);
+    lv_obj_set_align(ui_textlabel9, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel9, "Click: Apply\nRotate: Skip");
+    lv_obj_set_style_text_font(ui_textlabel9, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel10 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel10, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel10, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel10, -2);
+    lv_obj_set_y(ui_textlabel10, 27);
+    lv_obj_set_align(ui_textlabel10, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel10, "Click: Apply\nRotate: Skip");
+    lv_obj_set_style_text_font(ui_textlabel10, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel11 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel11, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel11, -2);
+    lv_obj_set_y(ui_textlabel11, 27);
+    lv_obj_set_align(ui_textlabel11, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel11, "Click: Apply\nRotate: Skip");
+    lv_obj_set_style_text_font(ui_textlabel11, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_textlabel12 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_textlabel12, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_textlabel12, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_textlabel12, -2);
+    lv_obj_set_y(ui_textlabel12, 27);
+    lv_obj_set_align(ui_textlabel12, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_textlabel12, "Click: Apply\nRotate: Skip");
+    lv_obj_set_style_text_font(ui_textlabel12, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label3 = lv_label_create(ui_OTAScreen);
+    lv_obj_set_width(ui_Label3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label3, 0);
+    lv_obj_set_y(ui_Label3, -14);
+    lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label3, "V 1.0.2");
+    lv_obj_set_style_text_font(ui_Label3, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_textlabel = ui_textlabel;
-    uic_textlabel1 = ui_textlabel1;
-    uic_textlabel2 = ui_textlabel2;
+    uic_textlabel = ui_textlabel1;
+    uic_textlabel = ui_textlabel2;
+    uic_textlabel = ui_textlabel3;
+    uic_textlabel = ui_textlabel4;
+    uic_textlabel = ui_textlabel5;
+    uic_textlabel = ui_textlabel6;
+    uic_textlabel = ui_textlabel7;
+    uic_textlabel = ui_textlabel8;
+    uic_textlabel = ui_textlabel9;
+    uic_textlabel = ui_textlabel10;
+    uic_textlabel = ui_textlabel11;
+    uic_textlabel = ui_textlabel12;
 
 }

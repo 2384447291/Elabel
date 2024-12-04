@@ -12,16 +12,8 @@
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 lv_obj_t * ui_HalfmindScreen;
-lv_obj_t * ui_halfmindIcon;
-lv_obj_t * ui_Image1;
-lv_obj_t * ui_Image2;
-lv_obj_t * ui_Image3;
-lv_obj_t * ui_Image4;
-lv_obj_t * ui_halfmindLabel;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
-lv_obj_t * uic_halfmindIcon;
-lv_obj_t * uic_halfmindLabel;
 
 
 // SCREEN: ui_OTAScreen
@@ -30,69 +22,106 @@ lv_obj_t * ui_OTAScreen;
 lv_obj_t * ui_textlabel;
 lv_obj_t * ui_textlabel1;
 lv_obj_t * ui_textlabel2;
+lv_obj_t * ui_textlabel3;
+lv_obj_t * ui_textlabel4;
+lv_obj_t * ui_textlabel5;
+lv_obj_t * ui_textlabel6;
+lv_obj_t * ui_textlabel7;
+lv_obj_t * ui_textlabel8;
+lv_obj_t * ui_textlabel9;
+lv_obj_t * ui_textlabel10;
+lv_obj_t * ui_textlabel11;
+lv_obj_t * ui_textlabel12;
+lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_textlabel;
-lv_obj_t * uic_textlabel1;
-lv_obj_t * uic_textlabel2;
-
-
-// SCREEN: ui_ActivateScreen
-void ui_ActivateScreen_screen_init(void);
-lv_obj_t * ui_ActivateScreen;
-lv_obj_t * ui_textlabel4;
-lv_obj_t * ui_Container2;
-lv_obj_t * ui_Image5;
-// CUSTOM VARIABLES
-lv_obj_t * uic_ActivateScreen;
-lv_obj_t * uic_textlabel4;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
+lv_obj_t * uic_textlabel;
 
 
 // SCREEN: ui_TaskScreen
 void ui_TaskScreen_screen_init(void);
 lv_obj_t * ui_TaskScreen;
-lv_obj_t * ui_textlabel5;
-lv_obj_t * ui_textlabel6;
 lv_obj_t * ui_Container3;
-lv_obj_t * ui_startLabel;
+lv_obj_t * ui_startlabel;
 lv_obj_t * ui_Button1;
-lv_obj_t * ui_Label6;
+lv_obj_t * ui_Label5;
+lv_obj_t * ui_Label17;
+lv_obj_t * ui_Label18;
+lv_obj_t * ui_Label19;
+lv_obj_t * ui_Label20;
 lv_obj_t * ui_Button2;
-lv_obj_t * ui_Label7;
+lv_obj_t * ui_Label6;
+lv_obj_t * ui_Label21;
+lv_obj_t * ui_Label22;
+lv_obj_t * ui_Label23;
+lv_obj_t * ui_Label24;
 lv_obj_t * ui_Button3;
-lv_obj_t * ui_Label8;
-lv_obj_t * ui_endLabel;
+lv_obj_t * ui_endlabel;
+lv_obj_t * ui_Container7;
+lv_obj_t * ui_Label11;
+lv_obj_t * ui_Label12;
+lv_obj_t * ui_Label13;
+lv_obj_t * ui_Label14;
+lv_obj_t * ui_Label15;
+lv_obj_t * ui_Label16;
 // CUSTOM VARIABLES
 lv_obj_t * uic_TaskScreen;
-lv_obj_t * uic_textlabel5;
-lv_obj_t * uic_textlabel6;
-lv_obj_t * uic_startLabel;
-lv_obj_t * uic_endLabel;
+lv_obj_t * uic_startlabel;
+lv_obj_t * uic_endlabel;
 
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 lv_obj_t * ui_FocusScreen;
-lv_obj_t * ui_Arc1;
-lv_obj_t * ui_textlabel7;
-lv_obj_t * ui_textlabel3;
+lv_obj_t * ui_Container2;
+lv_obj_t * ui_Label9;
+lv_obj_t * ui_Label1;
+lv_obj_t * ui_Label2;
+lv_obj_t * ui_Label4;
+lv_obj_t * ui_Label7;
+lv_obj_t * ui_Label8;
+lv_obj_t * ui_Label10;
+lv_obj_t * ui_Container4;
+lv_obj_t * ui_Container5;
+lv_obj_t * ui_textlabel14;
+lv_obj_t * ui_textlabel15;
+lv_obj_t * ui_textlabel16;
+lv_obj_t * ui_textlabel17;
+lv_obj_t * ui_textlabel18;
+lv_obj_t * ui_Container6;
+lv_obj_t * ui_textlabel19;
+lv_obj_t * ui_textlabel20;
+lv_obj_t * ui_textlabel21;
+lv_obj_t * ui_textlabel13;
 // CUSTOM VARIABLES
 lv_obj_t * uic_FocusScreen;
-lv_obj_t * uic_textlabel7;
-lv_obj_t * uic_textlabel3;
+lv_obj_t * uic_textlabel14;
+lv_obj_t * uic_textlabel14;
+lv_obj_t * uic_textlabel14;
+lv_obj_t * uic_textlabel14;
+lv_obj_t * uic_textlabel14;
+lv_obj_t * uic_textlabel13;
+lv_obj_t * uic_textlabel13;
+lv_obj_t * uic_textlabel13;
+lv_obj_t * uic_textlabel13;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
-const lv_img_dsc_t * ui_imgset_1598583580[1] = {&ui_img_1859145046};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
-// #if LV_COLOR_DEPTH != 16
-//     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
-// #endif
-// #if LV_COLOR_16_SWAP !=0
-//     #error "LV_COLOR_16_SWAP should be 0 to match SquareLine Studio's settings"
-// #endif
 
 ///////////////////// ANIMATIONS ////////////////////
 
@@ -108,7 +137,6 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_HalfmindScreen_screen_init();
     ui_OTAScreen_screen_init();
-    ui_ActivateScreen_screen_init();
     ui_TaskScreen_screen_init();
     ui_FocusScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);

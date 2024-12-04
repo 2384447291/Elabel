@@ -19,11 +19,27 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 {
     //ui
     _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
-    _ui_flag_modify(uic_textlabel7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+
+    _ui_flag_modify(ui_Container2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    _ui_flag_modify(ui_Container4, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     // lv_label_set_text(uic_textlabel7, get_global_data()->m_todo_list->items[pOwner->chosenTaskNum].title);
-    lv_label_set_text(uic_textlabel7, "fuck");
-    _ui_flag_modify(uic_textlabel3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    _ui_flag_modify(ui_Arc1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    for(int i=0;i<lv_obj_get_child_cnt(ui_Container5);i++)
+    {
+        lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+        lv_label_set_text(child, get_global_data()->m_todo_list->items[pOwner->chosenTaskNum].title);
+    }
+    char timestr[10] = "00:00";
+    uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
+    uint8_t minutes = total_seconds / 60;  // 计算分钟数
+    uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
+    // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
+    sprintf(timestr, "%02d:%02d", minutes, seconds);
+    for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
+    {
+        lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+        lv_label_set_text(child, timestr);
+    }
+
 
     TodoList* todolist = get_global_data()->m_todo_list;
     if(get_wifi_status() == 2 && todolist->size != 0)
@@ -81,9 +97,11 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
         // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
         sprintf(timestr, "%02d:%02d", minutes, seconds);
-        lv_label_set_text(uic_textlabel3, timestr);
-        uint16_t angle_value = ((float)total_seconds / 300.0f) * 30;
-        lv_arc_set_bg_angles(ui_Arc1, 0, angle_value);
+        for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
+        {
+            lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+            lv_label_set_text(child, timestr);
+        }
 
         pOwner->needFlashEpaper = false;
     }

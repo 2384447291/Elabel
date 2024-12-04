@@ -5,6 +5,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "control_driver.h"
+#include "ssd1680.h"
 
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
@@ -14,7 +15,7 @@ ElabelController::ElabelController() : m_elabelFsm(this){}
 
 void ElabelController::Init()
 {
-    tasklen = 3;
+    tasklen = 0;
     last_tasklen = 0;
     task_list = NULL;
     TimeCountdownOffset = TimeCountdown = 300;
@@ -23,15 +24,19 @@ void ElabelController::Init()
 
 void ElabelController::Update()
 {
-    // if(stop_mainTask) return;
-    // APP_task_state task_state = APP_TASK();
-    // if(APP_FocusState_update() || task_state != TASK_NO_CHANGE)//收APP消息
-    // {
-    //     set_task_list_state(newest);//置标为newest
-    //     needFlashEpaper = true;
-    //     printf("APP_TASK: %d\n",task_state);
-    //     return;
-    // }
+    if(stop_mainTask)
+    {
+        //
+        return;
+    }
+    APP_task_state task_state = APP_TASK();
+    if(APP_FocusState_update() || task_state != TASK_NO_CHANGE)//收APP消息
+    {
+        set_task_list_state(newest);//置标为newest
+        needFlashEpaper = true;
+        printf("APP_TASK: %d\n",task_state);
+        return;
+    }
 
     m_elabelFsm.HandleInput();
     // if(elabelUpdateTick == 499)
@@ -60,10 +65,13 @@ void ElabelFsm::HandleInput()
     //         pOwner->m_elabelFsm.ChangeState(OperatingTaskState::Instance());
     //     }
     // }
+
     // if(elabelUpdateTick == 500)
     // {
-    //     ChangeState(FocusTaskState::Instance());
+    //     _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
+    //     ElabelStateSet(HALFMIND_STATE);
     // }
+
 }
 
 void ElabelFsm::Init()
