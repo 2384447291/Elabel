@@ -580,6 +580,18 @@ static inline void ssd1680_send_data(uint8_t *data, uint16_t length);
 
 bitmap_state elabel_state_bitmap;
 partial_area elabel_partialArea;
+bool isBaseMapFresh;
+bool isBaseMapFresh = false;
+
+bool getBaseMapFresh()
+{
+    return isBaseMapFresh;
+}
+
+void SetBaseMapFresh(bool isFresh)
+{
+    isBaseMapFresh = isFresh;
+}
 
 bitmap_state GetElabelState()
 {
@@ -653,13 +665,16 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     // lv_disp_flush_ready(drv);
 
     if (!partial_counter) {
-        ssd1680_init();
+        if(!isBaseMapFresh)
+        {
+            ssd1680_init();
+        }
         if(elabel_state_bitmap == ELSE_STATE)
         {
-            if(partial_area == FULL_SCREEN)
+            if(elabel_partialArea == FULL_SCREEN)
             {
                 buffer = (uint8_t *) color_map;
-            // ssd1680_set_cursor(area->y1, area->x1);
+                // ssd1680_set_cursor(area->y1, area->x1);
 
                 ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
                 for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
@@ -674,6 +689,87 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
                     ssd1680_send_data(buffer, linelen);
                     buffer += SSD1680_COLUMNS;
                 }
+                ssd1680_update_display(false);
+                isBaseMapFresh = true;
+            }
+            else
+            {
+                // buffer = (uint8_t *) color_map;
+                // // ssd1680_set_cursor(area->y1, area->x1);
+
+                // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+                // for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+                //     ssd1680_send_data(buffer, linelen);
+                //     buffer += SSD1680_COLUMNS;
+                // }
+
+                // buffer = (uint8_t *) color_map;
+                
+                // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+                // for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+                //     ssd1680_send_data(buffer, linelen);
+                //     buffer += SSD1680_COLUMNS;
+                // }
+                // uint8_t temp_date = 0xF7;
+                // ssd1680_write_cmd(SSD1680_CMD_UPDATE_CTRL2, &temp_date, 1);
+                // /* Activate Display Update Sequence */
+                // ssd1680_write_cmd(SSD1680_CMD_MASTER_ACTIVATION, NULL, 0);
+                // /* Poll BUSY signal. */
+                // ssd1680_waitbusy(SSD1680_WAIT);
+                //--
+                ssd1680_hw_reset();
+                ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_part, 1);
+                //     // X = 122 - y - 1;
+                //     // Y = x;
+                uint16_t x1 = 0;
+                uint16_t y1 = 0;
+                uint16_t x2 = 250;
+                uint16_t y2 = 122;
+                if(elabel_partialArea == TASK_LIST)
+                {
+                    x1 = 0;
+                    y1 = 0;
+                    x2 = 250;
+                    y2 = 128;
+                }
+                else if(elabel_partialArea == OPERATING_TIME)
+                {
+                    x1 = 32;
+                    y1 = 24;
+                    x2 = 216;
+                    y2 = 104;
+                }
+                else if(elabel_partialArea == FOCUS_TIME)
+                {
+                    x1 = 48;
+                    y1 = 56;
+                    x2 = 200;
+                    y2 = 104;
+                }
+                uint16_t X1 = y1;
+                uint16_t X2 = y2;
+                uint16_t Y1 = x1;
+                uint16_t Y2 = x2;
+                buffer = (uint8_t *) color_map;
+                buffer += X1/8 + Y1 * 16;
+                // buffer += (X1+8) * Y1 / 8;
+
+                ssd1680_set_window(X1,X2,Y1,Y2);
+                ssd1680_set_cursor(X1,Y1);
+
+                // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+
+
+                int new_line_len = ((X2 - X1)) / 8;
+                ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+                for(size_t row = 0; row < (Y2-Y1); row++) {
+                    ssd1680_send_data(buffer, new_line_len);
+                    buffer += SSD1680_COLUMNS; //(128/8)x296 = 4736
+                }
+
+
+                ssd1680_update_display(false);
+                // ssd1680_deep_sleep();
             }
         }
         else if(elabel_state_bitmap == HALFMIND_STATE)
@@ -695,6 +791,8 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
                 uint8_t val_buf = ~buffer[i];
                 ssd1680_send_data(&val_buf, 1);
             }
+            ssd1680_update_display(false);
+            ssd1680_deep_sleep();
         }
         else if(elabel_state_bitmap == QRCODE_STATE)
         {
@@ -716,91 +814,58 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
                 uint8_t val_buf = ~buffer[i];
                 ssd1680_send_data(&val_buf, 1);
             }
+            ssd1680_update_display(false);
+            ssd1680_deep_sleep();
         }
         
-        ssd1680_update_display(false);
         partial_counter = EPD_PARTIAL_CNT;
     } else {
         // ssd1680_init();
-        ssd1680_hw_reset();
-        ssd1680_write_cmd(SSD1680_CMD_BWF_CTRL, ssd1680_border_part, 1);
-        //     // X = 122 - y - 1;
-        //     // Y = x;
-        // uint16_t X1 = y2;
-        // uint16_t X2 = y1;
-        // uint16_t Y1 = x1;
-        // uint16_t Y2 = x2;
-        if(partial_area == TASK_LIST)
-        {
 
-        }
-        else if(partial_area == OPERATING_TIME)
-        {
-
-        }
-        else if(partial_area == FOCUS_TIME)
-        {
-
-        }
-        buffer = 
-        ssd1680_set_window(Y1, Y2, X1, X2);
-        ssd1680_set_cursor(Y1, X2);
-
-        // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-
-        // buffer += (X1+8) * Y1 / 8;
-
-        // int new_line_len = ((Y2 - Y1 + 1)) / 8;
-        ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
-            ssd1680_send_data(buffer, linelen);
-            buffer += SSD1680_COLUMNS;
-        }
 
         // --
-        buffer = (uint8_t *) color_map;
+        // buffer = (uint8_t *) color_map;
         
-        ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
-        for(int i = 0;i < 4000;i++)
-        {
-            uint8_t val_buf = ~buffer[i];
-            ssd1680_send_data(&val_buf, 1);
-        }
-        uint8_t tmp_data = 0xF4;
-        ssd1680_write_cmd(0x22, &tmp_data, 1);
-        ssd1680_write_cmd(0x20, NULL, 0);
-        ssd1680_waitbusy(20);
-        ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
-            ssd1680_send_data(buffer, linelen);
-            buffer += SSD1680_COLUMNS;
-        }
+        // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+        // for(int i = 0;i < 4000;i++)
+        // {
+        //     uint8_t val_buf = ~buffer[i];
+        //     ssd1680_send_data(&val_buf, 1);
+        // }
+        // uint8_t tmp_data = 0xF4;
+        // ssd1680_write_cmd(0x22, &tmp_data, 1);
+        // ssd1680_write_cmd(0x20, NULL, 0);
+        // ssd1680_waitbusy(20);
+        // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+        // for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+        //     ssd1680_send_data(buffer, linelen);
+        //     buffer += SSD1680_COLUMNS;
+        // }
 
-        buffer = (uint8_t *) color_map;
+        // buffer = (uint8_t *) color_map;
         
-        ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
-        for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
-            ssd1680_send_data(buffer, linelen);
-            buffer += SSD1680_COLUMNS;
-        }
-        uint16_t X1 = 122 - area->y2 - 1;
-        uint16_t X2 = 122 - area->y1 - 1;
-        uint16_t Y1 = area->x1;
-        uint16_t Y2 = area->x2;
-        ssd1680_set_window(X1,X2,Y1,Y2);
-        ssd1680_set_cursor(X1,Y1);
+        // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+        // for(size_t row = 0; row <= (EPD_PANEL_HEIGHT - 1); row++){
+        //     ssd1680_send_data(buffer, linelen);
+        //     buffer += SSD1680_COLUMNS;
+        // }
+        // uint16_t X1 = 122 - area->y2 - 1;
+        // uint16_t X2 = 122 - area->y1 - 1;
+        // uint16_t Y1 = area->x1;
+        // uint16_t Y2 = area->x2;
+        // ssd1680_set_window(X1,X2,Y1,Y2);
+        // ssd1680_set_cursor(X1,Y1);
 
-        ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-        buffer = X1/8 + Y1*16;
-        for(int i = 0;i<(X2-X1+1)*(Y2-Y1+1)/8;i++)
-        {
-            ssd1680_send_data(&buffer[i], 1);
-        }
+        // ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+        // buffer = X1/8 + Y1*16;
+        // for(int i = 0;i<(X2-X1+1)*(Y2-Y1+1)/8;i++)
+        // {
+        //     ssd1680_send_data(&buffer[i], 1);
+        // }
 
-        ssd1680_update_display(true);
-        partial_counter--;
+        // ssd1680_update_display(true);
+        // partial_counter--;
     }
-    ssd1680_deep_sleep();
     /* IMPORTANT!!!
      * Inform the graphics library that you are ready with the flushing */
     lv_disp_flush_ready(drv);
@@ -838,7 +903,7 @@ static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, ui
 
     //0x0127-->(295+1)=296
     //a % b = a - (a/b)*b
-    if(partial_area == FULL_SCREEN)
+    if(elabel_partialArea == FULL_SCREEN || 1)
     {
         tmp[0] = (ye-1) % 256;
         tmp[1] = (ye-1) / 256;
@@ -882,8 +947,8 @@ static inline void ssd1680_set_cursor(uint16_t sx, uint16_t ys)
     // tmp[0] = 0x00;
     ssd1680_write_cmd(SSD1680_CMD_RAM_XPOS_CNTR, tmp, 1);
 
-    tmp[0] = (ys-1) % 256;
-    tmp[1] = (ys-1) / 256;
+    tmp[0] = (ys) % 256;
+    tmp[1] = (ys) / 256;
     // tmp[0] = 0x27;
     // tmp[1] = 0x01;
     ssd1680_write_cmd(SSD1680_CMD_RAM_YPOS_CNTR, tmp, 2);
@@ -895,20 +960,21 @@ static inline void ssd1680_set_cursor(uint16_t sx, uint16_t ys)
  */
 static void ssd1680_update_display(bool isPartial)
 {
-    uint8_t tmp = 0;
+    uint8_t tmp = 0XF7;
 
     if(isPartial) {
     tmp = 0x1C; //Display mode 2 - Partial update
     } else if(elabel_state_bitmap != ELSE_STATE){
     tmp = 0xC7; //Display mode 1 - Full update
     }
-    else if(partial_area == FULL_SCREEN)
+    else if(elabel_partialArea == FULL_SCREEN)
     {
         tmp = 0xF7;
+        // tmp = 0xC7;
     }
-    else
+    else if(isBaseMapFresh)
     {
-        tmp = 0xff;
+        tmp = 0xFF;
     }
     // tmp = 0xF7;
     /* Display Update Control */
@@ -1007,6 +1073,21 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area)
     area->x2 = 250 - 1;
     area->y1 = 0;
     area->y2 = 122 - 1;
+
+    // if(elabel_partialArea == OPERATING_TIME)
+    // {
+    //     area->x1 = 32;
+    //     area->y1 = 24;
+    //     area->x2 = 216;
+    //     area->y2 = 104;
+    // }
+    // else if(elabel_partialArea == FOCUS_TIME)
+    // {
+    //     area->x1 = 48;
+    //     area->y1 = 56;
+    //     area->x2 = 200;
+    //     area->y2 = 104;
+    // }
     // printf("area->x1: %d, area->x2: %d, area->y1: %d, area->y2: %d\n", area->x1, area->x2, area->y1, area->y2);
     
     /* Update the areas as needed.
@@ -1071,7 +1152,7 @@ void ssd1680_init(void)
         ssd1680_write_cmd(SSD1680_CMD_GDO_CTRL, tmp, 3);
 
         // /* Configure entry mode  */
-        // // ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &ssd1680_scan_mode, 1);
+        // ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &ssd1680_scan_mode, 1);
         tmpdata = 0x01;
         ssd1680_write_cmd(SSD1680_CMD_ENTRY_MODE, &tmpdata, 1);
         

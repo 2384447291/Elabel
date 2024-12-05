@@ -4,6 +4,7 @@
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"
+#include "ssd1306.h"
 
 void OperatingTaskState::Init(ElabelController* pOwner)
 {
@@ -14,6 +15,8 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
 {
     pOwner->TimeCountdown = pOwner->TimeCountdownOffset = 300;
     // ui
+    ElabelStateSet(ELSE_STATE);
+    PartialAreaSet(FULL_SCREEN);
     _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
     _ui_flag_modify(ui_Container4, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
 
@@ -25,6 +28,20 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
 
 void OperatingTaskState::Execute(ElabelController* pOwner)
 {
+
+    if(lv_scr_act() != ui_FocusScreen)
+    {
+        ElabelStateSet(ELSE_STATE);
+        PartialAreaSet(FULL_SCREEN);
+        _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+        SetBaseMapFresh(false);
+        return;
+    }
+    else if(getBaseMapFresh())
+    {
+        PartialAreaSet(OPERATING_TIME);
+    }
+
     EventBits_t bits;
     // 等待事件位pdTRUE 表示当 BUTTON_TASK_BIT 被设置时，函数将清除该位。
     //pdFALSE 表示不关心其他位的状态,只有BUTTON_TASK_BIT 被设置时才会被触发

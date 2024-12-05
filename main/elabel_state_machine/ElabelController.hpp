@@ -33,6 +33,8 @@ class ElabelController
         uint32_t TimeCountdown;
         uint8_t chosenTaskNum;
         bool needFlashEpaper;
+        uint32_t flash_tick;
+        bool entersleep = false;
 
         static ElabelController* Instance()
         {

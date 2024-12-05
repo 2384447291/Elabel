@@ -400,7 +400,7 @@ void add_task(TaskNode **head, const char *task_content) {
         }
         temp->next = new_task;
     }
-
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     uint8_t child_count = lv_obj_get_child_cnt(ui_Container3);
     lv_obj_t *empty_label = lv_obj_get_child(ui_Container3, child_count-1);
     if(empty_label != NULL && empty_label != 0)

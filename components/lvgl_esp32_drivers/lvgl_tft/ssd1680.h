@@ -132,7 +132,8 @@ void ElabelStateSet(bitmap_state state);
 bitmap_state GetElabelState();
 void PartialAreaSet(partial_area area);
 partial_area GetPatialArea();
-
+bool getBaseMapFresh();
+void SetBaseMapFresh(bool isFresh);
 
 
 
