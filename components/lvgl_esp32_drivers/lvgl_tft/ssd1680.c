@@ -1205,6 +1205,11 @@ static inline void ssd1680_waitbusy(int wait_ms)
         vTaskDelay(10 / portTICK_RATE_MS);
     }
     ESP_LOGE( TAG, "busy exceeded %dms", i*10 );
+
+    // while(1) 
+    // {
+    //     if(gpio_get_level(SSD1680_BUSY_PIN) != SSD1680_BUSY_LEVEL) break;
+    // }
 }
 
 /* Set HWRESET */

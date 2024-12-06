@@ -208,8 +208,8 @@ extern "C" void app_main(void)
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     ElabelStateSet(HALFMIND_STATE);
-    _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    // _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+    // vTaskDelay(1000 / portTICK_PERIOD_MS);
     _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
