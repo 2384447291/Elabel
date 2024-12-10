@@ -22,6 +22,7 @@ extern "C" {
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 250
 /* Backward compatibility for LV_HOR_RES_MAX & LV_VER_RES_MAX */
+//LV_HOR_RES_MAX用来设置液晶屏水平长度，LV_VER_RES_MAX用来设置液晶屏垂直长度
 #define LV_HOR_RES_MAX 128
 #define LV_VER_RES_MAX 250
 

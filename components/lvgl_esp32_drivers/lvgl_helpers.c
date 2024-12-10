@@ -98,14 +98,27 @@ void lvgl_driver_init(void)
 /* Display controller initialization */
 #if defined CONFIG_LV_TFT_DISPLAY_PROTOCOL_SPI
     ESP_LOGI(TAG, "Initializing SPI master for display");
+    //esp32s3有四组spi接口
+    // • SPI0
+    // • SPI1
+    // • 通用 SPI2，即 GP-SPI2
+    // • 通用 SPI3，即 GP-SPI3
+    // SPI0 和 SPI1 控制器主要供内部使用以访问外部 flash 及 PSRAM
+    //，不能使用，只能用SPI2和SPI3.这里使用的是SPI2, 由于esp32的管脚矩阵，虽然spi2对应的引脚 SPI2使用GPIO9-GPIO14，可以使用任意 IO 管脚
 
+    // SPI_BUS_MAX_TRANSFER_SZ定义为((LV_VER_RES_MAX * LV_VER_RES_MAX) / 8) SPI 总线的最大传输大小
+    // 对于墨水屏每个像素是 1 位（黑白显示），那么每个像素只需要 1 位数据。所以需要÷8，
+    // (LV_VER_RES_MAX * LV_VER_RES_MAX) / 8)表示为刷新整个面需要的最大数据
+    // 如果每个像素是 8 位（灰度显示），则需要 1 字节。
+    // 如果每个像素是 24 位（RGB 彩色显示），则每个像素需要 3 字节。
     lvgl_spi_driver_init(TFT_SPI_HOST,
         DISP_SPI_MISO, DISP_SPI_MOSI, DISP_SPI_CLK,
         SPI_BUS_MAX_TRANSFER_SZ, 3,
         DISP_SPI_IO2, DISP_SPI_IO3);
 
+    //配置spi有两步，第一步是初始化spi参数，第二步是挂在设备
     disp_spi_add_device(TFT_SPI_HOST);
-
+    //根据宏定义变成ssd1680_init();
     disp_driver_init();
 #elif defined (CONFIG_LV_I2C_DISPLAY)
     disp_driver_init();

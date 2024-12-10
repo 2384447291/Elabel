@@ -125,13 +125,13 @@ void disp_spi_add_device_with_speed(spi_host_device_t host, int clock_speed_hz)
     spi_device_interface_config_t devcfg={
         .clock_speed_hz = clock_speed_hz,
         .mode = SPI_TFT_SPI_MODE,
-        .spics_io_num=DISP_SPI_CS,              // CS pin
+        .spics_io_num=DISP_SPI_CS,               // 指定片选（CS）引脚，用于选择 SPI 设备。
         .input_delay_ns=DISP_SPI_INPUT_DELAY_NS,
         .queue_size=SPI_TRANSACTION_POOL_SIZE,
         .pre_cb=NULL,
         .post_cb=NULL,
 #if defined(DISP_SPI_HALF_DUPLEX)
-        .flags = SPI_DEVICE_NO_DUMMY | SPI_DEVICE_HALFDUPLEX,	/* dummy bits should be explicitly handled via DISP_SPI_VARIABLE_DUMMY as needed */
+        .flags = SPI_DEVICE_NO_DUMMY | SPI_DEVICE_HALFDUPLEX,	// 半双工模式，并指示不使用dummy位 */
 #else
 	#if defined (CONFIG_LV_TFT_DISPLAY_CONTROLLER_FT81X)
 		.flags = 0,
@@ -149,6 +149,7 @@ void disp_spi_add_device_with_speed(spi_host_device_t host, int clock_speed_hz)
 		assert(TransactionPool != NULL);
 		for (size_t i = 0; i < SPI_TRANSACTION_POOL_SIZE; i++)
 		{
+            //使用 MALLOC_CAP_DMA 标志分配适合与硬件 DMA 引擎（如 SPI 和 I2S）配合使用的内存,这部分内存可以使用DMA搬运
 			spi_transaction_ext_t* pTransaction = (spi_transaction_ext_t*)heap_caps_malloc(sizeof(spi_transaction_ext_t), MALLOC_CAP_DMA);
 			assert(pTransaction != NULL);
 			memset(pTransaction, 0, sizeof(spi_transaction_ext_t));
@@ -184,6 +185,13 @@ void disp_spi_transaction(const uint8_t *data, size_t length,
         return;
     }
 
+    // typedef struct {
+    //     struct spi_transaction_t base;  ///< Transaction data, so that pointer to spi_transaction_t can be converted into spi_transaction_ext_t
+    //     uint8_t command_bits;           ///< The command length in this transaction, in bits.
+    //     uint8_t address_bits;           ///< The address length in this transaction, in bits.
+    //     uint8_t dummy_bits;             ///< The dummy length in this transaction, in bits.
+    // } spi_transaction_ext_t ;
+    
     spi_transaction_ext_t t = {0};
 
     /* transaction length is in bits */

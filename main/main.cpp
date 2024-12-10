@@ -112,8 +112,10 @@ static void guiTask(void *pvParameter) {
     (void) pvParameter;
     xGuiSemaphore = xSemaphoreCreateMutex();
 
+    //lvgl初始化
     lv_init();
 
+    //lvgl硬件初始化定义在lvgl_esp32_drivers，这个函数里面会根据宏定义调用自己定义的ssd1680的函数
     lvgl_driver_init();
 
     lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),MALLOC_CAP_DMA); //MALLOC_CAP_DMA);MALLOC_CAP_SPIRAM
@@ -148,14 +150,16 @@ static void guiTask(void *pvParameter) {
     lv_disp_drv_register(&disp_drv);
 
 
-    /* Create and start a periodic timer interrupt to call lv_tick_inc */
-    const esp_timer_create_args_t periodic_timer_args = {
-        .callback = &lv_tick_task,
-        .name = "periodic_gui"
-    };
+    //--------------4.创建并启动一个定时器，用于定期调用 lv_tick_task 函数(每隔 1000 毫秒触发一次),来告诉lvgl过了1s--------------//
     esp_timer_handle_t periodic_timer;
+    const esp_timer_create_args_t periodic_timer_args = {
+        .callback = [](void *arg){
+        (void)arg;
+        lv_tick_inc(1);},
+        .name = "periodic_gui"};
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 1 * 1000));
+    //--------------4.创建并启动一个定时器，用于定期调用 lv_tick_task 函数(每隔 1000 毫秒触发一次),来告诉lvgl过了1s--------------//
 
     /* Create the demo application */
     create_demo_application();
@@ -183,12 +187,6 @@ static void create_demo_application(void)
 {
     printf("Creating the demo application\n");
     ui_init();
-}
-
-static void lv_tick_task(void *arg) {
-    (void) arg;
-
-    lv_tick_inc(1);
 }
 
 extern "C" void app_main(void)
