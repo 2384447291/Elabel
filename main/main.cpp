@@ -206,8 +206,8 @@ extern "C" void app_main(void)
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     ElabelStateSet(HALFMIND_STATE);
-    _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    // _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+    // vTaskDelay(1000 / portTICK_PERIOD_MS);
     _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
@@ -223,6 +223,16 @@ extern "C" void app_main(void)
         if (get_wifi_status() == 2) {
             e_label_init();
 
+        }
+        else if(get_wifi_status() == 0)
+        {
+            ElabelStateSet(QRCODE_STATE);
+            _ui_screen_change(&ui_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            _ui_screen_change(&ui_HalfmindScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_HalfmindScreen_screen_init);
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
+            ESP_LOGI("fuvk`","wifi is not connected\n");
+            continue;
         }
         else
         {

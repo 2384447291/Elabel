@@ -29,7 +29,6 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_height(ui_startlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_startlabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_startlabel, "\n\n\n");
-    lv_obj_add_flag(ui_startlabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
 
     // ui_Button1 = lv_btn_create(ui_Container3);
     // lv_obj_set_width(ui_Button1, 160);

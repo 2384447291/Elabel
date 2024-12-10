@@ -14,6 +14,13 @@ typedef enum
 } bitmap_state;
 
 
+typedef enum
+{
+    FULL_SCREEN,
+    TASK_LIST,
+    OPERATING_TIME,
+    FOCUS_TIME,
+} partial_area;
 
 #ifdef __cplusplus
 extern "C"
@@ -123,6 +130,11 @@ void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w,
 void ssd1680_deep_sleep(void);
 void ElabelStateSet(bitmap_state state);
 bitmap_state GetElabelState();
+void PartialAreaSet(partial_area area);
+partial_area GetPatialArea();
+bool getBaseMapFresh();
+void SetBaseMapFresh(bool isFresh);
+
 
 
 

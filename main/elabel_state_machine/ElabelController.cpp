@@ -38,6 +38,17 @@ void ElabelController::Update()
         return;
     }
 
+    if(needFlashEpaper)
+    {
+        flash_tick = elabelUpdateTick;
+        entersleep = false;
+    }
+    else if(elabelUpdateTick - flash_tick > 3000 && !entersleep)
+    {
+        ssd1680_deep_sleep();
+        entersleep = true;
+    }
+
     m_elabelFsm.HandleInput();
     // if(elabelUpdateTick == 499)
     // {

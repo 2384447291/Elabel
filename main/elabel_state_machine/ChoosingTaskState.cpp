@@ -15,6 +15,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
     //ui
     ElabelStateSet(ELSE_STATE);
+    PartialAreaSet(FULL_SCREEN);
     ESP_LOGI("fucking enter"," fuck you %d\n",pOwner->chosenTaskNum);
     _ui_screen_change(&uic_TaskScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_TaskScreen_screen_init);
 
@@ -37,14 +38,19 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
-    if(lv_scr_act() != ui_TaskScreen)
+    if(lv_scr_act() != ui_TaskScreen || pOwner->entersleep)
     {
         ChoosingTaskState* pState = this;
         pState->Enter(pOwner);
         ESP_LOGI("choosing Task"," fuckyou %d\n",pOwner->chosenTaskNum);
-        
+        SetBaseMapFresh(false);
         return;
     }
+    else if(getBaseMapFresh())
+    {
+        PartialAreaSet(TASK_LIST);
+    }
+
 
     EventBits_t bits;
     // 等待事件位pdTRUE 表示当 BUTTON_TASK_BIT 被设置时，函数将清除该位。

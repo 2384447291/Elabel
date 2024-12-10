@@ -6,6 +6,7 @@
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"
 #include "http.h"
+#include "ssd1306.h"
 
 #define INT_TO_STRING(val, str) \
     sprintf(str, "%d", val);
@@ -18,6 +19,8 @@ void FocusTaskState::Init(ElabelController* pOwner)
 void FocusTaskState::Enter(ElabelController* pOwner)
 {
     //ui
+    ElabelStateSet(ELSE_STATE);
+    PartialAreaSet(FULL_SCREEN);
     _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
 
     _ui_flag_modify(ui_Container2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
@@ -36,7 +39,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     sprintf(timestr, "%02d:%02d", minutes, seconds);
     for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
     {
-        lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+        lv_obj_t *child = lv_obj_get_child(ui_Container6, i);
         lv_label_set_text(child, timestr);
     }
 
@@ -56,6 +59,20 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
 void FocusTaskState::Execute(ElabelController* pOwner)
 {
+
+    if(lv_scr_act() != ui_FocusScreen)
+    {
+        ElabelStateSet(ELSE_STATE);
+        PartialAreaSet(FULL_SCREEN);
+        _ui_screen_change(&uic_FocusScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_FocusScreen_screen_init);
+        SetBaseMapFresh(false);
+        return;
+    }
+    else if(getBaseMapFresh())
+    {
+        PartialAreaSet(FOCUS_TIME);
+    }
+
     if(pOwner->TimeCountdown == 0)
     {
         EventBits_t bits;
@@ -99,7 +116,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         sprintf(timestr, "%02d:%02d", minutes, seconds);
         for(int i =0;i<lv_obj_get_child_cnt(ui_Container6);i++)
         {
-            lv_obj_t *child = lv_obj_get_child(ui_Container5, i);
+            lv_obj_t *child = lv_obj_get_child(ui_Container6, i);
             lv_label_set_text(child, timestr);
         }
 
