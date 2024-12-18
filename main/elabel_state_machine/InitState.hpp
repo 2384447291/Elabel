@@ -1,10 +1,10 @@
-#ifndef FOCUSTASKSTATE_HPP
-#define FOCUSTASKSTATE_HPP
+#ifndef InitState_HPP
+#define InitState_HPP
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
-
-class FocusTaskState : public State<ElabelController>
+    
+class InitState : public State<ElabelController>
 {
 private:
 
@@ -14,14 +14,12 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool is_out_focus;
-    int falling_time;
+    bool is_init = false;
+    uint32_t ota_Wait_tick = 0;
 
-    uint8_t buzzer_state = 0;
-
-    static FocusTaskState* Instance()
+    static InitState* Instance()
     {
-        static FocusTaskState instance;
+        static InitState instance;
         return &instance;
     }
 };

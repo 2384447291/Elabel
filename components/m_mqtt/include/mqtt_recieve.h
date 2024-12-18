@@ -163,11 +163,17 @@ static void solve_message(char *response)
         }
         else if(Mqtt_msg.order == Enter_focus)
         {
+            //刷新一下focus状态
+            get_global_data()->m_focus_state->is_focus = 0;
+            get_global_data()->m_focus_state->focus_task_id = 0;
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Enter_focus. A New focus task show up.\n");
             http_get_todo_list(false);
         }
         else if(Mqtt_msg.order == Tasklist_change)
         {
+            //刷新一下focus状态
+            get_global_data()->m_focus_state->is_focus = 0;
+            get_global_data()->m_focus_state->focus_task_id = 0;
             http_get_todo_list(false);
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Tasklist_change.\n");
         }

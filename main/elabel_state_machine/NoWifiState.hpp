@@ -1,10 +1,10 @@
-#ifndef FOCUSTASKSTATE_HPP
-#define FOCUSTASKSTATE_HPP
+#ifndef NOWIFISTATE_HPP
+#define NOWIFISTATE_HPP
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 
-class FocusTaskState : public State<ElabelController>
+class NoWifiState : public State<ElabelController>
 {
 private:
 
@@ -14,16 +14,10 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool is_out_focus;
-    int falling_time;
-
-    uint8_t buzzer_state = 0;
-
-    static FocusTaskState* Instance()
+    static NoWifiState* Instance()
     {
-        static FocusTaskState instance;
+        static NoWifiState instance;
         return &instance;
     }
 };
-
 #endif

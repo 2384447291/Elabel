@@ -12,23 +12,6 @@
 #include "ui.h"
 
 #define FIRMWARE_VERSION "1.0.0"
-
-//--------------------------------------事件标志组(自定义中断函数)-----------------------------------------//
-#define ENCODER_TASK_BIT ( 1UL << 0UL )
-#define BUTTON_TASK_BIT ( 1UL << 1UL )
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-EventGroupHandle_t get_eventgroupe(void);
-#ifdef __cplusplus
-}
-#endif
-//--------------------------------------事件标志组(自定义中断函数)-----------------------------------------//
-
-
-
-
 //--------------------------------------SNTP时间同步函数-----------------------------------------//
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +33,7 @@ long long get_unix_time(void);
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
-    int is_focus; 
+    int is_focus; //默认0，专注1，为专注2
     int focus_task_id;
 } Focus_state;
 
@@ -61,7 +44,6 @@ typedef enum {
     firmware_need_update,
 } task_list_state;
 
-//2表示否 1表示是 0表示没东西
 typedef struct {
     char *createBy;
     long long createTime;
@@ -84,35 +66,9 @@ typedef struct {
     int size;         // 当前数组中的元素数量
 } TodoList;
 
-typedef struct TaskNode {
-    char *task;               // 任务字符串
-    struct TaskNode *next;    // 下一个任务节点
-} TaskNode;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// 创建新任务
-TaskNode* create_task(const char* task_content);
-
-void modify_task(TaskNode *head, int position, const char *task_content);
-
-// 添加任务到链表末尾
-void add_task(TaskNode **head, const char *task_content);
-
-// 删除指定位置的任务
-void delete_task(TaskNode **head, int position);
-
-// 打印任务列表
-void print_tasks(TaskNode *head);
-
-// 释放所有任务的内存
-void free_tasks(TaskNode *head);
-
-char* find_task_by_position(TaskNode *head, int position);
-
-int get_task_position(TaskNode *head, const char *task_content);
 
 task_list_state get_task_list_state(void);
 
@@ -139,7 +95,7 @@ void clean_todo_list(TodoList *list);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
-    Focus_state* m_focus_state;
+    Focus_state* m_focus_state;//2表示否focus 1表示是focus 0表示没东西
     TodoList* m_todo_list;
 
     char* usertoken;
@@ -159,27 +115,22 @@ typedef struct
 
 } Global_data;
 
-typedef enum {
-    TASK_NO_CHANGE,
-    ADD_TASK,
-    DELETE_TASK,
-    UPDATE_TASK,
-} APP_task_state;
-
-extern uint32_t elabelUpdateTick;
-extern TaskNode *task_list;
-extern uint8_t tasklen;
-extern uint8_t last_tasklen;
-extern bool stop_mainTask;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 // 获取单例实例的函数
 Global_data* get_global_data();
+
+void lock_lvgl();
+void release_lvgl();
+void Inituilock();
+void update_lvgl_task_list();
 #ifdef __cplusplus
 }
 #endif
 
 void print_uint8_array(uint8_t *array, size_t length);
+
+//挂墙时钟
+extern uint32_t elabelUpdateTick;
 #endif

@@ -224,9 +224,9 @@ void lv_scr_load_anim(lv_obj_t * new_scr, lv_scr_load_anim_t anim_type, uint32_t
     lv_disp_t * d = lv_obj_get_disp(new_scr);
     lv_obj_t * act_scr = lv_scr_act();
 
-    if(act_scr == new_scr || d->scr_to_load == new_scr) {
-        return;
-    }
+    // if(act_scr == new_scr || d->scr_to_load == new_scr) {
+    //     return;
+    // }
 
     /*If an other screen load animation is in progress
      *make target screen loaded immediately. */

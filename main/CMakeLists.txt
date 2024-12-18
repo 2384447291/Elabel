@@ -3,7 +3,9 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"
                         "elabel_state_machine/ChoosingTaskState.cpp"
                         "elabel_state_machine/OperatingTaskState.cpp"
                         "elabel_state_machine/FocusTaskState.cpp"
-                    INCLUDE_DIRS "global_message" "elabel_state_machine" "."
+                        "elabel_state_machine/NoWifiState.cpp"
+                        "elabel_state_machine/InitState.cpp"
+                    INCLUDE_DIRS "global_message" "elabel_state_machine" "." 
                     REQUIRES lvgl
                     REQUIRES ui
                     REQUIRES http

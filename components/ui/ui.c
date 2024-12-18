@@ -93,13 +93,13 @@ lv_obj_t * ui_Label7;
 lv_obj_t * ui_Label8;
 lv_obj_t * ui_Label10;
 lv_obj_t * ui_Container4;
-lv_obj_t * ui_Container5;
+lv_obj_t * ui_Container5;//操作的任务
 lv_obj_t * ui_textlabel14;
 lv_obj_t * ui_textlabel15;
 lv_obj_t * ui_textlabel16;
 lv_obj_t * ui_textlabel17;
 lv_obj_t * ui_textlabel18;
-lv_obj_t * ui_Container6;
+lv_obj_t * ui_Container6;//操作的时间
 lv_obj_t * ui_textlabel19;
 lv_obj_t * ui_textlabel20;
 lv_obj_t * ui_textlabel21;

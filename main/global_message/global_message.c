@@ -22,10 +22,7 @@ bool is_syset_time = false;
 time_t now = 0;
 struct tm timeinfo = {0};
 uint32_t elabelUpdateTick = 0;
-TaskNode *task_list = NULL;
 uint8_t tasklen = 0;
-uint8_t last_tasklen = 0;
-bool stop_mainTask = false;
 //--------------------------------------SNTP时间同步函数-----------------------------------------//
 // void initialize_sntp(void)
 // {
@@ -322,7 +319,7 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
         {
             get_global_data()->m_focus_state->is_focus = 1;
             get_global_data()->m_focus_state->focus_task_id = item.id;
-            ESP_LOGI("Task_list", "A New focus Task show up, its id is %d.\n", item.id);
+            ESP_LOGI("Task_list", "A New focus Task show up, its number is %d, its id is %d.\n", list->size, item.id);
         }
     }
 
@@ -342,73 +339,55 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
     list->size++;
     ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, focus state is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus);
 }
+//--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 
-TaskNode* create_task(const char* task_content) {
-    TaskNode *new_task = (TaskNode *)malloc(sizeof(TaskNode));
-    if (new_task == NULL) {
-        printf("内存分配失败\n");
-        return NULL;
+
+//--------------------------------------lvgl相关的内容-------------------------------------//
+SemaphoreHandle_t xGuiSemaphore;
+void lock_lvgl()
+{
+    while(true)
+    {
+        if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) break;
     }
-    printf("create_task before dup: %s\n",task_content);
-    new_task->task = strdup(task_content);  // 复制任务内容
-    new_task->next = NULL;
-    return new_task;
+}
+void release_lvgl()
+{
+    xSemaphoreGive(xGuiSemaphore);
 }
 
+void Inituilock()
+{
+    xGuiSemaphore = xSemaphoreCreateMutex();
+}
 //修改任务内容
-void modify_task(TaskNode *head, int position, const char *task_content) {
-    TaskNode *temp = head;
-    int index = 0;
-
-    // 遍历链表直到找到指定位置的任务
-    while (temp != NULL) {
-        if (index == position) {
-            free(temp->task);  // 释放原任务字符串的内存
-            temp->task = strdup(task_content);  // 复制新的任务内容
-            printf("任务 \"%s\" 修改成功！\n", task_content);
-            lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
-            for(int i =0;i<5;i++)
-            {
-                lv_obj_t *ui_tmpLabel = lv_obj_get_child(ui_tmpButton, i);
-                lv_label_set_text(ui_tmpLabel, task_content);
-            }
-            return;
-        }
-        temp = temp->next;
-        index++;
+void lvgl_modify_task(int position, const char *task_content) 
+{
+    uint8_t child_count = lv_obj_get_child_cnt(ui_Container3);
+    ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
+    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
+    for(int i =0;i<5;i++)
+    {
+        lv_obj_t *ui_tmpLabel = lv_obj_get_child(ui_tmpButton, i);
+        lv_label_set_text(ui_tmpLabel, task_content);
     }
-    // 如果超出了链表长度，打印错误信息
-    printf("指定位置的任务不存在！\n");
+    ESP_LOGI("LVGL","任务%d \"%s\" 修改成功！\n", position, task_content);
 }
 
 // 添加任务到链表末尾
-void add_task(TaskNode **head, const char *task_content) {
-
-    if(get_task_position(*head,task_content) != -1)
-    {
-        printf("任务已存在！\n");
-        return;
-    }
-
-    TaskNode *new_task = create_task(task_content);
-    if (*head == NULL) {
-        *head = new_task;  // 如果链表为空，设置为头结点
-    } else {
-        TaskNode *temp = *head;
-        while (temp->next != NULL) {
-            temp = temp->next;
-        }
-        temp->next = new_task;
-    }
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+void lvgl_add_task(const char *task_content) 
+{
+    //ui_Container3是存储了task_list的容器
     uint8_t child_count = lv_obj_get_child_cnt(ui_Container3);
+    ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
+    //取出最后一个元素，并删除，0开始计数所以要减1
     lv_obj_t *empty_label = lv_obj_get_child(ui_Container3, child_count-1);
-    if(empty_label != NULL && empty_label != 0)
+    if(empty_label != NULL && empty_label!= 0)
     {
-        printf("empty_label is %p\n",empty_label);
         lv_obj_del(empty_label);
     }
 
+    //新建Button承接task
     lv_obj_t *ui_tmpButton = lv_btn_create(ui_Container3);
     lv_obj_set_width(ui_tmpButton, 130);
     lv_obj_set_height(ui_tmpButton, 24);
@@ -422,6 +401,7 @@ void add_task(TaskNode **head, const char *task_content) {
     lv_obj_set_style_border_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_tmpButton, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    //给新建的button赋具体的文字，5遍是为了加粗
     for(int i = 0;i<5;i++)
     {
         lv_obj_t *ui_tmpLabel = lv_label_create(ui_tmpButton);
@@ -458,128 +438,67 @@ void add_task(TaskNode **head, const char *task_content) {
         }
     }
 
+    //给末尾附上新的空button填补
     ui_endlabel = lv_label_create(ui_Container3);
     lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_endlabel, "\n\n\n");
 
-    printf("任务 \"%s\" 添加成功！\n", task_content);
+    ESP_LOGI("LVGL","任务 \"%s\" 添加成功！\n", task_content);
     tasklen++;
 }
 
 // 删除指定位置的任务
-void delete_task(TaskNode **head, int position) {
-    if (*head == NULL) {
-        printf("任务列表为空，无法删除任务！\n");
-        return;
-    }
-
-    if(position >= tasklen || position < 0)
-    {
-        printf("指定位置的任务不存在！\n");
-        return;
-    }
-
-    TaskNode *temp = *head;
-
+void lvgl_delete_task(int position) {
     // 删除头结点
-    if (position == 0) {
-        *head = temp->next;
-        printf("任务 \"%s\" 已删除\n", temp->task);
-        free(temp->task);  // 释放任务字符串的内存
-        free(temp);        // 释放节点的内存
-        tasklen--;
+    if (position == 0) 
+    {
+        //由于空头节点的出现，所以要删除第二个
         lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
         lv_obj_del(ui_tmpButton);
         return;
     }
 
-    // 找到要删除任务的前一个节点
-    for (int i = 0; temp != NULL && i < position - 1; i++) {
-        temp = temp->next;
-    }
-
-    // 如果找不到任务
-    if (temp == NULL || temp->next == NULL) {
-        printf("指定位置的任务不存在！\n");
-        return;
-    }
-
-    TaskNode *next = temp->next->next;
-    printf("任务 \"%s\" 已删除\n", temp->next->task);
-    tasklen--;
-    free(temp->next->task);  // 释放任务字符串的内存
-    free(temp->next);        // 释放节点的内存
-
     lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_Container3, position+1);
     lv_obj_del(ui_tmpButton);
-
-    temp->next = next;
 }
 
-// 打印任务列表
-void print_tasks(TaskNode *head) {
-    TaskNode *temp = head;
-    int index = 0;
-    printf("任务列表:\n");
-    while (temp != NULL) {
-        printf("任务[%d]: %s\n", index, temp->task);
-        temp = temp->next;
-        index++;
-    }
-}
-
-// 释放所有任务的内存
-void free_tasks(TaskNode *head) {
-    TaskNode *temp;
-    while (head != NULL) {
-        temp = head;
-        head = head->next;
-        free(temp->task);  // 释放任务字符串的内存
-        free(temp);        // 释放节点的内存
-    }
-    task_list = NULL;
-    tasklen = 0;
-}
-
-char* find_task_by_position(TaskNode *head, int position) {
-    TaskNode *temp = head;
-    int index = 0;
-
-    // 遍历链表直到找到指定位置的任务
-    while (temp != NULL) {
-        if (index == position) {
-            return temp->task;  // 找到任务，返回节点指针
-        }
-        temp = temp->next;
-        index++;
-    }
-
-    // 如果超出了链表长度，返回 NULL
-    return NULL;
-}
-
-int get_task_position(TaskNode *head, const char *task_content)
+void update_lvgl_task_list()
 {
-    TaskNode *temp = head;
-    int index = 0;
-
-    // 遍历链表直到找到指定位置的任务
-    while (temp != NULL) {
-        if (strcmp(temp->task,task_content) == 0) {
-            return index;  // 找到任务，返回节点指针
+    if(get_global_data()->m_todo_list->size > 0)
+    {
+        //如果有事件，则显示任务列表,默认任务列表有两个空节点
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);   
+        uint8_t child_count = lv_obj_get_child_cnt(ui_Container3);
+        for(int i = 0; i < (child_count - 2 - get_global_data()->m_todo_list->size); i++)
+        {
+            lvgl_delete_task(i);
         }
-        temp = temp->next;
-        index++;
+        child_count = lv_obj_get_child_cnt(ui_Container3);
+        for(int i = 0; i<get_global_data()->m_todo_list->size; i++)
+        {
+            if(child_count > 2 )
+            {
+                lvgl_modify_task(i, get_global_data()->m_todo_list->items[i].title); 
+                child_count --;
+            }
+            else
+            {
+                lvgl_add_task(get_global_data()->m_todo_list->items[i].title);
+            }
+        }
     }
-
-    // 如果超出了链表长度，返回 NULL
-    return -1;
+    else
+    {
+        //如果没有事件，则显示no task enjoy life
+        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
 }
+//--------------------------------------lvgl相关的内容-------------------------------------//
 
-
-//--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 
 
 //-------------------------------------- Global_data--------------------------------------//
@@ -595,7 +514,7 @@ Global_data* get_global_data() {
         {
             Global_message_mutex = xSemaphoreCreateMutex();
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));
-            instance->m_focus_state->is_focus = 2;
+            instance->m_focus_state->is_focus = 0;
             instance->m_focus_state->focus_task_id = 0;
 
             instance->m_todo_list = (TodoList*)malloc(sizeof(TodoList));

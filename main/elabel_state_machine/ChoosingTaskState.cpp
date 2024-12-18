@@ -4,7 +4,36 @@
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"
-#include "ssd1306.h"
+#include "ssd1680.h"
+void choose_next_task()
+{
+    uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
+    if(temp_chosen_task >= ElabelController::Instance()->TaskLength) temp_chosen_task = 0;
+    ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+    ElabelController::Instance()->need_flash_paper = true;
+}
+
+void choose_previous_task()
+{
+    uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
+    if(temp_chosen_task == 255) temp_chosen_task = ElabelController::Instance()->TaskLength - 1;
+    ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+    ElabelController::Instance()->need_flash_paper = true;
+}
+
+void confirm_task()
+{
+    ChoosingTaskState::Instance()->is_confirm_task = true;
+    ElabelController::Instance()->ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
+}
+
+void ChoosingTaskState::brush_task_list()
+{
+    update_lvgl_task_list();
+    if(!need_stay_choosen) ElabelController::Instance()->ChosenTaskNum = 0;
+    ElabelController::Instance()->TaskLength = get_global_data()->m_todo_list->size;
+    set_task_list_state(newest);
+}
 
 void ChoosingTaskState::Init(ElabelController* pOwner)
 {
@@ -13,123 +42,52 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
-    //ui
-    ElabelStateSet(ELSE_STATE);
-    PartialAreaSet(FULL_SCREEN);
-    ESP_LOGI("fucking enter"," fuck you %d\n",pOwner->chosenTaskNum);
-    _ui_screen_change(&uic_TaskScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_TaskScreen_screen_init);
+    //习惯性操作
+    pOwner->need_flash_paper = false;
 
-    if(!tasklen)
-    {
-        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    is_confirm_task = false;
+    lock_lvgl();
+    //加载界面
+    lv_scr_load(uic_TaskScreen);
+    //更新任务列表ui
+    brush_task_list();
+    release_lvgl();
 
-        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
-    else
-    {
-        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-
-        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
-
-    pOwner->needFlashEpaper = true;
-    ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.\n");
+    //等待100ms组件加载完成
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    ElabelController::Instance()->need_flash_paper = true;
+    register_button_down_short_press_call_back(choose_next_task);
+    register_button_up_short_press_call_back(choose_previous_task);
+    register_button_down_long_press_call_back(confirm_task);
+    register_button_up_long_press_call_back(confirm_task);
+    ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
-    if(lv_scr_act() != ui_TaskScreen || pOwner->entersleep)
+    if(pOwner->need_flash_paper && pOwner->TaskLength > 0)
     {
-        ChoosingTaskState* pState = this;
-        pState->Enter(pOwner);
-        ESP_LOGI("choosing Task"," fuckyou %d\n",pOwner->chosenTaskNum);
-        SetBaseMapFresh(false);
-        return;
-    }
-    else if(getBaseMapFresh())
-    {
-        PartialAreaSet(TASK_LIST);
-    }
-
-
-    EventBits_t bits;
-    // 等待事件位pdTRUE 表示当 BUTTON_TASK_BIT 被设置时，函数将清除该位。
-    //pdFALSE 表示不关心其他位的状态,只有BUTTON_TASK_BIT 被设置时才会被触发
-    bits = xEventGroupWaitBits(get_eventgroupe(), BUTTON_TASK_BIT | ENCODER_TASK_BIT, pdTRUE, pdFALSE, 0); //不阻塞等待
-    if (bits & BUTTON_TASK_BIT) {
-        button_interrupt temp_interrupt = get_button_interrupt();
-        if(temp_interrupt == short_press)
-        {
-            pOwner->m_elabelFsm.ChangeState(OperatingTaskState::Instance());
-            return;
-        }
-    }
-
-    if(tasklen)
-    {
-        if(bits & ENCODER_TASK_BIT)
-        {
-            encoder_interrupt temp_interrupt = get_encoder_interrupt();
-            if(temp_interrupt == right_circle)
-            {
-                pOwner->chosenTaskNum++;
-                if(pOwner->chosenTaskNum >= tasklen) pOwner->chosenTaskNum = 0;
-            }
-            else if(temp_interrupt == left_circle)
-            {
-                if(pOwner->chosenTaskNum == 0) pOwner->chosenTaskNum = tasklen - 1;
-                else pOwner->chosenTaskNum--;
-            }
-            pOwner->needFlashEpaper = true;
-        }
-        if(elabelUpdateTick % 1000 == 0)
-        {
-            pOwner->chosenTaskNum++;
-            if(pOwner->chosenTaskNum >= tasklen) pOwner->chosenTaskNum = 0;
-            pOwner->needFlashEpaper = true;
-            ESP_LOGI("ChoosingTaskState","chosenTaskNum: %d\n",pOwner->chosenTaskNum);
-        }
-    }
-
-    if(tasklen && !last_tasklen)
-    {
-        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-
-        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-    else if(!tasklen && last_tasklen)
-    {
-        _ui_flag_modify(ui_Container3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-
-        _ui_flag_modify(ui_Container7, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
-    last_tasklen = tasklen;
-
-    if(pOwner->needFlashEpaper && tasklen > 0)
-    {
-        //调用lvgl刷新屏幕
-        // lv_roller_set_selected(ui_Roller1, chosenTaskNum, LV_ANIM_OFF);
-        lv_obj_t *child = lv_obj_get_child(ui_Container3, pOwner->chosenTaskNum + 1);
+        lock_lvgl();
+        lv_obj_t *child = lv_obj_get_child(ui_Container3, pOwner->ChosenTaskNum + 1);
         if(child != NULL) {
             scroll_to_center(ui_Container3, child);
         }
-        pOwner->needFlashEpaper = false;
+        release_lvgl();
+        pOwner->need_flash_paper = false;
     }
-    // _ui_screen_change(&uic_TaskScreen, LV_SCR_LOAD_ANIM_NONE, 500, 500, &ui_TaskScreen_screen_init);
 }
 
 void ChoosingTaskState::Exit(ElabelController* pOwner)
 {
+    unregister_button_down_short_press_call_back(choose_next_task);
+    unregister_button_up_short_press_call_back(choose_previous_task);
+    unregister_button_down_long_press_call_back(confirm_task);
+    unregister_button_up_long_press_call_back(confirm_task);
     ESP_LOGI(STATEMACHINE,"Out ChoosingTaskState.\n");
 }
 
 // 滚动指定子对象到容器中心
 void ChoosingTaskState::scroll_to_center(lv_obj_t *container, lv_obj_t *child) {
-    if (container == NULL || child == NULL) {
-        printf("Container or child is NULL\n");
-        return;
-    }
-
     // 获取容器和子对象的大小和位置
     lv_coord_t container_width = lv_obj_get_width(container);
     lv_coord_t container_height = lv_obj_get_height(container);
@@ -147,8 +105,6 @@ void ChoosingTaskState::scroll_to_center(lv_obj_t *container, lv_obj_t *child) {
     lv_obj_scroll_to(container, scroll_x, scroll_y, LV_ANIM_OFF);
 
     resize_task();
-
-    printf("Scrolled to center child at x: %d, y: %d\n", scroll_x, scroll_y);
 }
 
 void ChoosingTaskState::resize_task()

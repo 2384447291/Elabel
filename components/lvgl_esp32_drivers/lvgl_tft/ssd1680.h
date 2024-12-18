@@ -1,26 +1,34 @@
-/**
- * @file ssd1680.h
- *
- */
-
 #ifndef SSD1680_H
 #define SSD1680_H
+typedef enum
+{
+    HALFMIND_SCREEN,
+    OTA_SCREEN,
+    TASK_SCREEN,
+    TIME_SCREEN,
+    FOCUS_SCREEN,
+} screen;
 
 typedef enum
 {
-    ELSE_STATE,
     HALFMIND_STATE,
     QRCODE_STATE,
 } bitmap_state;
 
+typedef enum
+{
+    TASK_LIST,
+    TIME_SET,
+    TIME_CHANGE,
+} partial_area;
 
 typedef enum
 {
-    FULL_SCREEN,
-    TASK_LIST,
-    OPERATING_TIME,
-    FOCUS_TIME,
-} partial_area;
+    BITMAP_UPDATE,
+    FAST_UPDATE,
+    PARTIAL_UPDATE,
+    FULL_UPDATE,
+} update_mode;
 
 #ifdef __cplusplus
 extern "C"
@@ -40,8 +48,8 @@ extern "C"
 #define LV_HOR_RES_MAX 128
 #define LV_VER_RES_MAX 250
 
-#define EPD_PANEL_WIDTH          LV_HOR_RES_MAX   /* 128 */
-#define EPD_PANEL_HEIGHT         LV_VER_RES_MAX  /* 296 */
+#define EPD_PANEL_WIDTH          LV_HOR_RES_MAX  
+#define EPD_PANEL_HEIGHT         LV_VER_RES_MAX 
 
 
 /* 128 = panel width */
@@ -68,7 +76,7 @@ extern "C"
 #define SSD1680_CMD_ENTRY_MODE			0x11 //Data entry mode
 #define SSD1680_CMD_SW_RESET			0x12 //SWRESET
 #define SSD1680_CMD_TSENS_CTRL			0x1a
-#define SSD1680_CMD_READ_INT_TEMP       0x18 //Read built-in temperature sensor
+#define SSD1680_CMD_READ_INT_TEMP       0x18 //读取内置温度传感器
 #define SSD1680_CMD_MASTER_ACTIVATION	0x20 //Activate Display Update Sequence
 #define SSD1680_CMD_UPDATE_CTRL1		0x21 //Display update control
 #define SSD1680_CMD_UPDATE_CTRL2		0x22 //Display Update Control
@@ -128,21 +136,11 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area);
 void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w, lv_coord_t x, lv_coord_t y, lv_color_t color, lv_opa_t opa);
 
 void ssd1680_deep_sleep(void);
-void ElabelStateSet(bitmap_state state);
-bitmap_state GetElabelState();
-void PartialAreaSet(partial_area area);
-partial_area GetPatialArea();
-bool getBaseMapFresh();
-void SetBaseMapFresh(bool isFresh);
-
-
-
+void set_bit_map_state(bitmap_state _bitmap_state);
+void set_partial_area(partial_area _partial_area);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-
-
-
-#endif /* __SSD1680_REGS_H__ */
+#endif
