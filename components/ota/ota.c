@@ -30,7 +30,7 @@ void simple_ota_example_task(void *pvParameter)
 
     esp_err_t ret = esp_https_ota(&config);
     if (ret == ESP_OK) {
-        esp_restart();
+        m_ota_state = ota_success;
     } else {
         m_ota_state = ota_fail;
         ESP_LOGE(TAG, "Firmware upgrade failed");
@@ -40,7 +40,7 @@ void simple_ota_example_task(void *pvParameter)
     // 如果删除任务失败，则这个代码不会被执行
     while (1) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        ESP_LOGE(TAG, "OTA TASK IS NOT DELETE");
+        ESP_LOGE(TAG, "OTA FINISH");
     }
 }
 
@@ -48,8 +48,4 @@ void start_ota(void)
 {
     m_ota_state = ota_ing;
     xTaskCreate(&simple_ota_example_task, "ota_task", 4096, NULL, 10, NULL);
-    while(m_ota_state != ota_fail)
-    {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    }
 }

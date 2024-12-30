@@ -2,22 +2,26 @@
 #define SSD1680_H
 typedef enum
 {
+    DEFAULT_SCREEN,
     HALFMIND_SCREEN,
+    BIND_SCREEN,
     OTA_SCREEN,
+    UPDATE_SCREEN,
     TASK_SCREEN,
-    TIME_SCREEN,
+    OPERATING_SCREEN,
     FOCUS_SCREEN,
+    SHUTDOWN_SCREEN,
 } screen;
 
 typedef enum
 {
     HALFMIND_STATE,
-    QRCODE_STATE,
 } bitmap_state;
 
 typedef enum
 {
     TASK_LIST,
+    OTA_PROCESS,
     TIME_SET,
     TIME_CHANGE,
 } partial_area;
@@ -41,19 +45,12 @@ extern "C"
 #include "lvgl/lvgl.h"
 #endif
 #include "sdkconfig.h"
-
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 250
 /* Backward compatibility for LV_HOR_RES_MAX & LV_VER_RES_MAX */
-#define LV_HOR_RES_MAX 128
+#define LV_HOR_RES_MAX 122
 #define LV_VER_RES_MAX 250
 
-#define EPD_PANEL_WIDTH          LV_HOR_RES_MAX  
-#define EPD_PANEL_HEIGHT         LV_VER_RES_MAX 
-
-
-/* 128 = panel width */
-#define SSD1680_COLUMNS          (EPD_PANEL_WIDTH / 8)
+/* 122 = panel width */
+#define SSD1680_COLUMNS          (128 / 8)
 
 #define SSD1680_DC_PIN           CONFIG_LV_DISP_PIN_DC
 #define SSD1680_RST_PIN          CONFIG_LV_DISP_PIN_RST
@@ -136,9 +133,6 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area);
 void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w, lv_coord_t x, lv_coord_t y, lv_color_t color, lv_opa_t opa);
 
 void ssd1680_deep_sleep(void);
-void set_bit_map_state(bitmap_state _bitmap_state);
-void set_partial_area(partial_area _partial_area);
-
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

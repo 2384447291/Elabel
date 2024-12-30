@@ -55,20 +55,11 @@ bool mqttMessage_parse(char *data, MqttMessage_recieve *mqtt_msg)
         ESP_LOGE(MQTT_RECIEVE_TAG, "msg not found");
         return false;
     }
-    
+
+    //这个是之前的协议，现在不用了    
     if(strcmp(mqtt_msg->method, "outFocus") == 0)
     {
         mqtt_msg->order = Out_focus;
-        cJSON *Focus = cJSON_GetObjectItem(msg, "outFocus");
-        if (cJSON_IsBool(Focus)) 
-        {
-            mqtt_msg->is_focus = Focus->valueint;
-        } 
-        else 
-        {
-            ESP_LOGE(MQTT_RECIEVE_TAG, "Focus not found");
-            return false;
-        }
     }
     else if(strcmp(mqtt_msg->method, "sync") == 0)
     {
@@ -113,7 +104,7 @@ bool mqttMessage_parse(char *data, MqttMessage_recieve *mqtt_msg)
     }
     else
     {
-        ESP_LOGE(MQTT_RECIEVE_TAG, "method can not figure ----,%s",mqtt_msg->method);
+        ESP_LOGE(MQTT_RECIEVE_TAG, "method can not figure ---- %s",mqtt_msg->method);
         return false;
     }
 
@@ -147,8 +138,10 @@ static void solve_message(char *response)
             cJSON_Delete(json);
             free(data);
         }
-
-        if(Mqtt_msg.order == Out_focus)
+        // {"did":0,"isReply":0,"msgId":2,"method":"sync","msg":{"dataType":"focus","changType":"out"}} from service/to/client/a5132039097449269aa1bb502f6c2158
+        // {"did":19,"isReply":1,"msgId":1,"method":"outFocus","msg":{"sn":"E8:06:90:97:FE:58"}} from service/to/firmware/E8:06:90:97:FE:58
+        //我会收到两个outfocus只处理一个不需要回复的哪一个
+        if(Mqtt_msg.order == Out_focus && Mqtt_msg.isReply == 0)
         {
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A task is done.\n");
             if(get_global_data()->m_focus_state->is_focus == 2) 

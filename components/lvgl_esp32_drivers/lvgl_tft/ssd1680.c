@@ -9,49 +9,18 @@
 
 #define TAG "SSD1680"
 
-#define BIT_SET(a,b)                    ((a) |= (1U<<(b)))
-#define BIT_CLEAR(a,b)                  ((a) &= ~(1U<<(b)))
-
-// pixels的数目
-#define SSD1680_PIXEL                   (LV_HOR_RES_MAX * LV_VER_RES_MAX)
-
-#define EPD_PANEL_NUMOF_COLUMS		EPD_PANEL_WIDTH
-#define EPD_PANEL_NUMOF_ROWS_PER_PAGE	8
-
-/* Are pages the number of bytes to represent the panel width? in bytes */
-#define EPD_PANEL_NUMOF_PAGES	        (EPD_PANEL_HEIGHT / EPD_PANEL_NUMOF_ROWS_PER_PAGE)
-
-#define SSD1680_PANEL_FIRST_PAGE	        0
-#define SSD1680_PANEL_LAST_PAGE	        (EPD_PANEL_NUMOF_PAGES - 1)
-#define SSD1680_PANEL_FIRST_GATE	        0
-#define SSD1680_PANEL_LAST_GATE	        (EPD_PANEL_NUMOF_COLUMS - 1)
-
-#define SSD1680_PIXELS_PER_BYTE		    8
+#define EPD_PANEL_WIDTH          122
+#define EPD_PANEL_HEIGHT         250
 
 // static uint8_t ssd1680_border_init[] = {0x05}; //init
 static uint8_t ssd1680_border_part[] = {0x80}; //partial update
 //A2 - 1 Follow LUT; A1:A0 - 01 LUT1;
-
-
 
 screen elabel_screen;
 bitmap_state elabel_bitmap_state;
 partial_area elabel_partial_area;
 update_mode elabel_update_mode;
 bool isBaseMapFresh = false;
-
-void set_bit_map_state(bitmap_state _bitmap_state)
-{
-    elabel_bitmap_state = _bitmap_state;
-}
-
-void set_partial_area(partial_area _partial_area)
-{
-    elabel_partial_area = _partial_area;
-}
-
-
-
 
 static void ssd1680_update_display();
 static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, uint16_t ye);
@@ -83,13 +52,24 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     lv_obj_t * act_scr = lv_scr_act();
     if(act_scr == ui_HalfmindScreen)
     {
-       if(elabel_screen != HALFMIND_SCREEN)
+        if(elabel_screen != HALFMIND_SCREEN)
         {
             isBaseMapFresh = false;
             elabel_screen = HALFMIND_SCREEN;
         }
         elabel_update_mode = BITMAP_UPDATE;
+        elabel_bitmap_state = HALFMIND_STATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
+    }
+    else if(act_scr == ui_BindScreen)
+    {
+        if(elabel_screen != BIND_SCREEN)
+        {
+            isBaseMapFresh = false;
+            elabel_screen = BIND_SCREEN;
+        }
+        elabel_update_mode = FAST_UPDATE;
+        ESP_LOGI(TAG,"ui_BindScreen Flush called.");
     }
     else if(act_scr == ui_OTAScreen)
     {
@@ -100,6 +80,31 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         }
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_OTAScreen Flush called.");
+    }
+    else if(act_scr == ui_ShutdownScreen)
+    {
+        if(elabel_screen != SHUTDOWN_SCREEN)
+        {
+            isBaseMapFresh = false;
+            elabel_screen = SHUTDOWN_SCREEN;
+        }
+        elabel_update_mode = FAST_UPDATE;
+        ESP_LOGI(TAG,"ui_ShutdownScreen Flush called.");
+    }
+    else if(act_scr == ui_UpdateScreen)
+    {
+        if(elabel_screen != UPDATE_SCREEN)
+        {
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = UPDATE_SCREEN;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+            elabel_partial_area = OTA_PROCESS;
+        }
+        ESP_LOGI(TAG,"ui_UpdateScreen Flush called.");
     }
     else if(act_scr == ui_TaskScreen)
     {
@@ -116,37 +121,35 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         }
         ESP_LOGI(TAG,"ui_TaskScreen Flush called.");
     }
-    else if(act_scr == ui_FocusScreen)//这里有两个screen一个是时间选择，一个是倒计时
+    else if(act_scr == ui_OperatingScreen)
     {
-        if(elabel_partial_area == TIME_CHANGE)
+        if(elabel_screen != OPERATING_SCREEN)
         {
-            if(elabel_screen != FOCUS_SCREEN)
-            {
-                elabel_update_mode = FAST_UPDATE;
-                isBaseMapFresh = false;
-                elabel_screen = FOCUS_SCREEN;
-            }
-            else
-            {
-                elabel_update_mode = PARTIAL_UPDATE;
-            }
-            ESP_LOGI(TAG,"ui_FocusScreen Flush called.");
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = OPERATING_SCREEN;
         }
-        else if(elabel_partial_area == TIME_SET)
+        else
         {
-            if(elabel_screen != TIME_SCREEN)
-            {
-                elabel_update_mode = FAST_UPDATE;
-                isBaseMapFresh = false;
-                elabel_screen = TIME_SCREEN;
-            }
-            else
-            {
-                elabel_update_mode = PARTIAL_UPDATE;
-            }
-            ESP_LOGI(TAG,"ui_TimeSet Flush called.");
+            elabel_update_mode = PARTIAL_UPDATE;
+            elabel_partial_area = TIME_SET; 
         }
-
+        ESP_LOGI(TAG,"ui_OperatingScreen Flush called.");
+    }
+    else if(act_scr == ui_FocusScreen)
+    {
+        if(elabel_screen != FOCUS_SCREEN)
+        {
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = FOCUS_SCREEN;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+            elabel_partial_area = TIME_CHANGE; 
+        }
+        ESP_LOGI(TAG,"ui_FocusScreen Flush called.");
     }
     else
     {
@@ -154,15 +157,15 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         return;
     }
 
-    // 打印 area 的信息
-    // if (area != NULL) {
-    //     ESP_LOGI("SSD1680", "Area: x1=%d, y1=%d, x2=%d, y2=%d", area->x1, area->y1, area->x2, area->y2);
-    // } else {
-    //     ESP_LOGI("SSD1680", "Area: NULL");
-    // }
+    //打印 area 的信息
+    if (area != NULL) {
+        ESP_LOGI("SSD1680", "Area: x1=%d, y1=%d, x2=%d, y2=%d", area->x1, area->y1, area->x2, area->y2);
+    } else {
+        ESP_LOGI("SSD1680", "Area: NULL");
+    }
 
     //每个字节包含 8 个像素的数据，linelen 是字节数。我们需要覆盖显示屏的一行
-    uint16_t data_num = (EPD_PANEL_WIDTH*EPD_PANEL_HEIGHT/8); 
+    uint16_t data_num = (128*250/8); 
     uint8_t *buffer = (uint8_t *) color_map;
 
     if(!isBaseMapFresh)
@@ -179,26 +182,13 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
             buffer = (uint8_t *) gImage_halfmind;
             ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
             ssd1680_send_data(buffer,4000);
-            //局刷前的basemap需要刷新这个
+            //局刷前的basemap的全刷需要刷新这个,但这里后面不会跟局刷，所以不处理
             // buffer = (uint8_t *) gImage_halfmind;
             // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
             // ssd1680_send_data(buffer,4000);
             ssd1680_update_display();
         }
-        else if(elabel_bitmap_state == QRCODE_STATE)
-        {
-            ESP_LOGI("SSD1680", "BITMAP QRCODE_STATE Start Send.");
-            buffer = (uint8_t *) gImage_QRcode;
-            ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-            ssd1680_send_data(buffer,4000);
-            //局刷前的basemap需要刷新这个
-            //buffer = (uint8_t *) gImage_QRcode;
-            //ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
-            //ssd1680_send_data(buffer,4000);
-            ssd1680_update_display();
-        }
     }
-
     else if(elabel_update_mode == FAST_UPDATE)
     {
         ESP_LOGI("SSD1680", "FAST Start Send.");
@@ -213,7 +203,6 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
 
         ssd1680_update_display();
     }
-    
     else if(elabel_update_mode == PARTIAL_UPDATE)
     {
         ESP_LOGI("SSD1680", "PARTIAL Start Send.");
@@ -228,7 +217,14 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
             x1 = 0;
             y1 = 0;
             x2 = 250;
-            y2 = 128;
+            y2 = 122;
+        }
+        else if(elabel_partial_area == OTA_PROCESS)
+        {
+            x1 = 0;
+            y1 = 0;
+            x2 = 250;
+            y2 = 122;
         }
         else if(elabel_partial_area == TIME_CHANGE)
         {

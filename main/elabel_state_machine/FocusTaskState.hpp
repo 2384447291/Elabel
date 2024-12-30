@@ -14,10 +14,7 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool is_out_focus;
-    int falling_time;
-
-    uint8_t buzzer_state = 0;
+    int inner_time_countdown = 0;
 
     static FocusTaskState* Instance()
     {

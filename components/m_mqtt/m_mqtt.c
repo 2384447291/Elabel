@@ -4,7 +4,7 @@
 #include "mqtt_recieve.h"
 #include "cJSON.h"
 
-bool is_mqtt_connected = false;
+bool is_mqtt_init = false;
 
 Mqtt_order m_mqtt_order = No_order;
 
@@ -32,13 +32,11 @@ static int mqtt_response_buffer_len = 0;
 void mqtt_event_fun(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ESP_LOGI(MQTT_TAG,"%s,%d\r\n",event_base,event_id);
-    if(event_id==MQTT_EVENT_CONNECTED){                 //连接上MQTT服务器
-        is_mqtt_connected=true;
+    if(event_id==MQTT_EVENT_CONNECTED){            
         esp_mqtt_client_subscribe(mqtt_client,rev_topic,1);    //订阅主题
         esp_mqtt_client_subscribe(mqtt_client,rev_topic_2,1);    
         ESP_LOGI(MQTT_TAG,"success connect mqtt\r\n");
     }else if(event_id==MQTT_EVENT_DISCONNECTED){        //断开MQTT服务器连接
-        is_mqtt_connected=false;
         ESP_LOGE(MQTT_TAG,"lose connect mqtt\r\n");
     }else if(event_id==MQTT_EVENT_DATA){                //收到订阅信息
         esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t )event_data;   //强转获取存放订阅信息的参数
@@ -66,14 +64,8 @@ void mqtt_event_fun(void *event_handler_arg, esp_event_base_t event_base, int32_
 
 void mqtt_client_init(void)
 {
-    uint8_t mac[6];
-    esp_efuse_mac_get_default(mac);
-    for (size_t i = 0; i < 6; i++) {
-        get_global_data()->mac_uint[i] = mac[i];
-    }
-    snprintf(get_global_data()->mac_str, sizeof(get_global_data()->mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    ESP_LOGI(MQTT_TAG,"MAC: %s\n", get_global_data()->mac_str);
+    if(is_mqtt_init) return;
+    is_mqtt_init = true;
     strcat(rev_topic,get_global_data()->mac_str);
     strcat(rev_topic_2,get_global_data()->usertoken);
     strcat(send_topic,get_global_data()->mac_str);
@@ -81,6 +73,8 @@ void mqtt_client_init(void)
     esp_mqtt_client_config_t emcct = {
         .uri="mqtt://120.77.1.151",  //MQTT服务器的uri
         .port=1883,                   //MQTT服务器的端口
+        .disable_auto_reconnect = false,
+        .keepalive = 5,//设置心跳间隔
     };
     mqtt_client = esp_mqtt_client_init(&emcct);           //初始化MQTT客户端获取句柄
     if(!mqtt_client)  ESP_LOGI(MQTT_TAG,"mqtt init error!\r\n");

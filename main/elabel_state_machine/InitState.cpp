@@ -1,15 +1,27 @@
 #include "InitState.hpp"
-#include "network.h"
-#include "ui.h"
-#include "ssd1680.h"
 #include "http.h"
 #include "m_mqtt.h"
-#include "control_driver.h"
-#include "ota.h"
+#include "control_driver.hpp"
+#include "network.h"
+
+void enter_ota();
+void out_ota();
 
 void out_ota()
 {
+    InitState::Instance()->is_need_ota = false;
     InitState::Instance()->ota_Wait_tick = 300;
+    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(enter_ota);
+    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(enter_ota);
+}
+
+void enter_ota()
+{
+    InitState::Instance()->is_need_ota = true;
+    InitState::Instance()->ota_Wait_tick = 300;
+    //旋转放弃ota
+    ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(out_ota);
+    ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(out_ota);
 }
 
 
@@ -20,9 +32,8 @@ void InitState::Init(ElabelController* pOwner)
 
 void InitState::Enter(ElabelController* pOwner)
 {
-    set_led_state(device_init);
     is_init = false;
-    set_bit_map_state(HALFMIND_STATE);
+    is_need_ota = false;
     lock_lvgl();
     lv_scr_load(ui_HalfmindScreen);
     release_lvgl();
@@ -31,33 +42,37 @@ void InitState::Enter(ElabelController* pOwner)
 
 void InitState::Execute(ElabelController* pOwner)
 {
-    if(get_wifi_status()!=2) return;
+    //如果正在连接或者没有用户，则不进行初始化
+    if(get_wifi_status() == 1 && get_global_data()->usertoken!=NULL) return;
     if(is_init) return;
-    //等待2swifi连接两秒稳定
+    ControlDriver::Instance()->getLED().setLedState(LedState::DEVICE_INIT);
+    //等待1swifi连接两秒稳定
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    set_led_state(device_init);
-
-    //同步时间(堵塞等待)
+    //获取挂墙时间(堵塞等待)
     HTTP_syset_time();
     get_unix_time();
-
+    
     //mqtt服务器初始化
     mqtt_client_init();
 
     //获取最新版本固件
     http_get_latest_version(true);
 
-    if(get_global_data()->newest_firmware_url!=NULL)
+    //如果判断为需要OTA
+    if(get_global_data()->newest_firmware_url != NULL && strcmp(get_global_data()->version, FIRMWARE_VERSION) != 0)
     {
         lv_scr_load(ui_OTAScreen);
-        lv_label_set_text(ui_Label3, get_global_data()->version);
-        ota_Wait_tick = 0;
-        //按压开始ota
-        register_button_up_short_press_call_back(start_ota);
-        register_button_down_short_press_call_back(start_ota);
-        //旋转放弃ota
-        register_encoder_left_circle_call_back(out_ota);
-        register_encoder_right_circle_call_back(out_ota);    
+        char version_change[100];
+        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->version);
+        set_text(ui_VersionChange, version_change);
+        ota_Wait_tick = 0;      
+        //短按进入ota
+        ControlDriver::Instance()->ButtonDownShortPress.registerCallback(enter_ota);
+        ControlDriver::Instance()->ButtonUpShortPress.registerCallback(enter_ota);
+        //旋转退出ota
+        ControlDriver::Instance()->EncoderRightCircle.registerCallback(out_ota);
+        ControlDriver::Instance()->EncoderLeftCircle.registerCallback(out_ota);
+
         while(true)
         {
             vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -76,19 +91,16 @@ void InitState::Execute(ElabelController* pOwner)
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
     http_get_todo_list(true);
-    http_bind_user(true);
     is_init = true;
 }
 
 void InitState::Exit(ElabelController* pOwner)
 {
-    set_led_state(no_light);
     elabelUpdateTick = 0;
-    //按压开始ota
-    unregister_button_down_short_press_call_back(start_ota);
-    unregister_button_up_short_press_call_back(start_ota);
-    //旋转放弃ota
-    unregister_encoder_left_circle_call_back(out_ota);
-    unregister_encoder_right_circle_call_back(out_ota);  
+    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(enter_ota);
+    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(enter_ota);
+    ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(out_ota);
+    ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(out_ota);
+    ControlDriver::Instance()->getLED().setLedState(LedState::NO_LIGHT);
     ESP_LOGI(STATEMACHINE,"Out InitState.\n");
 }

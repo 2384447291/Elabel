@@ -13,6 +13,7 @@ typedef enum {
     no_need_ota,
     ota_ing,
     ota_fail,
+    ota_success,
 } ota_state;
 
 #ifdef __cplusplus

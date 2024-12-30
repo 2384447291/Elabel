@@ -1,10 +1,12 @@
 #include "ElabelController.hpp"
 #include "global_message.h"
+#include "global_draw.h"
+#include "global_time.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
-#include "control_driver.h"
+#include "control_driver.hpp"
 #include "ssd1680.h"
 #include "network.h"
 
@@ -13,8 +15,10 @@
 #include "FocusTaskState.hpp"
 #include "NoWifiState.hpp"
 #include "InitState.hpp"
+#include "OTAState.hpp"
 
 ElabelController::ElabelController() : m_elabelFsm(this){}
+//初始化状态是init_state
 
 void ElabelController::Init()
 {
@@ -29,122 +33,114 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
-    //wifi事件打断
-    static bool led_wifi_on;
-    if(get_wifi_status() == 0)
+    //wifi连接灯逻辑
+    if(get_wifi_status() == 1)
     {
-        ChangeState(NoWifiState::Instance());
+        ControlDriver::Instance()->getLED().setLedState(LedState::DEVICE_WIFI_CONNECT);
     }
-    else if(get_wifi_status() == 1)
+    //防止打断init的绿灯状态
+    else
     {
-        led_wifi_on = true;
-        set_led_state(device_wifi_connect);
-    }
-    else if(get_wifi_status() == 2 && led_wifi_on)
-    {
-        set_led_state(no_light);
-        led_wifi_on = false;
-    }
-
-    // 外部中断打断
-    if(get_task_list_state() == firmware_need_update)
-    {
-        //如果收到了退出focus的信息
-        if(get_global_data()->m_focus_state->is_focus == 2)
+        if(GetCurrentState()!=InitState::Instance() && GetCurrentState()!=NoWifiState::Instance())
         {
-            if(GetCurrentState()==FocusTaskState::Instance())
-            {
-                ChoosingTaskState::Instance()->is_confirm_task = false;
-                ChangeState(ChoosingTaskState::Instance());
-            }
-            get_global_data()->m_focus_state->is_focus = 0;
-            get_global_data()->m_focus_state->focus_task_id =0;
-        }
-        //如果收到进入focus的信息
-        else if(get_global_data()->m_focus_state->is_focus == 1)
-        {
-            if(GetCurrentState()!=InitState::Instance() 
-            && GetCurrentState()!=NoWifiState::Instance())
-            {
-                ChangeState(FocusTaskState::Instance());
-            }
-        }
-        else if(get_global_data()->m_focus_state->is_focus == 0)
-        {
-            //如果当前是选择task界面则刷新其他界面则暂时不刷新
-            if(GetCurrentState()==ChoosingTaskState::Instance())
-            {
-                ChoosingTaskState::Instance()->need_stay_choosen = false;
-                lock_lvgl();
-                ChoosingTaskState::Instance()->brush_task_list();
-                release_lvgl();
-                ElabelController::Instance()->need_flash_paper = true;
-            }
-        }
-        set_task_list_state(newest);
-    }
-
-    //正常流程跳转
-    if(GetCurrentState()==NoWifiState::Instance())
-    {
-        if(get_wifi_status() == 2)
-        {
-            ChangeState(InitState::Instance());
+            ControlDriver::Instance()->getLED().setLedState(LedState::NO_LIGHT);
         }
     }
 
     if(GetCurrentState()==InitState::Instance())
     {
-        //init模式肯定刷新过任务列表
-        if(InitState::Instance()->is_init)
+        if(InitState::Instance()->is_need_ota)
         {
-            //如果初始完成后有task是专注模式
-            if(get_global_data()->m_focus_state->is_focus == 1)
+            ChangeState(OTAState::Instance());
+        }
+        else
+        {
+            //当没有用户或者没有网络的时候要进入绑定状态，如果有历史消息肯定在进入主程序前就已经开始wifi连接了
+            if(get_wifi_status() == 0 || get_global_data()->usertoken == NULL)
             {
+                ChangeState(NoWifiState::Instance());
+            }
+            //唯一能出去的接口
+            if(InitState::Instance()->is_init)
+            {
+                if(get_global_data()->m_focus_state->is_focus == 1) ChangeState(FocusTaskState::Instance());
+                else ChangeState(ChoosingTaskState::Instance());
+            }
+        }
+    }
+    else if(GetCurrentState()==NoWifiState::Instance())
+    {
+        if(NoWifiState::Instance()->need_out_activate)
+        {
+            ChangeState(InitState::Instance());
+        }
+    }
+    //上面三个状态是不受其他状态打断的
+    else
+    {
+        //wifi事件打断
+        if(get_wifi_status() == 0 )
+        {
+            ChangeState(NoWifiState::Instance());
+        }
+
+        //外部有数据更新打断
+        if(get_task_list_state() == firmware_need_update)
+        {
+            //如果收到了退出focus的信息
+            if(get_global_data()->m_focus_state->is_focus == 2)
+            {
+                ESP_LOGI("ElabelFsm","exit focus");
+                if(GetCurrentState()==FocusTaskState::Instance())
+                {
+                    ChoosingTaskState::Instance()->need_stay_choosen = false;
+                    ChangeState(ChoosingTaskState::Instance());
+                }
+                get_global_data()->m_focus_state->is_focus = 0;
+                get_global_data()->m_focus_state->focus_task_id = 0;
+            }
+            //如果收到进入focus的信息
+            else if(get_global_data()->m_focus_state->is_focus == 1)
+            {
+                ESP_LOGI("ElabelFsm","enter focus");
                 ChangeState(FocusTaskState::Instance());
             }
-            //如果初始完成后没有task是专注模式
-            else
+            else if(get_global_data()->m_focus_state->is_focus == 0)
             {
-                ChoosingTaskState::Instance()->need_stay_choosen = false;
+                ESP_LOGI("ElabelFsm","tasklist update");
+                //如果当前是选择task界面则刷新其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
+                if(GetCurrentState()==ChoosingTaskState::Instance())
+                {
+                    ChoosingTaskState::Instance()->need_stay_choosen = false;
+                    lock_lvgl();
+                    ChoosingTaskState::Instance()->brush_task_list();
+                    release_lvgl();
+                    ElabelController::Instance()->need_flash_paper = true;
+                }
+            }
+            set_task_list_state(newest);
+        }
+
+        if(GetCurrentState()==ChoosingTaskState::Instance())
+        {
+            if(ChoosingTaskState::Instance()->is_jump_to_activate)
+            {
+                ChangeState(NoWifiState::Instance());
+            }
+            else if(ChoosingTaskState::Instance()->is_confirm_task)
+            {
+                ChangeState(OperatingTaskState::Instance());
+            }
+        }
+        else if(GetCurrentState()==OperatingTaskState::Instance())
+        {
+            if(OperatingTaskState::Instance()->is_not_confirm_task)
+            {
+                ChoosingTaskState::Instance()->need_stay_choosen = true;
                 ChangeState(ChoosingTaskState::Instance());
             }
         }
     }
-    
-    if(GetCurrentState()==ChoosingTaskState::Instance())
-    {
-        if(ChoosingTaskState::Instance()->is_confirm_task)
-        {
-            ChangeState(OperatingTaskState::Instance());
-            ChoosingTaskState::Instance()->is_confirm_task = false;
-        }
-    }
-
-    if(GetCurrentState()==OperatingTaskState::Instance())
-    {
-        if(OperatingTaskState::Instance()->is_not_confirm_task)
-        {
-            ChoosingTaskState::Instance()->need_stay_choosen = true;
-            ChangeState(ChoosingTaskState::Instance());
-        }
-        //交给服务器传递
-        // else if(OperatingTaskState::Instance()->is_confirm_time)
-        // {
-        //     ChangeState(FocusTaskState::Instance());
-        // }
-    }
-
-    //交给服务器传递
-    // if(GetCurrentState()==FocusTaskState::Instance())
-    // {
-    //     if(FocusTaskState::Instance()->is_out_focus)
-    //     {
-    //         ChoosingTaskState::Instance()->need_stay_choosen = true;
-    //         ChangeState(ChoosingTaskState::Instance());
-    //     }
-    // }
-
 }
 
 void ElabelFsm::Init()
@@ -154,5 +150,6 @@ void ElabelFsm::Init()
     FocusTaskState::Instance()->Init(m_pOwner);
     OperatingTaskState::Instance()->Init(m_pOwner);
     InitState::Instance()->Init(m_pOwner);
+    OTAState::Instance()->Init(m_pOwner);
     SetCurrentState(InitState::Instance());
 }

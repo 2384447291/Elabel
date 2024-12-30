@@ -15,8 +15,8 @@ public:
     virtual void Exit(ElabelController* pOwner);
 
     int last_encoder_value = 0;
-    bool is_confirm_time;
-    bool is_not_confirm_task = 0;
+    bool is_not_confirm_task = false;
+    bool is_not_confirm_time = false;
     int update_lock = 0;
     int auto_reload_time;
     static OperatingTaskState* Instance()

@@ -2,10 +2,10 @@
 #include "blufi.h"
 
 #define WIFI_CONNECT "WIFI_CONNECT"
+#include "global_message.h"
 
 bool is_wifi_init = false;
 bool is_wifi_preprocess = false;
-bool enable_reconnect = true;
 
 static void wifi_init_sta(void);
 static void get_nvs_info(void);
@@ -16,13 +16,30 @@ uint8_t get_wifi_status(void)
     return wifi_state;
 }
 
+void set_wifi_status(uint8_t _wifi_state)
+{
+    wifi_state = _wifi_state;
+}
+
+void start_activate()
+{
+    m_wifi_disconnect();
+    if(blufi_notify_flag) return;
+    start_blufi();
+}
+void stop_activate()
+{
+    blufi_notify_flag = false;
+}
+
+
 void m_wifi_connect(void)
 {
-    if(is_wifi_init == false || wifi_state == 0x02)
+    enable_reconnect = true;
+    if(is_wifi_init == false || wifi_state != 0x00)
     {
         return;
     }
-    enable_reconnect = true;
     //...................................判断是否能找到历史记录..........................................//
     if(is_set[0] == true && is_set[1] == true)
     {
@@ -45,7 +62,6 @@ void m_wifi_connect(void)
     {
         ESP_LOGE(WIFI_CONNECT,"No WIFI History");
         wifi_state = 0x00;
-        start_blufi();//开启蓝牙配网
     }
     //...................................判断是否能找到历史记录..........................................//
 }
@@ -192,7 +208,6 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
                 ESP_LOGE(WIFI_CONNECT,"Fail connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
                 // 清零 wifi_state
                 wifi_state = 0x00;
-                start_blufi();   //开启蓝牙接口
                 retry_num = 0;
                 ESP_ERROR_CHECK(esp_wifi_disconnect());
             }
@@ -282,6 +297,8 @@ static void get_nvs_info(void)
     else
     {
         ESP_LOGI(WIFI_CONNECT,"history wifi_ssid found : %s. \n", wifi_ssid);
+        if(get_global_data()->wifi_ssid!=NULL) free(get_global_data()->wifi_ssid);
+        get_global_data()->wifi_ssid  = strdup(wifi_ssid);
         is_set[0] = true;
     }
 
@@ -294,6 +311,8 @@ static void get_nvs_info(void)
     else
     {
         ESP_LOGI(WIFI_CONNECT,"history wifi_passwd found : %s. \n", wifi_passwd);
+        if(get_global_data()->wifi_password!=NULL) free(get_global_data()->wifi_password);
+        get_global_data()->wifi_password  = strdup(wifi_passwd);
         is_set[1] = true;
     }
 
@@ -306,7 +325,22 @@ static void get_nvs_info(void)
     else
     {
         ESP_LOGI("Customer","history customer found : %s. \n", customer);
+        if(get_global_data()->usertoken!=NULL) free(get_global_data()->usertoken);
+        get_global_data()->usertoken  = strdup(customer);
         is_set[2] = true;
+    }
+
+    len = sizeof(username);      /* 从NVS中获取username */
+    esp_err_t username_err = nvs_get_str(wificfg_nvs_handler,"username",username,&len) ;
+    if(username_err != ESP_OK)
+    {
+        ESP_LOGE("Username","No username found. \n");
+    }
+    else
+    {
+        ESP_LOGI("Username","history username found : %s. \n", username);
+        if(get_global_data()->userName!=NULL) free(get_global_data()->userName);
+        get_global_data()->userName  = strdup(username);
     }
 
     ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */

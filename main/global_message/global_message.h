@@ -7,30 +7,7 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "Firmware_define.h"
-#include "ui.h"
-
-#define FIRMWARE_VERSION "1.0.0"
-//--------------------------------------SNTP时间同步函数-----------------------------------------//
-#ifdef __cplusplus
-extern "C" {
-#endif
-// void SNTP_syset_time(void);
-
-void HTTP_syset_time(void);
-
-long long get_unix_time(void);
-#ifdef __cplusplus
-}
-#endif
-//--------------------------------------SNTP时间同步函数-----------------------------------------//
-
-
-
-
-
-
+#define FIRMWARE_VERSION "2.0.4"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，为专注2
@@ -67,7 +44,8 @@ typedef struct {
 } TodoList;
 
 #ifdef __cplusplus
-extern "C" {
+extern "C" 
+{
 #endif
 
 task_list_state get_task_list_state(void);
@@ -98,21 +76,25 @@ typedef struct
     Focus_state* m_focus_state;//2表示否focus 1表示是focus 0表示没东西
     TodoList* m_todo_list;
 
-    char* usertoken;
-
-    uint8_t mac_uint[6];
-    char mac_str[18];
     //为了确保字符串能够正确存储格式化后的 MAC 地址，并以 '\0' 结尾，字符串的大小应该至少为 18 字节。具体计算如下：
     // 每个字节以两位十六进制表示：02（2 字符）
     // 6 个字节的 MAC 地址：6 * 2 = 12 字符
     // 5 个冒号分隔符：5 字符
     // 1 个结束字符 '\0'：1 字符
-    
+    uint8_t mac_uint[6];
+    char mac_str[18];
+
+    //查询的最新版本号
     char* newest_firmware_url;
     char *version;
     char *deviceModel;
     char *createTime;
-
+    //查询的用户名称
+    char* usertoken;
+    char* userName;
+    //连接的wifi的名称和密码
+    char* wifi_ssid;
+    char* wifi_password;
 } Global_data;
 
 #ifdef __cplusplus
@@ -120,17 +102,9 @@ extern "C" {
 #endif
 // 获取单例实例的函数
 Global_data* get_global_data();
-
-void lock_lvgl();
-void release_lvgl();
-void Inituilock();
-void update_lvgl_task_list();
 #ifdef __cplusplus
 }
 #endif
 
 void print_uint8_array(uint8_t *array, size_t length);
-
-//挂墙时钟
-extern uint32_t elabelUpdateTick;
 #endif

@@ -22,110 +22,151 @@ extern lv_obj_t * ui_HalfmindScreen;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 
+// SCREEN: ui_BindScreen
+void ui_BindScreen_screen_init(void);
+extern lv_obj_t * ui_BindScreen;
+extern lv_obj_t * ui_BindGuide;
+extern lv_obj_t * ui_Label2;
+extern lv_obj_t * ui_Label3;
+extern lv_obj_t * ui_Username;
+extern lv_obj_t * ui_Wifiname;
+extern lv_obj_t * ui_WIFIPassword;
+extern lv_obj_t * ui_Firmwareversion;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_BindScreen;
+extern lv_obj_t * uic_BindGuide;
+extern lv_obj_t * uic_Username;
+extern lv_obj_t * uic_Wifiname;
+extern lv_obj_t * uic_WIFIPassword;
+extern lv_obj_t * uic_Firmwareversion;
+
 // SCREEN: ui_OTAScreen
 void ui_OTAScreen_screen_init(void);
 extern lv_obj_t * ui_OTAScreen;
-extern lv_obj_t * ui_textlabel;
-extern lv_obj_t * ui_textlabel1;
-extern lv_obj_t * ui_textlabel2;
-extern lv_obj_t * ui_textlabel3;
-extern lv_obj_t * ui_textlabel4;
-extern lv_obj_t * ui_textlabel5;
-extern lv_obj_t * ui_textlabel6;
-extern lv_obj_t * ui_textlabel7;
-extern lv_obj_t * ui_textlabel8;
-extern lv_obj_t * ui_textlabel9;
-extern lv_obj_t * ui_textlabel10;
-extern lv_obj_t * ui_textlabel11;
-extern lv_obj_t * ui_textlabel12;
-extern lv_obj_t * ui_Label3;
+extern lv_obj_t * ui_NewFirmware;
+extern lv_obj_t * ui_NewFirmware2;
+extern lv_obj_t * ui_OperateGuide;
+extern lv_obj_t * ui_OperateGuide2;
+extern lv_obj_t * ui_OperateGuide3;
+extern lv_obj_t * ui_OperateGuide4;
+extern lv_obj_t * ui_VersionChange;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
-extern lv_obj_t * uic_textlabel;
+extern lv_obj_t * uic_NewFirmware;
+extern lv_obj_t * uic_NewFirmware2;
+extern lv_obj_t * uic_OperateGuide;
+extern lv_obj_t * uic_OperateGuide2;
+extern lv_obj_t * uic_OperateGuide3;
+extern lv_obj_t * uic_OperateGuide4;
+extern lv_obj_t * uic_VersionChange;
 
 // SCREEN: ui_TaskScreen
 void ui_TaskScreen_screen_init(void);
 extern lv_obj_t * ui_TaskScreen;
-extern lv_obj_t * ui_Container3;
+extern lv_obj_t * ui_HaveTaskContainer;
 extern lv_obj_t * ui_startlabel;
 extern lv_obj_t * ui_Button1;
-extern lv_obj_t * ui_Label5;
-extern lv_obj_t * ui_Label17;
-extern lv_obj_t * ui_Label18;
-extern lv_obj_t * ui_Label19;
-extern lv_obj_t * ui_Label20;
+extern lv_obj_t * ui_chooseTaskF;
+extern lv_obj_t * ui_chooseTask1;
+extern lv_obj_t * ui_chooseTask6;
+extern lv_obj_t * ui_chooseTask7;
+extern lv_obj_t * ui_chooseTask8;
 extern lv_obj_t * ui_Button2;
-extern lv_obj_t * ui_Label6;
-extern lv_obj_t * ui_Label21;
-extern lv_obj_t * ui_Label22;
-extern lv_obj_t * ui_Label23;
-extern lv_obj_t * ui_Label24;
+extern lv_obj_t * ui_chooseTaskS;
+extern lv_obj_t * ui_chooseTask2;
+extern lv_obj_t * ui_chooseTask3;
+extern lv_obj_t * ui_chooseTask4;
+extern lv_obj_t * ui_chooseTask5;
 extern lv_obj_t * ui_Button3;
+extern lv_obj_t * ui_chooseTaskT;
+extern lv_obj_t * ui_chooseTask11;
+extern lv_obj_t * ui_chooseTask12;
+extern lv_obj_t * ui_chooseTask13;
+extern lv_obj_t * ui_chooseTask14;
 extern lv_obj_t * ui_endlabel;
-extern lv_obj_t * ui_Container7;
-extern lv_obj_t * ui_Label11;
-extern lv_obj_t * ui_Label12;
-extern lv_obj_t * ui_Label13;
-extern lv_obj_t * ui_Label14;
-extern lv_obj_t * ui_Label15;
-extern lv_obj_t * ui_Label16;
+extern lv_obj_t * ui_NoTaskContainer;
+extern lv_obj_t * ui_NoTaskNote1;
+extern lv_obj_t * ui_NoTaskNote2;
+extern lv_obj_t * ui_NoTaskNote3;
+extern lv_obj_t * ui_NoTaskNote4;
+extern lv_obj_t * ui_NoTaskNote5;
+extern lv_obj_t * ui_NoTaskNote6;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_TaskScreen;
-extern lv_obj_t * uic_startlabel;
-extern lv_obj_t * uic_endlabel;
+extern lv_obj_t * uic_HaveTaskContainer;
+extern lv_obj_t * uic_chooseTaskF;
+extern lv_obj_t * uic_chooseTaskS;
+extern lv_obj_t * uic_chooseTaskT;
+extern lv_obj_t * uic_NoTaskContainer;
+extern lv_obj_t * uic_NoTaskNote1;
+extern lv_obj_t * uic_NoTaskNote2;
+extern lv_obj_t * uic_NoTaskNote3;
+extern lv_obj_t * uic_NoTaskNote5;
+extern lv_obj_t * uic_NoTaskNote6;
+
+// SCREEN: ui_OperatingScreen
+void ui_OperatingScreen_screen_init(void);
+extern lv_obj_t * ui_OperatingScreen;
+extern lv_obj_t * ui_OperatingTime;
+extern lv_obj_t * ui_Time2;
+extern lv_obj_t * ui_Time3;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_OperatingScreen;
+extern lv_obj_t * uic_OperatingTime;
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 extern lv_obj_t * ui_FocusScreen;
-extern lv_obj_t * ui_Container2;
-extern lv_obj_t * ui_Label9;
-extern lv_obj_t * ui_Label1;
-extern lv_obj_t * ui_Label2;
-extern lv_obj_t * ui_Label4;
-extern lv_obj_t * ui_Label7;
-extern lv_obj_t * ui_Label8;
-extern lv_obj_t * ui_Label10;
-extern lv_obj_t * ui_Container4;
-extern lv_obj_t * ui_Container5;
-extern lv_obj_t * ui_textlabel14;
-extern lv_obj_t * ui_textlabel15;
-extern lv_obj_t * ui_textlabel16;
-extern lv_obj_t * ui_textlabel17;
-extern lv_obj_t * ui_textlabel18;
-extern lv_obj_t * ui_Container6;
-extern lv_obj_t * ui_textlabel19;
-extern lv_obj_t * ui_textlabel20;
-extern lv_obj_t * ui_textlabel21;
-extern lv_obj_t * ui_textlabel13;
+extern lv_obj_t * ui_FocusTask;
+extern lv_obj_t * ui_Task3;
+extern lv_obj_t * ui_Task;
+extern lv_obj_t * ui_FocusTime;
+extern lv_obj_t * ui_FocusTime2;
+extern lv_obj_t * ui_FocusTime3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_FocusScreen;
-extern lv_obj_t * uic_textlabel14;
-extern lv_obj_t * uic_textlabel14;
-extern lv_obj_t * uic_textlabel14;
-extern lv_obj_t * uic_textlabel14;
-extern lv_obj_t * uic_textlabel14;
-extern lv_obj_t * uic_textlabel13;
-extern lv_obj_t * uic_textlabel13;
-extern lv_obj_t * uic_textlabel13;
-extern lv_obj_t * uic_textlabel13;
+extern lv_obj_t * uic_FocusTask;
+extern lv_obj_t * uic_Task3;
+extern lv_obj_t * uic_Task2;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_FocusTime2;
+extern lv_obj_t * uic_FocusTime3;
+
+// SCREEN: ui_UpdateScreen
+void ui_UpdateScreen_screen_init(void);
+extern lv_obj_t * ui_UpdateScreen;
+extern lv_obj_t * ui_Updating;
+extern lv_obj_t * ui_Updating2;
+extern lv_obj_t * ui_Updating3;
+extern lv_obj_t * ui_VersionnNmber;
+extern lv_obj_t * ui_Bar;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_Updating;
+extern lv_obj_t * uic_Updating2;
+extern lv_obj_t * uic_Updating2;
+extern lv_obj_t * uic_VersionnNmber;
+
+// SCREEN: ui_ShutdownScreen
+void ui_ShutdownScreen_screen_init(void);
+extern lv_obj_t * ui_ShutdownScreen;
+extern lv_obj_t * ui_ShutdownGuide;
+extern lv_obj_t * ui_ShutdownGuide2;
+extern lv_obj_t * ui_ShutdownGuide3;
+extern lv_obj_t * ui_ShutdownGuide4;
+extern lv_obj_t * ui_ShutdownGuide5;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_ShutdownScreen;
+extern lv_obj_t * uic_ShutdownGuide;
+extern lv_obj_t * uic_ShutdownGuide;
+extern lv_obj_t * uic_ShutdownGuide;
+extern lv_obj_t * uic_ShutdownGuide;
+extern lv_obj_t * uic_ShutdownGuide;
 
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
 
-// IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_1859145046);    // assets/8a2880cc-5701-4d7d-aeda-85144fa8e667.png
+// FONTS
+LV_FONT_DECLARE(ui_font_Chinese);
 
 // UI INIT
 void ui_init(void);

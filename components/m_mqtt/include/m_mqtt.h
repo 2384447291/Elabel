@@ -23,8 +23,6 @@ typedef struct {
     int msgId;   //本消息的ID
     char method[20]; //消息名称
 
-    bool is_focus;
-
     char dataType[20];
     char changeType[20];
 } MqttMessage_recieve;

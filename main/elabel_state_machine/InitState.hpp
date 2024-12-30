@@ -15,6 +15,7 @@ public:
     virtual void Exit(ElabelController* pOwner);
 
     bool is_init = false;
+    bool is_need_ota = false;
     uint32_t ota_Wait_tick = 0;
 
     static InitState* Instance()

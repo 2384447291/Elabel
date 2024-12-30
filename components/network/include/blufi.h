@@ -12,6 +12,8 @@
 #include "esp_gatts_api.h"
 #include "esp_bt_main.h"
 #include "esp_gatt_common_api.h"
+#include "global_message.h"
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,8 +184,10 @@ static const uint8_t is_notify[2]      = {0x00, 0x00};
 char wifi_ssid[32] = { 0 };     /* 定义一个数组用来存储ssid*/
 char wifi_passwd[64] = { 0 };   /* 定义一个数组用来存储passwd */
 char customer[64] = { 0 };   /* 定义一个数组用来存储passwd */
+char username[64] = { 0 };   /* 定义一个数组用来存储username */
 uint8_t is_set[3] = {0 , 0 , 0};     //1 for wifi_ssid, 2 for wifi_passwd 3 for customer
-uint8_t wifi_state = 0x00;//0x00 noconnect 0x01 connecting 0x02 connected
+uint8_t wifi_state = 0x00;//0x00 noconnect 0x01 connecting 0x02 connected 0x03 为绑定了设备
+bool enable_reconnect = true; //是否要出发未连接上再次连接
 uint8_t is_blufi_init = false;
 uint8_t is_release_classic_ble = false;
 esp_bd_addr_t smart_phone_addr = {0};
@@ -497,8 +501,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_READ_EVT");
        	    break;
         case ESP_GATTS_WRITE_EVT:
-            if (!param->write.is_prep){
-                // the data length of gattc write  must be less than GATTS_DEMO_CHAR_VAL_LEN_MAX.
+            if (!param->write.is_prep)
+            {
                 ESP_LOGI(GATTS_TABLE_TAG, "GATT_WRITE_EVT, handle = %d, value len = %d, value :", param->write.handle, param->write.len);
                 esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
                 if (heart_rate_handle_table[IDX_CHAR_VAL_PASS] == param->write.handle)
@@ -506,6 +510,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                     memset(wifi_passwd, 0, sizeof(wifi_passwd));
                     memcpy(wifi_passwd, param->write.value, param->write.len);
                     ESP_LOGI(GATTS_TABLE_TAG, "Set Password successfully: %s", wifi_passwd);
+                    if(get_global_data()->wifi_password!=NULL) free(get_global_data()->wifi_password);
+                    get_global_data()->wifi_password  = strdup(wifi_passwd);
                     is_set[0] = true;
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_SSID] == param->write.handle)
@@ -513,6 +519,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                     memset(wifi_ssid, 0, sizeof(wifi_ssid));
                     memcpy(wifi_ssid, param->write.value, param->write.len);
                     ESP_LOGI(GATTS_TABLE_TAG, "Set Ssid successfully: %s", wifi_ssid);
+                    if(get_global_data()->wifi_ssid!=NULL) free(get_global_data()->wifi_ssid);
+                    get_global_data()->wifi_ssid = strdup(wifi_ssid);
                     is_set[1] = true;
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_CUSTOM] == param->write.handle)
@@ -527,6 +535,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                     ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
                     nvs_close(wificfg_nvs_handler);                     /* 关闭 */ 
                     ESP_LOGI("Customer","Success save customer with id: %s ", customer);
+                    if(get_global_data()->usertoken!=NULL) free(get_global_data()->usertoken);
+                    get_global_data()->usertoken  = strdup(customer);
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_STATE] == param->write.handle)
                 {
@@ -551,6 +561,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                                 ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
                                 ESP_ERROR_CHECK(esp_wifi_connect());
                                 wifi_state = 0x01;
+                                enable_reconnect = true;
                                 ESP_LOGI(GATTS_TABLE_TAG,"Start connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
                             }
                             else
