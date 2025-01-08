@@ -129,6 +129,8 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
 
 void HTTP_syset_time(void)
 {
+    is_syset_time = false;
+
     send_error = false;
 
     esp_http_client_config_t sys_time_config = {
@@ -185,5 +187,15 @@ long long get_unix_time(void)
 	ESP_LOGI("UNIX TIME", "Current time: %s", strftime_buf);
 
     return timestamp_in_ms;
+}
+
+char* get_time_str(void)
+{
+    HTTP_syset_time();
+	// 打印现在时间
+	static char strftime_buf[64];
+	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+	ESP_LOGI("UNIX TIME", "Current time: %s", strftime_buf);
+    return strftime_buf;
 }
 //-----------------------------------------时间戳获取-------------------------------------------//

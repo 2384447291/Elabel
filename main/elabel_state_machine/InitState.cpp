@@ -48,8 +48,9 @@ void InitState::Execute(ElabelController* pOwner)
     ControlDriver::Instance()->getLED().setLedState(LedState::DEVICE_INIT);
     //等待1swifi连接两秒稳定
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    //获取挂墙时间(堵塞等待)
+    //时间同步
     HTTP_syset_time();
+    //获取挂墙时间(堵塞等待)
     get_unix_time();
     
     //mqtt服务器初始化
@@ -61,10 +62,12 @@ void InitState::Execute(ElabelController* pOwner)
     //如果判断为需要OTA
     if(get_global_data()->newest_firmware_url != NULL && strcmp(get_global_data()->version, FIRMWARE_VERSION) != 0)
     {
+        lock_lvgl();
         lv_scr_load(ui_OTAScreen);
         char version_change[100];
         sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->version);
         set_text(ui_VersionChange, version_change);
+        release_lvgl();
         ota_Wait_tick = 0;      
         //短按进入ota
         ControlDriver::Instance()->ButtonDownShortPress.registerCallback(enter_ota);

@@ -44,6 +44,8 @@ class ElabelController
         uint16_t TaskLength;
         //刷新标记
         bool need_flash_paper = false;
+        //是否需要主动退出focus
+        bool focus_by_myself = false;
 
         static ElabelController* Instance()
         {

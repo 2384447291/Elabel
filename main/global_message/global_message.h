@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#define FIRMWARE_VERSION "2.0.4"
+#define FIRMWARE_VERSION "2.0.5"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，为专注2

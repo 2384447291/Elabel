@@ -15,6 +15,7 @@ void outfocus()
     TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
     ESP_LOGI("FocusState","out focus title: %s",chose_todo->title);
     http_out_focus(sstr,false);
+    FocusTaskState::Instance()->need_out_focus = true;
     ElabelController::Instance()->TimeCountdown = 0;
 }
 
@@ -26,11 +27,21 @@ void FocusTaskState::Init(ElabelController* pOwner)
 void FocusTaskState::Enter(ElabelController* pOwner)
 {
     pOwner->need_flash_paper = false;
-    
+    need_out_focus = false;
     //获取是哪个任务进入了focus，这个状态只能由服务器获取
-    TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-    if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
-    else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
+    TodoItem* chose_todo;   
+    if(pOwner->focus_by_myself) 
+    {
+        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, pOwner->ChosenTaskId);
+    }
+    else 
+    {
+        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+        HTTP_syset_time();
+        if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
+        else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
+    }
+   
 
     //将时间转换为毫秒
     inner_time_countdown = pOwner->TimeCountdown*1000;

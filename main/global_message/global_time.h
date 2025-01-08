@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+#include <sys/time.h>
 
 //--------------------------------------SNTP时间同步函数-----------------------------------------//
 #ifdef __cplusplus
@@ -15,6 +17,8 @@ extern "C" {
 void HTTP_syset_time(void);
 
 long long get_unix_time(void);
+
+char* get_time_str(void);
 #ifdef __cplusplus
 }
 #endif

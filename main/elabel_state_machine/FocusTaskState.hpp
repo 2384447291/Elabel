@@ -15,6 +15,7 @@ public:
     virtual void Exit(ElabelController* pOwner);
 
     int inner_time_countdown = 0;
+    bool need_out_focus = false;
 
     static FocusTaskState* Instance()
     {

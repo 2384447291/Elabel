@@ -1,4 +1,5 @@
 #include "battery_manager.hpp"
+#include "global_time.h"
 #include "esp_log.h"
 #include "control_driver.hpp"
 #include "driver/adc.h"
@@ -12,6 +13,7 @@
 #define ADC_ATTEN      ADC_ATTEN_DB_12  // 12dB衰减，量程0-3.3V
 #define ADC_WIDTH      ADC_WIDTH_BIT_12 // 12位分辨率
 #define ADC_SAMPLES    64               // 采样次数
+#define LOWLEST_VOLTAGE 3.32
 
 static esp_adc_cal_characteristics_t adc_chars;
 
@@ -27,6 +29,8 @@ void power_off_system()
     //锁定屏幕
     lock_lvgl();
     lv_scr_load(ui_ShutdownScreen);
+    // char* time_str = get_time_str();
+    // set_text(ui_ShutdownGuide, time_str);
     //关闭屏幕
     shutdown_screen();
     //释放lvgl
@@ -60,9 +64,11 @@ void BatteryManager::battery_update_task(void* parameters) {
     while (true) {
         //1s检查一次电量
         vTaskDelay(5000 / portTICK_PERIOD_MS);   
-        if(BatteryManager::Instance()->getBatteryLevel()<=3.5) {
+        if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) {
             lock_lvgl();
-            set_text(ui_ShutdownGuide, "No battery please charge");
+            // char ShutdownGuide[100];
+            // sprintf(ShutdownGuide, "Battery low is  %.3fV",BatteryManager::Instance()->getBatteryLevel());
+            set_text(ui_ShutdownGuide, "No Battery Please Charge");
             release_lvgl();
             power_off_system();
             ESP_LOGI(TAG, "Battery level is too low, power off system");
@@ -140,7 +146,7 @@ float BatteryManager::getBatteryLevel() {
     float actual_voltage = voltage * 2.0f / 1000.0f;  // 转换为V
     
     //4.18-->4.21有点小误差
-    // ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
+    ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
     batteryLevel = actual_voltage;
     return actual_voltage;
 }

@@ -3,6 +3,11 @@
 
 void choose_next_task()
 {
+    if(get_global_data()->m_todo_list->size==0)
+    {
+        ESP_LOGE("ChoosingTaskState","No task no need choose next task");
+        return;
+    }
     uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
     if(temp_chosen_task >= ElabelController::Instance()->TaskLength) temp_chosen_task = 0;
     ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
@@ -11,6 +16,11 @@ void choose_next_task()
 
 void choose_previous_task()
 {
+    if(get_global_data()->m_todo_list->size==0)
+    {
+        ESP_LOGE("ChoosingTaskState","No task no need choose previous task");
+        return;
+    }
     uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
     if(temp_chosen_task == 255) temp_chosen_task = ElabelController::Instance()->TaskLength - 1;
     ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
@@ -19,6 +29,11 @@ void choose_previous_task()
 
 void confirm_task()
 {
+    if(get_global_data()->m_todo_list->size==0)
+    {
+        ESP_LOGE("ChoosingTaskState","No task no need confirm task");
+        return;
+    }
     ElabelController::Instance()->ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
     ESP_LOGI("ChoosingTaskState","confirm task: %d",ElabelController::Instance()->ChosenTaskId);
     ChoosingTaskState::Instance()->is_confirm_task = true;

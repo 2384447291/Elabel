@@ -63,7 +63,11 @@ void ElabelFsm::HandleInput()
             //唯一能出去的接口
             if(InitState::Instance()->is_init)
             {
-                if(get_global_data()->m_focus_state->is_focus == 1) ChangeState(FocusTaskState::Instance());
+                if(get_global_data()->m_focus_state->is_focus == 1) 
+                {
+                    ElabelController::Instance()->focus_by_myself = false;
+                    ChangeState(FocusTaskState::Instance());
+                }
                 else ChangeState(ChoosingTaskState::Instance());
             }
         }
@@ -90,7 +94,7 @@ void ElabelFsm::HandleInput()
             //如果收到了退出focus的信息
             if(get_global_data()->m_focus_state->is_focus == 2)
             {
-                ESP_LOGI("ElabelFsm","exit focus");
+                ESP_LOGI("ElabelFsmOuter","exit focus");
                 if(GetCurrentState()==FocusTaskState::Instance())
                 {
                     ChoosingTaskState::Instance()->need_stay_choosen = false;
@@ -102,12 +106,13 @@ void ElabelFsm::HandleInput()
             //如果收到进入focus的信息
             else if(get_global_data()->m_focus_state->is_focus == 1)
             {
-                ESP_LOGI("ElabelFsm","enter focus");
+                ESP_LOGI("ElabelFsmOuter","enter focus");
+                ElabelController::Instance()->focus_by_myself = false;
                 ChangeState(FocusTaskState::Instance());
             }
             else if(get_global_data()->m_focus_state->is_focus == 0)
             {
-                ESP_LOGI("ElabelFsm","tasklist update");
+                ESP_LOGI("ElabelFsmOuter","tasklist update");
                 //如果当前是选择task界面则刷新其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
                 if(GetCurrentState()==ChoosingTaskState::Instance())
                 {
@@ -140,6 +145,25 @@ void ElabelFsm::HandleInput()
                 ChangeState(ChoosingTaskState::Instance());
             }
         }
+
+        //主动逻辑
+        // else if(GetCurrentState() == FocusTaskState::Instance())
+        // {
+        //     if(FocusTaskState::Instance()->need_out_focus)
+        //     {
+        //         ChoosingTaskState::Instance()->need_stay_choosen = false;
+        //         ChangeState(ChoosingTaskState::Instance());
+        //     }
+        // }
+
+        // else if(GetCurrentState() == OperatingTaskState::Instance())
+        // {
+        //     if(OperatingTaskState::Instance()->is_confirm_time)
+        //     {
+        //         ElabelController::Instance()->focus_by_myself = true;
+        //         ChangeState(FocusTaskState::Instance());
+        //     }
+        // }
     }
 }
 

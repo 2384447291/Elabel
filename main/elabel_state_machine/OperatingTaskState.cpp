@@ -11,7 +11,7 @@
 
 void confirm_time()
 {
-    OperatingTaskState::Instance()->is_not_confirm_time = true;
+    OperatingTaskState::Instance()->is_confirm_time = true;
     char sstr[12];
     INT_TO_STRING(ElabelController::Instance()->ChosenTaskId, sstr);
     TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, ElabelController::Instance()->ChosenTaskId);
@@ -31,7 +31,7 @@ void OperatingTaskState::Init(ElabelController* pOwner)
 
 void OperatingTaskState::Enter(ElabelController* pOwner)
 {
-    is_not_confirm_time = false;
+    is_confirm_time = false;
     ElabelController::Instance()->need_flash_paper = false;
 
     auto_reload_time = auto_enter_time;
@@ -61,7 +61,7 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
 
 void OperatingTaskState::Execute(ElabelController* pOwner)
 {
-    if(is_not_confirm_time) return;
+    if(is_confirm_time) return;
     //刷新锁
     if(update_lock!=0) update_lock --;
     //自动触发进入focus
