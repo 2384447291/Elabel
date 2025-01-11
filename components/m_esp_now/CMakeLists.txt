@@ -1,8 +1,4 @@
-# idf_component_register(SRCS "m_esp_now.c"  "../network/network.c" "../../main/global_message/global_message.c"
-#                         INCLUDE_DIRS "include"  "../network/include" "../../main/global_message"
-#                         PRIV_REQUIRES network
-#                         PRIV_REQUIRES http
-#                         REQUIRES lvgl
-#                         REQUIRES ui
-#                         )
-#                         # 写法问题，globalmessage和http连接的太深了
+idf_component_register(SRCS "Esp_now_host.cpp" "Esp_now_slave.cpp"  "../network/network.c" 
+                        INCLUDE_DIRS "include"  "../network/include" 
+                        PRIV_REQUIRES network)
+target_compile_options(${COMPONENT_LIB} PRIVATE -std=gnu++17)

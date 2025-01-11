@@ -176,17 +176,3 @@ Global_data* get_global_data() {
     return instance;
 }
 //-------------------------------------- Global_data--------------------------------------//
-
-void print_uint8_array(uint8_t *array, size_t length) {
-    // 创建一个字符串缓冲区以存储打印内容
-    char buffer[256]; // 假设最大长度为 256 字节
-    size_t offset = 0;
-
-    for (size_t i = 0; i < length; i++) {
-        // 将每个元素格式化为十六进制并追加到缓冲区
-        offset += snprintf(buffer + offset, sizeof(buffer) - offset, "%02X ", array[i]);
-    }
-
-    // 使用 ESP_LOGI 打印整个数组
-    ESP_LOGI("data", "Array: %s\n", buffer);
-}
