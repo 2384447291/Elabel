@@ -14,15 +14,16 @@
 #include "esp_http_client.h"
 #include "battery_manager.hpp"
 #include "control_driver.hpp"
+#include "esp_now_client.hpp"
 
 extern "C" void app_main(void)
 {
-    //电池管理器初始化，并拉起硬件开机
-    BatteryManager::Instance()->init();
+    // //电池管理器初始化，并拉起硬件开机
+    // BatteryManager::Instance()->init();
     //初始化wifi
     m_wifi_init();
     //连接wifi
-    m_wifi_connect();
+    // m_wifi_connect();
     //创建httpclient更新线程
     http_client_init();
     //按键初始化

@@ -14,6 +14,7 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                     REQUIRES lvgl_esp32_drivers
                     REQUIRES m_http
                     REQUIRES m_mqtt
+                    REQUIRES m_esp_now
                     REQUIRES network
                     REQUIRES ota
                     REQUIRES ui

@@ -114,5 +114,5 @@ Global_data* get_global_data();
 }
 #endif
 
-void print_uint8_array(uint8_t *array, size_t length);
+
 #endif
