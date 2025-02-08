@@ -22,23 +22,15 @@ extern lv_obj_t * ui_HalfmindScreen;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 
-// SCREEN: ui_BindScreen
-void ui_BindScreen_screen_init(void);
-extern lv_obj_t * ui_BindScreen;
-extern lv_obj_t * ui_BindGuide;
+// SCREEN: ui_ActiveScreen
+void ui_ActiveScreen_screen_init(void);
+extern lv_obj_t * ui_ActiveScreen;
+extern lv_obj_t * ui_ActiveGuide;
 extern lv_obj_t * ui_Label2;
 extern lv_obj_t * ui_Label3;
-extern lv_obj_t * ui_Username;
-extern lv_obj_t * ui_Wifiname;
-extern lv_obj_t * ui_WIFIPassword;
-extern lv_obj_t * ui_Firmwareversion;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_BindScreen;
-extern lv_obj_t * uic_BindGuide;
-extern lv_obj_t * uic_Username;
-extern lv_obj_t * uic_Wifiname;
-extern lv_obj_t * uic_WIFIPassword;
-extern lv_obj_t * uic_Firmwareversion;
+extern lv_obj_t * uic_ActiveScreen;
+extern lv_obj_t * uic_HostGuide;
 
 // SCREEN: ui_OTAScreen
 void ui_OTAScreen_screen_init(void);
@@ -161,12 +153,31 @@ extern lv_obj_t * uic_ShutdownGuide;
 extern lv_obj_t * uic_ShutdownGuide;
 extern lv_obj_t * uic_ShutdownGuide;
 
+// SCREEN: ui_HostActiveScreen
+void ui_HostActiveScreen_screen_init(void);
+extern lv_obj_t * ui_HostActiveScreen;
+extern lv_obj_t * ui_HostName;
+extern lv_obj_t * ui_HostInf;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_HostActiveScreen;
+extern lv_obj_t * uic_HostName;
+extern lv_obj_t * uic_HostInf;
+
+// SCREEN: ui_SlaveActiveScreen
+void ui_SlaveActiveScreen_screen_init(void);
+extern lv_obj_t * ui_SlaveActiveScreen;
+extern lv_obj_t * ui_SlaveName;
+extern lv_obj_t * ui_SlaveInf;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_SlaveActiveScreen;
+extern lv_obj_t * uic_SlaveInf;
+
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
 
 // FONTS
-LV_FONT_DECLARE(ui_font_Chinese);
+LV_FONT_DECLARE(ui_font_Chinese_20);
 
 // UI INIT
 void ui_init(void);

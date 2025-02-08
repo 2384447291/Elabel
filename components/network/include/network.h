@@ -30,9 +30,9 @@ void start_blufi(void);//随便调用内部有锁
 
 uint8_t get_wifi_status(void);
 
-void start_activate();
+void start_blue_activate();
 
-void stop_activate();
+void stop_blue_activate();
 
 void set_wifi_status(uint8_t _wifi_state);
 

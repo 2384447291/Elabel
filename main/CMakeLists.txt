@@ -3,7 +3,7 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                         "elabel_state_machine/ChoosingTaskState.cpp"
                         "elabel_state_machine/OperatingTaskState.cpp"
                         "elabel_state_machine/FocusTaskState.cpp"
-                        "elabel_state_machine/NoWifiState.cpp"
+                        "elabel_state_machine/ActiveState.cpp"
                         "elabel_state_machine/InitState.cpp"
                         "elabel_state_machine/OTAState.cpp"
                         "battery_manager/battery_manager.cpp"

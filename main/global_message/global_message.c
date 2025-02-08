@@ -151,6 +151,8 @@ Global_data* get_global_data() {
         if (instance != NULL) 
         {
             Global_message_mutex = xSemaphoreCreateMutex();
+            instance->m_language = English;
+
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));
             instance->m_focus_state->is_focus = 0;
             instance->m_focus_state->focus_task_id = 0;

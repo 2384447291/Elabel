@@ -44,6 +44,9 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_y(ui_VersionnNmber, -9);
     lv_obj_set_align(ui_VersionnNmber, LV_ALIGN_CENTER);
     lv_label_set_text(ui_VersionnNmber, "V 1.0.2");
+    lv_obj_set_style_text_color(ui_VersionnNmber, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_VersionnNmber, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_VersionnNmber, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Bar = lv_bar_create(ui_UpdateScreen);
     lv_bar_set_value(ui_Bar, 25, LV_ANIM_OFF);

@@ -16,23 +16,15 @@ lv_obj_t * ui_HalfmindScreen;
 lv_obj_t * uic_HalfmindScreen;
 
 
-// SCREEN: ui_BindScreen
-void ui_BindScreen_screen_init(void);
-lv_obj_t * ui_BindScreen;
-lv_obj_t * ui_BindGuide;
+// SCREEN: ui_ActiveScreen
+void ui_ActiveScreen_screen_init(void);
+lv_obj_t * ui_ActiveScreen;
+lv_obj_t * ui_ActiveGuide;
 lv_obj_t * ui_Label2;
 lv_obj_t * ui_Label3;
-lv_obj_t * ui_Username;
-lv_obj_t * ui_Wifiname;
-lv_obj_t * ui_WIFIPassword;
-lv_obj_t * ui_Firmwareversion;
 // CUSTOM VARIABLES
-lv_obj_t * uic_BindScreen;
-lv_obj_t * uic_BindGuide;
-lv_obj_t * uic_Username;
-lv_obj_t * uic_Wifiname;
-lv_obj_t * uic_WIFIPassword;
-lv_obj_t * uic_Firmwareversion;
+lv_obj_t * uic_ActiveScreen;
+lv_obj_t * uic_HostGuide;
 
 
 // SCREEN: ui_OTAScreen
@@ -161,6 +153,27 @@ lv_obj_t * uic_ShutdownGuide;
 lv_obj_t * uic_ShutdownGuide;
 lv_obj_t * uic_ShutdownGuide;
 
+
+// SCREEN: ui_HostActiveScreen
+void ui_HostActiveScreen_screen_init(void);
+lv_obj_t * ui_HostActiveScreen;
+lv_obj_t * ui_HostName;
+lv_obj_t * ui_HostInf;
+// CUSTOM VARIABLES
+lv_obj_t * uic_HostActiveScreen;
+lv_obj_t * uic_HostName;
+lv_obj_t * uic_HostInf;
+
+
+// SCREEN: ui_SlaveActiveScreen
+void ui_SlaveActiveScreen_screen_init(void);
+lv_obj_t * ui_SlaveActiveScreen;
+lv_obj_t * ui_SlaveName;
+lv_obj_t * ui_SlaveInf;
+// CUSTOM VARIABLES
+lv_obj_t * uic_SlaveActiveScreen;
+lv_obj_t * uic_SlaveInf;
+
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
@@ -186,13 +199,15 @@ void ui_init(void)
     lv_theme_t * theme = lv_theme_mono_init(dispp,false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_HalfmindScreen_screen_init();
-    ui_BindScreen_screen_init();
+    ui_ActiveScreen_screen_init();
     ui_OTAScreen_screen_init();
     ui_TaskScreen_screen_init();
     ui_OperatingScreen_screen_init();
     ui_FocusScreen_screen_init();
     ui_UpdateScreen_screen_init();
     ui_ShutdownScreen_screen_init();
+    ui_HostActiveScreen_screen_init();
+    ui_SlaveActiveScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HalfmindScreen);
 }

@@ -67,6 +67,8 @@ void InitState::Execute(ElabelController* pOwner)
         char version_change[100];
         sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->version);
         set_text(ui_VersionChange, version_change);
+        set_text_chinese(ui_OperateGuide,"开始游戏");
+        set_text_chinese(ui_VersionChange, "我爱你");
         release_lvgl();
         ota_Wait_tick = 0;      
         //短按进入ota

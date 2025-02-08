@@ -21,7 +21,7 @@ static void shutdown_timer_callback(TimerHandle_t xTimer) {
     // 关闭电源
     BatteryManager::Instance()->setPowerState(false);
     // 删除定时器
-    xTimerDelete(xTimer, 0);
+    xTimerDelete(xTimer, 0);    
 }
 
 void power_off_system()
@@ -31,8 +31,6 @@ void power_off_system()
     lv_scr_load(ui_ShutdownScreen);
     // char* time_str = get_time_str();
     // set_text(ui_ShutdownGuide, time_str);
-    //关闭屏幕
-    shutdown_screen();
     //释放lvgl
     release_lvgl();
     // 播放关机音乐

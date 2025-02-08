@@ -21,13 +21,13 @@ void set_wifi_status(uint8_t _wifi_state)
     wifi_state = _wifi_state;
 }
 
-void start_activate()
+void start_blue_activate()
 {
     m_wifi_disconnect();
     if(blufi_notify_flag) return;
     start_blufi();
 }
-void stop_activate()
+void stop_blue_activate()
 {
     blufi_notify_flag = false;
 }

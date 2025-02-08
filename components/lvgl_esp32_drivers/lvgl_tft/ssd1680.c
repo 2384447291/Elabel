@@ -61,15 +61,29 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_bitmap_state = HALFMIND_STATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
     }
-    else if(act_scr == ui_BindScreen)
+    else if(act_scr == ui_ActiveScreen)
     {
-        if(elabel_screen != BIND_SCREEN)
+        if(elabel_screen != ACTIVE_SCREEN)
         {
             isBaseMapFresh = false;
-            elabel_screen = BIND_SCREEN;
+            elabel_screen = ACTIVE_SCREEN;
         }
         elabel_update_mode = FAST_UPDATE;
-        ESP_LOGI(TAG,"ui_BindScreen Flush called.");
+        ESP_LOGI(TAG,"ui_ActiveScreen Flush called.");
+    }
+    else if(act_scr == ui_HostActiveScreen)
+    {
+        elabel_update_mode = FAST_UPDATE;
+        isBaseMapFresh = false;
+        elabel_screen = HOSTACTIVE_SCREEN;
+        ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
+    }
+    else if(act_scr == ui_SlaveActiveScreen)
+    {
+        elabel_update_mode = FAST_UPDATE;
+        isBaseMapFresh = false;
+        elabel_screen = SLAVEACTIVE_SCREEN;
+        ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");
     }
     else if(act_scr == ui_OTAScreen)
     {
@@ -158,11 +172,11 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     }
 
     //打印 area 的信息
-    if (area != NULL) {
-        ESP_LOGI("SSD1680", "Area: x1=%d, y1=%d, x2=%d, y2=%d", area->x1, area->y1, area->x2, area->y2);
-    } else {
-        ESP_LOGI("SSD1680", "Area: NULL");
-    }
+    // if (area != NULL) {
+    //     ESP_LOGI("SSD1680", "Area: x1=%d, y1=%d, x2=%d, y2=%d", area->x1, area->y1, area->x2, area->y2);
+    // } else {
+    //     ESP_LOGI("SSD1680", "Area: NULL");
+    // }
 
     //每个字节包含 8 个像素的数据，linelen 是字节数。我们需要覆盖显示屏的一行
     uint16_t data_num = (128*250/8); 
@@ -271,6 +285,8 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         ssd1680_update_display();
     }
     //通知lvgl完成传输了
+    //一定要加，不然会烧屏幕
+    ssd1680_deep_sleep();
     ESP_LOGI("SSD1680", "FINISH Send.\n");
     lv_disp_flush_ready(drv);
 }
@@ -466,6 +482,7 @@ void ssd1680_deep_sleep(void)
 
     ssd1680_write_cmd(SSD1680_CMD_SLEEP_MODE1, data, 1);
     vTaskDelay(100 / portTICK_RATE_MS); // 100ms delay
+    ESP_LOGI(TAG,"Sleep called.\n");
 }
 
 static inline void ssd1680_waitbusy(int wait_ms)

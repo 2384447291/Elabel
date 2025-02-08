@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#define FIRMWARE_VERSION "2.0.5"
+#define FIRMWARE_VERSION "2.0.4"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，为专注2
@@ -15,6 +15,11 @@ typedef struct {
 } Focus_state;
 
 //--------------------------------------Task_list对应的结构体--------------------------------------//
+typedef enum {
+    English,
+    Chinese,
+} language;
+
 typedef enum {
     newest,
     updating_from_server,
@@ -73,6 +78,9 @@ void clean_todo_list(TodoList *list);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
+    //语言
+    language m_language;
+    //是否有专注任务
     Focus_state* m_focus_state;//2表示否focus 1表示是focus 0表示没东西
     TodoList* m_todo_list;
 

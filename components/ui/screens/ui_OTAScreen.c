@@ -76,7 +76,8 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_VersionChange, 0);
     lv_obj_set_y(ui_VersionChange, -9);
     lv_obj_set_align(ui_VersionChange, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_VersionChange, "V 1.0.2--------->V 1.2.2");
+    lv_label_set_text(ui_VersionChange, "V1.2-------->V2.4");
+    lv_obj_set_style_text_font(ui_VersionChange, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_NewFirmware = ui_NewFirmware;
     uic_NewFirmware2 = ui_NewFirmware2;

@@ -13,7 +13,7 @@
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"
-#include "NoWifiState.hpp"
+#include "ActiveState.hpp"
 #include "InitState.hpp"
 #include "OTAState.hpp"
 
@@ -41,7 +41,7 @@ void ElabelFsm::HandleInput()
     //防止打断init的绿灯状态
     else
     {
-        if(GetCurrentState()!=InitState::Instance() && GetCurrentState()!=NoWifiState::Instance())
+        if(GetCurrentState()!=InitState::Instance() && GetCurrentState()!=ActiveState::Instance())
         {
             ControlDriver::Instance()->getLED().setLedState(LedState::NO_LIGHT);
         }
@@ -58,7 +58,7 @@ void ElabelFsm::HandleInput()
             //当没有用户或者没有网络的时候要进入绑定状态，如果有历史消息肯定在进入主程序前就已经开始wifi连接了
             if(get_wifi_status() == 0 || get_global_data()->usertoken == NULL)
             {
-                ChangeState(NoWifiState::Instance());
+                ChangeState(ActiveState::Instance());
             }
             //唯一能出去的接口
             if(InitState::Instance()->is_init)
@@ -72,9 +72,9 @@ void ElabelFsm::HandleInput()
             }
         }
     }
-    else if(GetCurrentState()==NoWifiState::Instance())
+    else if(GetCurrentState()==ActiveState::Instance())
     {
-        if(NoWifiState::Instance()->need_out_activate)
+        if(ActiveState::Instance()->need_out_activate)
         {
             ChangeState(InitState::Instance());
         }
@@ -85,7 +85,7 @@ void ElabelFsm::HandleInput()
         //wifi事件打断
         if(get_wifi_status() == 0 )
         {
-            ChangeState(NoWifiState::Instance());
+            ChangeState(ActiveState::Instance());
         }
 
         //外部有数据更新打断
@@ -130,7 +130,7 @@ void ElabelFsm::HandleInput()
         {
             if(ChoosingTaskState::Instance()->is_jump_to_activate)
             {
-                ChangeState(NoWifiState::Instance());
+                ChangeState(ActiveState::Instance());
             }
             else if(ChoosingTaskState::Instance()->is_confirm_task)
             {

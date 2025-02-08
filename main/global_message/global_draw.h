@@ -10,7 +10,8 @@ void Inituilock();
 void update_lvgl_task_list();
 void guiTask(void *pvParameter);
 void set_text(lv_obj_t * target_label,  const char * text);
-void shutdown_screen();
+void set_text_chinese(lv_obj_t * target_label,  const char * text);
+void set_text_english(lv_obj_t * target_label,  const char * text);
 #ifdef __cplusplus
 }
 #endif

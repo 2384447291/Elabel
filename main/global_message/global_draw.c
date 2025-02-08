@@ -236,7 +236,8 @@ void lvgl_add_task(const char *task_content)
 
 
 //--------------------------------------删除指定位置的任务-------------------------------------//
-void lvgl_delete_task(int position) {
+void lvgl_delete_task(int position) 
+{
     // 删除头结点
     if (position == 0) 
     {
@@ -304,9 +305,38 @@ void set_text(lv_obj_t * target_label,  const char * text)
 }
 //--------------------------------------修改label-------------------------------------//
 
-//--------------------------------------关闭屏幕-------------------------------------//
-void shutdown_screen() {
-    ssd1680_deep_sleep();
-}
-//--------------------------------------关闭屏幕-------------------------------------//
 
+//--------------------------------------更改字体为中文-------------------------------------//
+void set_text_chinese(lv_obj_t * target_label,  const char * text)
+{
+    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
+    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
+    lv_label_set_text(target_label, text);
+    lv_obj_set_style_text_font(target_label, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    uint8_t child_count = lv_obj_get_child_cnt(target_label);
+    for(int i = 0; i < child_count; i++)
+    {
+        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
+        lv_label_set_text(ui_tmpLabel, text);
+        lv_obj_set_style_text_font(ui_tmpLabel, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+}
+//--------------------------------------更改字体为中文-------------------------------------//
+
+
+//--------------------------------------更改字体为英文------------------------------------//
+void set_text_english(lv_obj_t * target_label,  const char * text)
+{
+    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
+    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
+    lv_label_set_text(target_label, text);
+    lv_obj_set_style_text_font(target_label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    uint8_t child_count = lv_obj_get_child_cnt(target_label);
+    for(int i = 0; i < child_count; i++)
+    {
+        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
+        lv_label_set_text(ui_tmpLabel, text);
+        lv_obj_set_style_text_font(ui_tmpLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+}
+//--------------------------------------更改字体为英文------------------------------------//
