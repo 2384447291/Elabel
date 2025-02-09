@@ -7,7 +7,11 @@
 #include "esp_adc_cal.h"
 #include "global_draw.h"
 #include "freertos/timers.h"
+#include "global_message.h"
 #define TAG "BATTERY_MANAGER"
+
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 
 #define ADC2_CHAN      ADC2_CHANNEL_0  // GPIO11 对应 ADC2_CH0
 #define ADC_ATTEN      ADC_ATTEN_DB_12  // 12dB衰减，量程0-3.3V
@@ -26,11 +30,14 @@ static void shutdown_timer_callback(TimerHandle_t xTimer) {
 
 void power_off_system()
 {
+    if(BatteryManager::Instance()->chargingStatus) 
+    {
+        ESP_LOGI(TAG, "Charging, do not power off");
+        return;
+    }
     //锁定屏幕
     lock_lvgl();
     lv_scr_load(ui_ShutdownScreen);
-    // char* time_str = get_time_str();
-    // set_text(ui_ShutdownGuide, time_str);
     //释放lvgl
     release_lvgl();
     // 播放关机音乐
@@ -58,15 +65,37 @@ void IRAM_ATTR chargingIsrHandler(void* arg) {
     manager->chargingStatus = (level == 0);
 }
 
+void IRAM_ATTR fullPowerIsrHandler(void* arg) {
+    BatteryManager* manager = static_cast<BatteryManager*>(arg);
+    // 获取当前电平状态
+    int level = gpio_get_level(BATTERY_FULL_POWER_DET);
+    // 高电平表示未充电，低电平表示充电
+    manager->fullPowerStatus = (level == 0);
+}
+
 void BatteryManager::battery_update_task(void* parameters) {
     while (true) {
         //1s检查一次电量
-        vTaskDelay(5000 / portTICK_PERIOD_MS);   
+        vTaskDelay(1000 / portTICK_PERIOD_MS);  
+        // 检测充电状态变化
+        
+        static bool lastChargingStatus = false;
+        if (!lastChargingStatus && BatteryManager::Instance()->chargingStatus) {
+            // 从未充电变为充电状态,播放充电音乐
+            ControlDriver::Instance()->getBuzzer().playChargingMusic();
+        }
+        lastChargingStatus = BatteryManager::Instance()->chargingStatus;
+
         if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) {
             lock_lvgl();
-            // char ShutdownGuide[100];
-            // sprintf(ShutdownGuide, "Battery low is  %.3fV",BatteryManager::Instance()->getBatteryLevel());
-            set_text(ui_ShutdownGuide, "No Battery Please Charge");
+            if(get_global_data()->m_language == English)
+            {
+                set_text(ui_ShutdownGuide, "No Battery Please Charge");
+            }
+            else if(get_global_data()->m_language == Chinese)
+            {
+                set_text(ui_ShutdownGuide, "电量不足请充电");
+            }
             release_lvgl();
             power_off_system();
             ESP_LOGI(TAG, "Battery level is too low, power off system");
@@ -103,14 +132,14 @@ void BatteryManager::init() {
     gpio_install_isr_service(0);
     // 添加中断处理程序
     gpio_isr_handler_add(BATTERY_CHARGING_DET, chargingIsrHandler, this);
+    gpio_isr_handler_add(BATTERY_FULL_POWER_DET, fullPowerIsrHandler, this);
 
     // 初始化充电状态
     chargingStatus = (gpio_get_level(BATTERY_CHARGING_DET) == 0);
+    fullPowerStatus = (gpio_get_level(BATTERY_FULL_POWER_DET) == 0);
 
     // 初始化完成后默认开启电源
     setPowerState(true);
-    ESP_LOGI(TAG, "Battery manager initialized, initial charging status: %s", 
-             chargingStatus ? "charging" : "not charging");
     ControlDriver::Instance()->ButtonPowerLongPress.registerCallback(power_off_system);
 
     // 创建电池电量更新线程
@@ -145,6 +174,9 @@ float BatteryManager::getBatteryLevel() {
     
     //4.18-->4.21有点小误差
     ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
+    ESP_LOGI(TAG, "Is charging: %s", chargingStatus ? "Yes" : "No");
+    ESP_LOGI(TAG, "Is Full Power: %s", fullPowerStatus ? "Yes" : "No");
+    ESP_LOGI(TAG, "Is Usb Connected: %s", isUsbConnected() ? "Yes" : "No");
     batteryLevel = actual_voltage;
     return actual_voltage;
 }

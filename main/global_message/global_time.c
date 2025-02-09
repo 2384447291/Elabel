@@ -6,6 +6,9 @@
 #include "esp_sntp.h"
 #include "cJSON.h"
 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
+
 bool is_syset_time = false;
 time_t now = 0;
 struct tm timeinfo = {0};

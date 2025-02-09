@@ -5,6 +5,7 @@
 #include "global_message.h"
 #include "global_time.h"
 #include "global_draw.h"
+#include "global_nvs.h"
 #include "control_driver.hpp"
 #include "ui.h"
 #define TimeCountdownOffset 300

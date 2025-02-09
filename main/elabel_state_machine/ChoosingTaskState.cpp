@@ -150,12 +150,10 @@ void ChoosingTaskState::resize_task()
             lv_obj_set_style_bg_color(child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
 
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
-            lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_20, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             for(int j = 0; j < lv_obj_get_child_cnt(ui_Label1); j++)
             {
                 lv_obj_t *label_child = lv_obj_get_child(ui_Label1, j);
-                lv_obj_set_style_text_font(label_child, &lv_font_montserrat_20, 0);
                 lv_obj_set_style_text_color(label_child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             }
         }
@@ -163,12 +161,10 @@ void ChoosingTaskState::resize_task()
             lv_obj_set_size(child, 130, 24);
             lv_obj_set_style_bg_color(child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
-            lv_obj_set_style_text_font(ui_Label1, &lv_font_montserrat_18, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
             for(int j = 0; j < lv_obj_get_child_cnt(ui_Label1); j++)
             {
                 lv_obj_t *label_child = lv_obj_get_child(ui_Label1, j);
-                lv_obj_set_style_text_font(label_child, &lv_font_montserrat_18, 0);
                 lv_obj_set_style_text_color(label_child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
             }
         }

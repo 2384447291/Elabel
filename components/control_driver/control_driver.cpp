@@ -2,6 +2,9 @@
 
 #define TAG "CONTROL_DRIVER"
 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
+
 // Button类实现
 Button::Button(gpio_num_t gpio, const char* buttonName, uint32_t debounceDelay, uint32_t longPressTime)
     : gpioNum(gpio), 

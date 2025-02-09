@@ -48,7 +48,7 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
     uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
     // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
     sprintf(timestr, "%02d:%02d", minutes, seconds);
-    set_text(ui_OperatingTime, timestr);
+    set_text_without_change_font(ui_OperatingTime, timestr);
     release_lvgl();
     ControlDriver::Instance()->ButtonDownShortPress.registerCallback(unconfirm_task);
     ControlDriver::Instance()->ButtonUpShortPress.registerCallback(unconfirm_task);
@@ -95,7 +95,7 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
         uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
         // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
         sprintf(timestr, "%02d:%02d", minutes, seconds);
-        set_text(ui_OperatingTime, timestr);
+        set_text_without_change_font(ui_OperatingTime, timestr);
         //20ms一次更新，50次刚好1s
         update_lock = 50;
         auto_reload_time = auto_enter_time;

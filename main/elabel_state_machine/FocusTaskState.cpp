@@ -55,7 +55,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
     // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
     sprintf(timestr, "%02d:%02d", minutes, seconds);
-    set_text(ui_FocusTime, timestr);
+    set_text_without_change_font(ui_FocusTime, timestr);
     release_lvgl();
     ControlDriver::Instance()->ButtonUpLongPress.registerCallback(outfocus);
     ControlDriver::Instance()->ButtonDownLongPress.registerCallback(outfocus);
@@ -118,7 +118,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
         // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
         sprintf(timestr, "%02d:%02d", minutes, seconds);
-        set_text(ui_FocusTime, timestr);
+        set_text_without_change_font(ui_FocusTime, timestr);
         pOwner->need_flash_paper = false;
     }
 }

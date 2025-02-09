@@ -13,6 +13,12 @@ static const Note DOWN_MUSIC[] = {
 };
 static const size_t DOWN_MUSIC_LENGTH = sizeof(DOWN_MUSIC) / sizeof(DOWN_MUSIC[0]);
 
+// 充电音乐音符数组
+static const Note CHARGING_MUSIC[] = {
+    {Buzzer::NOTE_E5, 300},  
+};
+static const size_t CHARGING_MUSIC_LENGTH = sizeof(CHARGING_MUSIC) / sizeof(CHARGING_MUSIC[0]);
+
 // 三次蜂鸣音符数组（每次响0.5s，间隔0.2s）
 static const Note TRIPLE_BEEP_NOTES[] = {
     {Buzzer::NOTE_E5, 500},  // 第一声
@@ -123,6 +129,11 @@ void Buzzer::playUponMusic() {
 void Buzzer::playDownMusic() {
     playMusic(DOWN_MUSIC, DOWN_MUSIC_LENGTH);
 }
+
+void Buzzer::playChargingMusic() {
+    playMusic(CHARGING_MUSIC, CHARGING_MUSIC_LENGTH);
+}
+
 
 void Buzzer::playNextNote() {
     if (currentMusicNotes == nullptr) {

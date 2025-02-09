@@ -8,8 +8,12 @@ bool is_wifi_init = false;
 bool is_wifi_preprocess = false;
 
 static void wifi_init_sta(void);
-static void get_nvs_info(void);
 static void wifi_preprocess(void);
+
+bool Is_connect_to_phone(void)
+{
+    return is_connect_to_phone;
+}
 
 uint8_t get_wifi_status(void)
 {
@@ -23,6 +27,7 @@ void set_wifi_status(uint8_t _wifi_state)
 
 void start_blue_activate()
 {
+    is_connect_to_phone = false;
     m_wifi_disconnect();
     if(blufi_notify_flag) return;
     start_blufi();
@@ -41,7 +46,7 @@ void m_wifi_connect(void)
         return;
     }
     //...................................判断是否能找到历史记录..........................................//
-    if(is_set[0] == true && is_set[1] == true)
+    if(strlen(get_global_data()->m_wifi_ssid) != 0 && strlen(get_global_data()->m_wifi_password) != 0)
     {
         wifi_config_t wifi_config = {
                         .sta = {
@@ -50,13 +55,13 @@ void m_wifi_connect(void)
                         },
                     };
         bzero(&wifi_config, sizeof(wifi_config_t)); /* 将结构体数据清零 */
-        memcpy(wifi_config.sta.ssid, wifi_ssid, sizeof(wifi_config.sta.ssid));
-        memcpy(wifi_config.sta.password, wifi_passwd, sizeof(wifi_config.sta.password));
+        memcpy(wifi_config.sta.ssid, get_global_data()->m_wifi_ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(wifi_config.sta.password, get_global_data()->m_wifi_password, sizeof(wifi_config.sta.password));
         ESP_ERROR_CHECK(esp_wifi_disconnect());
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_connect());
         wifi_state = 0x01;
-        ESP_LOGI(WIFI_CONNECT,"Start connecting wifi with Password: %s and ssid %s \n", wifi_passwd, wifi_ssid);
+        ESP_LOGI(WIFI_CONNECT,"Start connecting wifi with Password: %s and ssid %s \n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
     }
     else
     {
@@ -201,11 +206,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
             esp_wifi_connect();
             retry_num++;
             ESP_LOGI(WIFI_CONNECT,"retry to connect to the AP %d times. \n",retry_num);
-            ESP_LOGI(WIFI_CONNECT,"Retry connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
+            ESP_LOGI(WIFI_CONNECT,"Retry connecting wifi with Password: %s and ssid %s\n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
             if (retry_num > 10)  /* WiFi重连次数大于10 */
             {
                 /* 将WiFi连接事件标志组的WiFi连接失败事件位置1 */
-                ESP_LOGE(WIFI_CONNECT,"Fail connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
+                ESP_LOGE(WIFI_CONNECT,"Fail connecting wifi with Password: %s and ssid %s\n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
                 // 清零 wifi_state
                 wifi_state = 0x00;
                 retry_num = 0;
@@ -217,14 +222,8 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
             ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data; /* 获取IP地址信息*/
             ESP_LOGI(WIFI_CONNECT,"got ip:%d.%d.%d.%d \n" , IP2STR(&event->ip_info.ip));  /* 打印ip地址*/
             retry_num = 0;                                              /* WiFi重连次数清零 */
-            nvs_handle wificfg_nvs_handler;
-            ESP_ERROR_CHECK( nvs_open("WiFi_cfg", NVS_READWRITE, &wificfg_nvs_handler) );
-            ESP_ERROR_CHECK( nvs_set_str(wificfg_nvs_handler,"wifi_ssid",wifi_ssid) );
-            ESP_ERROR_CHECK( nvs_set_str(wificfg_nvs_handler,"wifi_passwd",wifi_passwd) );
-            ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
-            nvs_close(wificfg_nvs_handler);                     /* 关闭 */ 
-            ESP_LOGI(WIFI_CONNECT,"Success save wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
-            ESP_LOGI(WIFI_CONNECT,"Success connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
+            set_nvs_info("wifi_ssid",get_global_data()->m_wifi_ssid);
+            set_nvs_info("wifi_passwd",get_global_data()->m_wifi_password);
             wifi_state = 0x02;
         }
     }
@@ -232,27 +231,6 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
 
 static void wifi_preprocess(void)
 {
-    //...................................初始化非易失性存储库 (NVS)..........................................//
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        err = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK( err );
-
-    // //删除连接的历史记录
-    // nvs_handle wificfg_nvs_handler;
-    // ESP_ERROR_CHECK( nvs_open("WiFi_cfg", NVS_READWRITE, &wificfg_nvs_handler) );
-
-    // nvs_erase_key(wificfg_nvs_handler, "wifi_ssid");
-    // nvs_erase_key(wificfg_nvs_handler, "wifi_passwd");
-    // ESP_LOGI(WIFI_CONNECT,"wifi_cfg erase. \n");
-
-    // ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
-    // nvs_close(wificfg_nvs_handler);                     /* 关闭 */
-    //...................................初始化非易失性存储库 (NVS)..........................................//
-
-
     //...................................初始化wifi连接handler..........................................//
     /* 初始化底层TCP/IP堆栈。在应用程序启动时，应该调用此函数一次。*/
     ESP_ERROR_CHECK(esp_netif_init());
@@ -272,86 +250,11 @@ static void wifi_preprocess(void)
     //...................................初始化wifi连接handler..........................................//
 }
 
-static void get_nvs_info(void)
-{
-    for(int i = 0; i < 3; i++)
-    {
-        is_set[i] = false;
-    }
-
-    wifi_state = 0x00;
-    is_blufi_init = false;
-
-    //...................................获取在NVS中存储的信息..........................................//
-    nvs_handle wificfg_nvs_handler; /* 定义一个NVS操作句柄 */
-    ESP_ERROR_CHECK(nvs_open("WiFi_cfg", NVS_READWRITE, &wificfg_nvs_handler) );//打开一个名叫"WiFi_cfg"的可读可写nvs空间
-
-    //使用 blufi中定义的wifi_ssid和wifi_passwd 来存储wifi信息
-    size_t len;                     /* 从NVS中获取ssid */
-    len = sizeof(wifi_ssid);  
-    esp_err_t ssid_err = nvs_get_str(wificfg_nvs_handler,"wifi_ssid",wifi_ssid,&len) ;
-    if(ssid_err != ESP_OK)
-    {
-        ESP_LOGE(WIFI_CONNECT,"No history wifi_ssid found. \n");
-    }
-    else
-    {
-        ESP_LOGI(WIFI_CONNECT,"history wifi_ssid found : %s. \n", wifi_ssid);
-        if(get_global_data()->wifi_ssid!=NULL) free(get_global_data()->wifi_ssid);
-        get_global_data()->wifi_ssid  = strdup(wifi_ssid);
-        is_set[0] = true;
-    }
-
-    len = sizeof(wifi_passwd);      /* 从NVS中获取passwd */
-    esp_err_t passwd_err = nvs_get_str(wificfg_nvs_handler,"wifi_passwd",wifi_passwd,&len) ;
-    if(passwd_err != ESP_OK)
-    {
-        ESP_LOGE(WIFI_CONNECT,"No history wifi_passwd found. \n");
-    }
-    else
-    {
-        ESP_LOGI(WIFI_CONNECT,"history wifi_passwd found : %s. \n", wifi_passwd);
-        if(get_global_data()->wifi_password!=NULL) free(get_global_data()->wifi_password);
-        get_global_data()->wifi_password  = strdup(wifi_passwd);
-        is_set[1] = true;
-    }
-
-    len = sizeof(customer);      /* 从NVS中获取customer */
-    esp_err_t customer_err = nvs_get_str(wificfg_nvs_handler,"customer",customer,&len) ;
-    if(customer_err != ESP_OK)
-    {
-        ESP_LOGE("Customer","No customer found. \n");
-    }
-    else
-    {
-        ESP_LOGI("Customer","history customer found : %s. \n", customer);
-        if(get_global_data()->usertoken!=NULL) free(get_global_data()->usertoken);
-        get_global_data()->usertoken  = strdup(customer);
-        is_set[2] = true;
-    }
-
-    len = sizeof(username);      /* 从NVS中获取username */
-    esp_err_t username_err = nvs_get_str(wificfg_nvs_handler,"username",username,&len) ;
-    if(username_err != ESP_OK)
-    {
-        ESP_LOGE("Username","No username found. \n");
-    }
-    else
-    {
-        ESP_LOGI("Username","history username found : %s. \n", username);
-        if(get_global_data()->userName!=NULL) free(get_global_data()->userName);
-        get_global_data()->userName  = strdup(username);
-    }
-
-    ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
-    nvs_close(wificfg_nvs_handler);                     /* 关闭 */
-    //...................................获取在NVS中存储的wifi信息..........................................//
-}
-
 
 static void wifi_init_sta(void)
 {
-    get_nvs_info();
+    wifi_state = 0x00;
+    is_blufi_init = false;
     //......................................初始化wifi..........................................//
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     /* 根据cfg参数初始化wifi连接所需要的资源 */

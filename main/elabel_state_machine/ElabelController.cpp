@@ -16,6 +16,7 @@
 #include "ActiveState.hpp"
 #include "InitState.hpp"
 #include "OTAState.hpp"
+#include "HostActiveState.hpp"
 
 ElabelController::ElabelController() : m_elabelFsm(this){}
 //初始化状态是init_state
@@ -33,20 +34,6 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
-    //wifi连接灯逻辑
-    if(get_wifi_status() == 1)
-    {
-        ControlDriver::Instance()->getLED().setLedState(LedState::DEVICE_WIFI_CONNECT);
-    }
-    //防止打断init的绿灯状态
-    else
-    {
-        if(GetCurrentState()!=InitState::Instance() && GetCurrentState()!=ActiveState::Instance())
-        {
-            ControlDriver::Instance()->getLED().setLedState(LedState::NO_LIGHT);
-        }
-    }
-
     if(GetCurrentState()==InitState::Instance())
     {
         if(InitState::Instance()->is_need_ota)
@@ -56,7 +43,7 @@ void ElabelFsm::HandleInput()
         else
         {
             //当没有用户或者没有网络的时候要进入绑定状态，如果有历史消息肯定在进入主程序前就已经开始wifi连接了
-            if(get_wifi_status() == 0 || get_global_data()->usertoken == NULL)
+            if(get_wifi_status() == 0 || strlen(get_global_data()->m_usertoken) == 0)
             {
                 ChangeState(ActiveState::Instance());
             }
@@ -74,7 +61,14 @@ void ElabelFsm::HandleInput()
     }
     else if(GetCurrentState()==ActiveState::Instance())
     {
-        if(ActiveState::Instance()->need_out_activate)
+        if(Is_connect_to_phone())
+        {
+            ChangeState(HostActiveState::Instance());
+        }
+    }
+    else if(GetCurrentState()==HostActiveState::Instance())
+    {
+        if(HostActiveState::Instance()->Out_ActiveState)
         {
             ChangeState(InitState::Instance());
         }

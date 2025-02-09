@@ -28,6 +28,7 @@ public:
     void playMusic(const Note* notes, size_t length);
     void playUponMusic();  // 播放开机音乐
     void playDownMusic();  // 播放关机音乐
+    void playChargingMusic(); // 播放充电音乐
     void playTripleBeep(); // 连续响3次，间隔0.2s
     void playLongBeep();  // 响1s
     void playDoubleBeep(); // 连续响2次，间隔0.2s
@@ -55,7 +56,6 @@ public:
     static constexpr uint32_t NOTE_G5 = 784;  // 高音sol
     static constexpr uint32_t NOTE_A5 = 880;  // 高音la
     static constexpr uint32_t NOTE_B5 = 988;  // 高音si
-    static constexpr uint32_t NOTE_REST = 0;  // 休止符
 
 private:
     bool busy;

@@ -1,5 +1,4 @@
-idf_component_register(SRCS "network.c" 
+idf_component_register(SRCS "network.c" "../../main/global_message/global_nvs.c" "../../main/global_message/global_message.c"
                     INCLUDE_DIRS "include" "../../main/global_message"
-                    REQUIRES spi_flash
-                    REQUIRES nvs_flash
+                    REQUIRES esp_wifi
                     REQUIRES bt)

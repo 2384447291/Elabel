@@ -28,6 +28,8 @@ void m_wifi_deinit(void);
 
 void start_blufi(void);//随便调用内部有锁
 
+bool Is_connect_to_phone(void);
+
 uint8_t get_wifi_status(void);
 
 void start_blue_activate();

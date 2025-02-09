@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#define FIRMWARE_VERSION "2.0.4"
+#define FIRMWARE_VERSION "2.0.6"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，为专注2
@@ -89,20 +89,20 @@ typedef struct
     // 6 个字节的 MAC 地址：6 * 2 = 12 字符
     // 5 个冒号分隔符：5 字符
     // 1 个结束字符 '\0'：1 字符
-    uint8_t mac_uint[6];
-    char mac_str[18];
+    uint8_t m_mac_uint[6];
+    char m_mac_str[18];
 
     //查询的最新版本号
-    char* newest_firmware_url;
-    char *version;
-    char *deviceModel;
-    char *createTime;
+    char m_newest_firmware_url[100];
+    char m_version[100];
+    char m_deviceModel[100];
+    char m_createTime[100];
     //查询的用户名称
-    char* usertoken;
-    char* userName;
+    char m_usertoken[100];
+    char m_userName[100];
     //连接的wifi的名称和密码
-    char* wifi_ssid;
-    char* wifi_password;
+    char m_wifi_ssid[100];    
+    char m_wifi_password[100];
 } Global_data;
 
 #ifdef __cplusplus

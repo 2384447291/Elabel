@@ -108,14 +108,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "deviceModel"));
                     const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "firmwareUrl"));
                     const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "createTime"));
-                    if(get_global_data()->version != NULL) free(get_global_data()->version);
-                    get_global_data()->version  = strdup(version);
-                    if(get_global_data()->deviceModel != NULL) free(get_global_data()->deviceModel);
-                    get_global_data()->deviceModel  = strdup(deviceModel);
-                    if(get_global_data()->createTime != NULL) free(get_global_data()->createTime);
-                    get_global_data()->createTime  = strdup(createTime);
-                    if(get_global_data()->newest_firmware_url != NULL) free(get_global_data()->newest_firmware_url);
-                    get_global_data()->newest_firmware_url  = strdup(newest_firmware_url);
+                    memcpy(get_global_data()->m_version, version, strlen(version));
+                    memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
+                    memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
+                    memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
                 }
             }
         }
@@ -148,8 +144,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         if (data != NULL) 
         {
             const char *userName = cJSON_GetStringValue(cJSON_GetObjectItem(data, "userName"));
-            if(get_global_data()->userName != NULL) free(get_global_data()->userName);
-            get_global_data()->userName  = strdup(userName);
+            memcpy(get_global_data()->m_userName, userName, strlen(userName));
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDUSR.\n ");
     } 

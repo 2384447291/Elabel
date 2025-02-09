@@ -7,6 +7,7 @@
 // IO定义
 #define BATTERY_POWER_CTRL    GPIO_NUM_13  // 控制电池开关
 #define BATTERY_CHARGING_DET  GPIO_NUM_48  // 充电状态检测
+#define BATTERY_FULL_POWER_DET  GPIO_NUM_45  // 是否为满电
 #define BATTERY_ADC_DET      GPIO_NUM_11  // 电池电压检测ADC
 
 class BatteryManager {
@@ -25,8 +26,22 @@ public:
     // 获取电池电量
     float getBatteryLevel();
 
-    // 获取充电状态
-    bool isCharging() { return chargingStatus; }
+    //检测是否有usb连接
+    bool isUsbConnected()
+    {
+        if(chargingStatus && !fullPowerStatus)
+        {
+            return true;
+        }
+        else if(!chargingStatus && fullPowerStatus)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     // 控制电池开关
     void setPowerState(bool enable);
@@ -34,6 +49,7 @@ public:
     // 成员变量
     float batteryLevel = 0.0f;
     bool chargingStatus = false;
+    bool fullPowerStatus = false;
     bool powerEnabled = false;
 };
 

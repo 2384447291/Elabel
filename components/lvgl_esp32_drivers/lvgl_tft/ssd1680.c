@@ -7,6 +7,9 @@
 #include "bitmap.h"
 #include "../ui/ui.h"
 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
+
 #define TAG "SSD1680"
 
 #define EPD_PANEL_WIDTH          122
@@ -63,11 +66,8 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     }
     else if(act_scr == ui_ActiveScreen)
     {
-        if(elabel_screen != ACTIVE_SCREEN)
-        {
-            isBaseMapFresh = false;
-            elabel_screen = ACTIVE_SCREEN;
-        }
+        elabel_screen = ACTIVE_SCREEN;
+        isBaseMapFresh = false;
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_ActiveScreen Flush called.");
     }

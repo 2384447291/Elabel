@@ -27,7 +27,7 @@ static void esp_now_recieve_update(void *pvParameter)
             if(xQueueReceive(EspNowClient::Instance()->recv_queue, &recv_msg, 0) == pdTRUE)
             {
                 //处理接收到的信息
-                ESP_LOGI(ESP_NOW, "Receive data from %s, len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
+                // ESP_LOGI(ESP_NOW, "Receive data from %s, len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
                 print_uint8_array(recv_msg.data, recv_msg.data_len);
             }
         }

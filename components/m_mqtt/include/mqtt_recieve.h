@@ -124,7 +124,7 @@ static void solve_message(char *response)
             Mqtt_msg_reply.isReply = 1;
             Mqtt_msg_reply.msgId = Mqtt_msg.msgId;
             strcpy(Mqtt_msg_reply.method, Mqtt_msg.method);
-            strcpy(Mqtt_msg_reply.msg,get_global_data()->mac_str);
+            strcpy(Mqtt_msg_reply.msg,get_global_data()->m_mac_str);
             cJSON *json = cJSON_CreateObject();
             cJSON_AddNumberToObject(json, "did", Mqtt_msg_reply.did);
             cJSON_AddNumberToObject(json, "isReply", Mqtt_msg_reply.isReply);

@@ -66,9 +66,9 @@ void mqtt_client_init(void)
 {
     if(is_mqtt_init) return;
     is_mqtt_init = true;
-    strcat(rev_topic,get_global_data()->mac_str);
-    strcat(rev_topic_2,get_global_data()->usertoken);
-    strcat(send_topic,get_global_data()->mac_str);
+    strcat(rev_topic,get_global_data()->m_mac_str);
+    strcat(rev_topic_2,get_global_data()->m_usertoken);
+    strcat(send_topic,get_global_data()->m_mac_str);
 
     esp_mqtt_client_config_t emcct = {
         .uri="mqtt://120.77.1.151",  //MQTT服务器的uri

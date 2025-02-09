@@ -31,7 +31,7 @@ void http_send(http_task_struct* m_task_struct)
         esp_http_client_set_method(client,HTTP_METHOD_POST);
         esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/addTodo");
         esp_http_client_set_header(client,"Content-Type","application/json");
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造 JSON 数据
         cJSON *root = cJSON_CreateObject();
         cJSON_AddStringToObject(root, "title",    m_task_struct->parament[0]);
@@ -64,7 +64,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[1024];
         snprintf(body, sizeof(body),
@@ -104,7 +104,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
         snprintf(body, sizeof(body),
@@ -138,7 +138,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
         snprintf(body, sizeof(body),
@@ -169,7 +169,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[512];
         snprintf(body, sizeof(body),
@@ -207,7 +207,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
         snprintf(body, sizeof(body),
@@ -238,9 +238,9 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
-        char body[256];
+        char body[512];
         snprintf(body, sizeof(body),
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"userOpenId\"\r\n\r\n"
@@ -249,7 +249,7 @@ void http_send(http_task_struct* m_task_struct)
             "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
             "%s\r\n"
             "--%s--\r\n",
-            m_boundary, get_global_data()->usertoken, m_boundary, get_global_data()->mac_str, m_boundary);
+            m_boundary, get_global_data()->m_usertoken, m_boundary, get_global_data()->m_mac_str, m_boundary);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
@@ -272,7 +272,7 @@ void http_send(http_task_struct* m_task_struct)
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
         esp_http_client_set_header(client, "Content-Type", content_type);
         // 设置 userToken
-        esp_http_client_set_header(client, "userToken", get_global_data()->usertoken);
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
         // snprintf(body, sizeof(body),

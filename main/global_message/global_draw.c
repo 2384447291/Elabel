@@ -139,6 +139,20 @@ void guiTask(void *pvParameter) {
 
 
 
+//--------------------------------------获取语言字体-------------------------------------//
+const lv_font_t* get_language_font(void)
+{
+    switch(get_global_data()->m_language) {
+        case Chinese:
+            return &ui_font_Chinese_20;
+        case English:
+        default:
+            return &lv_font_montserrat_20;
+    }
+}
+//--------------------------------------获取语言字体-------------------------------------//
+
+
 //--------------------------------------修改任务内容-------------------------------------//
 void lvgl_modify_task(int position, const char *task_content) 
 {
@@ -184,6 +198,7 @@ void lvgl_add_task(const char *task_content)
     lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Label1, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_label_set_text(ui_Label1, task_content);
     lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -191,34 +206,20 @@ void lvgl_add_task(const char *task_content)
     lv_obj_set_y(ui_Label1, 0);
 
     //给新建的button赋具体的文字，5遍是为了加粗
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < 1; i++)
     {
         lv_obj_t *ui_tmpLabel = lv_label_create(ui_Label1);
-        lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);   /// 1
+        lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);     /// 1
         lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
         lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
+        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_label_set_text(ui_tmpLabel, task_content);
         lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
         if(i == 0)
         {
-            lv_obj_set_x(ui_tmpLabel, 1);
-            lv_obj_set_y(ui_tmpLabel, 0);
-        }
-        else if(i == 1)
-        {
             lv_obj_set_x(ui_tmpLabel, -1);
             lv_obj_set_y(ui_tmpLabel, 0);
-        }
-        else if(i == 2)
-        {
-            lv_obj_set_x(ui_tmpLabel, 0);
-            lv_obj_set_y(ui_tmpLabel, 1);
-        }
-        else if(i == 3)
-        {
-            lv_obj_set_x(ui_tmpLabel, 0);
-            lv_obj_set_y(ui_tmpLabel, -1);
         }
     }
 
@@ -295,6 +296,21 @@ void update_lvgl_task_list()
 //--------------------------------------修改label-------------------------------------//
 void set_text(lv_obj_t * target_label,  const char * text)
 {
+    lv_obj_set_style_text_font(target_label, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(target_label, text);
+    uint8_t child_count = lv_obj_get_child_cnt(target_label);
+    for(int i = 0; i < child_count; i++)
+    {
+        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
+        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_label_set_text(ui_tmpLabel, text);
+    }
+}
+
+
+//--------------------------------------修改label-------------------------------------//
+void set_text_without_change_font(lv_obj_t * target_label,  const char * text)
+{
     lv_label_set_text(target_label, text);
     uint8_t child_count = lv_obj_get_child_cnt(target_label);
     for(int i = 0; i < child_count; i++)
@@ -340,3 +356,54 @@ void set_text_english(lv_obj_t * target_label,  const char * text)
     }
 }
 //--------------------------------------更改字体为英文------------------------------------//
+
+
+//--------------------------------------更改所有语言------------------------------------//
+void Change_All_language()
+{
+    if(get_global_data()->m_language == 0)
+    {
+        set_text_english(ui_ActiveGuide, "Use APP to active Host\n"
+                                        "or\n"
+                                        "Use Host to active Slave");
+        set_text_english(ui_HostName, "Host");
+        set_text_english(ui_SlaveName, "Slave");
+        set_text_english(ui_HostInf, "Username:\n"
+                                    "WIFIname:\n"
+                                    "WIFIPassword:\n"
+                                    "SlaveNum:");
+        set_text_english(ui_SlaveInf, "Username:\n"
+                                    "HostMac:\n");
+        set_text_english(ui_NewFirmware, "New Firmware");
+        set_text_english(ui_OperateGuide ,"Click: Apply\n"
+                                        "Rotate: Skip");
+        set_text_english(ui_Updating, "Updating...");
+        set_text_english(ui_FocusTask, "Focus Task");
+        set_text_english(ui_ShutdownGuide, "See you next time");
+        set_text_english(ui_NoTaskNote, "Nothing left yet");
+        set_text_english(ui_NoTaskNote2, "Enjoy your life");
+    }
+    else if(get_global_data()->m_language == 1)
+    {
+        set_text_chinese(ui_ActiveGuide, "打开手机APP靠近唤醒主机\n"
+                                        "或\n"
+                                        "使用激活主机靠近唤醒从机");
+        set_text_chinese(ui_HostName, "主机");
+        set_text_chinese(ui_SlaveName, "从机");
+        set_text_chinese(ui_HostInf, "用户名:\n"
+                                    "WiFi名称:\n"
+                                    "WiFi密码:\n"
+                                    "从机数量:");
+        set_text_chinese(ui_SlaveInf, "用户名:\n"
+                                    "主机MAC:");
+        set_text_chinese(ui_NewFirmware, "新固件");
+        set_text_chinese(ui_OperateGuide, "单点: 应用\n"
+                                        "旋转: 跳过");
+        set_text_chinese(ui_Updating, "正在更新...");
+        set_text_chinese(ui_FocusTask, "专注任务");
+        set_text_chinese(ui_ShutdownGuide, "明天再见");
+        set_text_chinese(ui_NoTaskNote, "没有剩余任务");
+        set_text_chinese(ui_NoTaskNote2, "享受你的生活");
+    }
+}
+    //--------------------------------------更改所有语言------------------------------------//

@@ -43,9 +43,9 @@ void InitState::Enter(ElabelController* pOwner)
 void InitState::Execute(ElabelController* pOwner)
 {
     //如果正在连接或者没有用户，则不进行初始化
-    if(get_wifi_status() == 1 && get_global_data()->usertoken!=NULL) return;
+    if(get_wifi_status() == 1 && get_global_data()->m_usertoken!=NULL) return;
     if(is_init) return;
-    ControlDriver::Instance()->getLED().setLedState(LedState::DEVICE_INIT);
+
     //等待1swifi连接两秒稳定
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     //时间同步
@@ -60,15 +60,13 @@ void InitState::Execute(ElabelController* pOwner)
     http_get_latest_version(true);
 
     //如果判断为需要OTA
-    if(get_global_data()->newest_firmware_url != NULL && strcmp(get_global_data()->version, FIRMWARE_VERSION) != 0)
+    if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
     {
         lock_lvgl();
         lv_scr_load(ui_OTAScreen);
-        char version_change[100];
-        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->version);
-        set_text(ui_VersionChange, version_change);
-        set_text_chinese(ui_OperateGuide,"开始游戏");
-        set_text_chinese(ui_VersionChange, "我爱你");
+        char version_change[150];
+        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
+        set_text_without_change_font(ui_VersionChange, version_change);
         release_lvgl();
         ota_Wait_tick = 0;      
         //短按进入ota
@@ -106,6 +104,5 @@ void InitState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(enter_ota);
     ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(out_ota);
     ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(out_ota);
-    ControlDriver::Instance()->getLED().setLedState(LedState::NO_LIGHT);
     ESP_LOGI(STATEMACHINE,"Out InitState.\n");
 }

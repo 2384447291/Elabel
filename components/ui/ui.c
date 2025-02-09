@@ -21,7 +21,6 @@ void ui_ActiveScreen_screen_init(void);
 lv_obj_t * ui_ActiveScreen;
 lv_obj_t * ui_ActiveGuide;
 lv_obj_t * ui_Label2;
-lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ActiveScreen;
 lv_obj_t * uic_HostGuide;
@@ -34,16 +33,12 @@ lv_obj_t * ui_NewFirmware;
 lv_obj_t * ui_NewFirmware2;
 lv_obj_t * ui_OperateGuide;
 lv_obj_t * ui_OperateGuide2;
-lv_obj_t * ui_OperateGuide3;
-lv_obj_t * ui_OperateGuide4;
 lv_obj_t * ui_VersionChange;
 // CUSTOM VARIABLES
 lv_obj_t * uic_NewFirmware;
 lv_obj_t * uic_NewFirmware2;
 lv_obj_t * uic_OperateGuide;
 lv_obj_t * uic_OperateGuide2;
-lv_obj_t * uic_OperateGuide3;
-lv_obj_t * uic_OperateGuide4;
 lv_obj_t * uic_VersionChange;
 
 
@@ -55,29 +50,17 @@ lv_obj_t * ui_startlabel;
 lv_obj_t * ui_Button1;
 lv_obj_t * ui_chooseTaskF;
 lv_obj_t * ui_chooseTask1;
-lv_obj_t * ui_chooseTask6;
-lv_obj_t * ui_chooseTask7;
-lv_obj_t * ui_chooseTask8;
 lv_obj_t * ui_Button2;
 lv_obj_t * ui_chooseTaskS;
 lv_obj_t * ui_chooseTask2;
-lv_obj_t * ui_chooseTask3;
-lv_obj_t * ui_chooseTask4;
-lv_obj_t * ui_chooseTask5;
 lv_obj_t * ui_Button3;
 lv_obj_t * ui_chooseTaskT;
 lv_obj_t * ui_chooseTask11;
-lv_obj_t * ui_chooseTask12;
-lv_obj_t * ui_chooseTask13;
-lv_obj_t * ui_chooseTask14;
 lv_obj_t * ui_endlabel;
 lv_obj_t * ui_NoTaskContainer;
-lv_obj_t * ui_NoTaskNote1;
+lv_obj_t * ui_NoTaskNote;
+lv_obj_t * ui_NoTaskNote14;
 lv_obj_t * ui_NoTaskNote2;
-lv_obj_t * ui_NoTaskNote3;
-lv_obj_t * ui_NoTaskNote4;
-lv_obj_t * ui_NoTaskNote5;
-lv_obj_t * ui_NoTaskNote6;
 // CUSTOM VARIABLES
 lv_obj_t * uic_TaskScreen;
 lv_obj_t * uic_HaveTaskContainer;
@@ -86,8 +69,6 @@ lv_obj_t * uic_chooseTaskS;
 lv_obj_t * uic_chooseTaskT;
 lv_obj_t * uic_NoTaskContainer;
 lv_obj_t * uic_NoTaskNote1;
-lv_obj_t * uic_NoTaskNote2;
-lv_obj_t * uic_NoTaskNote3;
 lv_obj_t * uic_NoTaskNote5;
 lv_obj_t * uic_NoTaskNote6;
 
@@ -107,19 +88,13 @@ lv_obj_t * uic_OperatingTime;
 void ui_FocusScreen_screen_init(void);
 lv_obj_t * ui_FocusScreen;
 lv_obj_t * ui_FocusTask;
-lv_obj_t * ui_Task3;
 lv_obj_t * ui_Task;
 lv_obj_t * ui_FocusTime;
-lv_obj_t * ui_FocusTime2;
-lv_obj_t * ui_FocusTime3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_FocusScreen;
 lv_obj_t * uic_FocusTask;
-lv_obj_t * uic_Task3;
 lv_obj_t * uic_Task2;
 lv_obj_t * uic_FocusTime1;
-lv_obj_t * uic_FocusTime2;
-lv_obj_t * uic_FocusTime3;
 
 
 // SCREEN: ui_UpdateScreen
@@ -127,12 +102,10 @@ void ui_UpdateScreen_screen_init(void);
 lv_obj_t * ui_UpdateScreen;
 lv_obj_t * ui_Updating;
 lv_obj_t * ui_Updating2;
-lv_obj_t * ui_Updating3;
 lv_obj_t * ui_VersionnNmber;
 lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Updating;
-lv_obj_t * uic_Updating2;
 lv_obj_t * uic_Updating2;
 lv_obj_t * uic_VersionnNmber;
 
@@ -142,14 +115,8 @@ void ui_ShutdownScreen_screen_init(void);
 lv_obj_t * ui_ShutdownScreen;
 lv_obj_t * ui_ShutdownGuide;
 lv_obj_t * ui_ShutdownGuide2;
-lv_obj_t * ui_ShutdownGuide3;
-lv_obj_t * ui_ShutdownGuide4;
-lv_obj_t * ui_ShutdownGuide5;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ShutdownScreen;
-lv_obj_t * uic_ShutdownGuide;
-lv_obj_t * uic_ShutdownGuide;
-lv_obj_t * uic_ShutdownGuide;
 lv_obj_t * uic_ShutdownGuide;
 lv_obj_t * uic_ShutdownGuide;
 
@@ -179,7 +146,7 @@ lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 
-///////////////////// TEST LVGL SETTINGS ////////////////////
+// ///////////////////// TEST LVGL SETTINGS ////////////////////
 // #if LV_COLOR_DEPTH != 8
 //     #error "LV_COLOR_DEPTH should be 8bit to match SquareLine Studio's settings"
 // #endif

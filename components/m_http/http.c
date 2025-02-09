@@ -389,11 +389,11 @@ void http_client_init(void)
     uint8_t mac[6];
     esp_efuse_mac_get_default(mac);
     for (size_t i = 0; i < 6; i++) {
-        get_global_data()->mac_uint[i] = mac[i];
+        get_global_data()->m_mac_uint[i] = mac[i];
     }
-    snprintf(get_global_data()->mac_str, sizeof(get_global_data()->mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
+    snprintf(get_global_data()->m_mac_str, sizeof(get_global_data()->m_mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    ESP_LOGI(HTTP_TAG,"MAC: %s\n", get_global_data()->mac_str);
+    ESP_LOGI(HTTP_TAG,"MAC: %s\n", get_global_data()->m_mac_str);
 
     const esp_http_client_config_t config = {
         .url = "http://120.77.1.151",
@@ -417,7 +417,7 @@ void http_client_init(void)
 
 void http_client_sendMsg(http_task_struct* task)
 {
-    if(get_global_data()->usertoken == NULL)
+    if(get_global_data()->m_usertoken == NULL)
     {
         ESP_LOGE(HTTP_TAG,"No usertoken detect\n");
     }

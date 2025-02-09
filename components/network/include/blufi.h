@@ -13,7 +13,7 @@
 #include "esp_bt_main.h"
 #include "esp_gatt_common_api.h"
 #include "global_message.h"
-
+#include "global_nvs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,13 +181,15 @@ static const uint8_t char_prop_read_write          = ESP_GATT_CHAR_PROP_BIT_WRIT
 static const uint8_t char_prop_read_write_notify         = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
 static const uint8_t is_notify[2]      = {0x00, 0x00};
 
-char wifi_ssid[32] = { 0 };     /* 定义一个数组用来存储ssid*/
-char wifi_passwd[64] = { 0 };   /* 定义一个数组用来存储passwd */
-char customer[64] = { 0 };   /* 定义一个数组用来存储passwd */
-char username[64] = { 0 };   /* 定义一个数组用来存储username */
-uint8_t is_set[3] = {0 , 0 , 0};     //1 for wifi_ssid, 2 for wifi_passwd 3 for customer
+char wifi_ssid[100] = { 0 };     /* 定义一个数组用来存储ssid*/
+char wifi_passwd[100] = { 0 };   /* 定义一个数组用来存储passwd */
+char customer[100] = { 0 };   /* 定义一个数组用来存储passwd */
+char username[100] = { 0 };   /* 定义一个数组用来存储username */
+
 uint8_t wifi_state = 0x00;//0x00 noconnect 0x01 connecting 0x02 connected 0x03 为绑定了设备
-bool enable_reconnect = true; //是否要出发未连接上再次连接
+bool enable_reconnect = true; //是否要触发未连接上再次连接
+bool is_connect_to_phone = false;
+
 uint8_t is_blufi_init = false;
 uint8_t is_release_classic_ble = false;
 esp_bd_addr_t smart_phone_addr = {0};
@@ -510,33 +512,22 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                     memset(wifi_passwd, 0, sizeof(wifi_passwd));
                     memcpy(wifi_passwd, param->write.value, param->write.len);
                     ESP_LOGI(GATTS_TABLE_TAG, "Set Password successfully: %s", wifi_passwd);
-                    if(get_global_data()->wifi_password!=NULL) free(get_global_data()->wifi_password);
-                    get_global_data()->wifi_password  = strdup(wifi_passwd);
-                    is_set[0] = true;
+                    memcpy(get_global_data()->m_wifi_password, wifi_passwd, sizeof(wifi_passwd));
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_SSID] == param->write.handle)
                 {
                     memset(wifi_ssid, 0, sizeof(wifi_ssid));
                     memcpy(wifi_ssid, param->write.value, param->write.len);
                     ESP_LOGI(GATTS_TABLE_TAG, "Set Ssid successfully: %s", wifi_ssid);
-                    if(get_global_data()->wifi_ssid!=NULL) free(get_global_data()->wifi_ssid);
-                    get_global_data()->wifi_ssid = strdup(wifi_ssid);
-                    is_set[1] = true;
+                    memcpy(get_global_data()->m_wifi_ssid, wifi_ssid, sizeof(wifi_ssid));
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_CUSTOM] == param->write.handle)
                 {
                     memset(customer, 0, sizeof(customer));
                     memcpy(customer, param->write.value, param->write.len);
                     ESP_LOGI(GATTS_TABLE_TAG, "Set Costomer successfully: %s", customer);
-                    is_set[2] = true;
-                    nvs_handle wificfg_nvs_handler;
-                    ESP_ERROR_CHECK( nvs_open("WiFi_cfg", NVS_READWRITE, &wificfg_nvs_handler) );
-                    ESP_ERROR_CHECK( nvs_set_str(wificfg_nvs_handler,"customer",customer) );
-                    ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
-                    nvs_close(wificfg_nvs_handler);                     /* 关闭 */ 
-                    ESP_LOGI("Customer","Success save customer with id: %s ", customer);
-                    if(get_global_data()->usertoken!=NULL) free(get_global_data()->usertoken);
-                    get_global_data()->usertoken  = strdup(customer);
+                    memcpy(get_global_data()->m_usertoken, customer, sizeof(customer));
+                    set_nvs_info("customer", customer);
                 }
                 else if(heart_rate_handle_table[IDX_CHAR_VAL_STATE] == param->write.handle)
                 {
@@ -546,7 +537,8 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                         if(recieve_cmd == 0x01)//连接wifi
                         {
                             ESP_LOGI(GATTS_TABLE_TAG, "CMD is connecting wifi");
-                            if(is_set[0] == true && is_set[1] == true)
+                            //如果wifi_ssid和wifi_password不为零而不是为空指针，则连接wifi
+                            if(strlen(get_global_data()->m_wifi_ssid) != 0 && strlen(get_global_data()->m_wifi_password) != 0)
                             {
                                 wifi_config_t wifi_config = {
                                                 .sta = {
@@ -555,26 +547,25 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                                                 },
                                             };
                                 bzero(&wifi_config, sizeof(wifi_config_t)); /* 将结构体数据清零 */
-                                memcpy(wifi_config.sta.ssid, wifi_ssid, sizeof(wifi_config.sta.ssid));
-                                memcpy(wifi_config.sta.password, wifi_passwd, sizeof(wifi_config.sta.password));
+                                memcpy(wifi_config.sta.ssid, get_global_data()->m_wifi_ssid, sizeof(wifi_config.sta.ssid));
+                                memcpy(wifi_config.sta.password, get_global_data()->m_wifi_password, sizeof(wifi_config.sta.password));
                                 ESP_ERROR_CHECK(esp_wifi_disconnect());
                                 ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
                                 ESP_ERROR_CHECK(esp_wifi_connect());
                                 wifi_state = 0x01;
                                 enable_reconnect = true;
-                                ESP_LOGI(GATTS_TABLE_TAG,"Start connecting wifi with Password: %s and ssid %s\n", wifi_passwd, wifi_ssid);
+                                ESP_LOGI(GATTS_TABLE_TAG,"Start connecting wifi with Password: %s and ssid %s\n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
                             }
                             else
                             {
-                                if(!is_set[0])
+                                if(get_global_data()->m_wifi_ssid == NULL)
                                 {
                                     ESP_LOGI(GATTS_TABLE_TAG, "ssid is not set\n");
                                 }
-                                if(!is_set[1])
+                                if(get_global_data()->m_wifi_password == NULL)
                                 {
                                     ESP_LOGI(GATTS_TABLE_TAG, "password is not set\n");
                                 }
-
                             }
                         }
                         else if(recieve_cmd == 0x02)//解除连接释放蓝牙内存
@@ -624,6 +615,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
             break;
         case ESP_GATTS_CONNECT_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_CONNECT_EVT, conn_id = %d", param->connect.conn_id);
+            is_connect_to_phone = true;
             esp_log_buffer_hex(GATTS_TABLE_TAG, param->connect.remote_bda, 6);
             esp_ble_conn_update_params_t conn_params = {0};
             memcpy(smart_phone_addr, param->connect.remote_bda, sizeof(esp_bd_addr_t));

@@ -1,6 +1,6 @@
 #include "global_message.h"
 #include "esp_log.h"
-#include "esp_sntp.h"
+#include "freertos/semphr.h"
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 SemaphoreHandle_t Global_message_mutex;
 
@@ -161,18 +161,17 @@ Global_data* get_global_data() {
             instance->m_todo_list->items = NULL;
             instance->m_todo_list->size = 0;
 
-            memset(instance->mac_str, 0, sizeof(instance->mac_str));
+            memset(instance->m_mac_str, 0, sizeof(instance->m_mac_str));
 
-            instance->newest_firmware_url = NULL;
-            instance->version = NULL;
-            instance->deviceModel = NULL;
-            instance->createTime = NULL;
+            memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
+            memset(instance->m_version, 0, sizeof(instance->m_version));
+            memset(instance->m_deviceModel, 0, sizeof(instance->m_deviceModel));
+            memset(instance->m_createTime, 0, sizeof(instance->m_createTime));
             
-            instance->usertoken = NULL;
-            instance->userName = NULL;
-
-            instance->wifi_password = NULL;
-            instance->wifi_ssid = NULL;
+            memset(instance->m_usertoken, 0, sizeof(instance->m_usertoken));
+            memset(instance->m_userName, 0, sizeof(instance->m_userName));
+            memset(instance->m_wifi_password, 0, sizeof(instance->m_wifi_password));            
+            memset(instance->m_wifi_ssid, 0, sizeof(instance->m_wifi_ssid));
         }
     }
     return instance;

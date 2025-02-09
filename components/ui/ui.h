@@ -27,7 +27,6 @@ void ui_ActiveScreen_screen_init(void);
 extern lv_obj_t * ui_ActiveScreen;
 extern lv_obj_t * ui_ActiveGuide;
 extern lv_obj_t * ui_Label2;
-extern lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ActiveScreen;
 extern lv_obj_t * uic_HostGuide;
@@ -39,16 +38,12 @@ extern lv_obj_t * ui_NewFirmware;
 extern lv_obj_t * ui_NewFirmware2;
 extern lv_obj_t * ui_OperateGuide;
 extern lv_obj_t * ui_OperateGuide2;
-extern lv_obj_t * ui_OperateGuide3;
-extern lv_obj_t * ui_OperateGuide4;
 extern lv_obj_t * ui_VersionChange;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_NewFirmware;
 extern lv_obj_t * uic_NewFirmware2;
 extern lv_obj_t * uic_OperateGuide;
 extern lv_obj_t * uic_OperateGuide2;
-extern lv_obj_t * uic_OperateGuide3;
-extern lv_obj_t * uic_OperateGuide4;
 extern lv_obj_t * uic_VersionChange;
 
 // SCREEN: ui_TaskScreen
@@ -59,29 +54,17 @@ extern lv_obj_t * ui_startlabel;
 extern lv_obj_t * ui_Button1;
 extern lv_obj_t * ui_chooseTaskF;
 extern lv_obj_t * ui_chooseTask1;
-extern lv_obj_t * ui_chooseTask6;
-extern lv_obj_t * ui_chooseTask7;
-extern lv_obj_t * ui_chooseTask8;
 extern lv_obj_t * ui_Button2;
 extern lv_obj_t * ui_chooseTaskS;
 extern lv_obj_t * ui_chooseTask2;
-extern lv_obj_t * ui_chooseTask3;
-extern lv_obj_t * ui_chooseTask4;
-extern lv_obj_t * ui_chooseTask5;
 extern lv_obj_t * ui_Button3;
 extern lv_obj_t * ui_chooseTaskT;
 extern lv_obj_t * ui_chooseTask11;
-extern lv_obj_t * ui_chooseTask12;
-extern lv_obj_t * ui_chooseTask13;
-extern lv_obj_t * ui_chooseTask14;
 extern lv_obj_t * ui_endlabel;
 extern lv_obj_t * ui_NoTaskContainer;
-extern lv_obj_t * ui_NoTaskNote1;
+extern lv_obj_t * ui_NoTaskNote;
+extern lv_obj_t * ui_NoTaskNote14;
 extern lv_obj_t * ui_NoTaskNote2;
-extern lv_obj_t * ui_NoTaskNote3;
-extern lv_obj_t * ui_NoTaskNote4;
-extern lv_obj_t * ui_NoTaskNote5;
-extern lv_obj_t * ui_NoTaskNote6;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_TaskScreen;
 extern lv_obj_t * uic_HaveTaskContainer;
@@ -90,8 +73,6 @@ extern lv_obj_t * uic_chooseTaskS;
 extern lv_obj_t * uic_chooseTaskT;
 extern lv_obj_t * uic_NoTaskContainer;
 extern lv_obj_t * uic_NoTaskNote1;
-extern lv_obj_t * uic_NoTaskNote2;
-extern lv_obj_t * uic_NoTaskNote3;
 extern lv_obj_t * uic_NoTaskNote5;
 extern lv_obj_t * uic_NoTaskNote6;
 
@@ -109,31 +90,23 @@ extern lv_obj_t * uic_OperatingTime;
 void ui_FocusScreen_screen_init(void);
 extern lv_obj_t * ui_FocusScreen;
 extern lv_obj_t * ui_FocusTask;
-extern lv_obj_t * ui_Task3;
 extern lv_obj_t * ui_Task;
 extern lv_obj_t * ui_FocusTime;
-extern lv_obj_t * ui_FocusTime2;
-extern lv_obj_t * ui_FocusTime3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_FocusScreen;
 extern lv_obj_t * uic_FocusTask;
-extern lv_obj_t * uic_Task3;
 extern lv_obj_t * uic_Task2;
 extern lv_obj_t * uic_FocusTime1;
-extern lv_obj_t * uic_FocusTime2;
-extern lv_obj_t * uic_FocusTime3;
 
 // SCREEN: ui_UpdateScreen
 void ui_UpdateScreen_screen_init(void);
 extern lv_obj_t * ui_UpdateScreen;
 extern lv_obj_t * ui_Updating;
 extern lv_obj_t * ui_Updating2;
-extern lv_obj_t * ui_Updating3;
 extern lv_obj_t * ui_VersionnNmber;
 extern lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Updating;
-extern lv_obj_t * uic_Updating2;
 extern lv_obj_t * uic_Updating2;
 extern lv_obj_t * uic_VersionnNmber;
 
@@ -142,14 +115,8 @@ void ui_ShutdownScreen_screen_init(void);
 extern lv_obj_t * ui_ShutdownScreen;
 extern lv_obj_t * ui_ShutdownGuide;
 extern lv_obj_t * ui_ShutdownGuide2;
-extern lv_obj_t * ui_ShutdownGuide3;
-extern lv_obj_t * ui_ShutdownGuide4;
-extern lv_obj_t * ui_ShutdownGuide5;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ShutdownScreen;
-extern lv_obj_t * uic_ShutdownGuide;
-extern lv_obj_t * uic_ShutdownGuide;
-extern lv_obj_t * uic_ShutdownGuide;
 extern lv_obj_t * uic_ShutdownGuide;
 extern lv_obj_t * uic_ShutdownGuide;
 
