@@ -1,6 +1,7 @@
 #include "HostActiveState.hpp"
 #include "network.h"
 #include "http.h"
+#include "Esp_now_client.hpp"
 
 void out_active_state()
 {
@@ -15,17 +16,17 @@ void HostActiveState::Init(ElabelController* pOwner)
 
 void HostActiveState::Enter(ElabelController* pOwner)
 {
+    EspNowHost::Instance()->init();
     Out_ActiveState = false;
     lock_lvgl();
     lv_scr_load(ui_HostActiveScreen);
     release_lvgl();
-    ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(out_active_state);
-    ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(out_active_state);
-    ESP_LOGI(STATEMACHINE,"Enter ActiveState.");
+    ESP_LOGI(STATEMACHINE,"Enter HostActiveState.");
 }
 
 void HostActiveState::Execute(ElabelController* pOwner)
 {
+    //当wifi连接成功后，开始注册
     if(get_wifi_status()==0x02)
     {
         //等待500ms连接稳定和token接收
@@ -38,15 +39,32 @@ void HostActiveState::Execute(ElabelController* pOwner)
         repaint_para();
         release_lvgl();
         set_wifi_status(0x03);
+        ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(out_active_state);
+        ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(out_active_state);
+    }
+
+    //当注册完成后开始广播espnow信息
+    if(get_wifi_status() == 0x03)
+    {
+        //注册退出事件
+        if(elabelUpdateTick % 100 == 0)
+        {
+            EspNowHost::Instance()->send_broadcast_message();
+        }
+
+        if(painted_slave_num != EspNowHost::Instance()->slave_num)
+        {
+            lock_lvgl();
+            repaint_para();
+            release_lvgl();
+        }
     }
 }
 
 void HostActiveState::Exit(ElabelController* pOwner)
 {
     stop_blue_activate();
-    //如果状态不是0x00，不会连接的
-    m_wifi_connect();
-    ESP_LOGI(STATEMACHINE,"Out ActiveState.\n");
+    ESP_LOGI(STATEMACHINE,"Out HostActiveState.\n");
     ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(out_active_state);
     ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(out_active_state);
 }

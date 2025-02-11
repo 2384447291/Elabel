@@ -3,6 +3,7 @@
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
+#include "Esp_now_client.hpp"
 
 class HostActiveState : public State<ElabelController>
 {
@@ -16,6 +17,8 @@ public:
 
     bool Out_ActiveState = false;
 
+    uint8_t painted_slave_num = 0;
+
     void repaint_para()
     {
         if(get_global_data()->m_language == English)
@@ -25,8 +28,8 @@ public:
             get_global_data()->m_userName, 
             get_global_data()->m_wifi_ssid, 
             get_global_data()->m_wifi_password, 
-            0);
-            set_text(ui_HostInf, Host_info);
+            EspNowHost::Instance()->slave_num);
+            set_text_english(ui_HostInf, Host_info);
         }
         else if(get_global_data()->m_language == Chinese)
         {
@@ -35,9 +38,10 @@ public:
             get_global_data()->m_userName, 
             get_global_data()->m_wifi_ssid, 
             get_global_data()->m_wifi_password, 
-            0);
-            set_text(ui_HostInf, Host_info);
+            EspNowHost::Instance()->slave_num);
+            set_text_chinese(ui_HostInf, Host_info);
         }
+        painted_slave_num = EspNowHost::Instance()->slave_num;
     }
 
     static HostActiveState* Instance()

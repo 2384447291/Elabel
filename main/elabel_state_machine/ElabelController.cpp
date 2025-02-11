@@ -17,7 +17,7 @@
 #include "InitState.hpp"
 #include "OTAState.hpp"
 #include "HostActiveState.hpp"
-
+#include "SlaveActiveState.hpp"
 ElabelController::ElabelController() : m_elabelFsm(this){}
 //初始化状态是init_state
 
@@ -65,6 +65,10 @@ void ElabelFsm::HandleInput()
         {
             ChangeState(HostActiveState::Instance());
         }
+        else if(Is_connect_to_host())
+        {
+            ChangeState(SlaveActiveState::Instance());
+        }
     }
     else if(GetCurrentState()==HostActiveState::Instance())
     {
@@ -73,14 +77,8 @@ void ElabelFsm::HandleInput()
             ChangeState(InitState::Instance());
         }
     }
-    //上面三个状态是不受其他状态打断的
     else
     {
-        //wifi事件打断
-        if(get_wifi_status() == 0 )
-        {
-            ChangeState(ActiveState::Instance());
-        }
 
         //外部有数据更新打断
         if(get_task_list_state() == firmware_need_update)
@@ -139,25 +137,6 @@ void ElabelFsm::HandleInput()
                 ChangeState(ChoosingTaskState::Instance());
             }
         }
-
-        //主动逻辑
-        // else if(GetCurrentState() == FocusTaskState::Instance())
-        // {
-        //     if(FocusTaskState::Instance()->need_out_focus)
-        //     {
-        //         ChoosingTaskState::Instance()->need_stay_choosen = false;
-        //         ChangeState(ChoosingTaskState::Instance());
-        //     }
-        // }
-
-        // else if(GetCurrentState() == OperatingTaskState::Instance())
-        // {
-        //     if(OperatingTaskState::Instance()->is_confirm_time)
-        //     {
-        //         ElabelController::Instance()->focus_by_myself = true;
-        //         ChangeState(FocusTaskState::Instance());
-        //     }
-        // }
     }
 }
 

@@ -30,6 +30,8 @@ void start_blufi(void);//随便调用内部有锁
 
 bool Is_connect_to_phone(void);
 
+void set_is_connect_to_phone(bool _is_connect_to_phone);
+
 uint8_t get_wifi_status(void);
 
 void start_blue_activate();

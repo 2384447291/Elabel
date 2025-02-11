@@ -15,6 +15,11 @@ bool Is_connect_to_phone(void)
     return is_connect_to_phone;
 }
 
+void set_is_connect_to_phone(bool _is_connect_to_phone)
+{
+    is_connect_to_phone = _is_connect_to_phone;
+}
+
 uint8_t get_wifi_status(void)
 {
     return wifi_state;
@@ -39,7 +44,7 @@ void stop_blue_activate()
 
 
 void m_wifi_connect(void)
-{
+{   
     enable_reconnect = true;
     if(is_wifi_init == false || wifi_state != 0x00)
     {
@@ -225,6 +230,10 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
             set_nvs_info("wifi_ssid",get_global_data()->m_wifi_ssid);
             set_nvs_info("wifi_passwd",get_global_data()->m_wifi_password);
             wifi_state = 0x02;
+            uint8_t wifi_channel = 0;
+            wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+            ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
+            ESP_LOGI(WIFI_CONNECT,"wifi channel: %d.", wifi_channel);
         }
     }
 }
@@ -260,7 +269,7 @@ static void wifi_init_sta(void)
     /* 根据cfg参数初始化wifi连接所需要的资源 */
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     /* 设置WiFi的工作模式为 STA */
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
     /* 启动WiFi连接 */
     ESP_ERROR_CHECK(esp_wifi_start());
     //......................................初始化wifi..........................................//
