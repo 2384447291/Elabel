@@ -17,6 +17,8 @@ public:
     int inner_time_countdown = 0;
     bool need_out_focus = false;
 
+    uint8_t slave_unique_id = 0;
+
     static FocusTaskState* Instance()
     {
         static FocusTaskState instance;

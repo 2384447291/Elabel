@@ -140,7 +140,7 @@ static void solve_message(char *response)
         }
         // {"did":0,"isReply":0,"msgId":2,"method":"sync","msg":{"dataType":"focus","changType":"out"}} from service/to/client/a5132039097449269aa1bb502f6c2158
         // {"did":19,"isReply":1,"msgId":1,"method":"outFocus","msg":{"sn":"E8:06:90:97:FE:58"}} from service/to/firmware/E8:06:90:97:FE:58
-        //我会收到两个outfocus只处理一个不需要回复的哪一个
+        //我会收到两个outfocus只处理一个不需要回复的那一个
         if(Mqtt_msg.order == Out_focus && Mqtt_msg.isReply == 0)
         {
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A task is done.\n");
@@ -150,13 +150,13 @@ static void solve_message(char *response)
                 return;
             }
             get_global_data()->m_focus_state->is_focus = 2;
-            ESP_LOGI(MQTT_RECIEVE_TAG, "A Task out focus, its id is %d.\n",get_global_data()->m_focus_state->focus_task_id);      
             get_global_data()->m_focus_state->focus_task_id = 0;
+            ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A Task out focus.\n");      
             http_get_todo_list(false);
         }
         else if(Mqtt_msg.order == Enter_focus)
         {
-            //刷新一下focus状态
+            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
             get_global_data()->m_focus_state->is_focus = 0;
             get_global_data()->m_focus_state->focus_task_id = 0;
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Enter_focus. A New focus task show up.\n");
@@ -164,7 +164,7 @@ static void solve_message(char *response)
         }
         else if(Mqtt_msg.order == Tasklist_change)
         {
-            //刷新一下focus状态
+            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
             get_global_data()->m_focus_state->is_focus = 0;
             get_global_data()->m_focus_state->focus_task_id = 0;
             http_get_todo_list(false);

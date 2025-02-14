@@ -34,6 +34,12 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
+    //如果没有被激活，则进入激活状态
+    if(get_global_data()->m_is_host == 0)
+    {
+        ChangeState(ActiveState::Instance());
+    }
+
     if(GetCurrentState()==InitState::Instance())
     {
         if(InitState::Instance()->is_need_ota)
@@ -52,7 +58,6 @@ void ElabelFsm::HandleInput()
             {
                 if(get_global_data()->m_focus_state->is_focus == 1) 
                 {
-                    ElabelController::Instance()->focus_by_myself = false;
                     ChangeState(FocusTaskState::Instance());
                 }
                 else ChangeState(ChoosingTaskState::Instance());
@@ -63,10 +68,14 @@ void ElabelFsm::HandleInput()
     {
         if(Is_connect_to_phone())
         {
+            get_global_data()->m_is_host = 1;
+            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
             ChangeState(HostActiveState::Instance());
         }
         else if(Is_connect_to_host())
         {
+            get_global_data()->m_is_host = 2;
+            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
             ChangeState(SlaveActiveState::Instance());
         }
     }
@@ -77,16 +86,26 @@ void ElabelFsm::HandleInput()
             ChangeState(InitState::Instance());
         }
     }
+    else if(GetCurrentState()==SlaveActiveState::Instance())
+    {
+        if(SlaveActiveState::Instance()->Out_ActiveState)
+        {
+            ChangeState(ChoosingTaskState::Instance());
+        }
+    }
     else
     {
-
         //外部有数据更新打断
         if(get_task_list_state() == firmware_need_update)
         {
             //如果收到了退出focus的信息
             if(get_global_data()->m_focus_state->is_focus == 2)
             {
-                ESP_LOGI("ElabelFsmOuter","exit focus");
+                ESP_LOGI("ElabelFsm","exit focus");
+                if(get_global_data()->m_is_host == 1)
+                {
+                    EspNowHost::Instance()->send_out_focus();
+                }
                 if(GetCurrentState()==FocusTaskState::Instance())
                 {
                     ChoosingTaskState::Instance()->need_stay_choosen = false;
@@ -98,20 +117,27 @@ void ElabelFsm::HandleInput()
             //如果收到进入focus的信息
             else if(get_global_data()->m_focus_state->is_focus == 1)
             {
-                ESP_LOGI("ElabelFsmOuter","enter focus");
-                ElabelController::Instance()->focus_by_myself = false;
+                ESP_LOGI("ElabelFsm","enter focus");
                 ChangeState(FocusTaskState::Instance());
             }
+            //如果只是单纯的更新列表
             else if(get_global_data()->m_focus_state->is_focus == 0)
             {
-                ESP_LOGI("ElabelFsmOuter","tasklist update");
-                //如果当前是选择task界面则刷新其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
+                ESP_LOGI("ElabelFsm","tasklist update");
+                //如果当前是选择task界面则刷新，
+                //其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
                 if(GetCurrentState()==ChoosingTaskState::Instance())
                 {
                     ChoosingTaskState::Instance()->need_stay_choosen = false;
                     lock_lvgl();
+                    //更新任务列表ui
                     ChoosingTaskState::Instance()->brush_task_list();
                     release_lvgl();
+                    //如果当前是主机则发送更新任务列表的消息
+                    if(get_global_data()->m_is_host == 1)
+                    {
+                        EspNowHost::Instance()->send_update_task_list();
+                    }
                     ElabelController::Instance()->need_flash_paper = true;
                 }
             }

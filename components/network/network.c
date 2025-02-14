@@ -268,7 +268,8 @@ static void wifi_init_sta(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     /* 根据cfg参数初始化wifi连接所需要的资源 */
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    /* 设置WiFi的工作模式为 STA */
+    /* 设置WiFi的工作模式为 AP+STA, 用来兼容espnow  如果单用STA模式，wifi在不工作的时候station模式
+    会放弃监听，也就检测不到espnow消息则无法使用espnow */
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
     /* 启动WiFi连接 */
     ESP_ERROR_CHECK(esp_wifi_start());

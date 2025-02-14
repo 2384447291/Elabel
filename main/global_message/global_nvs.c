@@ -57,6 +57,25 @@ void get_nvs_info(void)
         get_global_data()->m_language = English;
     }
 
+    len = sizeof(get_global_data()->m_is_host);      /* 从NVS中获取主机还是从机 */
+    char is_host_str[10];
+    esp_err_t is_host_err = nvs_get_str(wificfg_nvs_handler,"is_host",is_host_str,&len) ;
+    if(is_host_err != ESP_OK) ESP_LOGE(NVS_TAG,"No is_host found. \n");
+    else ESP_LOGI(NVS_TAG,"history is_host found : %s. \n", is_host_str);
+    //如果is_host_str为"0"，则设置为0，否则设置为1
+    if(strcmp(is_host_str,"1") == 1)
+    {
+        get_global_data()->m_is_host = 1;
+    }
+    else if(strcmp(is_host_str,"2") == 2)
+    {
+        get_global_data()->m_is_host = 2;
+    }
+    else
+    {
+        get_global_data()->m_is_host = 0;
+    }
+
     ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
     nvs_close(wificfg_nvs_handler);                     /* 关闭 */
 }
@@ -100,4 +119,11 @@ void set_nvs_info(const char *tag, const char *value)
     nvs_close(wificfg_nvs_handler);
 
     ESP_LOGI(NVS_TAG,"Save NVS %s to %s successfully. \n", tag, value);
+}
+
+void set_nvs_info_uint8_t(const char *tag, uint8_t value)
+{
+    char value_str[10];
+    snprintf(value_str, sizeof(value_str), "%d", value);
+    set_nvs_info(tag,value_str);
 }

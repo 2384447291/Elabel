@@ -6,7 +6,8 @@
 #include "global_message.h"
 #include "global_time.h"
 #include "http.h"
-
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 //BOUNDARY 是一个分隔符，用于区分 multipart/form-data 请求中不同部分的边界。
 //在发送多个字段时，每个字段都用这个边界来分开。它通常是一个唯一的字符串，以确保各部分不会混淆。
 

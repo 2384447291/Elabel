@@ -10,7 +10,7 @@
 #define FIRMWARE_VERSION "2.0.6"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
-    int is_focus; //默认0，专注1，为专注2
+    int is_focus; //默认0，专注1，未专注2
     int focus_task_id;
 } Focus_state;
 
@@ -80,6 +80,8 @@ typedef struct
 {
     //语言
     language m_language;
+    //主机还是从机 0 是没有设定 1 是主机 2 是从机
+    uint8_t m_is_host;
     //是否有专注任务
     Focus_state* m_focus_state;//2表示否focus 1表示是focus 0表示没东西
     TodoList* m_todo_list;

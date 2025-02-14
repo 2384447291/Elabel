@@ -400,8 +400,11 @@ void http_client_init(void)
         .event_handler = http_client_event_handler,
     };
     client = esp_http_client_init(&config);
-    if(!client)  ESP_LOGE(HTTP_TAG,"httpclient init error!\r\n");
-    else ESP_LOGI(HTTP_TAG,"httpclient init success!\r\n"); 
+    if (client == NULL) {
+        ESP_LOGE(HTTP_TAG,"httpclient init error!\r\n");
+    } else {
+        ESP_LOGI(HTTP_TAG,"httpclient init success!\r\n");
+    }
 
     initQueue(&m_taskqueue);
     m_http_state = send_waiting;

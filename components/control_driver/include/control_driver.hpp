@@ -30,31 +30,31 @@ public:
     // 注册回调
     void registerCallback(CallbackFunc callback) {
         if (!callback) {
-            ESP_LOGE(tag, "Invalid callback");
+            // ESP_LOGE(tag, "Invalid callback");
             return;
         }
 
         if (callback_count >= MAX_CALLBACKS) {
-            ESP_LOGW(tag, "Callback array is full");
+            // ESP_LOGW(tag, "Callback array is full");
             return;
         }
 
         // 检查是否已存在
         for (size_t i = 0; i < callback_count; i++) {
             if (callbacks[i] == callback) {
-                ESP_LOGW(tag, "Callback already registered");
+                // ESP_LOGW(tag, "Callback already registered");
                 return;
             }
         }
 
         callbacks[callback_count++] = callback;
-        ESP_LOGI(tag, "Callback registered successfully");
+        // ESP_LOGI(tag, "Callback registered successfully");
     }
 
     // 注销回调
     void unregisterCallback(CallbackFunc callback) {
         if (!callback) {
-            ESP_LOGE(tag, "Invalid callback");
+            // ESP_LOGE(tag, "Invalid callback");
             return;
         }
 
@@ -66,12 +66,12 @@ public:
                 }
                 callback_count--;
                 callbacks[callback_count] = nullptr;
-                ESP_LOGI(tag, "Callback unregistered successfully");
+                // ESP_LOGI(tag, "Callback unregistered successfully");
                 return;
             }
         }
 
-        ESP_LOGW(tag, "Callback not found");
+        // ESP_LOGW(tag, "Callback not found");
     }
 
     // 触发所有回调

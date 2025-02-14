@@ -3,6 +3,7 @@
 #include "network.h"
 #include "http.h"
 #include "ssd1680.h"
+#include "Esp_now_client.hpp"
 
 
 #define INT_TO_STRING(val, str) \
@@ -10,12 +11,16 @@
 
 void outfocus()
 {
-    char sstr[12];
-    INT_TO_STRING(get_global_data()->m_focus_state->focus_task_id, sstr);
+    if(get_global_data()->m_is_host == 1)
+    {
+        char sstr[12];
+        INT_TO_STRING(get_global_data()->m_focus_state->focus_task_id, sstr);
+        http_out_focus(sstr,false);
+    }
     TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
     ESP_LOGI("FocusState","out focus title: %s",chose_todo->title);
-    http_out_focus(sstr,false);
     FocusTaskState::Instance()->need_out_focus = true;
+    FocusTaskState::Instance()->slave_unique_id = esp_random() & 0xFF;
     ElabelController::Instance()->TimeCountdown = 0;
 }
 
@@ -28,20 +33,23 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 {
     pOwner->need_flash_paper = false;
     need_out_focus = false;
+    
     //获取是哪个任务进入了focus，这个状态只能由服务器获取
     TodoItem* chose_todo;   
-    if(pOwner->focus_by_myself) 
+    chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+
+    if(get_global_data()->m_is_host == 1)
     {
-        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, pOwner->ChosenTaskId);
-    }
-    else 
-    {
-        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
         HTTP_syset_time();
         if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
         else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
+        chose_todo->fallTiming = pOwner->TimeCountdown;
+        EspNowHost::Instance()->send_enter_focus(*chose_todo);
     }
-   
+    else if(get_global_data()->m_is_host == 2)
+    {
+        pOwner->TimeCountdown = chose_todo->fallTiming;
+    }
 
     //将时间转换为毫秒
     inner_time_countdown = pOwner->TimeCountdown*1000;
@@ -64,6 +72,14 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
 void FocusTaskState::Execute(ElabelController* pOwner)
 {
+    if(need_out_focus) 
+    {
+        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % 100 == 0)
+        {
+            EspNowSlave::Instance()->send_out_focus_message(get_global_data()->m_focus_state->focus_task_id,slave_unique_id);
+        }
+        return;
+    }
     if(pOwner->TimeCountdown > 0 && elabelUpdateTick % 1000 == 0)
     {
         pOwner->TimeCountdown--;

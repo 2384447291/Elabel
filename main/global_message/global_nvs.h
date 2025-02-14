@@ -15,6 +15,8 @@ void nvs_init(void);
 
 void set_nvs_info(const char *tag, const char *value);
 
+void set_nvs_info_uint8_t(const char *tag, uint8_t value);
+
 #ifdef __cplusplus
 }
 #endif

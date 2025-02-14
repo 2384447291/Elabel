@@ -1,5 +1,7 @@
 #include "Esp_now_client.hpp"
 
+uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
 bool Is_connect_to_host(){return EspNowClient::Instance()->is_connect_to_host;}
 
 void set_is_connect_to_host(bool _is_connect_to_host)
@@ -28,7 +30,11 @@ void EspNowClient::send_esp_now_message(uint8_t target_mac[6], uint8_t* data, si
     esp_err_t err;
     err = esp_now_send(target_mac, data, len);
     if (err!= ESP_OK) ESP_LOGE(ESP_NOW, "Send espnow message Error occurred: %s", esp_err_to_name(err));
-    else print_uint8_array(data, len);
+    else 
+    {
+        ESP_LOGI(ESP_NOW, "Send espnow message success");
+        print_uint8_array(data, len);
+    }
 }
 
  
@@ -41,7 +47,7 @@ void EspNowClient::Addpeer(uint8_t peer_chaneel, uint8_t peer_mac[ESP_NOW_ETH_AL
     }
     memset(peer, 0, sizeof(esp_now_peer_info_t));
     peer->channel = peer_chaneel;
-    peer->ifidx = WIFI_IF_STA;
+    peer->ifidx = WIFI_IF_AP;
     peer->encrypt = false;
     memcpy(peer->peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
     ESP_ERROR_CHECK(esp_now_add_peer(peer));
@@ -115,11 +121,10 @@ void EspNowClient::espnow_update_task(void* parameters)
             {
                 ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
                 EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
-                
                 // 解析广播包
                 if(recv_msg.data[0] == 0xAB && recv_msg.data[1] == 0xCD && recv_msg.data[recv_msg.data_len-1] == 0xEF)
                 {
-                    if(recv_msg.data[2] == Bind_broadcast_message)
+                    if(recv_msg.data[2] == Bind_Control_Host2Slave)
                     {
                         size_t username_len = recv_msg.data_len - 5;
                         memcpy(EspNowSlave::Instance()->username, (char*)(recv_msg.data+4), username_len);
@@ -142,7 +147,7 @@ void EspNowClient::espnow_update_task(void* parameters)
             // 只有在未连接到主机时才进行信道切换
             if (!EspNowClient::Instance()->is_connect_to_host)
             {
-                channel = channel % 14 + 1;
+                channel = channel % 13 + 1;
                 uint8_t actual_wifi_channel = 0;
                 wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
                 ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));

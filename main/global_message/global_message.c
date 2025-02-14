@@ -41,7 +41,7 @@ TodoItem* find_todo_by_id(TodoList *list, int id)
             return &list->items[i];
         }
     }
-    ESP_LOGE("Task_list","Can not find todo_by_id/n.");
+    ESP_LOGE("Task_list","Can not find todo_by_id\n.");
     return NULL; // 未找到返回 NULL
 }
 
@@ -50,7 +50,7 @@ TodoItem* find_todo_by_title(TodoList *list, const char *title)
 {
     if(title == NULL)
     {
-        ESP_LOGE("Task_list","Can not find todo_by_id/n.");
+        ESP_LOGE("Task_list","Can not find todo_by_id\n.");
         return NULL;
     } 
     for (int i = 0; i < list->size; i++) {
@@ -58,7 +58,7 @@ TodoItem* find_todo_by_title(TodoList *list, const char *title)
             return &list->items[i];
         }
     }
-    ESP_LOGE("Task_list","Can not find todo_by_id/n.");
+    ESP_LOGE("Task_list","Can not find todo_by_id\n.");
     return NULL; // 未找到返回 NULL
 }
 
@@ -151,6 +151,8 @@ Global_data* get_global_data() {
         if (instance != NULL) 
         {
             Global_message_mutex = xSemaphoreCreateMutex();
+            
+            instance->m_is_host = 0;
             instance->m_language = English;
 
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));

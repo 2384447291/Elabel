@@ -41,7 +41,15 @@ extern "C" void app_main(void)
 
     //初始化espnow
     EspNowClient::Instance()->init();
-
+    if(get_global_data()->m_is_host == 1)
+    {
+        EspNowHost::Instance()->init();
+    }
+    else if(get_global_data()->m_is_host == 2)
+    {
+        EspNowSlave::Instance()->init();
+    }
+    
     //按键初始化
     ControlDriver::Instance()->init();
     //播放开机音乐

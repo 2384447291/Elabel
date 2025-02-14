@@ -6,9 +6,7 @@
 void change_language()
 {   
     get_global_data()->m_language = (language)((get_global_data()->m_language + 1) % 2);
-    char language_str[10];
-    snprintf(language_str, sizeof(language_str), "%d", get_global_data()->m_language);
-    set_nvs_info("language",language_str);
+    set_nvs_info_uint8_t("language",(uint8_t)(get_global_data()->m_language));
     Change_All_language();
 }
 

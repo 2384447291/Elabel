@@ -5,6 +5,8 @@
 #include "cJSON.h"
 #include "http.h"
 #include "global_message.h"
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
     // 解析 JSON

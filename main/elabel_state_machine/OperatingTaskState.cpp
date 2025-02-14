@@ -2,6 +2,7 @@
 #include "control_driver.hpp"
 #include "ssd1680.h"
 #include "http.h"
+#include "Esp_now_client.hpp"
 
 
 #define INT_TO_STRING(val, str) \
@@ -12,11 +13,15 @@
 void confirm_time()
 {
     OperatingTaskState::Instance()->is_confirm_time = true;
-    char sstr[12];
-    INT_TO_STRING(ElabelController::Instance()->ChosenTaskId, sstr);
+    OperatingTaskState::Instance()->slave_unique_id = esp_random() & 0xFF;
+    if(get_global_data()->m_is_host == 1)
+    {
+        char sstr[12];
+        INT_TO_STRING(ElabelController::Instance()->ChosenTaskId, sstr);
+        http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
+    }
     TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, ElabelController::Instance()->ChosenTaskId);
     ESP_LOGI("OperatingState","enter focus title: %s",chose_todo->title);
-    http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
 }
 
 void unconfirm_task()
@@ -61,7 +66,14 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
 
 void OperatingTaskState::Execute(ElabelController* pOwner)
 {
-    if(is_confirm_time) return;
+    if(is_confirm_time) 
+    {
+        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % 100 == 0)
+        {
+            EspNowSlave::Instance()->send_enter_focus_message(ElabelController::Instance()->ChosenTaskId,ElabelController::Instance()->TimeCountdown,slave_unique_id);
+        }
+        return;
+    }
     //刷新锁
     if(update_lock!=0) update_lock --;
     //自动触发进入focus

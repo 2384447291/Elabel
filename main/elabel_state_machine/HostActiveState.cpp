@@ -3,7 +3,7 @@
 #include "http.h"
 #include "Esp_now_client.hpp"
 
-void out_active_state()
+void host_out_active_state()
 {
     if(strlen(get_global_data()->m_usertoken) == 0) ESP_LOGI("HostActiveState","User token is empty");
     else HostActiveState::Instance()->Out_ActiveState = true;
@@ -39,8 +39,8 @@ void HostActiveState::Execute(ElabelController* pOwner)
         repaint_para();
         release_lvgl();
         set_wifi_status(0x03);
-        ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(out_active_state);
-        ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(out_active_state);
+        ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(host_out_active_state);
+        ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(host_out_active_state);
     }
 
     //当注册完成后开始广播espnow信息
@@ -65,6 +65,6 @@ void HostActiveState::Exit(ElabelController* pOwner)
 {
     stop_blue_activate();
     ESP_LOGI(STATEMACHINE,"Out HostActiveState.\n");
-    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(out_active_state);
-    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(out_active_state);
+    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(host_out_active_state);
+    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(host_out_active_state);
 }
