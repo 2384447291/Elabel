@@ -1,7 +1,7 @@
 #ifndef BUZZER_HPP
 #define BUZZER_HPP
 
-#define BUZZER_GPIO GPIO_NUM_1
+#define BUZZER_GPIO GPIO_NUM_2
 
 #include "driver/ledc.h"
 #include "freertos/FreeRTOS.h"

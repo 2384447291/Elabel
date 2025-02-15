@@ -53,7 +53,7 @@ extern "C" void app_main(void)
     //按键初始化
     ControlDriver::Instance()->init();
     //播放开机音乐
-    // ControlDriver::Instance()->getBuzzer().playUponMusic();
+    ControlDriver::Instance()->getBuzzer().playUponMusic();
 
     //创造gui线程，这里需要绑定到一个核上防止内存被破坏，这里优先绑定到核1上，如果蓝牙和wifi不用的情况下可以绑定到核0上
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);

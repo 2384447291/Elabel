@@ -47,7 +47,7 @@ void EspNowClient::Addpeer(uint8_t peer_chaneel, uint8_t peer_mac[ESP_NOW_ETH_AL
     }
     memset(peer, 0, sizeof(esp_now_peer_info_t));
     peer->channel = peer_chaneel;
-    peer->ifidx = WIFI_IF_AP;
+    peer->ifidx = WIFI_IF_STA;
     peer->encrypt = false;
     memcpy(peer->peer_addr, peer_mac, ESP_NOW_ETH_ALEN);
     ESP_ERROR_CHECK(esp_now_add_peer(peer));
@@ -203,4 +203,8 @@ void EspNowClient::init(){
     ESP_ERROR_CHECK( esp_wifi_connectionless_module_set_wake_interval(CONFIG_ESPNOW_WAKE_INTERVAL) );
 #endif
    //-----------------------------节能模式下的操作-----------------------------//
+
+    //设置espnow速率
+    ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_1M_L));
+    //设置espnow速率
 }

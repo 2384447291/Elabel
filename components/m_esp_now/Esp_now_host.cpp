@@ -91,7 +91,7 @@ void EspNowHost::init()
     this->client->stop_find_channel();
     //添加配对设备广播设置0xFF通道
     this->client->Addpeer(0, BROADCAST_MAC);
-    xTaskCreate(esp_now_recieve_update, "esp_now_host_recieve_update_task", 4096, NULL, 10, &host_recieve_update_task_handle);
+    xTaskCreate(esp_now_recieve_update, "esp_now_host_recieve_update_task", 4096, NULL, 1, &host_recieve_update_task_handle);
     xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 10, &host_send_update_task_handle);
     ESP_LOGI(ESP_NOW, "Host init success");
 }

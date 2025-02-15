@@ -35,6 +35,8 @@ void start_blue_activate()
     is_connect_to_phone = false;
     m_wifi_disconnect();
     if(blufi_notify_flag) return;
+    //允许省电模式，否则不能wifi，蓝牙混用
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
     start_blufi();
 }
 void stop_blue_activate()
@@ -254,8 +256,6 @@ static void wifi_preprocess(void)
     ESP_ERROR_CHECK(esp_wifi_set_default_wifi_sta_handlers());
     /* 创建STA */
     esp_netif_create_default_wifi_sta();
-    /* 防止在省电模式，wifi质量不好 */ 
-    esp_wifi_set_ps(WIFI_PS_NONE);
     //...................................初始化wifi连接handler..........................................//
 }
 
@@ -270,9 +270,12 @@ static void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     /* 设置WiFi的工作模式为 AP+STA, 用来兼容espnow  如果单用STA模式，wifi在不工作的时候station模式
     会放弃监听，也就检测不到espnow消息则无法使用espnow */
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     /* 启动WiFi连接 */
     ESP_ERROR_CHECK(esp_wifi_start());
+    /* 设置wifi存储模式为RAM，不保存wifi信息到nvs，默认是保存到nvs */
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    /* 防止在省电模式，wifi质量不好 */ 
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
     //......................................初始化wifi..........................................//
 }
-

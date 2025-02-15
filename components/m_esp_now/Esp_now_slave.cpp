@@ -145,7 +145,7 @@ void EspNowSlave::init()
     ESP_ERROR_CHECK(esp_wifi_set_channel(this->host_channel, WIFI_SECOND_CHAN_NONE));
     //添加配对host
     this->client->Addpeer(this->host_channel, this->host_mac);
-    xTaskCreate(esp_now_recieve_update, "esp_now_slave_recieve_update_task", 4096, NULL, 10, &slave_recieve_update_task_handle);
+    xTaskCreate(esp_now_recieve_update, "esp_now_slave_recieve_update_task", 4096, NULL, 1, &slave_recieve_update_task_handle);
     ESP_LOGI(ESP_NOW, "Slave init success");
 }
 

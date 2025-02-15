@@ -441,6 +441,10 @@ static void blufi_cleanup(void)
 
     ESP_LOGI(GATTS_TABLE_TAG,"Bluetooth resources cleaned up.\n");
     is_blufi_init = false;
+
+    //禁止省电模式
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
+    vTaskDelete(NULL);
 }
 
 TaskHandle_t *pTask_blufi = NULL;
@@ -453,7 +457,6 @@ static void blufi_notify(void *arg)
         if (blufi_notify_flag == false)
         {
             blufi_cleanup();
-            vTaskDelete(NULL);
         }
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
