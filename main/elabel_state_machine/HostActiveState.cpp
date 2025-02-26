@@ -19,7 +19,7 @@ void HostActiveState::Enter(ElabelController* pOwner)
     EspNowHost::Instance()->init();
     Out_ActiveState = false;
     lock_lvgl();
-    lv_scr_load(ui_HostActiveScreen);
+    switch_screen(ui_HostActiveScreen);
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter HostActiveState.");
 }

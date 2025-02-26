@@ -45,7 +45,7 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
     pOwner->TimeCountdown = TimeCountdownOffset;
     lock_lvgl();
     //加载界面
-    lv_scr_load(ui_OperatingScreen);
+    switch_screen(ui_OperatingScreen);
     //初始化时间
     char timestr[10] = "00:00";
     uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
@@ -68,7 +68,7 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
 {
     if(is_confirm_time) 
     {
-        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % 100 == 0)
+        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % Esp_Now_Send_Interval == 0)
         {
             EspNowSlave::Instance()->send_enter_focus_message(ElabelController::Instance()->ChosenTaskId,ElabelController::Instance()->TimeCountdown,slave_unique_id);
         }

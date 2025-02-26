@@ -10,14 +10,24 @@ void ui_OTAScreen_screen_init(void)
     ui_OTAScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_OTAScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_NewFirmware = lv_label_create(ui_OTAScreen);
+    ui_Panel7 = lv_obj_create(ui_OTAScreen);
+    lv_obj_set_width(ui_Panel7, 218);
+    lv_obj_set_height(ui_Panel7, 122);
+    lv_obj_clear_flag(ui_Panel7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel7, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel7, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel7, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_NewFirmware = lv_label_create(ui_Panel7);
     lv_obj_set_width(ui_NewFirmware, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NewFirmware, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_NewFirmware, 0);
     lv_obj_set_y(ui_NewFirmware, -37);
     lv_obj_set_align(ui_NewFirmware, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NewFirmware, "New Firmware");
-    lv_obj_set_style_text_font(ui_NewFirmware, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_NewFirmware, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_NewFirmware2 = lv_label_create(ui_NewFirmware);
     lv_obj_set_width(ui_NewFirmware2, LV_SIZE_CONTENT);   /// 1
@@ -26,16 +36,16 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_y(ui_NewFirmware2, 0);
     lv_obj_set_align(ui_NewFirmware2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NewFirmware2, "New Firmware");
-    lv_obj_set_style_text_font(ui_NewFirmware2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_NewFirmware2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_OperateGuide = lv_label_create(ui_OTAScreen);
+    ui_OperateGuide = lv_label_create(ui_Panel7);
     lv_obj_set_width(ui_OperateGuide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_OperateGuide, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_OperateGuide, -2);
     lv_obj_set_y(ui_OperateGuide, 27);
     lv_obj_set_align(ui_OperateGuide, LV_ALIGN_CENTER);
     lv_label_set_text(ui_OperateGuide, "Click: Apply\nRotate: Skip");
-    lv_obj_set_style_text_font(ui_OperateGuide, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_OperateGuide, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_OperateGuide2 = lv_label_create(ui_OperateGuide);
     lv_obj_set_width(ui_OperateGuide2, LV_SIZE_CONTENT);   /// 1
@@ -46,16 +56,16 @@ void ui_OTAScreen_screen_init(void)
     lv_label_set_text(ui_OperateGuide2, "Click: Apply\nRotate: Skip");
     lv_obj_set_style_text_color(ui_OperateGuide2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_OperateGuide2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_OperateGuide2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_OperateGuide2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_VersionChange = lv_label_create(ui_OTAScreen);
+    ui_VersionChange = lv_label_create(ui_Panel7);
     lv_obj_set_width(ui_VersionChange, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_VersionChange, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_VersionChange, 0);
     lv_obj_set_y(ui_VersionChange, -9);
     lv_obj_set_align(ui_VersionChange, LV_ALIGN_CENTER);
     lv_label_set_text(ui_VersionChange, "V1.2-------->V2.4");
-    lv_obj_set_style_text_font(ui_VersionChange, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_VersionChange, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_NewFirmware = ui_NewFirmware;
     uic_NewFirmware2 = ui_NewFirmware2;

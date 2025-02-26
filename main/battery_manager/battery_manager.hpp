@@ -5,10 +5,14 @@
 #include "esp_log.h"
 
 // IO定义
-#define BATTERY_POWER_CTRL    GPIO_NUM_13  // 控制电池开关
-#define BATTERY_CHARGING_DET  GPIO_NUM_48  // 充电状态检测
-#define BATTERY_FULL_POWER_DET  GPIO_NUM_45  // 是否为满电
-#define BATTERY_ADC_DET      GPIO_NUM_11  // 电池电压检测ADC
+#define BATTERY_POWER_CTRL    GPIO_NUM_17  // 控制电池开关
+#define USB_CONNECT_DET       GPIO_NUM_18   // 检测USB连接
+#define ADC1_CHAN      ADC1_CHANNEL_6  // GPIO7 对应 ADC1_CH6
+
+#define ADC_ATTEN      ADC_ATTEN_DB_12  // 12dB衰减，量程0-3.3V
+#define ADC_WIDTH      ADC_WIDTH_BIT_12 // 12位分辨率
+#define ADC_SAMPLES    64               // 采样次数
+#define LOWLEST_VOLTAGE 3.32
 
 class BatteryManager {
 public:
@@ -29,18 +33,7 @@ public:
     //检测是否有usb连接
     bool isUsbConnected()
     {
-        if(chargingStatus && !fullPowerStatus)
-        {
-            return true;
-        }
-        else if(!chargingStatus && fullPowerStatus)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return gpio_get_level(USB_CONNECT_DET) == 1;
     }
 
     // 控制电池开关
@@ -48,8 +41,6 @@ public:
 
     // 成员变量
     float batteryLevel = 0.0f;
-    bool chargingStatus = false;
-    bool fullPowerStatus = false;
     bool powerEnabled = false;
 };
 

@@ -65,7 +65,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 
     lock_lvgl();
     //加载界面
-    lv_scr_load(uic_TaskScreen);
+    switch_screen(ui_TaskScreen);
     //更新任务列表ui
     brush_task_list();
     release_lvgl();
@@ -147,7 +147,7 @@ void ChoosingTaskState::resize_task()
         lv_coord_t diff_y = LV_ABS(y_center - child_y_center);
         if(diff_y < 14)
         {
-            lv_obj_set_size(child, 200, 36);
+            lv_obj_set_size(child, get_button_size(Btn_ChooseTask_big_width), get_button_size(Btn_ChooseTask_big_height));
             lv_obj_set_style_bg_color(child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
 
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
@@ -159,7 +159,7 @@ void ChoosingTaskState::resize_task()
             }
         }
         else {
-            lv_obj_set_size(child, 130, 24);
+            lv_obj_set_size(child, get_button_size(Btn_ChooseTask_small_width), get_button_size(Btn_ChooseTask_small_height));
             lv_obj_set_style_bg_color(child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);

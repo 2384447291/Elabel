@@ -2,8 +2,8 @@
 
 #define TAG "CONTROL_DRIVER"
 
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 
 // Button类实现
 Button::Button(gpio_num_t gpio, const char* buttonName, uint32_t debounceDelay, uint32_t longPressTime)
@@ -186,8 +186,6 @@ void ControlDriver::init() {
     // 初始化蜂鸣器
     buzzer.init();
 
-    led.init();
-
     // 创建任务
     xTaskCreate(controlPanelUpdateTask, "control_panel_update", 3072, nullptr, 10, nullptr);
 }
@@ -206,8 +204,5 @@ void ControlDriver::controlPanelUpdateTask(void* parameters) {
 
         // 处理蜂鸣器
         ControlDriver::Instance()->buzzer.handle();
-
-        // 处理LED
-        ControlDriver::Instance()->led.handle();
     }
 }

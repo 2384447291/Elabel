@@ -205,6 +205,6 @@ void EspNowClient::init(){
    //-----------------------------节能模式下的操作-----------------------------//
 
     //设置espnow速率
-    ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_1M_L));
+    ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_LORA_500K));
     //设置espnow速率
 }

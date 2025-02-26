@@ -12,7 +12,7 @@ void OTAState::Enter(ElabelController* pOwner)
     process = 0;
     lock_lvgl();
     set_text_without_change_font(ui_VersionnNmber, get_global_data()->m_version);
-    lv_scr_load(ui_UpdateScreen);
+    switch_screen(ui_UpdateScreen);
     lv_bar_set_value(ui_Bar, process, LV_ANIM_OFF);
     release_lvgl();
     start_ota();
@@ -25,8 +25,14 @@ void OTAState::Execute(ElabelController* pOwner)
     {
         lock_lvgl();
         lv_bar_set_value(ui_Bar, 100, LV_ANIM_OFF);
-        set_text_english(ui_Updating,"OTA Success,Restart...");
-        set_text_chinese(ui_Updating,"远程更新成功，重启中...");
+        if(get_global_data()->m_language == English)
+        {
+            set_text_with_change_font(ui_Updating,"OTA Success,Restart...", false);
+        }
+        else if(get_global_data()->m_language == Chinese)
+        {
+            set_text_with_change_font(ui_Updating,"远程更新成功，重启中...", false);
+        }
         release_lvgl();        
         //等2s把字刷出来
         vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -36,8 +42,14 @@ void OTAState::Execute(ElabelController* pOwner)
     {
         lock_lvgl();
         lv_bar_set_value(ui_Bar, 0, LV_ANIM_OFF);
-        set_text_english(ui_Updating,"OTA Fail,Restart...");
-        set_text_chinese(ui_Updating,"远程更新失败，重启中...");
+        if(get_global_data()->m_language == English)
+        {
+            set_text_with_change_font(ui_Updating,"OTA Fail,Restart...", false);
+        }
+        else if(get_global_data()->m_language == Chinese)
+        {
+            set_text_with_change_font(ui_Updating,"远程更新失败，重启中...", false);
+        }
         release_lvgl();
         //等2s把字刷出来
         vTaskDelay(2000 / portTICK_PERIOD_MS);

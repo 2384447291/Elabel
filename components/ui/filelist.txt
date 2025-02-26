@@ -12,3 +12,4 @@ ui.c
 components/ui_comp_hook.c
 ui_helpers.c
 fonts/ui_font_Chinese_20.c
+fonts/ui_font_Chinese_28.c

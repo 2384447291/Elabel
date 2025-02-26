@@ -19,21 +19,32 @@ extern "C" {
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 extern lv_obj_t * ui_HalfmindScreen;
+extern lv_obj_t * ui_LED;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 
 // SCREEN: ui_ActiveScreen
 void ui_ActiveScreen_screen_init(void);
 extern lv_obj_t * ui_ActiveScreen;
+extern lv_obj_t * ui_Panel3;
 extern lv_obj_t * ui_ActiveGuide;
 extern lv_obj_t * ui_Label2;
+extern lv_obj_t * ui_Panel2;
+extern lv_obj_t * ui_ActiveGuide2;
+extern lv_obj_t * ui_Label3;
+extern lv_obj_t * ui_Panel4;
+extern lv_obj_t * ui_ActiveGuide3;
+extern lv_obj_t * ui_Label4;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ActiveScreen;
+extern lv_obj_t * uic_HostGuide;
+extern lv_obj_t * uic_HostGuide;
 extern lv_obj_t * uic_HostGuide;
 
 // SCREEN: ui_OTAScreen
 void ui_OTAScreen_screen_init(void);
 extern lv_obj_t * ui_OTAScreen;
+extern lv_obj_t * ui_Panel7;
 extern lv_obj_t * ui_NewFirmware;
 extern lv_obj_t * ui_NewFirmware2;
 extern lv_obj_t * ui_OperateGuide;
@@ -67,11 +78,9 @@ extern lv_obj_t * ui_NoTaskNote14;
 extern lv_obj_t * ui_NoTaskNote2;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_TaskScreen;
-extern lv_obj_t * uic_HaveTaskContainer;
 extern lv_obj_t * uic_chooseTaskF;
 extern lv_obj_t * uic_chooseTaskS;
 extern lv_obj_t * uic_chooseTaskT;
-extern lv_obj_t * uic_NoTaskContainer;
 extern lv_obj_t * uic_NoTaskNote1;
 extern lv_obj_t * uic_NoTaskNote5;
 extern lv_obj_t * uic_NoTaskNote6;
@@ -79,40 +88,57 @@ extern lv_obj_t * uic_NoTaskNote6;
 // SCREEN: ui_OperatingScreen
 void ui_OperatingScreen_screen_init(void);
 extern lv_obj_t * ui_OperatingScreen;
+extern lv_obj_t * ui_Panel10;
 extern lv_obj_t * ui_OperatingTime;
 extern lv_obj_t * ui_Time2;
 extern lv_obj_t * ui_Time3;
+extern lv_obj_t * ui_OperatingLoadingpanel;
+extern lv_obj_t * ui_OperatingTime2;
+extern lv_obj_t * ui_Time5;
+extern lv_obj_t * ui_Time1;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_OperatingScreen;
+extern lv_obj_t * uic_OperatingTime;
 extern lv_obj_t * uic_OperatingTime;
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 extern lv_obj_t * ui_FocusScreen;
+extern lv_obj_t * ui_Panel11;
 extern lv_obj_t * ui_FocusTask;
 extern lv_obj_t * ui_Task;
+extern lv_obj_t * ui_Panel12;
 extern lv_obj_t * ui_FocusTime;
+extern lv_obj_t * ui_FocusTime2;
+extern lv_obj_t * ui_FocusLoadingpanel;
+extern lv_obj_t * ui_OperatingTime3;
+extern lv_obj_t * ui_Time7;
+extern lv_obj_t * ui_Time4;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_FocusScreen;
 extern lv_obj_t * uic_FocusTask;
 extern lv_obj_t * uic_Task2;
 extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_OperatingTime;
 
 // SCREEN: ui_UpdateScreen
 void ui_UpdateScreen_screen_init(void);
 extern lv_obj_t * ui_UpdateScreen;
+extern lv_obj_t * ui_Panel8;
+extern lv_obj_t * ui_VersionnNmber;
 extern lv_obj_t * ui_Updating;
 extern lv_obj_t * ui_Updating2;
-extern lv_obj_t * ui_VersionnNmber;
 extern lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_VersionnNmber;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
-extern lv_obj_t * uic_VersionnNmber;
 
 // SCREEN: ui_ShutdownScreen
 void ui_ShutdownScreen_screen_init(void);
 extern lv_obj_t * ui_ShutdownScreen;
+extern lv_obj_t * ui_Panel13;
 extern lv_obj_t * ui_ShutdownGuide;
 extern lv_obj_t * ui_ShutdownGuide2;
 // CUSTOM VARIABLES
@@ -123,6 +149,7 @@ extern lv_obj_t * uic_ShutdownGuide;
 // SCREEN: ui_HostActiveScreen
 void ui_HostActiveScreen_screen_init(void);
 extern lv_obj_t * ui_HostActiveScreen;
+extern lv_obj_t * ui_Panel5;
 extern lv_obj_t * ui_HostName;
 extern lv_obj_t * ui_HostInf;
 // CUSTOM VARIABLES
@@ -133,6 +160,7 @@ extern lv_obj_t * uic_HostInf;
 // SCREEN: ui_SlaveActiveScreen
 void ui_SlaveActiveScreen_screen_init(void);
 extern lv_obj_t * ui_SlaveActiveScreen;
+extern lv_obj_t * ui_Panel6;
 extern lv_obj_t * ui_SlaveName;
 extern lv_obj_t * ui_SlaveInf;
 // CUSTOM VARIABLES
@@ -145,6 +173,7 @@ extern lv_obj_t * ui____initial_actions0;
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Chinese_20);
+LV_FONT_DECLARE(ui_font_Chinese_28);
 
 // UI INIT
 void ui_init(void);

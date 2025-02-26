@@ -31,7 +31,7 @@ void ActiveState::Enter(ElabelController* pOwner)
     start_blue_activate();
 
     lock_lvgl();
-    lv_scr_load(ui_ActiveScreen);
+    switch_screen(ui_ActiveScreen);
     release_lvgl();
 
     ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(change_language);

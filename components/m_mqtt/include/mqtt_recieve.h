@@ -2,6 +2,7 @@
 #define MQTT_RECIEVE_H
 #include "m_mqtt.h"
 #include "global_message.h"
+#include "global_time.h"
 #include "http.h"
 
 #define MQTT_RECIEVE_TAG "MQTT_RECIEVE_TAG"
@@ -151,7 +152,7 @@ static void solve_message(char *response)
             }
             get_global_data()->m_focus_state->is_focus = 2;
             get_global_data()->m_focus_state->focus_task_id = 0;
-            ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A Task out focus.\n");      
+            ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A Task out focus.\n");    
             http_get_todo_list(false);
         }
         else if(Mqtt_msg.order == Enter_focus)
@@ -167,6 +168,8 @@ static void solve_message(char *response)
             //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
             get_global_data()->m_focus_state->is_focus = 0;
             get_global_data()->m_focus_state->focus_task_id = 0;
+            //每次增加一次任务，就同步一次时间
+            HTTP_syset_time();
             http_get_todo_list(false);
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Tasklist_change.\n");
         }

@@ -3,7 +3,7 @@
 #include "m_mqtt.h"
 #include "control_driver.hpp"
 #include "network.h"
-
+#include "Esp_now_client.hpp"
 void enter_ota();
 void out_ota();
 
@@ -35,7 +35,7 @@ void InitState::Enter(ElabelController* pOwner)
     is_init = false;
     is_need_ota = false;
     lock_lvgl();
-    lv_scr_load(ui_HalfmindScreen);
+    switch_screen(ui_HalfmindScreen);
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter InitState.");
 }
@@ -48,9 +48,9 @@ void InitState::Execute(ElabelController* pOwner)
 
     //等待1swifi连接两秒稳定
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    //时间同步
+    //时间同步(堵塞等待)
     HTTP_syset_time();
-    //获取挂墙时间(堵塞等待)
+    //获取挂墙时间
     get_unix_time();
     
     //mqtt服务器初始化
@@ -63,7 +63,7 @@ void InitState::Execute(ElabelController* pOwner)
     if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
     {
         lock_lvgl();
-        lv_scr_load(ui_OTAScreen);
+        switch_screen(ui_OTAScreen);
         char version_change[150];
         sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
         set_text_without_change_font(ui_VersionChange, version_change);
@@ -94,6 +94,10 @@ void InitState::Execute(ElabelController* pOwner)
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
     http_get_todo_list(true);
+    //发送唤醒从机消息
+    EspNowHost::Instance()->send_wakeup_message();
+    //如果从机没有响应，则不进行初始化
+    if(EspNowHost::Instance()->remind_slave.is_set) return;
     is_init = true;
 }
 

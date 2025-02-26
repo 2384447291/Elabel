@@ -10,6 +10,8 @@
 #define ESP_NOW "ESPNOW"
 #define MAX_DATA_LEN 256
 #define MAX_RECV_QUEUE_SIZE 10
+//1s25个包
+#define Esp_Now_Send_Interval 40
 
 #define MAX_SLAVE_NUM 6
 extern uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN];
@@ -37,6 +39,7 @@ typedef struct {
 } remind_slave_t;
 
 typedef enum {
+    //绑定过程中的消息
     Bind_Control_Host2Slave = 25,
     Bind_Feedback_Slave2Host = 26,
     
@@ -49,6 +52,8 @@ typedef enum {
     OutFocus_Control_Slave2Host = 31,
 
     Feedback_Slave2Host = 32,
+
+    Wakeup_Control_Host2Slave = 33,
 } message_type;
 
 typedef enum {
@@ -150,6 +155,7 @@ class EspNowHost {
         void init();
         void deinit();
 
+        void send_wakeup_message();
         void send_broadcast_message();
         void send_update_task_list();
         void send_enter_focus(TodoItem _todo_item);

@@ -10,7 +10,17 @@ void ui_ShutdownScreen_screen_init(void)
     ui_ShutdownScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_ShutdownScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_ShutdownGuide = lv_label_create(ui_ShutdownScreen);
+    ui_Panel13 = lv_obj_create(ui_ShutdownScreen);
+    lv_obj_set_width(ui_Panel13, 218);
+    lv_obj_set_height(ui_Panel13, 122);
+    lv_obj_clear_flag(ui_Panel13, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel13, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel13, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel13, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel13, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel13, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ShutdownGuide = lv_label_create(ui_Panel13);
     lv_obj_set_width(ui_ShutdownGuide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_ShutdownGuide, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_ShutdownGuide, LV_ALIGN_CENTER);

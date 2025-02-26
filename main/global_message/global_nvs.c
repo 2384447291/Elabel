@@ -76,6 +76,17 @@ void get_nvs_info(void)
         get_global_data()->m_is_host = 0;
     }
 
+
+    if(get_global_data()->m_is_host == 1)
+    {
+        //如果判断为主机，则加载从机地址
+
+    }
+    else if(get_global_data()->m_is_host == 2)
+    {
+        //如果判断为从机，则加载主机地址
+
+    }
     ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
     nvs_close(wificfg_nvs_handler);                     /* 关闭 */
 }
@@ -123,7 +134,26 @@ void set_nvs_info(const char *tag, const char *value)
 
 void set_nvs_info_uint8_t(const char *tag, uint8_t value)
 {
-    char value_str[10];
+    char value_str[20];
     snprintf(value_str, sizeof(value_str), "%d", value);
     set_nvs_info(tag,value_str);
+}
+
+void set_nvs_info_set_host_mac(uint8_t value[6])
+{
+    // 直接存储6字节MAC地址
+    set_nvs_info("host_mac", (const char*)value);
+}
+
+void set_nvs_info_set_slave_mac(uint8_t slave_num, uint8_t* value)
+{
+    // 分配内存：1字节从机数量 + N个从机的MAC地址(每个6字节)
+    uint8_t data_size = 1 + (slave_num * 6);
+    uint8_t data [data_size];
+    // 存储从机数量
+    data[0] = slave_num;
+    // 存储MAC地址
+    memcpy(&data[1], value, slave_num * 6);
+    // 写入NVS
+    set_nvs_info("slave_mac", (const char*)data);
 }

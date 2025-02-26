@@ -16,9 +16,20 @@
 #include "battery_manager.hpp"
 #include "control_driver.hpp"
 #include "esp_now_client.hpp"
+#include "codec.hpp"
 
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
+
+void fuck()
+{
+    MCodec::Instance()->start_record();
+}
+
+void fuck2()
+{
+    MCodec::Instance()->play_record();
+}
 
 extern "C" void app_main(void)
 {
@@ -49,6 +60,9 @@ extern "C" void app_main(void)
     {
         EspNowSlave::Instance()->init();
     }
+
+    //初始化codec
+    MCodec::Instance()->init();
     
     //按键初始化
     ControlDriver::Instance()->init();
@@ -70,13 +84,16 @@ extern "C" void app_main(void)
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;
 
+    ControlDriver::Instance()->ButtonUpShortPress.registerCallback(fuck);
+    ControlDriver::Instance()->ButtonUpLongPress.registerCallback(fuck2);
+
     while(1)
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);
         elabelUpdateTick += 10;
-        //20ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
+        //5ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
         //初始化的第一个状态机为init_state
-        if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
+        // if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
     }
 }
 

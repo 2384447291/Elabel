@@ -12,6 +12,7 @@
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 lv_obj_t * ui_HalfmindScreen;
+lv_obj_t * ui_LED;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
 
@@ -19,16 +20,26 @@ lv_obj_t * uic_HalfmindScreen;
 // SCREEN: ui_ActiveScreen
 void ui_ActiveScreen_screen_init(void);
 lv_obj_t * ui_ActiveScreen;
+lv_obj_t * ui_Panel3;
 lv_obj_t * ui_ActiveGuide;
 lv_obj_t * ui_Label2;
+lv_obj_t * ui_Panel2;
+lv_obj_t * ui_ActiveGuide2;
+lv_obj_t * ui_Label3;
+lv_obj_t * ui_Panel4;
+lv_obj_t * ui_ActiveGuide3;
+lv_obj_t * ui_Label4;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ActiveScreen;
+lv_obj_t * uic_HostGuide;
+lv_obj_t * uic_HostGuide;
 lv_obj_t * uic_HostGuide;
 
 
 // SCREEN: ui_OTAScreen
 void ui_OTAScreen_screen_init(void);
 lv_obj_t * ui_OTAScreen;
+lv_obj_t * ui_Panel7;
 lv_obj_t * ui_NewFirmware;
 lv_obj_t * ui_NewFirmware2;
 lv_obj_t * ui_OperateGuide;
@@ -63,11 +74,9 @@ lv_obj_t * ui_NoTaskNote14;
 lv_obj_t * ui_NoTaskNote2;
 // CUSTOM VARIABLES
 lv_obj_t * uic_TaskScreen;
-lv_obj_t * uic_HaveTaskContainer;
 lv_obj_t * uic_chooseTaskF;
 lv_obj_t * uic_chooseTaskS;
 lv_obj_t * uic_chooseTaskT;
-lv_obj_t * uic_NoTaskContainer;
 lv_obj_t * uic_NoTaskNote1;
 lv_obj_t * uic_NoTaskNote5;
 lv_obj_t * uic_NoTaskNote6;
@@ -76,43 +85,60 @@ lv_obj_t * uic_NoTaskNote6;
 // SCREEN: ui_OperatingScreen
 void ui_OperatingScreen_screen_init(void);
 lv_obj_t * ui_OperatingScreen;
+lv_obj_t * ui_Panel10;
 lv_obj_t * ui_OperatingTime;
 lv_obj_t * ui_Time2;
 lv_obj_t * ui_Time3;
+lv_obj_t * ui_OperatingLoadingpanel;
+lv_obj_t * ui_OperatingTime2;
+lv_obj_t * ui_Time5;
+lv_obj_t * ui_Time1;
 // CUSTOM VARIABLES
 lv_obj_t * uic_OperatingScreen;
+lv_obj_t * uic_OperatingTime;
 lv_obj_t * uic_OperatingTime;
 
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 lv_obj_t * ui_FocusScreen;
+lv_obj_t * ui_Panel11;
 lv_obj_t * ui_FocusTask;
 lv_obj_t * ui_Task;
+lv_obj_t * ui_Panel12;
 lv_obj_t * ui_FocusTime;
+lv_obj_t * ui_FocusTime2;
+lv_obj_t * ui_FocusLoadingpanel;
+lv_obj_t * ui_OperatingTime3;
+lv_obj_t * ui_Time7;
+lv_obj_t * ui_Time4;
 // CUSTOM VARIABLES
 lv_obj_t * uic_FocusScreen;
 lv_obj_t * uic_FocusTask;
 lv_obj_t * uic_Task2;
 lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_OperatingTime;
 
 
 // SCREEN: ui_UpdateScreen
 void ui_UpdateScreen_screen_init(void);
 lv_obj_t * ui_UpdateScreen;
+lv_obj_t * ui_Panel8;
+lv_obj_t * ui_VersionnNmber;
 lv_obj_t * ui_Updating;
 lv_obj_t * ui_Updating2;
-lv_obj_t * ui_VersionnNmber;
 lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
+lv_obj_t * uic_VersionnNmber;
 lv_obj_t * uic_Updating;
 lv_obj_t * uic_Updating2;
-lv_obj_t * uic_VersionnNmber;
 
 
 // SCREEN: ui_ShutdownScreen
 void ui_ShutdownScreen_screen_init(void);
 lv_obj_t * ui_ShutdownScreen;
+lv_obj_t * ui_Panel13;
 lv_obj_t * ui_ShutdownGuide;
 lv_obj_t * ui_ShutdownGuide2;
 // CUSTOM VARIABLES
@@ -124,6 +150,7 @@ lv_obj_t * uic_ShutdownGuide;
 // SCREEN: ui_HostActiveScreen
 void ui_HostActiveScreen_screen_init(void);
 lv_obj_t * ui_HostActiveScreen;
+lv_obj_t * ui_Panel5;
 lv_obj_t * ui_HostName;
 lv_obj_t * ui_HostInf;
 // CUSTOM VARIABLES
@@ -135,6 +162,7 @@ lv_obj_t * uic_HostInf;
 // SCREEN: ui_SlaveActiveScreen
 void ui_SlaveActiveScreen_screen_init(void);
 lv_obj_t * ui_SlaveActiveScreen;
+lv_obj_t * ui_Panel6;
 lv_obj_t * ui_SlaveName;
 lv_obj_t * ui_SlaveInf;
 // CUSTOM VARIABLES

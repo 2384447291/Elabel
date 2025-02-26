@@ -40,7 +40,6 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
     if(get_global_data()->m_is_host == 1)
     {
-        HTTP_syset_time();
         if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
         else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
         chose_todo->fallTiming = pOwner->TimeCountdown;
@@ -54,8 +53,8 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     //将时间转换为毫秒
     inner_time_countdown = pOwner->TimeCountdown*1000;
     lock_lvgl();
-    lv_scr_load(ui_FocusScreen);
-    set_text(ui_FocusTask, chose_todo->title);
+    switch_screen(ui_FocusScreen);
+    set_text_without_change_font(ui_FocusTask, chose_todo->title);
 
     char timestr[10] = "00:00";
     uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
@@ -74,7 +73,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
 {
     if(need_out_focus) 
     {
-        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % 100 == 0)
+        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % Esp_Now_Send_Interval == 0)
         {
             EspNowSlave::Instance()->send_out_focus_message(get_global_data()->m_focus_state->focus_task_id,slave_unique_id);
         }

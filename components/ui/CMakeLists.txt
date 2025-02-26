@@ -12,5 +12,6 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     components/ui_comp_hook.c
     ui_helpers.c
     fonts/ui_font_Chinese_20.c
+    fonts/ui_font_Chinese_28.c
     INCLUDE_DIRS "."
     REQUIRES lvgl)

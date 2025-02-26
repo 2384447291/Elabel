@@ -42,6 +42,27 @@ void periodic_timer_callback(void *arg) {
     lv_tick_inc(1);
 }
 
+uint8_t ChooseTask_big_height = 0;
+uint8_t ChooseTask_big_width = 0;
+uint8_t ChooseTask_small_height = 0;
+uint8_t ChooseTask_small_width = 0;
+
+uint8_t get_button_size(Button_type button_type)
+{
+    switch(button_type)
+    {
+        case Btn_ChooseTask_big_height:
+            return ChooseTask_big_height;
+        case Btn_ChooseTask_big_width:
+            return ChooseTask_big_width;
+        case Btn_ChooseTask_small_height:
+            return ChooseTask_small_height;
+        case Btn_ChooseTask_small_width:
+            return ChooseTask_small_width;
+        default:
+            return 0;
+    }
+}
 void guiTask(void *pvParameter) {
     (void) pvParameter;
     Inituilock();
@@ -118,6 +139,10 @@ void guiTask(void *pvParameter) {
     //--------------开始lvgl线程--------------//
     ESP_LOGI("lvgl", "start gui task.\n");
     ui_init();
+    ChooseTask_big_height = lv_obj_get_height(ui_Button2);
+    ChooseTask_big_width = lv_obj_get_width(ui_Button2);
+    ChooseTask_small_height = lv_obj_get_height(ui_Button1);
+    ChooseTask_small_width = lv_obj_get_width(ui_Button1);
     lv_refr_now(NULL);
     while (1) {
         /* lvgl刷新率10ms*/
@@ -140,14 +165,16 @@ void guiTask(void *pvParameter) {
 
 
 //--------------------------------------获取语言字体-------------------------------------//
-const lv_font_t* get_language_font(void)
+const lv_font_t* get_language_font(bool Is_bigger)
 {
     switch(get_global_data()->m_language) {
         case Chinese:
-            return &ui_font_Chinese_20;
+            if(Is_bigger) return &ui_font_Chinese_28;
+            else return &ui_font_Chinese_20;
         case English:
         default:
-            return &lv_font_montserrat_20;
+            if(Is_bigger) return &lv_font_montserrat_20;
+            else return &lv_font_montserrat_16;
     }
 }
 //--------------------------------------获取语言字体-------------------------------------//
@@ -160,7 +187,7 @@ void lvgl_modify_task(int position, const char *task_content)
     ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
     lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_HaveTaskContainer, position+1);
     lv_obj_t *ui_Label1 = lv_obj_get_child(ui_tmpButton, 0);
-    set_text(ui_Label1, task_content);
+    set_text_with_change_font(ui_Label1, task_content, false);
     ESP_LOGI("LVGL","任务%d \"%s\" 修改成功！\n", position, task_content);
 }
 //--------------------------------------修改任务内容-------------------------------------//
@@ -181,8 +208,8 @@ void lvgl_add_task(const char *task_content)
 
     //新建Button承接task
     lv_obj_t *ui_tmpButton = lv_btn_create(ui_HaveTaskContainer);
-    lv_obj_set_width(ui_tmpButton, 130);
-    lv_obj_set_height(ui_tmpButton, 24);
+    lv_obj_set_width(ui_tmpButton, ChooseTask_small_width);
+    lv_obj_set_height(ui_tmpButton, ChooseTask_small_height);
     lv_obj_set_align(ui_tmpButton, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -198,7 +225,7 @@ void lvgl_add_task(const char *task_content)
     lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
-    lv_obj_set_style_text_font(ui_Label1, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label1, get_language_font(false), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_label_set_text(ui_Label1, task_content);
     lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -212,7 +239,7 @@ void lvgl_add_task(const char *task_content)
         lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);     /// 1
         lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
         lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
-        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(false), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_label_set_text(ui_tmpLabel, task_content);
         lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -294,16 +321,18 @@ void update_lvgl_task_list()
 
 
 //--------------------------------------修改label-------------------------------------//
-void set_text(lv_obj_t * target_label,  const char * text)
+void set_text_with_change_font(lv_obj_t * target_label,  const char * text, bool Is_bigger)
 {
-    lv_obj_set_style_text_font(target_label, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
+    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
     lv_label_set_text(target_label, text);
+    lv_obj_set_style_text_font(target_label, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
     uint8_t child_count = lv_obj_get_child_cnt(target_label);
     for(int i = 0; i < child_count; i++)
     {
         lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
-        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_label_set_text(ui_tmpLabel, text);
+        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
     }
 }
 
@@ -322,88 +351,69 @@ void set_text_without_change_font(lv_obj_t * target_label,  const char * text)
 //--------------------------------------修改label-------------------------------------//
 
 
-//--------------------------------------更改字体为中文-------------------------------------//
-void set_text_chinese(lv_obj_t * target_label,  const char * text)
-{
-    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
-    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
-    lv_label_set_text(target_label, text);
-    lv_obj_set_style_text_font(target_label, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    uint8_t child_count = lv_obj_get_child_cnt(target_label);
-    for(int i = 0; i < child_count; i++)
-    {
-        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
-        lv_label_set_text(ui_tmpLabel, text);
-        lv_obj_set_style_text_font(ui_tmpLabel, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
-}
-//--------------------------------------更改字体为中文-------------------------------------//
-
-
-//--------------------------------------更改字体为英文------------------------------------//
-void set_text_english(lv_obj_t * target_label,  const char * text)
-{
-    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
-    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
-    lv_label_set_text(target_label, text);
-    lv_obj_set_style_text_font(target_label, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    uint8_t child_count = lv_obj_get_child_cnt(target_label);
-    for(int i = 0; i < child_count; i++)
-    {
-        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
-        lv_label_set_text(ui_tmpLabel, text);
-        lv_obj_set_style_text_font(ui_tmpLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
-}
-//--------------------------------------更改字体为英文------------------------------------//
-
-
 //--------------------------------------更改所有语言------------------------------------//
 void Change_All_language()
 {
     if(get_global_data()->m_language == 0)
     {
-        set_text_english(ui_ActiveGuide, "Use APP to active Host\n"
-                                        "or\n"
-                                        "Use Host to active Slave");
-        set_text_english(ui_HostName, "Host");
-        set_text_english(ui_SlaveName, "Slave");
-        set_text_english(ui_HostInf, "Username:\n"
+        set_text_with_change_font(ui_ActiveGuide, "Activate with App\n"
+                                        "Halfmind Todo", false);
+        set_text_with_change_font(ui_ActiveGuide3, "or", false);
+        set_text_with_change_font(ui_ActiveGuide2, "Move close to\n"
+                                        "an activated sticker", false);
+
+        set_text_with_change_font(ui_HostName, "Host", true);
+        set_text_with_change_font(ui_SlaveName, "Slave", true);
+        set_text_with_change_font(ui_HostInf, "Username:\n"
                                     "WIFIname:\n"
                                     "WIFIPassword:\n"
-                                    "SlaveNum:");
-        set_text_english(ui_SlaveInf, "Username:\n"
-                                    "HostMac:\n");
-        set_text_english(ui_NewFirmware, "New Firmware");
-        set_text_english(ui_OperateGuide ,"Click: Apply\n"
-                                        "Rotate: Skip");
-        set_text_english(ui_Updating, "Updating...");
-        set_text_english(ui_FocusTask, "Focus Task");
-        set_text_english(ui_ShutdownGuide, "See you next time");
-        set_text_english(ui_NoTaskNote, "Nothing left yet");
-        set_text_english(ui_NoTaskNote2, "Enjoy your life");
+                                    "SlaveNum:", false);
+        set_text_with_change_font(ui_SlaveInf, "Username:\n"
+                                    "HostMac:\n", false);
+        set_text_with_change_font(ui_NewFirmware, "New Firmware", false);
+        set_text_with_change_font(ui_OperateGuide ,"Click: Apply\n"
+                                        "Rotate: Skip", false);
+        set_text_with_change_font(ui_Updating, "Updating...", false);
+        set_text_with_change_font(ui_FocusTask, "Focus Task", true);
+        set_text_with_change_font(ui_ShutdownGuide, "See you next time", true);
+        set_text_with_change_font(ui_NoTaskNote, "Nothing left yet", true);
+        set_text_with_change_font(ui_NoTaskNote2, "Enjoy your life", false);
     }
     else if(get_global_data()->m_language == 1)
     {
-        set_text_chinese(ui_ActiveGuide, "打开手机APP靠近唤醒主机\n"
-                                        "或\n"
-                                        "使用激活主机靠近唤醒从机");
-        set_text_chinese(ui_HostName, "主机");
-        set_text_chinese(ui_SlaveName, "从机");
-        set_text_chinese(ui_HostInf, "用户名:\n"
-                                    "WiFi名称:\n"
-                                    "WiFi密码:\n"
-                                    "从机数量:");
-        set_text_chinese(ui_SlaveInf, "用户名:\n"
-                                    "主机MAC:");
-        set_text_chinese(ui_NewFirmware, "新固件");
-        set_text_chinese(ui_OperateGuide, "单点: 应用\n"
-                                        "旋转: 跳过");
-        set_text_chinese(ui_Updating, "正在更新...");
-        set_text_chinese(ui_FocusTask, "专注任务");
-        set_text_chinese(ui_ShutdownGuide, "明天再见");
-        set_text_chinese(ui_NoTaskNote, "没有剩余任务");
-        set_text_chinese(ui_NoTaskNote2, "享受你的生活");
+        set_text_with_change_font(ui_ActiveGuide, "使用手机激活\n"
+                                        "智能便签", false);
+        set_text_with_change_font(ui_ActiveGuide3, "或者", false);
+        set_text_with_change_font(ui_ActiveGuide2, "靠近一个已近\n"
+                                        "激活的便签", false);
+
+        set_text_with_change_font(ui_HostName, "主机", true);
+        set_text_with_change_font(ui_SlaveName, "从机", true);
+        set_text_with_change_font(ui_HostInf, "用户名:\n"
+                                    "无线网名字:\n"
+                                    "无线网密码:\n"
+                                    "从机数量:", false);
+        set_text_with_change_font(ui_SlaveInf, "用户名:\n"
+                                    "主机MAC:\n", false);
+        set_text_with_change_font(ui_NewFirmware, "新固件", false);
+        set_text_with_change_font(ui_OperateGuide ,"点击: 应用\n"
+                                        "旋转: 跳过", false);
+        set_text_with_change_font(ui_Updating, "更新中...", false);
+        set_text_with_change_font(ui_FocusTask, "专注任务", true);
+        set_text_with_change_font(ui_ShutdownGuide, "明天再见", true);
+        set_text_with_change_font(ui_NoTaskNote, "已完成所有任务", true);
+        set_text_with_change_font(ui_NoTaskNote2, "享受生活", false);
     }
 }
-    //--------------------------------------更改所有语言------------------------------------//
+//--------------------------------------更改所有语言------------------------------------//
+
+void switch_screen(lv_obj_t* new_screen) {
+    //如果没有事件，则显示no task enjoy life
+    lv_obj_set_parent(ui_LED, new_screen);
+    lv_scr_load(new_screen);
+}
+
+void Change_led(int led_status)
+{
+    lv_obj_set_height(ui_LED, led_status*31);
+}

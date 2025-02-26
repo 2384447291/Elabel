@@ -10,6 +10,17 @@ void ui_HalfmindScreen_screen_init(void)
     ui_HalfmindScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_HalfmindScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    ui_LED = lv_obj_create(ui_HalfmindScreen);
+    lv_obj_set_width(ui_LED, 32);
+    lv_obj_set_height(ui_LED, 122);
+    lv_obj_set_x(ui_LED, 218);
+    lv_obj_set_y(ui_LED, 0);
+    lv_obj_set_align(ui_LED, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_clear_flag(ui_LED, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_LED, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_LED, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_LED, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     uic_HalfmindScreen = ui_HalfmindScreen;
 
 }

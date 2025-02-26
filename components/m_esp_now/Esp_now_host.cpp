@@ -1,4 +1,5 @@
 #include "Esp_now_client.hpp"
+#include "global_nvs.h"
 #include "http.h"
 
 static void esp_now_recieve_update(void *pvParameter)
@@ -70,8 +71,8 @@ static void esp_now_send_update(void *pvParameter)
 {
     while(1)
     {
-        //每隔100ms发送一次信息
-        vTaskDelay(100);
+        vTaskDelay(Esp_Now_Send_Interval);
+        //如果有要发送的remind消息
         if(EspNowHost::Instance()->remind_slave.is_set)
         {
             EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, EspNowHost::Instance()->remind_slave.data, EspNowHost::Instance()->remind_slave.data_len);
@@ -134,6 +135,16 @@ void EspNowHost::add_slave(uint8_t _slave_mac[ESP_NOW_ETH_ALEN])
     // 添加新的从机MAC地址
     memcpy(slave_mac[slave_num], _slave_mac, ESP_NOW_ETH_ALEN);
     slave_num++;
+
+   // 存储从机mac到nvs
+    uint8_t mac_bytes[MAX_SLAVE_NUM * 6];  // 每个MAC地址6个字节
+    memset(mac_bytes, 0, sizeof(mac_bytes));
+    for(int i = 0; i < slave_num; i++) {
+        memcpy(&mac_bytes[i * 6], slave_mac[i], 6);
+    }
+    // 存储到NVS
+    set_nvs_info_set_slave_mac(slave_num, mac_bytes);
+
     ESP_LOGI(ESP_NOW, "Add slave " MACSTR " success", MAC2STR(_slave_mac));
 }
 
@@ -156,7 +167,37 @@ void EspNowHost::del_slave(uint8_t _slave_mac[ESP_NOW_ETH_ALEN])
     ESP_LOGI(ESP_NOW, "Slave " MACSTR " not found", MAC2STR(_slave_mac));
 }
 
+void EspNowHost::send_wakeup_message()
+{
+    if(slave_num == 0) return;
+    uint8_t wifi_channel = 0;
+    wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+    ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
 
+    // 计算数据包总长度：头部(4字节) + MAC(6字节) + 用户名长度
+    size_t total_len = 6;
+    uint8_t broadcast_data[total_len];
+    // 填充数据包头部
+    broadcast_data[0] = 0xAB;  // 包头
+    broadcast_data[1] = 0xCD;  // 包头
+    broadcast_data[2] = Wakeup_Control_Host2Slave;
+    broadcast_data[3] = esp_random() & 0xFF;  // 随机生成的唯一ID
+    broadcast_data[4] = wifi_channel;  // WiFi通道
+    broadcast_data[total_len-1] = 0xEF;  // 包尾
+
+    // 填充remind_slave结构体
+    remind_slave.is_set = true;
+    remind_slave.data_len = total_len;
+    memcpy(remind_slave.data, broadcast_data, total_len);
+    remind_slave.unique_id = broadcast_data[3];
+    remind_slave.slave_num_not_feedback = slave_num;
+    for(int i = 0; i < slave_num; i++)
+    {
+        memcpy(remind_slave.slave_mac_not_feedback[i], slave_mac[i], ESP_NOW_ETH_ALEN);
+    }
+
+    ESP_LOGI(ESP_NOW, "Load send wakeup message");
+}
 
 
 void EspNowHost::send_broadcast_message()
@@ -165,7 +206,7 @@ void EspNowHost::send_broadcast_message()
     wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
     ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
 
-    // 计算数据包总长度：头部(4字节) + MAC(6字节) + 用户名长度
+    // 计算数据包总长度：头部(4字节) + 用户名长度
     size_t username_len = strlen(get_global_data()->m_userName);
     size_t total_len = 5 + username_len;
     uint8_t broadcast_data[total_len];

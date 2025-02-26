@@ -29,7 +29,7 @@ public:
             get_global_data()->m_wifi_ssid, 
             get_global_data()->m_wifi_password, 
             EspNowHost::Instance()->slave_num);
-            set_text_english(ui_HostInf, Host_info);
+            set_text_with_change_font(ui_HostInf, Host_info, false);
         }
         else if(get_global_data()->m_language == Chinese)
         {
@@ -39,7 +39,7 @@ public:
             get_global_data()->m_wifi_ssid, 
             get_global_data()->m_wifi_password, 
             EspNowHost::Instance()->slave_num);
-            set_text_chinese(ui_HostInf, Host_info);
+            set_text_with_change_font(ui_HostInf, Host_info, false);
         }
         painted_slave_num = EspNowHost::Instance()->slave_num;
     }

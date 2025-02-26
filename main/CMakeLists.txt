@@ -20,4 +20,5 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                     REQUIRES network
                     REQUIRES ota
                     REQUIRES ui
+                    REQUIRES Codec
                     )

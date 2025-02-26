@@ -367,6 +367,24 @@ void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf,
     }
 }
 
+// void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf,
+//     lv_coord_t buf_w, lv_coord_t x, lv_coord_t y,
+//     lv_color_t color, lv_opa_t opa) {   
+//     // 旋转180度：新坐标 = 最大坐标 - 当前坐标
+//     uint16_t X = 122 - 1 - y;  // 122是屏幕高度
+//     uint16_t Y = 250 - 1 - x;  // 250是屏幕宽度
+    
+//     uint16_t widthByte = 16;
+//     uint32_t addr = X/8 + Y * widthByte;
+//     uint8_t Rdata = buf[addr];
+    
+//     if(color.full == 0) {
+//         buf[addr] = Rdata & ~(0x80 >> (X % 8));
+//     } else {
+//         buf[addr] = Rdata | (0x80 >> (X % 8));
+//     }
+// }
+
 
 void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area)
 {

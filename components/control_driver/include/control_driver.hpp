@@ -7,13 +7,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "buzzer.hpp"
-#include "LED.hpp"
-#define EC56_GPIO_A GPIO_NUM_36
-#define EC56_GPIO_B GPIO_NUM_35
+#define EC56_GPIO_A GPIO_NUM_37
+#define EC56_GPIO_B GPIO_NUM_38
 #define DEVICE_UPDATE_PERIOD 20
-#define DEVICE_DOWN_BUTTON GPIO_NUM_20
-#define DEVICE_UP_BUTTON GPIO_NUM_4
-#define DEVICE_POWER_BUTTON GPIO_NUM_21
+#define DEVICE_DOWN_BUTTON GPIO_NUM_39
+#define DEVICE_UP_BUTTON GPIO_NUM_6
+#define DEVICE_POWER_BUTTON GPIO_NUM_41
 
 //----------------------------------------------定义回调接口----------------------------------------------//
 class Callback {
@@ -160,7 +159,6 @@ public:
 
     // 蜂鸣器控制接口
     Buzzer& getBuzzer() { return buzzer; }
-    LED& getLED() { return led; }
     void buzzerStart(uint32_t frequency) { buzzer.start(frequency); }
     void buzzerStop() { buzzer.stop(); }
     void buzzerPlayNote(uint32_t frequency, uint32_t duration_ms) { buzzer.playNote(frequency, duration_ms); }
@@ -186,7 +184,6 @@ private:
     Button buttonPower{DEVICE_POWER_BUTTON, "Button_POWER", 20, 800};
     Encoder encoder;
     Buzzer buzzer;
-    LED led;
 };
 //----------------------------------------------ControlDriver类定义----------------------------------------------//
 #endif 

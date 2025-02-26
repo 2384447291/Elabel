@@ -19,7 +19,7 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
     EspNowSlave::Instance()->init();
     Out_ActiveState = false;
     lock_lvgl();
-    lv_scr_load(ui_SlaveActiveScreen);
+    switch_screen(ui_SlaveActiveScreen);
     repaint_para();
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter SlaveActiveState.");

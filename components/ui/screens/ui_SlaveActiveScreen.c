@@ -10,7 +10,17 @@ void ui_SlaveActiveScreen_screen_init(void)
     ui_SlaveActiveScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_SlaveActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_SlaveName = lv_label_create(ui_SlaveActiveScreen);
+    ui_Panel6 = lv_obj_create(ui_SlaveActiveScreen);
+    lv_obj_set_width(ui_Panel6, 218);
+    lv_obj_set_height(ui_Panel6, 122);
+    lv_obj_clear_flag(ui_Panel6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel6, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel6, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SlaveName = lv_label_create(ui_Panel6);
     lv_obj_set_width(ui_SlaveName, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_SlaveName, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_SlaveName, 0);
@@ -21,7 +31,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_SlaveName, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_SlaveName, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_SlaveInf = lv_label_create(ui_SlaveActiveScreen);
+    ui_SlaveInf = lv_label_create(ui_Panel6);
     lv_obj_set_width(ui_SlaveInf, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_SlaveInf, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_SlaveInf, 0);
@@ -31,6 +41,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_style_text_color(ui_SlaveInf, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SlaveInf, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_SlaveInf, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SlaveInf, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_SlaveActiveScreen = ui_SlaveActiveScreen;
     uic_SlaveInf = ui_SlaveInf;
