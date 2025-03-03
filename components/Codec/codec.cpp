@@ -1,17 +1,11 @@
 #include "codec_utils.hpp"
 #include "codec.hpp"
+#include "esp_heap_caps.h" 
+#include <string.h>  
 
 #define TAG "M_CODEC"
-#define BUFFER_SIZE (80 * 1024)  // 80KB buffer size
-#define READ_BLOCK_SIZE 1024     // 每次读取的数据块大小
-// 采样率 (I2S_SAMPLE_RATE) = 16000 Hz
-// 采样位数 (I2S_BITS_PER_SAMPLE) = 16 bits = 2 bytes
-// 通道数 (I2S_CHANNEL_NUM) = 1 (单声道)
-// 计算每秒数据量：
-// 每秒采样数 = 16000
-// 每个采样占用字节数 = 2 bytes
-// 通道数 = 1
-// 每秒总字节数 = 16000*2*1 = 32000 bytes/s
+#define READ_BLOCK_SIZE 1024      // 减小读取块大小以减少瞬时内存占用
+#define BytesPerSecond (I2S_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 
 // 用于任务间通信的标志
 static volatile bool should_stop_recording = false;
@@ -20,95 +14,89 @@ static volatile bool should_stop_playing = false;
 // 录音任务函数
 static void mic_task_func(void* arg) {
     ESP_LOGI(TAG, "Mic task started");
-    uint8_t* buffer = (uint8_t*)malloc(READ_BLOCK_SIZE);
-    if(buffer == NULL) {
-        ESP_LOGE(TAG, "Failed to allocate buffer for mic task");
-        vTaskDelete(NULL);
-        return;
-    }
-    size_t total_bytes = 0;
+    MCodec* codec = MCodec::Instance();
+    uint8_t buffer[READ_BLOCK_SIZE];
+
+    // 重置录音大小
+    codec->recorded_size = 0;
     should_stop_recording = false;
     
     while(!should_stop_recording) {
         // 使用esp_codec_dev_read直接从codec读取数据
-        esp_err_t ret = esp_codec_dev_read(MCodec::Instance()->codec_dev, buffer, READ_BLOCK_SIZE);
+        esp_err_t ret = esp_codec_dev_read(codec->codec_dev, buffer, READ_BLOCK_SIZE);
         if(ret == ESP_OK) {
             // 检查是否达到缓冲区限制
-            if(total_bytes + READ_BLOCK_SIZE >= BUFFER_SIZE) {
-                ESP_LOGI(TAG, "Buffer full (%d bytes), stopping recording", total_bytes);
+            if(codec->recorded_size + READ_BLOCK_SIZE >= RECORD_BUFFER_SIZE) {
+                ESP_LOGI(TAG, "Buffer full (%d bytes), stopping recording", codec->recorded_size);
                 should_stop_recording = true;
                 break;
             }
             
-            if(xRingbufferSend(MCodec::Instance()->mic_buf, buffer, READ_BLOCK_SIZE, pdMS_TO_TICKS(100)) == pdTRUE) {
-                total_bytes += READ_BLOCK_SIZE;
-                ESP_LOGI(TAG, "Recording: %d bytes (%.1f seconds)", total_bytes, (float)total_bytes/32000.0f);
-            } else {
-                ESP_LOGE(TAG, "Failed to write to mic buffer, total_bytes=%d", total_bytes);
-            }
+            // 复制数据到录音缓冲区
+            memcpy(codec->record_buffer + codec->recorded_size, buffer, READ_BLOCK_SIZE);
+            codec->recorded_size += READ_BLOCK_SIZE;
+            ESP_LOGI(TAG, "Recording: %d bytes (%.1f seconds)", 
+                    codec->recorded_size, (float)codec->recorded_size/BytesPerSecond);
         } else {
             ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }
     
-    free(buffer);
-    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", total_bytes);
-
-    // 复制数据到speaker_buf
-    size_t item_size;
-    uint8_t* item;
-    size_t total_copied = 0;
-    
-    ESP_LOGI(TAG, "Copying data from mic_buf to speaker_buf");
-    while((item = (uint8_t*)xRingbufferReceive(MCodec::Instance()->mic_buf, &item_size, 0)) != NULL) {
-        if(xRingbufferSend(MCodec::Instance()->speaker_buf, item, item_size, pdMS_TO_TICKS(100)) == pdTRUE) {
-            total_copied += item_size;
-            ESP_LOGI(TAG, "Copied %d bytes, total: %d bytes", item_size, total_copied);
-        } else {
-            ESP_LOGE(TAG, "Failed to copy %d bytes to speaker buffer", item_size);
-        }
-        vRingbufferReturnItem(MCodec::Instance()->mic_buf, item);
-    }
-    ESP_LOGI(TAG, "Finished copying, total: %d bytes (%.1f seconds)", total_copied, (float)total_copied/32000.0f);
-
+    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
     // 清除任务句柄
-    MCodec::Instance()->mic_task = NULL;
+    codec->mic_task = NULL;
     vTaskDelete(NULL);
 }
 
 // 播放任务函数
 static void speaker_task_func(void* arg) {
     ESP_LOGI(TAG, "Speaker task started");
-    size_t item_size;
-    uint8_t* item;
-    size_t total_played = 0;
+    MCodec* codec = MCodec::Instance();
     should_stop_playing = false;
-    
-    while(!should_stop_playing) {
-        item = (uint8_t*)xRingbufferReceive(MCodec::Instance()->speaker_buf, &item_size, pdMS_TO_TICKS(100));
-        if(item != NULL) {
-            ESP_LOGI(TAG, "Playing chunk: %d bytes (%.1f seconds)", item_size, (float)item_size/32000.0f);
-            // 使用esp_codec_dev_write直接写入数据到codec
-            esp_err_t ret = esp_codec_dev_write(MCodec::Instance()->codec_dev, item, item_size);
-            if(ret != ESP_OK) {
-                ESP_LOGE(TAG, "Failed to write to codec, err=%d", ret);
-            } else {
-                total_played += item_size;
-                ESP_LOGI(TAG, "Total played: %d bytes (%.1f seconds)", total_played, (float)total_played/32000.0f);
-            }
-            vRingbufferReturnItem(MCodec::Instance()->speaker_buf, item);
-        } else {
-            // 如果没有数据可读，说明播放完成
-            ESP_LOGI(TAG, "No more data to play, stopping playback");
+
+    uint8_t buffer[READ_BLOCK_SIZE];
+    size_t total_played = 0;
+
+    while(!should_stop_playing) 
+    {
+        size_t bytes_to_play = 0;
+        
+        // 根据播放模式获取要播放的数据
+        if(codec->speaker_type == spiffs) {
+            // 从文件读取数据
+            bytes_to_play = fread(buffer, 1, READ_BLOCK_SIZE, codec->play_file);
+            if(bytes_to_play == 0) break;  // 文件读取完毕
+        } else if(codec->speaker_type == mic) {
+            // 从内存数组读取数据
+            size_t remaining = codec->play_data_size - total_played;
+            if(remaining == 0) break;  // 数据播放完毕
+            
+            bytes_to_play = (remaining > READ_BLOCK_SIZE) ? READ_BLOCK_SIZE : remaining;
+            memcpy(buffer, codec->play_data + total_played, bytes_to_play);
+        }
+
+        // 播放数据
+        esp_err_t ret = esp_codec_dev_write(codec->codec_dev, buffer, bytes_to_play);
+        if(ret != ESP_OK) {
+            ESP_LOGE(TAG, "播放失败: %d", ret);
             break;
         }
+
+        total_played += bytes_to_play;
+        // ESP_LOGI(TAG, "Playing: %d bytes (%.1f seconds)", 
+        //         total_played, (float)total_played/BytesPerSecond);
         vTaskDelay(pdMS_TO_TICKS(10));
     }
     
-    ESP_LOGI(TAG, "Speaker task ended, total played: %d bytes", total_played);
-    // 清除任务句柄
-    MCodec::Instance()->speaker_task = NULL;
+    // 清理工作
+    if(codec->speaker_type == spiffs && codec->play_file != NULL) {
+        fclose(codec->play_file);
+        codec->play_file = NULL;
+    }
+    
+    ESP_LOGI(TAG, "播放结束，总共播放: %d bytes", total_played);
+    codec->speaker_task = NULL;
     vTaskDelete(NULL);
 }
 
@@ -129,28 +117,31 @@ void MCodec::init()
     };
     
     esp_codec_dev_open(codec_dev, &fs);
-    esp_codec_dev_set_out_vol(codec_dev, 100.0);
-    esp_codec_dev_set_in_gain(codec_dev, 30.0);
+    esp_codec_dev_set_out_vol(codec_dev, 70.0);
+    esp_codec_dev_set_in_gain(codec_dev, 40.0);
     ESP_LOGI(TAG, "Codec initialized");
 
-    // 创建环形缓冲区
-    mic_buf = xRingbufferCreate(BUFFER_SIZE, RINGBUF_TYPE_BYTEBUF);
-    if(mic_buf == NULL) {
-        ESP_LOGE(TAG, "Failed to create mic ring buffer, size: %d bytes", BUFFER_SIZE);
-    } else {
-        ESP_LOGI(TAG, "Created mic ring buffer successfully");
+    // 在 PSRAM 中分配录音缓冲区
+    record_buffer = (uint8_t*)heap_caps_malloc(RECORD_BUFFER_SIZE, MALLOC_CAP_SPIRAM);
+    if (record_buffer == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate record buffer in PSRAM");
+        return;
     }
+    ESP_LOGI(TAG, "Allocated record buffer in PSRAM: %d bytes (%.1f seconds)", 
+             RECORD_BUFFER_SIZE, (float)RECORD_BUFFER_SIZE/BytesPerSecond);
 
-    speaker_buf = xRingbufferCreate(BUFFER_SIZE, RINGBUF_TYPE_BYTEBUF);
-    if(speaker_buf == NULL) {
-        ESP_LOGE(TAG, "Failed to create speaker ring buffer, size: %d bytes", BUFFER_SIZE);
-    } else {
-        ESP_LOGI(TAG, "Created speaker ring buffer successfully");
-    }
+    // 挂载 SPIFFS 文件系统
+    esp_vfs_spiffs_conf_t conf = {
+        .base_path = "/spiffs",       
+        .partition_label = "music",  
+        .max_files = 5,  
+        .format_if_mount_failed = true
+    };
 
-    if(mic_buf != NULL && speaker_buf != NULL) {
-        ESP_LOGI(TAG, "Both buffers created successfully with size %d bytes (%.1f seconds of audio)", 
-                 BUFFER_SIZE, (float)BUFFER_SIZE/32000.0f);
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "SPIFFS 文件系统挂载失败");
+        return;
     }
 }
 
@@ -158,27 +149,34 @@ void MCodec::deinit()
 {
     stop_record();
     stop_play();
-    if(mic_buf) {
-        vRingbufferDelete(mic_buf);
-        mic_buf = NULL;
+    
+    if(record_buffer) {
+        heap_caps_free(record_buffer);
+        record_buffer = NULL;
     }
-    if(speaker_buf) {
-        vRingbufferDelete(speaker_buf);
-        speaker_buf = NULL;
-    }
+
+    // 卸载 SPIFFS 文件系统
+    esp_vfs_spiffs_unregister("music");
+    
     esp_codec_dev_close(codec_dev);
     esp_codec_deinit(codec_dev);
 }
 
 void MCodec::start_record()
 {
-    if(mic_task == NULL) {
-        ESP_LOGI(TAG, "Creating mic task");
-        xTaskCreate(mic_task_func, "mic_task", 4096, this, 5, &mic_task);
+    if(record_buffer == NULL) {
+        ESP_LOGE(TAG, "Record buffer not initialized");
+        return;
     }
-    else{
-        ESP_LOGI(TAG, "Mic task already exists");
+
+    if(mic_task != NULL) {
+        ESP_LOGW(TAG, "Mic task already exists");
+        return;
     }
+
+    recorded_size = 0;
+    ESP_LOGI(TAG, "Starting recording...");
+    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
 }
 
 void MCodec::stop_record()
@@ -197,15 +195,62 @@ void MCodec::stop_record()
     }
 }
 
-void MCodec::play_record()
+
+void MCodec::set_volume(uint8_t volume)
 {
-    if(speaker_task == NULL && speaker_buf != NULL) {
-        ESP_LOGI(TAG, "Creating speaker task");
-        xTaskCreate(speaker_task_func, "speaker_task", 4096, this, 5, &speaker_task);
+    if(codec_dev) {
+        esp_codec_dev_set_out_vol(codec_dev, (float)volume);
+        ESP_LOGI(TAG, "Volume set to %d", volume);
     }
-    else{
-        ESP_LOGI(TAG, "Speaker task already exists");
+}
+
+void MCodec::set_mic_gain(float gain)
+{
+    if(codec_dev) {
+        esp_codec_dev_set_in_gain(codec_dev, gain);
+        ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
     }
+}
+
+void MCodec::play_music(const char* filename)
+{
+    speaker_type = spiffs;
+    // 打开文件 spiffs+filename.pcm
+    char path[64];
+    snprintf(path, sizeof(path), "/spiffs/%s.pcm", filename);
+    play_file = fopen(path, "rb");
+    if (play_file == NULL) {
+        ESP_LOGE(TAG, "无法打开文件");
+        return;
+    }
+    fseek(play_file, 0, SEEK_END);
+    size_t size = ftell(play_file);
+    fseek(play_file, 0, SEEK_SET);
+    ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
+             size, (float)size/BytesPerSecond);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+}
+
+void MCodec::play_record(const uint8_t* data, size_t size)
+{
+    speaker_type = mic;
+    if (data == NULL || size == 0) {
+        ESP_LOGE(TAG, "Invalid play parameters: data=%p, size=%d", data, size);
+        return;
+    }
+
+    if(speaker_task != NULL) {
+        ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
+        return;
+    }
+
+    // 保存播放数据的指针和大小
+    play_data = data;
+    play_data_size = size;
+
+    ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
+             size, (float)size/BytesPerSecond);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
 }
 
 void MCodec::stop_play()
@@ -224,19 +269,6 @@ void MCodec::stop_play()
     }
 }
 
-void MCodec::set_volume(uint8_t volume)
-{
-    if(codec_dev) {
-        esp_codec_dev_set_out_vol(codec_dev, (float)volume);
-        ESP_LOGI(TAG, "Volume set to %d", volume);
-    }
-}
 
-void MCodec::set_mic_gain(float gain)
-{
-    if(codec_dev) {
-        esp_codec_dev_set_in_gain(codec_dev, gain);
-        ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
-    }
-}
+
 

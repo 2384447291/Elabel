@@ -11,7 +11,7 @@ void ui_HostActiveScreen_screen_init(void)
     lv_obj_clear_flag(ui_HostActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel5 = lv_obj_create(ui_HostActiveScreen);
-    lv_obj_set_width(ui_Panel5, 218);
+    lv_obj_set_width(ui_Panel5, 250);
     lv_obj_set_height(ui_Panel5, 122);
     lv_obj_clear_flag(ui_Panel5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel5, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

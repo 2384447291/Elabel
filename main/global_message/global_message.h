@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#define MAX_SLAVE_NUM 6
 #define FIRMWARE_VERSION "2.0.6"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
@@ -105,6 +106,12 @@ typedef struct
     //连接的wifi的名称和密码
     char m_wifi_ssid[100];    
     char m_wifi_password[100];
+
+    //如果是从机保存的主机mac
+    uint8_t m_host_mac[6];
+    //如果是主机保存的从机mac
+    uint8_t m_slave_mac[MAX_SLAVE_NUM][6];
+    uint8_t m_slave_num;
 } Global_data;
 
 #ifdef __cplusplus

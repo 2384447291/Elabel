@@ -18,21 +18,24 @@
 #include "esp_now_client.hpp"
 #include "codec.hpp"
 
+
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
 
 void fuck()
 {
-    MCodec::Instance()->start_record();
+    MCodec::Instance()->play_music("bell");
 }
 
 void fuck2()
 {
-    MCodec::Instance()->play_record();
+    MCodec::Instance()->play_record(MCodec::Instance()->record_buffer, MCodec::Instance()->recorded_size);
 }
 
 extern "C" void app_main(void)
 {
+    // 安装GPIO中断服务
+    gpio_install_isr_service(0);
     //初始化nvs
     nvs_init();
     //删除nvs信息
@@ -60,14 +63,9 @@ extern "C" void app_main(void)
     {
         EspNowSlave::Instance()->init();
     }
-
-    //初始化codec
-    MCodec::Instance()->init();
     
     //按键初始化
     ControlDriver::Instance()->init();
-    //播放开机音乐
-    ControlDriver::Instance()->getBuzzer().playUponMusic();
 
     //创造gui线程，这里需要绑定到一个核上防止内存被破坏，这里优先绑定到核1上，如果蓝牙和wifi不用的情况下可以绑定到核0上
     xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
@@ -81,11 +79,17 @@ extern "C" void app_main(void)
     Change_All_language();
     release_lvgl();
 
+    //初始化codec(这块要分配个大内存放在最后)
+    MCodec::Instance()->init();
+
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;
 
-    ControlDriver::Instance()->ButtonUpShortPress.registerCallback(fuck);
-    ControlDriver::Instance()->ButtonUpLongPress.registerCallback(fuck2);
+    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(fuck);
+    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(fuck2);
+
+    //播放开机音乐
+    MCodec::Instance()->play_music("open");
 
     while(1)
     {
@@ -93,10 +97,6 @@ extern "C" void app_main(void)
         elabelUpdateTick += 10;
         //5ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
         //初始化的第一个状态机为init_state
-        // if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
+        if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
     }
 }
-
-
-
-

@@ -108,7 +108,7 @@ static void m_espnow_recv_cb(const uint8_t *mac_addr, const uint8_t *data, int l
 void EspNowClient::espnow_update_task(void* parameters)
 {
     uint8_t channel = 0;
-    const TickType_t channel_switch_delay = pdMS_TO_TICKS(1000);  // 信道切换间隔1秒
+    const TickType_t channel_switch_delay = pdMS_TO_TICKS(1000);  // 信道切换间隔1秒 ，这里转tick了所以不用转时间
     TickType_t last_switch_time = xTaskGetTickCount();
 
     while (1)

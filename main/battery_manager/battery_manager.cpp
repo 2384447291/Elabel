@@ -31,7 +31,7 @@ void power_off_system()
     //释放lvgl
     release_lvgl();
     // 播放关机音乐
-    ControlDriver::Instance()->getBuzzer().playDownMusic();
+    // ControlDriver::Instance()->buzzer.playDownMusic();
 
     // 创建2秒倒计时定时器
     TimerHandle_t shutdownTimer = xTimerCreate(
@@ -56,7 +56,7 @@ void BatteryManager::battery_update_task(void* parameters) {
         static bool lastChargingStatus = false;
         if (!lastChargingStatus && BatteryManager::Instance()->isUsbConnected()) {
             // 从未充电变为充电状态,播放充电音乐
-            ControlDriver::Instance()->getBuzzer().playChargingMusic();
+            // ControlDriver::Instance()->buzzer.playChargingMusic();
         }
         lastChargingStatus = BatteryManager::Instance()->isUsbConnected();
 
@@ -103,13 +103,9 @@ void BatteryManager::init() {
     // 特性曲线校准
     esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN, ADC_WIDTH, 1100, &adc_chars);
 
-    // 安装GPIO中断服务
-    gpio_install_isr_service(0);
-
     // 初始化完成后默认开启电源
     setPowerState(true);
-    ControlDriver::Instance()->ButtonPowerLongPress.registerCallback(power_off_system);
-
+    
     // 创建电池电量更新线程
     xTaskCreate(battery_update_task, "battery_update", 3072, this, 10, nullptr);
 }

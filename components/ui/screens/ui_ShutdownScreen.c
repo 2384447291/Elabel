@@ -11,7 +11,7 @@ void ui_ShutdownScreen_screen_init(void)
     lv_obj_clear_flag(ui_ShutdownScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel13 = lv_obj_create(ui_ShutdownScreen);
-    lv_obj_set_width(ui_Panel13, 218);
+    lv_obj_set_width(ui_Panel13, 250);
     lv_obj_set_height(ui_Panel13, 122);
     lv_obj_clear_flag(ui_Panel13, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel13, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -11,7 +11,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_clear_flag(ui_TaskScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_HaveTaskContainer = lv_obj_create(ui_TaskScreen);
-    lv_obj_set_width(ui_HaveTaskContainer, 218);
+    lv_obj_set_width(ui_HaveTaskContainer, 250);
     lv_obj_set_height(ui_HaveTaskContainer, 122);
     lv_obj_set_flex_flow(ui_HaveTaskContainer, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(ui_HaveTaskContainer, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -140,7 +140,7 @@ void ui_TaskScreen_screen_init(void)
     lv_label_set_text(ui_endlabel, "\n");
 
     ui_NoTaskContainer = lv_obj_create(ui_TaskScreen);
-    lv_obj_set_width(ui_NoTaskContainer, 218);
+    lv_obj_set_width(ui_NoTaskContainer, 250);
     lv_obj_set_height(ui_NoTaskContainer, 122);
     lv_obj_add_flag(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoTaskContainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

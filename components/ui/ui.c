@@ -12,7 +12,6 @@
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 lv_obj_t * ui_HalfmindScreen;
-lv_obj_t * ui_LED;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
 
@@ -23,12 +22,12 @@ lv_obj_t * ui_ActiveScreen;
 lv_obj_t * ui_Panel3;
 lv_obj_t * ui_ActiveGuide;
 lv_obj_t * ui_Label2;
-lv_obj_t * ui_Panel2;
-lv_obj_t * ui_ActiveGuide2;
-lv_obj_t * ui_Label3;
 lv_obj_t * ui_Panel4;
 lv_obj_t * ui_ActiveGuide3;
 lv_obj_t * ui_Label4;
+lv_obj_t * ui_Panel2;
+lv_obj_t * ui_ActiveGuide2;
+lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ActiveScreen;
 lv_obj_t * uic_HostGuide;
@@ -174,7 +173,7 @@ lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 
-// ///////////////////// TEST LVGL SETTINGS ////////////////////
+///////////////////// TEST LVGL SETTINGS ////////////////////
 // #if LV_COLOR_DEPTH != 8
 //     #error "LV_COLOR_DEPTH should be 8bit to match SquareLine Studio's settings"
 // #endif

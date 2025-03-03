@@ -11,7 +11,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_clear_flag(ui_OperatingScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel10 = lv_obj_create(ui_OperatingScreen);
-    lv_obj_set_width(ui_Panel10, 218);
+    lv_obj_set_width(ui_Panel10, 250);
     lv_obj_set_height(ui_Panel10, 122);
     lv_obj_clear_flag(ui_Panel10, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel10, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -50,7 +50,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_Time3, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_OperatingLoadingpanel = lv_obj_create(ui_OperatingScreen);
-    lv_obj_set_width(ui_OperatingLoadingpanel, 218);
+    lv_obj_set_width(ui_OperatingLoadingpanel, 250);
     lv_obj_set_height(ui_OperatingLoadingpanel, 122);
     lv_obj_add_flag(ui_OperatingLoadingpanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_OperatingLoadingpanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

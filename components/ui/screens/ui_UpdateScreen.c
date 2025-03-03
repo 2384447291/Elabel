@@ -11,7 +11,7 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_clear_flag(ui_UpdateScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel8 = lv_obj_create(ui_UpdateScreen);
-    lv_obj_set_width(ui_Panel8, 218);
+    lv_obj_set_width(ui_Panel8, 250);
     lv_obj_set_height(ui_Panel8, 122);
     lv_obj_clear_flag(ui_Panel8, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel8, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -49,7 +49,7 @@ void ui_UpdateScreen_screen_init(void)
     lv_label_set_text(ui_Updating2, "Updating...");
     lv_obj_set_style_text_font(ui_Updating2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Bar = lv_bar_create(ui_UpdateScreen);
+    ui_Bar = lv_bar_create(ui_Panel8);
     lv_bar_set_value(ui_Bar, 25, LV_ANIM_OFF);
     lv_bar_set_start_value(ui_Bar, 0, LV_ANIM_OFF);
     lv_obj_set_width(ui_Bar, 150);

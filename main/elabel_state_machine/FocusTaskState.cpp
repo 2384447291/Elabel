@@ -64,8 +64,6 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     sprintf(timestr, "%02d:%02d", minutes, seconds);
     set_text_without_change_font(ui_FocusTime, timestr);
     release_lvgl();
-    ControlDriver::Instance()->ButtonUpLongPress.registerCallback(outfocus);
-    ControlDriver::Instance()->ButtonDownLongPress.registerCallback(outfocus);
     ESP_LOGI(STATEMACHINE,"Enter FocusTaskState."); 
 }
 
@@ -94,7 +92,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         if(inner_time_countdown % 300000 == 0)
         {
             ESP_LOGI(STATEMACHINE,"play long beep:%d",inner_time_countdown);
-            ControlDriver::Instance()->getBuzzer().playLongBeep();
+            ControlDriver::Instance()->buzzer.playLongBeep();
         }
     }
     //当时间大于1分钟，每1min响一次
@@ -103,7 +101,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         if(inner_time_countdown % 60000 == 0)
         {
             ESP_LOGI(STATEMACHINE,"play double beep:%d",inner_time_countdown);
-            ControlDriver::Instance()->getBuzzer().playDoubleBeep();
+            ControlDriver::Instance()->buzzer.playDoubleBeep();
         }
     }
     //当时间大于0，每10s响一次
@@ -112,7 +110,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         if(inner_time_countdown % 10000 == 0)
         {
             ESP_LOGI(STATEMACHINE,"play triple beep:%d",inner_time_countdown);
-            ControlDriver::Instance()->getBuzzer().playTripleBeep();
+            ControlDriver::Instance()->buzzer.playTripleBeep();
         }
     }
     //当时间小于0，每10s响一次
@@ -121,7 +119,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         if((-inner_time_countdown) % 10000 == 0)
         {
             ESP_LOGI(STATEMACHINE,"play super long beep:%d",inner_time_countdown);
-            ControlDriver::Instance()->getBuzzer().playSuperLongBeep();
+            ControlDriver::Instance()->buzzer.playSuperLongBeep();
         }
     }
 
@@ -140,7 +138,5 @@ void FocusTaskState::Execute(ElabelController* pOwner)
 
 void FocusTaskState::Exit(ElabelController* pOwner)
 {
-    ControlDriver::Instance()->ButtonUpLongPress.unregisterCallback(outfocus);
-    ControlDriver::Instance()->ButtonDownLongPress.unregisterCallback(outfocus);
     ESP_LOGI(STATEMACHINE,"Out FocusTaskState.\n");
 }

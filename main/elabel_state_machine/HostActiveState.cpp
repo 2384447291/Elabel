@@ -39,8 +39,6 @@ void HostActiveState::Execute(ElabelController* pOwner)
         repaint_para();
         release_lvgl();
         set_wifi_status(0x03);
-        ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(host_out_active_state);
-        ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(host_out_active_state);
     }
 
     //当注册完成后开始广播espnow信息
@@ -65,6 +63,4 @@ void HostActiveState::Exit(ElabelController* pOwner)
 {
     stop_blue_activate();
     ESP_LOGI(STATEMACHINE,"Out HostActiveState.\n");
-    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(host_out_active_state);
-    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(host_out_active_state);
 }

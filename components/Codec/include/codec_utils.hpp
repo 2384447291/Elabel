@@ -26,7 +26,7 @@
 
 #define I2C_PORT I2C_NUM_0
 #define I2S_PORT I2S_NUM_0
-#define I2S_SAMPLE_RATE     16000
+#define I2S_SAMPLE_RATE   16000
 #define I2S_BITS_PER_SAMPLE 16
 #define I2S_CHANNEL_NUM 1
 

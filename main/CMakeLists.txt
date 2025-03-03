@@ -22,3 +22,4 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                     REQUIRES ui
                     REQUIRES Codec
                     )
+spiffs_create_partition_image(music spiffs_data FLASH_IN_PROJECT)

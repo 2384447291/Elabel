@@ -23,8 +23,6 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
     repaint_para();
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter SlaveActiveState.");
-    ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(slave_out_active_state);
-    ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(slave_out_active_state);
 }
 
 void SlaveActiveState::Execute(ElabelController* pOwner)
@@ -37,7 +35,5 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
 
 void SlaveActiveState::Exit(ElabelController* pOwner)
 {
-    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(slave_out_active_state);
-    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(slave_out_active_state);
     ESP_LOGI(STATEMACHINE,"Out SlaveActiveState.\n");
 }

@@ -11,7 +11,7 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_clear_flag(ui_FocusScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel11 = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_Panel11, 218);
+    lv_obj_set_width(ui_Panel11, 250);
     lv_obj_set_height(ui_Panel11, 72);
     lv_obj_clear_flag(ui_Panel11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel11, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -35,7 +35,7 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel12 = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_Panel12, 218);
+    lv_obj_set_width(ui_Panel12, 250);
     lv_obj_set_height(ui_Panel12, 50);
     lv_obj_set_x(ui_Panel12, 0);
     lv_obj_set_y(ui_Panel12, 72);
@@ -67,7 +67,7 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_FocusTime2, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_FocusLoadingpanel = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_FocusLoadingpanel, 218);
+    lv_obj_set_width(ui_FocusLoadingpanel, 250);
     lv_obj_set_height(ui_FocusLoadingpanel, 122);
     lv_obj_add_flag(ui_FocusLoadingpanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_FocusLoadingpanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

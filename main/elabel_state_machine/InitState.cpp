@@ -11,17 +11,12 @@ void out_ota()
 {
     InitState::Instance()->is_need_ota = false;
     InitState::Instance()->ota_Wait_tick = 300;
-    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(enter_ota);
-    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(enter_ota);
 }
 
 void enter_ota()
 {
     InitState::Instance()->is_need_ota = true;
     InitState::Instance()->ota_Wait_tick = 300;
-    //旋转放弃ota
-    ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(out_ota);
-    ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(out_ota);
 }
 
 
@@ -69,12 +64,6 @@ void InitState::Execute(ElabelController* pOwner)
         set_text_without_change_font(ui_VersionChange, version_change);
         release_lvgl();
         ota_Wait_tick = 0;      
-        //短按进入ota
-        ControlDriver::Instance()->ButtonDownShortPress.registerCallback(enter_ota);
-        ControlDriver::Instance()->ButtonUpShortPress.registerCallback(enter_ota);
-        //旋转退出ota
-        ControlDriver::Instance()->EncoderRightCircle.registerCallback(out_ota);
-        ControlDriver::Instance()->EncoderLeftCircle.registerCallback(out_ota);
 
         while(true)
         {
@@ -104,9 +93,5 @@ void InitState::Execute(ElabelController* pOwner)
 void InitState::Exit(ElabelController* pOwner)
 {
     elabelUpdateTick = 0;
-    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(enter_ota);
-    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(enter_ota);
-    ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(out_ota);
-    ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(out_ota);
     ESP_LOGI(STATEMACHINE,"Out InitState.\n");
 }

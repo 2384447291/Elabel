@@ -50,9 +50,14 @@ static const Note SUPER_LONG_BEEP_NOTES[] = {
 };
 static const size_t SUPER_LONG_BEEP_LENGTH = sizeof(SUPER_LONG_BEEP_NOTES) / sizeof(SUPER_LONG_BEEP_NOTES[0]);
 
-Buzzer::Buzzer() : busy(false), startTime(0), currentDuration(0), 
-                   isPlayingMusic(false), currentNoteIndex(0),
-                   currentMusicNotes(nullptr), currentMusicLength(0) {}
+Buzzer::Buzzer(gpio_num_t _Buzzer_gpio, const char* buttonName) : 
+                    Buzzer_gpio(_Buzzer_gpio), name(buttonName), 
+                    busy(false), startTime(0), currentDuration(0), 
+                    isPlayingMusic(false), currentNoteIndex(0),
+                    currentMusicNotes(nullptr), currentMusicLength(0) 
+{
+    init();
+}
 
 void Buzzer::init() {
     // 配置LEDC定时器
@@ -67,7 +72,7 @@ void Buzzer::init() {
 
     // 配置LEDC通道
     ledc_channel_config_t ledc_channel = {};  // 先全部初始化为0
-    ledc_channel.gpio_num = BUZZER_GPIO;
+    ledc_channel.gpio_num = Buzzer_gpio;
     ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
     ledc_channel.channel = LEDC_CHANNEL_0;
     ledc_channel.intr_type = LEDC_INTR_DISABLE;
@@ -78,7 +83,7 @@ void Buzzer::init() {
     
     ledc_channel_config(&ledc_channel);
 
-    ESP_LOGI(TAG, "Buzzer initialized on GPIO %d", BUZZER_GPIO);
+    ESP_LOGI(TAG, "Buzzer initialized on GPIO %d", Buzzer_gpio);
 }
         
 void Buzzer::start(uint32_t frequency) {

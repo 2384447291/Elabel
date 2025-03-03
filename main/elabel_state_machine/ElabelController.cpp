@@ -39,8 +39,23 @@ void ElabelFsm::HandleInput()
     {
         ChangeState(ActiveState::Instance());
     }
-
-    if(GetCurrentState()==InitState::Instance())
+    
+    if(GetCurrentState()==ActiveState::Instance())
+    {
+        if(Is_connect_to_phone())
+        {
+            get_global_data()->m_is_host = 1;
+            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
+            ChangeState(HostActiveState::Instance());
+        }
+        else if(Is_connect_to_host())
+        {
+            get_global_data()->m_is_host = 2;
+            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
+            ChangeState(SlaveActiveState::Instance());
+        }
+    }
+    else if(GetCurrentState()==InitState::Instance())
     {
         if(InitState::Instance()->is_need_ota)
         {
@@ -62,21 +77,6 @@ void ElabelFsm::HandleInput()
                 }
                 else ChangeState(ChoosingTaskState::Instance());
             }
-        }
-    }
-    else if(GetCurrentState()==ActiveState::Instance())
-    {
-        if(Is_connect_to_phone())
-        {
-            get_global_data()->m_is_host = 1;
-            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
-            ChangeState(HostActiveState::Instance());
-        }
-        else if(Is_connect_to_host())
-        {
-            get_global_data()->m_is_host = 2;
-            set_nvs_info_uint8_t("is_host",get_global_data()->m_is_host);
-            ChangeState(SlaveActiveState::Instance());
         }
     }
     else if(GetCurrentState()==HostActiveState::Instance())

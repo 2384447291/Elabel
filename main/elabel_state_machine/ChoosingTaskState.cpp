@@ -74,14 +74,6 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     vTaskDelay(100 / portTICK_PERIOD_MS);
     ElabelController::Instance()->need_flash_paper = true;
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
-    ControlDriver::Instance()->ButtonDownShortPress.registerCallback(choose_next_task);
-    ControlDriver::Instance()->ButtonUpShortPress.registerCallback(choose_previous_task);
-    ControlDriver::Instance()->EncoderRightCircle.registerCallback(choose_next_task);
-    ControlDriver::Instance()->EncoderLeftCircle.registerCallback(choose_previous_task);
-    ControlDriver::Instance()->ButtonDownLongPress.registerCallback(confirm_task);
-    ControlDriver::Instance()->ButtonUpLongPress.registerCallback(confirm_task);
-    ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(jump_to_activate);
-    ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(jump_to_activate);
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
@@ -100,14 +92,6 @@ void ChoosingTaskState::Execute(ElabelController* pOwner)
 
 void ChoosingTaskState::Exit(ElabelController* pOwner)
 {
-    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(choose_next_task);
-    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(choose_previous_task);
-    ControlDriver::Instance()->EncoderRightCircle.unregisterCallback(choose_next_task);
-    ControlDriver::Instance()->EncoderLeftCircle.unregisterCallback(choose_previous_task);
-    ControlDriver::Instance()->ButtonDownLongPress.unregisterCallback(confirm_task);
-    ControlDriver::Instance()->ButtonUpLongPress.unregisterCallback(confirm_task);
-    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(jump_to_activate);
-    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(jump_to_activate);
     ESP_LOGI(STATEMACHINE,"Out ChoosingTaskState.\n");
 }
 

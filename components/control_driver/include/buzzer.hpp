@@ -1,8 +1,6 @@
 #ifndef BUZZER_HPP
 #define BUZZER_HPP
 
-#define BUZZER_GPIO GPIO_NUM_2
-
 #include "driver/ledc.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -16,7 +14,7 @@ struct Note {
 
 class Buzzer {
 public:
-    Buzzer();
+    Buzzer(gpio_num_t _Buzzer_gpio, const char* buttonName);
     void init();
     void start(uint32_t frequency);
     void stop();
@@ -58,6 +56,8 @@ public:
     static constexpr uint32_t NOTE_B5 = 988;  // 高音si
 
 private:
+    gpio_num_t Buzzer_gpio;
+    const char* name;
     bool busy;
     uint32_t startTime;
     uint32_t currentDuration;

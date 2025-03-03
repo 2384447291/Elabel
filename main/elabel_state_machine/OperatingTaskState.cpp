@@ -55,71 +55,63 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
     sprintf(timestr, "%02d:%02d", minutes, seconds);
     set_text_without_change_font(ui_OperatingTime, timestr);
     release_lvgl();
-    ControlDriver::Instance()->ButtonDownShortPress.registerCallback(unconfirm_task);
-    ControlDriver::Instance()->ButtonUpShortPress.registerCallback(unconfirm_task);
-    ControlDriver::Instance()->ButtonDownLongPress.registerCallback(confirm_time);
-    ControlDriver::Instance()->ButtonUpLongPress.registerCallback(confirm_time);
-    ControlDriver::Instance()->resetEncoderValue();
-    last_encoder_value = ControlDriver::Instance()->getEncoderValue();
+    // ControlDriver::Instance()->resetEncoderValue();
+    // last_encoder_value = ControlDriver::Instance()->getEncoderValue();
     ESP_LOGI(STATEMACHINE,"Enter OperatingTaskState.");
 }
 
 void OperatingTaskState::Execute(ElabelController* pOwner)
 {
-    if(is_confirm_time) 
-    {
-        if(get_global_data()->m_is_host == 2 && elabelUpdateTick % Esp_Now_Send_Interval == 0)
-        {
-            EspNowSlave::Instance()->send_enter_focus_message(ElabelController::Instance()->ChosenTaskId,ElabelController::Instance()->TimeCountdown,slave_unique_id);
-        }
-        return;
-    }
-    //刷新锁
-    if(update_lock!=0) update_lock --;
-    //自动触发进入focus
-    if(auto_reload_time!=0) auto_reload_time--;
-    else confirm_time();
+    // if(is_confirm_time) 
+    // {
+    //     if(get_global_data()->m_is_host == 2 && elabelUpdateTick % Esp_Now_Send_Interval == 0)
+    //     {
+    //         EspNowSlave::Instance()->send_enter_focus_message(ElabelController::Instance()->ChosenTaskId,ElabelController::Instance()->TimeCountdown,slave_unique_id);
+    //     }
+    //     return;
+    // }
+    // //刷新锁
+    // if(update_lock!=0) update_lock --;
+    // //自动触发进入focus
+    // if(auto_reload_time!=0) auto_reload_time--;
+    // else confirm_time();
 
-    //限制编码器的值
-    int reciver_value = second_perencoder*ControlDriver::Instance()->getEncoderValue() + TimeCountdownOffset;
-    if(reciver_value < 0)
-    {
-        ControlDriver::Instance()->setEncoderValue((MAX_time - TimeCountdownOffset)/second_perencoder);
-    }
-    else if(reciver_value > MAX_time)
-    {
-        ControlDriver::Instance()->setEncoderValue((0 - TimeCountdownOffset)/second_perencoder);
-    }
+    // //限制编码器的值
+    // int reciver_value = second_perencoder*ControlDriver::Instance()->getEncoderValue() + TimeCountdownOffset;
+    // if(reciver_value < 0)
+    // {
+    //     ControlDriver::Instance()->setEncoderValue((MAX_time - TimeCountdownOffset)/second_perencoder);
+    // }
+    // else if(reciver_value > MAX_time)
+    // {
+    //     ControlDriver::Instance()->setEncoderValue((0 - TimeCountdownOffset)/second_perencoder);
+    // }
 
-    pOwner->TimeCountdown = second_perencoder*ControlDriver::Instance()->getEncoderValue() + TimeCountdownOffset;
+    // pOwner->TimeCountdown = second_perencoder*ControlDriver::Instance()->getEncoderValue() + TimeCountdownOffset;
     
-    if(ControlDriver::Instance()->getEncoderValue() != last_encoder_value && update_lock == 0)
-    {
-        pOwner->need_flash_paper = true;
-    }
+    // if(ControlDriver::Instance()->getEncoderValue() != last_encoder_value && update_lock == 0)
+    // {
+    //     pOwner->need_flash_paper = true;
+    // }
 
-    if(pOwner->need_flash_paper)
-    {
-        last_encoder_value = ControlDriver::Instance()->getEncoderValue();
-        char timestr[10] = "00:00";
-        uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
-        uint8_t minutes = total_seconds / 60;  // 计算分钟数
-        uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
-        // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
-        sprintf(timestr, "%02d:%02d", minutes, seconds);
-        set_text_without_change_font(ui_OperatingTime, timestr);
-        //20ms一次更新，50次刚好1s
-        update_lock = 50;
-        auto_reload_time = auto_enter_time;
-        pOwner->need_flash_paper = false;
-    }
+    // if(pOwner->need_flash_paper)
+    // {
+    //     last_encoder_value = ControlDriver::Instance()->getEncoderValue();
+    //     char timestr[10] = "00:00";
+    //     uint32_t total_seconds = pOwner->TimeCountdown;  // 倒计时总秒数
+    //     uint8_t minutes = total_seconds / 60;  // 计算分钟数
+    //     uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
+    //     // 使用 sprintf 将分钟和秒格式化为 "MM:SS" 格式的字符串
+    //     sprintf(timestr, "%02d:%02d", minutes, seconds);
+    //     set_text_without_change_font(ui_OperatingTime, timestr);
+    //     //20ms一次更新，50次刚好1s
+    //     update_lock = 50;
+    //     auto_reload_time = auto_enter_time;
+    //     pOwner->need_flash_paper = false;
+    // }
 }
 
 void OperatingTaskState::Exit(ElabelController* pOwner)
 {
-    ControlDriver::Instance()->ButtonDownShortPress.unregisterCallback(unconfirm_task);
-    ControlDriver::Instance()->ButtonUpShortPress.unregisterCallback(unconfirm_task);
-    ControlDriver::Instance()->ButtonDownLongPress.unregisterCallback(confirm_time);
-    ControlDriver::Instance()->ButtonUpLongPress.unregisterCallback(confirm_time);
     ESP_LOGI(STATEMACHINE,"Out ChoosingTaskState.\n");
 }

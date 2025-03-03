@@ -274,7 +274,7 @@ static void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
     /* 启动WiFi连接 */
     ESP_ERROR_CHECK(esp_wifi_start());
-    /* 设置wifi存储模式为RAM，不保存wifi信息到nvs，默认是保存到nvs */
+    /* 设置wifi存储模式为RAM，不保存wifi信息到flash，默认是保存到flash */
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));

@@ -16,50 +16,51 @@ static void esp_now_recieve_update(void *pvParameter)
                 //处理接收到的信息
                 // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
                 // EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
-                if(recv_msg.data[0] == 0xAB && recv_msg.data[1] == 0xCD && recv_msg.data[recv_msg.data_len-1] == 0xEF)
+                if(recv_msg.data[0] != 0xAB || recv_msg.data[1] != 0xCD || recv_msg.data[recv_msg.data_len-1] != 0xEF)
                 {
-                    if(recv_msg.data[2] == Bind_Feedback_Slave2Host)
+                    continue;
+                }
+                if(recv_msg.data[2] == Bind_Feedback_Slave2Host)
+                {
+                    EspNowHost::Instance()->add_slave(recv_msg.mac_addr);
+                    ESP_LOGI(ESP_NOW,"Host Get EspNow add slave");
+                }
+                else if(recv_msg.data[2] == Feedback_Slave2Host)
+                {
+                    if(recv_msg.data[3] == EspNowHost::Instance()->remind_slave.unique_id)
                     {
-                        EspNowHost::Instance()->add_slave(recv_msg.mac_addr);
-                        ESP_LOGI(ESP_NOW,"Host Get EspNow add slave");
+                        ESP_LOGI(ESP_NOW,"Host Get EspNow feedback slave");
+                        EspNowHost::Instance()->get_feedback_slave(recv_msg.mac_addr);
                     }
-                    else if(recv_msg.data[2] == Feedback_Slave2Host)
+                }
+                else if(recv_msg.data[2] == OutFocus_Control_Slave2Host && recv_msg.data[3] != EspNowHost::Instance()->unique_id)
+                {
+                    EspNowHost::Instance()->unique_id = recv_msg.data[3];
+                    char sstr[12];
+                    int task_id = (recv_msg.data[4] << 24) | (recv_msg.data[5] << 16) | (recv_msg.data[6] << 8) | recv_msg.data[7];
+                    ESP_LOGI(ESP_NOW,"Host Get EspNow out focus task_id: %d",task_id);
+                    sprintf(sstr, "%d", task_id);
+                    TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, task_id);
+                    if(chose_todo != NULL)
                     {
-                        if(recv_msg.data[3] == EspNowHost::Instance()->remind_slave.unique_id)
-                        {
-                            ESP_LOGI(ESP_NOW,"Host Get EspNow feedback slave");
-                            EspNowHost::Instance()->get_feedback_slave(recv_msg.mac_addr);
-                        }
+                        ESP_LOGI(ESP_NOW,"Host Get EspNow out focus title: %s",chose_todo->title);
+                        http_out_focus(sstr,false);
                     }
-                    else if(recv_msg.data[2] == OutFocus_Control_Slave2Host && recv_msg.data[3] != EspNowHost::Instance()->unique_id)
+                }
+                else if(recv_msg.data[2] == EnterFocus_Control_Slave2Host && recv_msg.data[3] != EspNowHost::Instance()->unique_id)
+                {
+                    EspNowHost::Instance()->unique_id = recv_msg.data[3];
+                    char sstr[12];
+                    int task_id = (recv_msg.data[4] << 24) | (recv_msg.data[5] << 16) | (recv_msg.data[6] << 8) | recv_msg.data[7];
+                    int fall_time = (recv_msg.data[8] << 24) | (recv_msg.data[9] << 16) | (recv_msg.data[10] << 8) | recv_msg.data[11];
+                    ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus task_id: %d",task_id);
+                    ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus fall_time: %d",fall_time);
+                    sprintf(sstr, "%d", task_id);
+                    TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, task_id);
+                    if(chose_todo != NULL)
                     {
-                        EspNowHost::Instance()->unique_id = recv_msg.data[3];
-                        char sstr[12];
-                        int task_id = (recv_msg.data[4] << 24) | (recv_msg.data[5] << 16) | (recv_msg.data[6] << 8) | recv_msg.data[7];
-                        ESP_LOGI(ESP_NOW,"Host Get EspNow out focus task_id: %d",task_id);
-                        sprintf(sstr, "%d", task_id);
-                        TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, task_id);
-                        if(chose_todo != NULL)
-                        {
-                            ESP_LOGI(ESP_NOW,"Host Get EspNow out focus title: %s",chose_todo->title);
-                            http_out_focus(sstr,false);
-                        }
-                    }
-                    else if(recv_msg.data[2] == EnterFocus_Control_Slave2Host && recv_msg.data[3] != EspNowHost::Instance()->unique_id)
-                    {
-                        EspNowHost::Instance()->unique_id = recv_msg.data[3];
-                        char sstr[12];
-                        int task_id = (recv_msg.data[4] << 24) | (recv_msg.data[5] << 16) | (recv_msg.data[6] << 8) | recv_msg.data[7];
-                        int fall_time = (recv_msg.data[8] << 24) | (recv_msg.data[9] << 16) | (recv_msg.data[10] << 8) | recv_msg.data[11];
-                        ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus task_id: %d",task_id);
-                        ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus fall_time: %d",fall_time);
-                        sprintf(sstr, "%d", task_id);
-                        TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, task_id);
-                        if(chose_todo != NULL)
-                        {
-                            ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus title: %s",chose_todo->title);
-                            http_in_focus(sstr,fall_time,false);
-                        }
+                        ESP_LOGI(ESP_NOW,"Host Get EspNow enter focus title: %s",chose_todo->title);
+                        http_in_focus(sstr,fall_time,false);
                     }
                 }
             }

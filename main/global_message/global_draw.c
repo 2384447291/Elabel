@@ -409,11 +409,6 @@ void Change_All_language()
 
 void switch_screen(lv_obj_t* new_screen) {
     //如果没有事件，则显示no task enjoy life
-    lv_obj_set_parent(ui_LED, new_screen);
+    // lv_obj_set_parent(ui_LED, new_screen);
     lv_scr_load(new_screen);
-}
-
-void Change_led(int led_status)
-{
-    lv_obj_set_height(ui_LED, led_status*31);
 }

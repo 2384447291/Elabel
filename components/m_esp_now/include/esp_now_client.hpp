@@ -12,8 +12,6 @@
 #define MAX_RECV_QUEUE_SIZE 10
 //1s25个包
 #define Esp_Now_Send_Interval 40
-
-#define MAX_SLAVE_NUM 6
 extern uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN];
 
 // 定义ESP-NOW消息结构体

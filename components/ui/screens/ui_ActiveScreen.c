@@ -11,7 +11,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_clear_flag(ui_ActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Panel3 = lv_obj_create(ui_ActiveScreen);
-    lv_obj_set_width(ui_Panel3, 218);
+    lv_obj_set_width(ui_Panel3, 250);
     lv_obj_set_height(ui_Panel3, 50);
     lv_obj_clear_flag(ui_Panel3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_Panel3, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -36,37 +36,8 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_text_align(ui_Label2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel2 = lv_obj_create(ui_ActiveScreen);
-    lv_obj_set_width(ui_Panel2, 218);
-    lv_obj_set_height(ui_Panel2, 50);
-    lv_obj_set_align(ui_Panel2, LV_ALIGN_BOTTOM_LEFT);
-    lv_obj_clear_flag(ui_Panel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Panel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_ActiveGuide2 = lv_label_create(ui_Panel2);
-    lv_obj_set_align(ui_ActiveGuide2, LV_ALIGN_BOTTOM_MID);
-    lv_label_set_text(ui_ActiveGuide2, "Move close to \nan activated sticker");
-    lv_obj_set_style_text_align(ui_ActiveGuide2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_ActiveGuide2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_Label3 = lv_label_create(ui_ActiveGuide2);
-    lv_obj_set_x(ui_Label3, -1);
-    lv_obj_set_y(ui_Label3, 0);
-    lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label3, "Move close to \nan activated sticker");
-    lv_obj_set_style_text_color(ui_Label3, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_Label3, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Label3, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_Panel4 = lv_obj_create(ui_ActiveScreen);
-    lv_obj_set_width(ui_Panel4, 218);
+    lv_obj_set_width(ui_Panel4, 250);
     lv_obj_set_height(ui_Panel4, 22);
     lv_obj_set_align(ui_Panel4, LV_ALIGN_LEFT_MID);
     lv_obj_clear_flag(ui_Panel4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -95,9 +66,38 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_text_align(ui_Label4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label4, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Panel2 = lv_obj_create(ui_ActiveScreen);
+    lv_obj_set_width(ui_Panel2, 250);
+    lv_obj_set_height(ui_Panel2, 50);
+    lv_obj_set_align(ui_Panel2, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_clear_flag(ui_Panel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(ui_Panel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ActiveGuide2 = lv_label_create(ui_Panel2);
+    lv_obj_set_align(ui_ActiveGuide2, LV_ALIGN_BOTTOM_MID);
+    lv_label_set_text(ui_ActiveGuide2, "Move close to \nan activated sticker");
+    lv_obj_set_style_text_align(ui_ActiveGuide2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_ActiveGuide2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label3 = lv_label_create(ui_ActiveGuide2);
+    lv_obj_set_x(ui_Label3, -1);
+    lv_obj_set_y(ui_Label3, 0);
+    lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label3, "Move close to \nan activated sticker");
+    lv_obj_set_style_text_color(ui_Label3, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_Label3, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label3, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     uic_ActiveScreen = ui_ActiveScreen;
     uic_HostGuide = ui_ActiveGuide;
-    uic_HostGuide = ui_ActiveGuide2;
     uic_HostGuide = ui_ActiveGuide3;
+    uic_HostGuide = ui_ActiveGuide2;
 
 }

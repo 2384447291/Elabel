@@ -17,8 +17,6 @@ void ActiveState::Init(ElabelController* pOwner)
 
 void ActiveState::Enter(ElabelController* pOwner)
 {
-    //启动更新信道任务
-    EspNowClient::Instance()->start_find_channel();
     //将两个连接指标置为false
     set_is_connect_to_host(false);
     set_is_connect_to_phone(false);
@@ -27,15 +25,15 @@ void ActiveState::Enter(ElabelController* pOwner)
     EspNowHost::Instance()->deinit(); 
     EspNowSlave::Instance()->deinit();
 
-    //启动蓝牙激活任务
+    //启动蓝牙激活任务用来激活主机
     start_blue_activate();
-
+    //启动更新信道任务
+    EspNowClient::Instance()->start_find_channel();
+    
     lock_lvgl();
     switch_screen(ui_ActiveScreen);
     release_lvgl();
 
-    ControlDriver::Instance()->ButtonDownDoubleclick.registerCallback(change_language);
-    ControlDriver::Instance()->ButtonUpDoubleclick.registerCallback(change_language);
     ESP_LOGI(STATEMACHINE,"Enter ActiveState.");
 }
 
@@ -48,6 +46,4 @@ void ActiveState::Exit(ElabelController* pOwner)
     //停止搜索设备
     EspNowClient::Instance()->stop_find_channel();
     ESP_LOGI(STATEMACHINE,"Out ActiveState.\n");
-    ControlDriver::Instance()->ButtonDownDoubleclick.unregisterCallback(change_language);
-    ControlDriver::Instance()->ButtonUpDoubleclick.unregisterCallback(change_language);
 }

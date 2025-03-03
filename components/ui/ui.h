@@ -19,7 +19,6 @@ extern "C" {
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 extern lv_obj_t * ui_HalfmindScreen;
-extern lv_obj_t * ui_LED;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 
@@ -29,12 +28,12 @@ extern lv_obj_t * ui_ActiveScreen;
 extern lv_obj_t * ui_Panel3;
 extern lv_obj_t * ui_ActiveGuide;
 extern lv_obj_t * ui_Label2;
-extern lv_obj_t * ui_Panel2;
-extern lv_obj_t * ui_ActiveGuide2;
-extern lv_obj_t * ui_Label3;
 extern lv_obj_t * ui_Panel4;
 extern lv_obj_t * ui_ActiveGuide3;
 extern lv_obj_t * ui_Label4;
+extern lv_obj_t * ui_Panel2;
+extern lv_obj_t * ui_ActiveGuide2;
+extern lv_obj_t * ui_Label3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ActiveScreen;
 extern lv_obj_t * uic_HostGuide;
