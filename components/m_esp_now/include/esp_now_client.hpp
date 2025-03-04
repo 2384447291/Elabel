@@ -52,6 +52,9 @@ typedef enum {
     Feedback_Slave2Host = 32,
 
     Wakeup_Control_Host2Slave = 33,
+
+    Speaker_Control_Host2Slave = 34,
+    Speaker_Control_Slave2Host = 35,
 } message_type;
 
 typedef enum {
@@ -64,6 +67,7 @@ class EspNowClient{
     private:
         TaskHandle_t update_task_handle = NULL;
     public:
+        void send_speaker_message(uint8_t target_mac[ESP_NOW_ETH_ALEN]);
         void init();
         esp_now_role m_role = default_role;
         void Addpeer(uint8_t peer_chaneel, uint8_t peer_mac[ESP_NOW_ETH_ALEN]);

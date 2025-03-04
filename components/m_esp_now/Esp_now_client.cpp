@@ -1,4 +1,22 @@
 #include "Esp_now_client.hpp"
+#include "global_message.h"
+
+#define MAX_ESPNOW_PACKET_SIZE 250
+#define CRC_SIZE 4
+#define HEADER_SIZE 4  // 2字节包序号 + 2字节总包数
+#define MAX_PAYLOAD_SIZE (MAX_ESPNOW_PACKET_SIZE - CRC_SIZE - HEADER_SIZE)
+
+// 计算CRC32
+uint32_t calculate_crc32(const uint8_t* data, size_t length) {
+    uint32_t crc = 0xFFFFFFFF;
+    for (size_t i = 0; i < length; i++) {
+        crc ^= data[i];
+        for (int j = 0; j < 8; j++) {
+            crc = (crc >> 1) ^ (0xEDB88320 & -(crc & 1));
+        }
+    }
+    return ~crc;
+}
 
 uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
@@ -76,6 +94,70 @@ void EspNowClient::ModifyPeer(uint8_t peer_mac[ESP_NOW_ETH_ALEN], uint8_t peer_c
     free(peer);
 }
 
+void EspNowClient::send_speaker_message(uint8_t target_mac[ESP_NOW_ETH_ALEN])
+{
+    if (!get_global_data()->m_test_buffer) {
+        ESP_LOGE(ESP_NOW, "Test buffer is null");
+        return;
+    }
+
+    size_t total_len = test_random;
+    const uint8_t* data = get_global_data()->m_test_buffer;
+    
+    // 计算需要的包数
+    uint16_t total_packets = (total_len + MAX_PAYLOAD_SIZE - 1) / MAX_PAYLOAD_SIZE;
+    
+    // 分配发送缓冲区
+    uint8_t* send_buffer = (uint8_t*)heap_caps_malloc(MAX_ESPNOW_PACKET_SIZE, MALLOC_CAP_DEFAULT);
+    if (!send_buffer) {
+        ESP_LOGE(ESP_NOW, "Failed to allocate send buffer");
+        return;
+    }
+
+    size_t remaining = total_len;
+    const uint8_t* current_data = data;
+
+    // 逐包发送
+    for (uint16_t packet_id = 0; packet_id < total_packets; packet_id++) {
+        // 1. 添加包序号和总包数
+        memcpy(send_buffer, &packet_id, 2);
+        memcpy(send_buffer + 2, &total_packets, 2);
+
+        // 2. 确定当前包的数据长度
+        size_t payload_len = (remaining > MAX_PAYLOAD_SIZE) ? MAX_PAYLOAD_SIZE : remaining;
+
+        // 3. 复制数据到发送缓冲区
+        memcpy(send_buffer + HEADER_SIZE, current_data, payload_len);
+
+        // 4. 计算并添加CRC
+        uint32_t crc = calculate_crc32(send_buffer, HEADER_SIZE + payload_len);
+        memcpy(send_buffer + HEADER_SIZE + payload_len, &crc, CRC_SIZE);
+
+        // 5. 发送数据
+        size_t packet_size = HEADER_SIZE + payload_len + CRC_SIZE;
+        esp_err_t err = esp_now_send(target_mac, send_buffer, packet_size);
+        
+        if (err != ESP_OK) {
+            ESP_LOGE(ESP_NOW, "Send packet %d/%d failed: %s", 
+                    packet_id + 1, total_packets, esp_err_to_name(err));
+            break;
+        } else {
+            ESP_LOGI(ESP_NOW, "Send packet %d/%d success, payload_len: %d", 
+                    packet_id + 1, total_packets, payload_len);
+        }
+
+        // 更新指针和剩余长度
+        current_data += payload_len;
+        remaining -= payload_len;
+
+        // 发送间隔
+        // vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    // 释放发送缓冲区
+    free(send_buffer);
+}
+
 static void m_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
     if(status != ESP_NOW_SEND_SUCCESS)
@@ -119,45 +201,79 @@ void EspNowClient::espnow_update_task(void* parameters)
             espnow_message_t recv_msg;   
             if(xQueueReceive(EspNowClient::Instance()->recv_queue, &recv_msg, 0) == pdTRUE)
             {
-                ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
-                EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
-                // 解析广播包
-                if(recv_msg.data[0] == 0xAB && recv_msg.data[1] == 0xCD && recv_msg.data[recv_msg.data_len-1] == 0xEF)
-                {
-                    if(recv_msg.data[2] == Bind_Control_Host2Slave)
-                    {
-                        size_t username_len = recv_msg.data_len - 5;
-                        memcpy(EspNowSlave::Instance()->username, (char*)(recv_msg.data+4), username_len);
-                        memcpy(EspNowSlave::Instance()->host_mac, (uint8_t*)(recv_msg.mac_addr), ESP_NOW_ETH_ALEN);
-                        EspNowSlave::Instance()->host_channel = recv_msg.data[3];
-                        EspNowClient::Instance()->is_connect_to_host = true;
-                        ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-                            EspNowSlave::Instance()->username, 
-                            MAC2STR(EspNowSlave::Instance()->host_mac), 
-                        EspNowSlave::Instance()->host_channel);
-                        EspNowClient::Instance()->is_connect_to_host = true;
-                    }
+                if (recv_msg.data_len <= HEADER_SIZE + CRC_SIZE) {
+                    return;
                 }
+
+                // 解析包头
+                uint16_t packet_id, total_packets;
+                memcpy(&packet_id, recv_msg.data, 2);
+                memcpy(&total_packets, recv_msg.data + 2, 2);
+
+                // 计算数据长度和偏移
+                size_t payload_len = recv_msg.data_len - HEADER_SIZE - CRC_SIZE;
+                size_t offset = packet_id * MAX_PAYLOAD_SIZE;
+
+                // 验证CRC
+                uint32_t received_crc;
+                memcpy(&received_crc, recv_msg.data + HEADER_SIZE + payload_len, CRC_SIZE);
+                uint32_t calculated_crc = calculate_crc32(recv_msg.data, HEADER_SIZE + payload_len);
+
+                if (calculated_crc != received_crc) {
+                    ESP_LOGW(ESP_NOW, "CRC check failed for packet %d/%d", 
+                            packet_id + 1, total_packets);
+                    return;
+                }
+
+                // 直接拷贝数据到目标位置
+                if (get_global_data()->m_test_buffer && offset + payload_len <= test_random) {
+                    memcpy(get_global_data()->m_test_buffer + offset, 
+                        recv_msg.data + HEADER_SIZE, 
+                        payload_len);
+                    
+                    ESP_LOGI(ESP_NOW, "Received packet %d/%d, payload_len: %d", 
+                            packet_id + 1, total_packets, payload_len);
+                }
+
+                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
+                // EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
+                // // 解析广播包
+                // if(recv_msg.data[0] == 0xAB && recv_msg.data[1] == 0xCD && recv_msg.data[recv_msg.data_len-1] == 0xEF)
+                // {
+                //     if(recv_msg.data[2] == Bind_Control_Host2Slave)
+                //     {
+                //         size_t username_len = recv_msg.data_len - 5;
+                //         memcpy(EspNowSlave::Instance()->username, (char*)(recv_msg.data+4), username_len);
+                //         memcpy(EspNowSlave::Instance()->host_mac, (uint8_t*)(recv_msg.mac_addr), ESP_NOW_ETH_ALEN);
+                //         EspNowSlave::Instance()->host_channel = recv_msg.data[3];
+                //         EspNowClient::Instance()->is_connect_to_host = true;
+                //         ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
+                //             EspNowSlave::Instance()->username, 
+                //             MAC2STR(EspNowSlave::Instance()->host_mac), 
+                //         EspNowSlave::Instance()->host_channel);
+                //         EspNowClient::Instance()->is_connect_to_host = true;
+                //     }
+                // }
             }
         }
 
         // 检查是否需要切换信道
-        if ((xTaskGetTickCount() - last_switch_time) >= channel_switch_delay)
-        {
-            // 只有在未连接到主机时才进行信道切换
-            if (!EspNowClient::Instance()->is_connect_to_host)
-            {
-                channel = channel % 13 + 1;
-                uint8_t actual_wifi_channel = 0;
-                wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
-                ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
-                ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
-                ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
-            }
-            last_switch_time = xTaskGetTickCount();
-        }
+        // if ((xTaskGetTickCount() - last_switch_time) >= channel_switch_delay)
+        // {
+        //     // 只有在未连接到主机时才进行信道切换
+        //     if (!EspNowClient::Instance()->is_connect_to_host)
+        //     {
+        //         channel = channel % 13 + 1;
+        //         uint8_t actual_wifi_channel = 0;
+        //         wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+        //         ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
+        //         ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
+        //         ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
+        //     }
+        //     last_switch_time = xTaskGetTickCount();
+        // }
 
-        vTaskDelay(10);  // 避免占用过多CPU
+        vTaskDelay(10/portTICK_RATE_MS);  // 避免占用过多CPU
     }
 }
 

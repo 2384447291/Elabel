@@ -4,7 +4,7 @@ static void esp_now_recieve_update(void *pvParameter)
 {
     while (1)
     {
-        vTaskDelay(10);
+        vTaskDelay(10/portTICK_RATE_MS);
         //处理接收到的信息
         while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_queue)<MAX_RECV_QUEUE_SIZE)
         {
@@ -12,77 +12,31 @@ static void esp_now_recieve_update(void *pvParameter)
             if(xQueueReceive(EspNowClient::Instance()->recv_queue, &recv_msg, 0) == pdTRUE)
             {
                 //处理接收到的信息
-                ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
-                EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
-                if(recv_msg.data[0] == 0xAB && recv_msg.data[1] == 0xCD && recv_msg.data[recv_msg.data_len-1] == 0xEF)
+                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
+                // EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
+                if(recv_msg.data[0] != 0xAB || recv_msg.data[1] != 0xCD || recv_msg.data[recv_msg.data_len-1] != 0xEF) continue;
+                //回复主机已近收到包了
+                EspNowSlave::Instance()->send_feedcak_pack(recv_msg.data[3]);
+                //如果收到相同的包则不处理
+                if(EspNowSlave::Instance()->unique_id == recv_msg.data[3]) continue;
+                if(recv_msg.data[2] == UpdateTaskList_Control_Host2Slave || recv_msg.data[2] == OutFocus_Control_Host2Slave)
                 {
-                    //回复主机已近收到包了
-                    EspNowSlave::Instance()->send_feedcak_pack(recv_msg.data[3]);
-                    if(EspNowSlave::Instance()->unique_id == recv_msg.data[3]) continue;
-                    if(recv_msg.data[2] == UpdateTaskList_Control_Host2Slave || recv_msg.data[2] == OutFocus_Control_Host2Slave)
+                    //清除所有的任务记录
+                    clean_todo_list(get_global_data()->m_todo_list);
+                    // 保存包的唯一ID
+                    EspNowSlave::Instance()->unique_id = recv_msg.data[3];
+                    // 获取任务数量
+                    uint8_t task_count = recv_msg.data[4];
+                    
+                    // 清空当前任务列表
+                    clean_todo_list(get_global_data()->m_todo_list);
+                    
+                    // 解析每个任务
+                    size_t offset = 5;  // 从数据部分开始
+                    for(int i = 0; i < task_count; i++) 
                     {
-                        //清除所有的任务记录
-                        clean_todo_list(get_global_data()->m_todo_list);
-                        // 保存包的唯一ID
-                        EspNowSlave::Instance()->unique_id = recv_msg.data[3];
-                        // 获取任务数量
-                        uint8_t task_count = recv_msg.data[4];
-                        
-                        // 清空当前任务列表
-                        clean_todo_list(get_global_data()->m_todo_list);
-                        
-                        // 解析每个任务
-                        size_t offset = 5;  // 从数据部分开始
-                        for(int i = 0; i < task_count; i++) 
-                        {
-                            // 读取任务标题长度
-                            uint8_t title_len = recv_msg.data[offset++];
-                            
-                            // 读取任务ID（4字节）
-                            uint32_t task_id = (recv_msg.data[offset] << 24) |
-                                             (recv_msg.data[offset + 1] << 16) |
-                                             (recv_msg.data[offset + 2] << 8) |
-                                             recv_msg.data[offset + 3];
-                            offset += 4;
-                            
-                            // 创建任务项
-                            TodoItem todo;
-                            cleantodoItem(&todo);
-                            
-                            // 复制任务标题
-                            char title[title_len + 1];
-                            memcpy(title, &recv_msg.data[offset], title_len);
-                            title[title_len] = '\0';  // 添加字符串结束符
-                            todo.title = title;
-                            offset += title_len;
-                            
-                            // 设置任务属性
-                            todo.id = task_id;
-                            todo.isComplete = 0;
-                            todo.isFocus = 0;
-                            todo.isImportant = 0;
-                            
-                            // 添加到任务列表
-                            add_or_update_todo_item(get_global_data()->m_todo_list, todo);
-                        }
-                        if(recv_msg.data[2] == OutFocus_Control_Host2Slave)
-                        {
-                            set_task_list_state(firmware_need_update);
-                            get_global_data()->m_focus_state->is_focus = 2;
-                            get_global_data()->m_focus_state->focus_task_id = 0;
-                        }
-                        else if(recv_msg.data[2] == UpdateTaskList_Control_Host2Slave)
-                        {
-                            set_task_list_state(firmware_need_update);
-                            get_global_data()->m_focus_state->is_focus = 0;
-                            get_global_data()->m_focus_state->focus_task_id = 0;
-                        }
-                    }
-                    else if(recv_msg.data[2] == EnterFocus_Control_Host2Slave)
-                    {
-                        uint8_t offset = 4;
-                        //清除所有的任务记录
-                        clean_todo_list(get_global_data()->m_todo_list);
+                        // 读取任务标题长度
+                        uint8_t title_len = recv_msg.data[offset++];
                         
                         // 读取任务ID（4字节）
                         uint32_t task_id = (recv_msg.data[offset] << 24) |
@@ -90,9 +44,6 @@ static void esp_now_recieve_update(void *pvParameter)
                                             (recv_msg.data[offset + 2] << 8) |
                                             recv_msg.data[offset + 3];
                         offset += 4;
-
-                        // 读取任务标题长度
-                        uint8_t title_len = recv_msg.data[offset++];
                         
                         // 创建任务项
                         TodoItem todo;
@@ -104,27 +55,75 @@ static void esp_now_recieve_update(void *pvParameter)
                         title[title_len] = '\0';  // 添加字符串结束符
                         todo.title = title;
                         offset += title_len;
-
-                        // 读取倒计时时间（4字节）
-                        uint32_t fall_time = (recv_msg.data[offset] << 24) |
-                                             (recv_msg.data[offset + 1] << 16) |
-                                             (recv_msg.data[offset + 2] << 8) |
-                                             recv_msg.data[offset + 3];
-                        offset += 4;
                         
                         // 设置任务属性
                         todo.id = task_id;
                         todo.isComplete = 0;
                         todo.isFocus = 0;
                         todo.isImportant = 0;
-                        todo.fallTiming = fall_time;
-
+                        
                         // 添加到任务列表
                         add_or_update_todo_item(get_global_data()->m_todo_list, todo);
-                        set_task_list_state(firmware_need_update);
-                        get_global_data()->m_focus_state->is_focus = 1;
-                        get_global_data()->m_focus_state->focus_task_id = task_id;
                     }
+                    if(recv_msg.data[2] == OutFocus_Control_Host2Slave)
+                    {
+                        set_task_list_state(firmware_need_update);
+                        get_global_data()->m_focus_state->is_focus = 2;
+                        get_global_data()->m_focus_state->focus_task_id = 0;
+                    }
+                    else if(recv_msg.data[2] == UpdateTaskList_Control_Host2Slave)
+                    {
+                        set_task_list_state(firmware_need_update);
+                        get_global_data()->m_focus_state->is_focus = 0;
+                        get_global_data()->m_focus_state->focus_task_id = 0;
+                    }
+                }
+                else if(recv_msg.data[2] == EnterFocus_Control_Host2Slave)
+                {
+                    uint8_t offset = 4;
+                    //清除所有的任务记录
+                    clean_todo_list(get_global_data()->m_todo_list);
+                    
+                    // 读取任务ID（4字节）
+                    uint32_t task_id = (recv_msg.data[offset] << 24) |
+                                        (recv_msg.data[offset + 1] << 16) |
+                                        (recv_msg.data[offset + 2] << 8) |
+                                        recv_msg.data[offset + 3];
+                    offset += 4;
+
+                    // 读取任务标题长度
+                    uint8_t title_len = recv_msg.data[offset++];
+                    
+                    // 创建任务项
+                    TodoItem todo;
+                    cleantodoItem(&todo);
+                    
+                    // 复制任务标题
+                    char title[title_len + 1];
+                    memcpy(title, &recv_msg.data[offset], title_len);
+                    title[title_len] = '\0';  // 添加字符串结束符
+                    todo.title = title;
+                    offset += title_len;
+
+                    // 读取倒计时时间（4字节）
+                    uint32_t fall_time = (recv_msg.data[offset] << 24) |
+                                            (recv_msg.data[offset + 1] << 16) |
+                                            (recv_msg.data[offset + 2] << 8) |
+                                            recv_msg.data[offset + 3];
+                    offset += 4;
+                    
+                    // 设置任务属性
+                    todo.id = task_id;
+                    todo.isComplete = 0;
+                    todo.isFocus = 0;
+                    todo.isImportant = 0;
+                    todo.fallTiming = fall_time;
+
+                    // 添加到任务列表
+                    add_or_update_todo_item(get_global_data()->m_todo_list, todo);
+                    set_task_list_state(firmware_need_update);
+                    get_global_data()->m_focus_state->is_focus = 1;
+                    get_global_data()->m_focus_state->focus_task_id = task_id;
                 }
             }
         }

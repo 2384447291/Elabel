@@ -60,20 +60,20 @@ void BatteryManager::battery_update_task(void* parameters) {
         }
         lastChargingStatus = BatteryManager::Instance()->isUsbConnected();
 
-        if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) {
-            lock_lvgl();
-            if(get_global_data()->m_language == English)
-            {
-                set_text_with_change_font(ui_ShutdownGuide, "No Battery Please Charge", true);
-            }
-            else if(get_global_data()->m_language == Chinese)
-            {
-                set_text_with_change_font(ui_ShutdownGuide, "电量不足请充电", false);
-            }
-            release_lvgl();
-            power_off_system();
-            ESP_LOGI(TAG, "Battery level is too low, power off system");
-        }
+        // if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) {
+        //     lock_lvgl();
+        //     if(get_global_data()->m_language == English)
+        //     {
+        //         set_text_with_change_font(ui_ShutdownGuide, "No Battery Please Charge", true);
+        //     }
+        //     else if(get_global_data()->m_language == Chinese)
+        //     {
+        //         set_text_with_change_font(ui_ShutdownGuide, "电量不足请充电", false);
+        //     }
+        //     release_lvgl();
+        //     power_off_system();
+        //     ESP_LOGI(TAG, "Battery level is too low, power off system");
+        // }
     }
 }
 

@@ -6,8 +6,9 @@
 // ControlDriver类实现
 void ControlDriver::init() {
     // 注册按钮
-    Button::register_single_io(DEVICE_BUTTON_1, &button1);
-    Button::register_share_io_2(DEVICE_BUTTON_34, DEVICE_BUTTON_34_CHANNEL, &button3, &button4);
+    Button::register_single_io(GPIO_NUM_4, &button1);
+    Button::register_single_io(GPIO_NUM_20, &button2);
+    // Button::register_share_io_2(DEVICE_BUTTON_34, DEVICE_BUTTON_34_CHANNEL, &button3, &button4);
     // 创建任务
     xTaskCreate(controlPanelUpdateTask, "control_panel_update", 3072, nullptr, 10, nullptr);
 }

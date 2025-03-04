@@ -6,7 +6,7 @@ static void esp_now_recieve_update(void *pvParameter)
 {
     while (1)
     {
-        vTaskDelay(10);
+        vTaskDelay(10/portTICK_RATE_MS);
         //处理接收到的信息
         while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_queue)<MAX_RECV_QUEUE_SIZE)
         {
@@ -72,7 +72,7 @@ static void esp_now_send_update(void *pvParameter)
 {
     while(1)
     {
-        vTaskDelay(Esp_Now_Send_Interval);
+        vTaskDelay(Esp_Now_Send_Interval/portTICK_RATE_MS);
         //如果有要发送的remind消息
         if(EspNowHost::Instance()->remind_slave.is_set)
         {

@@ -9,6 +9,8 @@
 #include "freertos/task.h"
 #define MAX_SLAVE_NUM 6
 #define FIRMWARE_VERSION "2.0.6"
+
+#define test_random (120*1024)
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，未专注2
@@ -112,6 +114,10 @@ typedef struct
     //如果是主机保存的从机mac
     uint8_t m_slave_mac[MAX_SLAVE_NUM][6];
     uint8_t m_slave_num;
+
+    //测试的大buffer
+    uint8_t* m_test_buffer;
+    uint16_t m_test_buffer_size;
 } Global_data;
 
 #ifdef __cplusplus
