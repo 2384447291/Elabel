@@ -39,7 +39,7 @@ void i2c_init(i2c_port_t port)
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master = {
-            .clk_speed = 100000                 // I2C时钟频率400kHz
+            .clk_speed = 100000                 // I2C时钟频率100kHz
         },
     };
     ESP_ERROR_CHECK(i2c_param_config(port, &i2c_cfg));
