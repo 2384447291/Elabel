@@ -27,12 +27,12 @@ Button::Button(const char* buttonName, uint32_t longPressTime, uint32_t doubleCl
 
 void Button::handle() {
     uint32_t currentTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
-    
     // 如果发生了GPIO状态变化，更新状态机
-    if (isrTriggered) {
+    if (isrTriggered) 
+    {
         isrTriggered = false;  // 清除中断标志
-        
-        switch (state) {
+        switch (state) 
+        {
             case State::IDLE:
                 if (isPressed) {  // 按下
                     pressTime = currentTime;
@@ -101,24 +101,58 @@ void Button::handle() {
 
 
 //----------------------------------------------单个IO控制一个按钮----------------------------------------------//
-void IRAM_ATTR Single_buttonIsrHandler(void* arg) {
-    Button* button = static_cast<Button*>(arg);
-    button->isrTriggered = true;  // 标记状态发生变化
-    button->isPressed = !gpio_get_level(button->Single_IO);
+typedef struct {
+    Button* btn;
+    gpio_num_t gpio;
+    bool running;
+} button_single_t;
+
+void button_single_task(void* arg) {
+    button_single_t* pair = (button_single_t*)arg;
+
+    // 记录上一次的状态
+    bool last_btn_state = false;
+
+    // 当前状态
+    bool current_btn_state = false;
+
+    while (pair->running) {
+        current_btn_state = !gpio_get_level(pair->gpio);
+        // 检查状态变化并触发中断
+        if (current_btn_state != last_btn_state) {
+            pair->btn->isPressed = current_btn_state;
+            pair->btn->isrTriggered = true;
+            // 更新上一次的状态
+            last_btn_state = current_btn_state;
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    delete pair;
+    vTaskDelete(NULL);
 }
 
 void Button::register_single_io(gpio_num_t gpio, Button* button)
 {
-    button->Single_IO = gpio;
-    gpio_config_t io_conf = {};
-    io_conf.pin_bit_mask = (1ULL << gpio);
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.intr_type = GPIO_INTR_ANYEDGE;  // 任意边沿触发
-    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    
+    button_single_t* pair = new button_single_t{
+        .btn = button,
+        .gpio = gpio,
+        .running = true
+    };
+
+    char task_name[32];
+    snprintf(task_name, sizeof(task_name), "button_gpio%d", gpio);
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << gpio),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
     gpio_config(&io_conf);
-    gpio_isr_handler_add(gpio, Single_buttonIsrHandler, button);
+
+    xTaskCreate(button_single_task, task_name, 1024, pair, 5, NULL);
 }
 //----------------------------------------------单个IO控制一个按钮----------------------------------------------//
 
@@ -303,6 +337,6 @@ void Button::register_share_io_2(gpio_num_t gpio, adc2_channel_t adc2_chan, Butt
     // ADC2 配置
     adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc2_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_adc2_task, task_name, 1024, pair, 5, NULL);
 }
 //----------------------------------------------单个IO控制两个按钮----------------------------------------------//

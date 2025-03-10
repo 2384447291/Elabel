@@ -15,14 +15,14 @@
 #include "audio_codec_gpio_if.h"
 
 
-#define I2C_SCL_PIN     GPIO_NUM_19
-#define I2C_SDA_PIN     GPIO_NUM_8
-#define I2S_MCLK_PIN    GPIO_NUM_20
-#define I2S_BCK_PIN     GPIO_NUM_3
-#define I2S_WS_PIN      GPIO_NUM_9
-#define I2S_DO_PIN      GPIO_NUM_10
-#define I2S_DI_PIN      GPIO_NUM_46
-#define AMP_EN_PIN      GPIO_NUM_11
+#define I2C_SCL_PIN     GPIO_NUM_3
+#define I2C_SDA_PIN     GPIO_NUM_20
+#define I2S_MCLK_PIN    GPIO_NUM_9
+#define I2S_BCK_PIN     GPIO_NUM_19
+#define I2S_WS_PIN      GPIO_NUM_18
+#define I2S_DO_PIN      GPIO_NUM_17
+#define I2S_DI_PIN      GPIO_NUM_8
+#define AMP_EN_PIN      GPIO_NUM_38
 
 #define I2C_PORT I2C_NUM_0
 #define I2S_PORT I2S_NUM_0

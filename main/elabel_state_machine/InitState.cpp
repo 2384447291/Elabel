@@ -83,10 +83,6 @@ void InitState::Execute(ElabelController* pOwner)
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
     http_get_todo_list(true);
-    //发送唤醒从机消息
-    EspNowHost::Instance()->send_wakeup_message();
-    //如果从机没有响应，则不进行初始化
-    if(EspNowHost::Instance()->remind_slave.is_set) return;
     is_init = true;
 }
 

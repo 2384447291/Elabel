@@ -7,8 +7,8 @@
 #include "bitmap.h"
 #include "../ui/ui.h"
 
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 
 #define TAG "SSD1680"
 
@@ -245,7 +245,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
             x1 = 48;
             y1 = 56;
             x2 = 200;
-            y2 = 104;
+            y2 = 122;
         }
         else if(elabel_partial_area == TIME_SET)
         {

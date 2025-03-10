@@ -8,19 +8,22 @@
 void ui_TaskScreen_screen_init(void)
 {
     ui_TaskScreen = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_TaskScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_clear_flag(ui_TaskScreen, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                      LV_OBJ_FLAG_SCROLL_MOMENTUM);      /// Flags
 
     ui_HaveTaskContainer = lv_obj_create(ui_TaskScreen);
     lv_obj_set_width(ui_HaveTaskContainer, 250);
     lv_obj_set_height(ui_HaveTaskContainer, 122);
     lv_obj_set_flex_flow(ui_HaveTaskContainer, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(ui_HaveTaskContainer, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_flex_align(ui_HaveTaskContainer, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_clear_flag(ui_HaveTaskContainer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_HaveTaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_HaveTaskContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_HaveTaskContainer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_HaveTaskContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_HaveTaskContainer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_row(ui_HaveTaskContainer, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_column(ui_HaveTaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_startlabel = lv_label_create(ui_HaveTaskContainer);
     lv_obj_set_width(ui_startlabel, LV_SIZE_CONTENT);   /// 1
@@ -28,8 +31,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_x(ui_startlabel, -4);
     lv_obj_set_y(ui_startlabel, -67);
     lv_obj_set_align(ui_startlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_startlabel, "\n");
-    lv_obj_add_flag(ui_startlabel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_label_set_text(ui_startlabel, "\n\n\n\n\n\n");
 
     ui_Button1 = lv_btn_create(ui_HaveTaskContainer);
     lv_obj_set_width(ui_Button1, 175);
@@ -137,7 +139,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_endlabel, "\n");
+    lv_label_set_text(ui_endlabel, "\n\n\n\n\n\n");
 
     ui_NoTaskContainer = lv_obj_create(ui_TaskScreen);
     lv_obj_set_width(ui_NoTaskContainer, 250);

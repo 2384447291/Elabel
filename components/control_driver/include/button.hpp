@@ -34,9 +34,7 @@ public:
     volatile bool isrTriggered;
 
     //不同的按钮数据来源
-    gpio_num_t Single_IO; //单个IO控制一个button
     static void register_single_io(gpio_num_t gpio, Button* button);
-    gpio_num_t Share_IO_2; //单个IO控制两个button
     static void register_share_io_2(gpio_num_t gpio, adc1_channel_t adc_chan, Button* button1, Button* button2);
     static void register_share_io_2(gpio_num_t gpio, adc2_channel_t adc_chan, Button* button1, Button* button2);
 };

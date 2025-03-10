@@ -7,9 +7,8 @@
 #include "global_draw.h"
 #include "global_nvs.h"
 #include "control_driver.hpp"
-#include "ui.h"
+#include "../../components/ui/ui.h"
 #define TimeCountdownOffset 300
-#define second_perencoder 150
 #define MAX_time 3600
 
 class ElabelController;
@@ -45,6 +44,10 @@ class ElabelController
         uint16_t TaskLength;
         //刷新标记
         bool need_flash_paper = false;
+        //是否确认任务
+        bool is_confirm_task = false;
+        //是否确认录音
+        bool is_confirm_record = false;
 
         static ElabelController* Instance()
         {

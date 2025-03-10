@@ -370,6 +370,7 @@ static void get_state(void *arg)
 {
     while (1)
     {
+        vTaskDelay(pdMS_TO_TICKS(1000));
         if (state_notify_flag == true)
         {
             esp_ble_gatts_send_indicate(heart_rate_profile_tab[0].gatts_if, heart_rate_profile_tab[0].conn_id,
@@ -377,7 +378,6 @@ static void get_state(void *arg)
         }else{
             vTaskDelete(NULL);
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -454,11 +454,11 @@ static void blufi_notify(void *arg)
 {
     while (1)
     {
+        vTaskDelay(pdMS_TO_TICKS(1000));
         if (blufi_notify_flag == false)
         {
             blufi_cleanup();
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 

@@ -28,6 +28,13 @@ void choose_previous_task()
     ElabelController::Instance()->need_flash_paper = true;
 }
 
+void confirm_record()
+{
+    ElabelController::Instance()->is_confirm_record = true;
+    ESP_LOGI("ChoosingTaskState","confirm record");
+}
+
+
 void confirm_task()
 {
     if(get_global_data()->m_todo_list->size==0)
@@ -37,7 +44,7 @@ void confirm_task()
     }
     ElabelController::Instance()->ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
     ESP_LOGI("ChoosingTaskState","confirm task: %d",ElabelController::Instance()->ChosenTaskId);
-    ChoosingTaskState::Instance()->is_confirm_task = true;
+    ElabelController::Instance()->is_confirm_task = true;
 }
 
 void jump_to_activate()
@@ -60,7 +67,8 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
     pOwner->need_flash_paper = false;
-    is_confirm_task = false;
+    pOwner->is_confirm_task = false;
+    pOwner->is_confirm_record = false;
     is_jump_to_activate = false;
 
     lock_lvgl();
@@ -74,6 +82,18 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     vTaskDelay(100 / portTICK_PERIOD_MS);
     ElabelController::Instance()->need_flash_paper = true;
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
+    ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);
+    ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(choose_next_task);
+
+    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(confirm_record);
+    ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(confirm_record);
+    ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(confirm_record);
+    ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(confirm_record);
+
+    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_task);
+
+    ControlDriver::Instance()->button2.CallbackDoubleClick.registerCallback(jump_to_activate);
+    ControlDriver::Instance()->button3.CallbackDoubleClick.registerCallback(jump_to_activate);
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
@@ -87,35 +107,43 @@ void ChoosingTaskState::Execute(ElabelController* pOwner)
         }
         release_lvgl();
         pOwner->need_flash_paper = false;
+        ESP_LOGI("Scroll", "Scroll to center%d", pOwner->ChosenTaskNum);
     }
 }
 
 void ChoosingTaskState::Exit(ElabelController* pOwner)
 {
     ESP_LOGI(STATEMACHINE,"Out ChoosingTaskState.\n");
+    ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(choose_previous_task);
+    ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(choose_next_task);
+
+    ControlDriver::Instance()->button1.CallbackShortPress.unregisterCallback(confirm_record);
+    ControlDriver::Instance()->button4.CallbackShortPress.unregisterCallback(confirm_record);
+    ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(confirm_record);
+    ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(confirm_record);
+
+    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_task);
+
+    ControlDriver::Instance()->button2.CallbackDoubleClick.unregisterCallback(jump_to_activate);
+    ControlDriver::Instance()->button3.CallbackDoubleClick.unregisterCallback(jump_to_activate);
 }
 
 // 滚动指定子对象到容器中心
 void ChoosingTaskState::scroll_to_center(lv_obj_t *container, lv_obj_t *child) {
-    // 获取容器和子对象的大小和位置
-    lv_coord_t container_width = lv_obj_get_width(container);
-    lv_coord_t container_height = lv_obj_get_height(container);
+    lv_area_t child_area;
+    lv_obj_get_coords(child, &child_area);
+    lv_area_t container_area;
+    lv_obj_get_coords(container, &container_area);
+    lv_coord_t y_center = container_area.y1 + lv_area_get_height(&container_area) / 2;
+    lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
+    lv_coord_t diff_y = y_center - child_y_center;
 
-    lv_coord_t child_x = lv_obj_get_x(child);
-    lv_coord_t child_y = lv_obj_get_y(child);
-    lv_coord_t child_width = lv_obj_get_width(child);
-    lv_coord_t child_height = lv_obj_get_height(child);
+    // 滚动到计算的位置
+    lv_obj_scroll_by(container, 0, diff_y, LV_ANIM_OFF);
 
-    // 计算滚动的偏移量（让子对象的中心与容器的中心对齐）
-    lv_coord_t scroll_x = child_x + (child_width / 2) - (container_width / 2);
-    lv_coord_t scroll_y = child_y + (child_height / 2) - (container_height / 2);
-
-    // 滚动到计算的偏移量
-    lv_obj_scroll_to(container, scroll_x, scroll_y, LV_ANIM_OFF);
-
+    // 更新task大小
     resize_task();
 }
-
 void ChoosingTaskState::resize_task()
 {
     lv_area_t container_area;
@@ -129,7 +157,8 @@ void ChoosingTaskState::resize_task()
         lv_obj_get_coords(child, &child_area);
         lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
         lv_coord_t diff_y = LV_ABS(y_center - child_y_center);
-        if(diff_y < 14)
+        //其实可以等于0，但是为了防止某些四舍五入的问题，所以设置为2
+        if(diff_y < 2)
         {
             lv_obj_set_size(child, get_button_size(Btn_ChooseTask_big_width), get_button_size(Btn_ChooseTask_big_height));
             lv_obj_set_style_bg_color(child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);

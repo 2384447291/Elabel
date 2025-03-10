@@ -3,15 +3,15 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     screens/ui_OTAScreen.c
     screens/ui_TaskScreen.c
     screens/ui_OperatingScreen.c
-    screens/ui_FocusScreen.c
     screens/ui_UpdateScreen.c
     screens/ui_ShutdownScreen.c
     screens/ui_HostActiveScreen.c
     screens/ui_SlaveActiveScreen.c
+    screens/ui_FocusScreen.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
+    images/ui_img_speach_png.c
     fonts/ui_font_Chinese_20.c
     fonts/ui_font_Chinese_28.c
-    INCLUDE_DIRS "."
     REQUIRES lvgl)

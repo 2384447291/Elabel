@@ -98,28 +98,6 @@ lv_obj_t * uic_OperatingTime;
 lv_obj_t * uic_OperatingTime;
 
 
-// SCREEN: ui_FocusScreen
-void ui_FocusScreen_screen_init(void);
-lv_obj_t * ui_FocusScreen;
-lv_obj_t * ui_Panel11;
-lv_obj_t * ui_FocusTask;
-lv_obj_t * ui_Task;
-lv_obj_t * ui_Panel12;
-lv_obj_t * ui_FocusTime;
-lv_obj_t * ui_FocusTime2;
-lv_obj_t * ui_FocusLoadingpanel;
-lv_obj_t * ui_OperatingTime3;
-lv_obj_t * ui_Time7;
-lv_obj_t * ui_Time4;
-// CUSTOM VARIABLES
-lv_obj_t * uic_FocusScreen;
-lv_obj_t * uic_FocusTask;
-lv_obj_t * uic_Task2;
-lv_obj_t * uic_FocusTime1;
-lv_obj_t * uic_FocusTime1;
-lv_obj_t * uic_OperatingTime;
-
-
 // SCREEN: ui_UpdateScreen
 void ui_UpdateScreen_screen_init(void);
 lv_obj_t * ui_UpdateScreen;
@@ -168,6 +146,29 @@ lv_obj_t * ui_SlaveInf;
 lv_obj_t * uic_SlaveActiveScreen;
 lv_obj_t * uic_SlaveInf;
 
+
+// SCREEN: ui_FocusScreen
+void ui_FocusScreen_screen_init(void);
+lv_obj_t * ui_FocusScreen;
+lv_obj_t * ui_Panel11;
+lv_obj_t * ui_FocusTask;
+lv_obj_t * ui_Task;
+lv_obj_t * ui_speachbar;
+lv_obj_t * ui_Panel12;
+lv_obj_t * ui_FocusTime;
+lv_obj_t * ui_FocusTime2;
+lv_obj_t * ui_FocusLoadingpanel;
+lv_obj_t * ui_OperatingTime3;
+lv_obj_t * ui_Time7;
+lv_obj_t * ui_Time4;
+// CUSTOM VARIABLES
+lv_obj_t * uic_FocusScreen;
+lv_obj_t * uic_FocusTask;
+lv_obj_t * uic_Task2;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_OperatingTime;
+
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
@@ -197,11 +198,11 @@ void ui_init(void)
     ui_OTAScreen_screen_init();
     ui_TaskScreen_screen_init();
     ui_OperatingScreen_screen_init();
-    ui_FocusScreen_screen_init();
     ui_UpdateScreen_screen_init();
     ui_ShutdownScreen_screen_init();
     ui_HostActiveScreen_screen_init();
     ui_SlaveActiveScreen_screen_init();
+    ui_FocusScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HalfmindScreen);
 }

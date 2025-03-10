@@ -13,6 +13,8 @@ static volatile bool should_stop_playing = false;
 
 // 录音任务函数
 static void mic_task_func(void* arg) {
+    MCodec::Instance()->play_music("ding");
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     ESP_LOGI(TAG, "Mic task started");
     MCodec* codec = MCodec::Instance();
     uint8_t buffer[READ_BLOCK_SIZE];
@@ -46,6 +48,7 @@ static void mic_task_func(void* arg) {
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
     // 清除任务句柄
     codec->mic_task = NULL;
+    MCodec::Instance()->play_music("ding");
     vTaskDelete(NULL);
 }
 
@@ -162,8 +165,30 @@ void MCodec::deinit()
     esp_codec_deinit(codec_dev);
 }
 
+void MCodec::set_volume(uint8_t volume)
+{
+    if(codec_dev) {
+        esp_codec_dev_set_out_vol(codec_dev, (float)volume);
+        ESP_LOGI(TAG, "Volume set to %d", volume);
+    }
+}
+
+void MCodec::set_mic_gain(float gain)
+{
+    if(codec_dev) {
+        esp_codec_dev_set_in_gain(codec_dev, gain);
+        ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
+    }
+}
+
+
 void MCodec::start_record()
 {
+    if(mic_task!=NULL) 
+    {
+        ESP_LOGW(TAG, "mic_task already exists, No need to start recording");
+        return;
+    }
     if(record_buffer == NULL) {
         ESP_LOGE(TAG, "Record buffer not initialized");
         return;
@@ -181,6 +206,11 @@ void MCodec::start_record()
 
 void MCodec::stop_record()
 {
+    if(mic_task==NULL) 
+    {
+        ESP_LOGW(TAG, "mic_task is NULL, No need to stop recording");
+        return;
+    }
     ESP_LOGI(TAG, "Stopping recording");
     if(mic_task) {
         // 设置停止标志，让任务自己结束
@@ -195,25 +225,13 @@ void MCodec::stop_record()
     }
 }
 
-
-void MCodec::set_volume(uint8_t volume)
-{
-    if(codec_dev) {
-        esp_codec_dev_set_out_vol(codec_dev, (float)volume);
-        ESP_LOGI(TAG, "Volume set to %d", volume);
-    }
-}
-
-void MCodec::set_mic_gain(float gain)
-{
-    if(codec_dev) {
-        esp_codec_dev_set_in_gain(codec_dev, gain);
-        ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
-    }
-}
-
 void MCodec::play_music(const char* filename)
 {
+    if(speaker_task!=NULL)
+    {
+        ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
+        return;
+    }
     speaker_type = spiffs;
     // 打开文件 spiffs+filename.pcm
     char path[64];
@@ -233,6 +251,11 @@ void MCodec::play_music(const char* filename)
 
 void MCodec::play_record(const uint8_t* data, size_t size)
 {
+    if(speaker_task!=NULL) 
+    {
+        ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
+        return;
+    }
     speaker_type = mic;
     if (data == NULL || size == 0) {
         ESP_LOGE(TAG, "Invalid play parameters: data=%p, size=%d", data, size);
@@ -255,6 +278,11 @@ void MCodec::play_record(const uint8_t* data, size_t size)
 
 void MCodec::stop_play()
 {
+    if(speaker_task==NULL) 
+    {
+        ESP_LOGW(TAG, "speaker_task is NULL, No need to stop playback");
+        return;
+    }
     ESP_LOGI(TAG, "Stopping playback");
     if(speaker_task) {
         // 设置停止标志，让任务自己结束

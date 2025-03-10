@@ -3,11 +3,13 @@
 
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "driver/adc.h"
 
 // IO定义
-#define BATTERY_POWER_CTRL    GPIO_NUM_17  // 控制电池开关
-#define USB_CONNECT_DET       GPIO_NUM_18   // 检测USB连接
-#define ADC1_CHAN      ADC1_CHANNEL_6  // GPIO7 对应 ADC1_CH6
+#define BATTERY_POWER_CTRL    GPIO_NUM_15  // 控制电池开关
+#define USB_CONNECT_DET       GPIO_NUM_16   // 检测USB连接
+#define USB_CONNECT_CHANNEL   ADC2_CHANNEL_5
+#define ADC1_CHAN      ADC1_CHANNEL_5  // GPIO6 对应 ADC1_CH5
 
 #define ADC_ATTEN      ADC_ATTEN_DB_12  // 12dB衰减，量程0-3.3V
 #define ADC_WIDTH      ADC_WIDTH_BIT_12 // 12位分辨率
@@ -33,7 +35,12 @@ public:
     //检测是否有usb连接
     bool isUsbConnected()
     {
-        return gpio_get_level(USB_CONNECT_DET) == 1;
+        int adc_value; 
+        adc2_get_raw(USB_CONNECT_CHANNEL, ADC_WIDTH_BIT_12, &adc_value);
+        float voltage = adc_value * 3.3 / 4095;
+        ESP_LOGI("USB","Voltage is %f",voltage);
+        if(voltage < 2.5) return false;
+        else return true;
     }
 
     // 控制电池开关

@@ -16,22 +16,13 @@
 #include "battery_manager.hpp"
 #include "control_driver.hpp"
 #include "esp_now_client.hpp"
+#include "esp_now_host.hpp"
+#include "esp_now_slave.hpp"
 #include "codec.hpp"
 
 
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
-
-void fuck()
-{
-    MCodec::Instance()->play_music("bell");
-}
-
-void fuck2()
-{
-    MCodec::Instance()->play_record(MCodec::Instance()->record_buffer, MCodec::Instance()->recorded_size);
-}
-
 extern "C" void app_main(void)
 {
     // 安装GPIO中断服务
@@ -43,6 +34,9 @@ extern "C" void app_main(void)
     //获取nvs信息
     get_nvs_info();
 
+    //初始化codec(这块要分配个大内存放在最后)，要不放不了音乐
+    MCodec::Instance()->init();
+
     //电池管理器初始化，并拉起硬件开机
     BatteryManager::Instance()->init();
 
@@ -52,6 +46,15 @@ extern "C" void app_main(void)
     m_wifi_connect();
     //创建httpclient更新线程
     http_client_init();
+    
+    //按键初始化
+    ControlDriver::Instance()->init();
+
+    //创造gui线程，这里需要绑定到一个核上防止内存被破坏，这里优先绑定到核1上，如果蓝牙和wifi不用的情况下可以绑定到核0上
+    xTaskCreatePinnedToCore(guiTask, "gui", 8192, NULL, 0, NULL, 1);
+    //这里在调用完初始化后会紧跟一个刷新halfmind的函数(写在ui_init()函数里面)，默认为第一个界面
+    //等待2slvgl初始化完成
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     //初始化espnow
     EspNowClient::Instance()->init();
@@ -63,30 +66,14 @@ extern "C" void app_main(void)
     {
         EspNowSlave::Instance()->init();
     }
-    
-    //按键初始化
-    ControlDriver::Instance()->init();
-
-    //创造gui线程，这里需要绑定到一个核上防止内存被破坏，这里优先绑定到核1上，如果蓝牙和wifi不用的情况下可以绑定到核0上
-    xTaskCreatePinnedToCore(guiTask, "gui", 4096*2, NULL, 0, NULL, 1);
-    //这里在调用完初始化后会紧跟一个刷新halfmind的函数(写在ui_init()函数里面)，默认为第一个界面
-
-    //等待2slvgl初始化完成
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     //重新刷所有的语言
     lock_lvgl();
     Change_All_language();
     release_lvgl();
 
-    //初始化codec(这块要分配个大内存放在最后)
-    MCodec::Instance()->init();
-
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;
-
-    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(fuck);
-    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(fuck2);
 
     //播放开机音乐
     MCodec::Instance()->play_music("open");

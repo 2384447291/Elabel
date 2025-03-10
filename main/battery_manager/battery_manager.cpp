@@ -8,10 +8,11 @@
 #include "global_draw.h"
 #include "freertos/timers.h"
 #include "global_message.h"
+#include "codec.hpp"
 #define TAG "BATTERY_MANAGER"
 
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 
 
 static esp_adc_cal_characteristics_t adc_chars;
@@ -25,18 +26,24 @@ static void shutdown_timer_callback(TimerHandle_t xTimer) {
 
 void power_off_system()
 {
+    //如果连接了电源不允许关机
+    if(BatteryManager::Instance()->isUsbConnected()) 
+    {
+        return;
+    }
     //锁定屏幕
     lock_lvgl();
     switch_screen(ui_ShutdownScreen);
     //释放lvgl
     release_lvgl();
     // 播放关机音乐
-    // ControlDriver::Instance()->buzzer.playDownMusic();
+    MCodec::Instance()->play_music("stop");
+    
 
     // 创建2秒倒计时定时器
     TimerHandle_t shutdownTimer = xTimerCreate(
         "ShutdownTimer",
-        pdMS_TO_TICKS(2000),
+        pdMS_TO_TICKS(8000),
         pdFALSE,  // 单次触发
         nullptr,
         shutdown_timer_callback
@@ -56,11 +63,19 @@ void BatteryManager::battery_update_task(void* parameters) {
         static bool lastChargingStatus = false;
         if (!lastChargingStatus && BatteryManager::Instance()->isUsbConnected()) {
             // 从未充电变为充电状态,播放充电音乐
-            // ControlDriver::Instance()->buzzer.playChargingMusic();
+            MCodec::Instance()->play_music("ding");
         }
         lastChargingStatus = BatteryManager::Instance()->isUsbConnected();
 
-        if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) {
+        //如果连接了电源不允许关机
+        if(BatteryManager::Instance()->isUsbConnected()) 
+        {
+            continue;
+        }
+
+        if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) 
+        {
+            //锁定屏幕
             lock_lvgl();
             if(get_global_data()->m_language == English)
             {
@@ -96,6 +111,9 @@ void BatteryManager::init() {
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
+    //初始化ADC2
+    adc2_config_channel_atten(USB_CONNECT_CHANNEL, ADC_ATTEN_DB_12);
+
     // 初始化ADC1
     adc1_config_width(ADC_WIDTH);
     adc1_config_channel_atten(ADC1_CHAN, ADC_ATTEN);
@@ -105,6 +123,8 @@ void BatteryManager::init() {
 
     // 初始化完成后默认开启电源
     setPowerState(true);
+
+    ControlDriver::Instance()->button1.CallbackLongPress.registerCallback(power_off_system);
     
     // 创建电池电量更新线程
     xTaskCreate(battery_update_task, "battery_update", 3072, this, 10, nullptr);
@@ -135,8 +155,6 @@ float BatteryManager::getBatteryLevel() {
     
     //4.18-->4.21有点小误差
     ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
-    ESP_LOGI(TAG, "Is charging: %s", chargingStatus ? "Yes" : "No");
-    ESP_LOGI(TAG, "Is Full Power: %s", fullPowerStatus ? "Yes" : "No");
     ESP_LOGI(TAG, "Is Usb Connected: %s", isUsbConnected() ? "Yes" : "No");
     batteryLevel = actual_voltage;
     return actual_voltage;

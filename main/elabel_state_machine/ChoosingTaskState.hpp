@@ -20,7 +20,6 @@ public:
     void resize_task();
 
     bool need_stay_choosen = false;
-    bool is_confirm_task = false;
     bool is_jump_to_activate = false;
 
 

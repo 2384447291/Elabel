@@ -4,6 +4,8 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 
+#define auto_enter_time 1000; //1000次20ms，刚好20s
+
 class OperatingTaskState : public State<ElabelController>
 {
 private:
@@ -14,13 +16,11 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    int last_encoder_value = 0;
     bool is_not_confirm_task = false;
     bool is_confirm_time = false;
-    int update_lock = 0;
-    int auto_reload_time;
 
-    uint8_t slave_unique_id = 0;
+    int auto_reload_time = auto_enter_time;
+
     static OperatingTaskState* Instance()
     {
         static OperatingTaskState instance;

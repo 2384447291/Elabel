@@ -1,7 +1,9 @@
 #include "HostActiveState.hpp"
 #include "network.h"
 #include "http.h"
-#include "Esp_now_client.hpp"
+#include "esp_now_host.hpp"
+#include "global_message.h"
+
 
 void host_out_active_state()
 {
@@ -21,6 +23,7 @@ void HostActiveState::Enter(ElabelController* pOwner)
     lock_lvgl();
     switch_screen(ui_HostActiveScreen);
     release_lvgl();
+    painted_slave_num = get_global_data()->m_slave_num;
     ESP_LOGI(STATEMACHINE,"Enter HostActiveState.");
 }
 
@@ -47,8 +50,9 @@ void HostActiveState::Execute(ElabelController* pOwner)
         //注册退出事件
         if(elabelUpdateTick % 100 == 0)
         {
-            EspNowHost::Instance()->send_broadcast_message();
+            EspNowHost::Instance()->Broadcast_bind_message();
         }
+        ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(host_out_active_state);
 
         if(painted_slave_num != EspNowHost::Instance()->slave_num)
         {
@@ -62,5 +66,7 @@ void HostActiveState::Execute(ElabelController* pOwner)
 void HostActiveState::Exit(ElabelController* pOwner)
 {
     stop_blue_activate();
+    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(host_out_active_state);
     ESP_LOGI(STATEMACHINE,"Out HostActiveState.\n");
+    EspNowHost::Instance()->send_state = waiting;
 }

@@ -34,6 +34,14 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_Task, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_speachbar = lv_img_create(ui_Panel11);
+    lv_img_set_src(ui_speachbar, &ui_img_speach_png);
+    lv_obj_set_width(ui_speachbar, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_speachbar, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_speachbar, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_speachbar, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_speachbar, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
     ui_Panel12 = lv_obj_create(ui_FocusScreen);
     lv_obj_set_width(ui_Panel12, 250);
     lv_obj_set_height(ui_Panel12, 50);

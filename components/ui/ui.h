@@ -100,27 +100,6 @@ extern lv_obj_t * uic_OperatingScreen;
 extern lv_obj_t * uic_OperatingTime;
 extern lv_obj_t * uic_OperatingTime;
 
-// SCREEN: ui_FocusScreen
-void ui_FocusScreen_screen_init(void);
-extern lv_obj_t * ui_FocusScreen;
-extern lv_obj_t * ui_Panel11;
-extern lv_obj_t * ui_FocusTask;
-extern lv_obj_t * ui_Task;
-extern lv_obj_t * ui_Panel12;
-extern lv_obj_t * ui_FocusTime;
-extern lv_obj_t * ui_FocusTime2;
-extern lv_obj_t * ui_FocusLoadingpanel;
-extern lv_obj_t * ui_OperatingTime3;
-extern lv_obj_t * ui_Time7;
-extern lv_obj_t * ui_Time4;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_FocusScreen;
-extern lv_obj_t * uic_FocusTask;
-extern lv_obj_t * uic_Task2;
-extern lv_obj_t * uic_FocusTime1;
-extern lv_obj_t * uic_FocusTime1;
-extern lv_obj_t * uic_OperatingTime;
-
 // SCREEN: ui_UpdateScreen
 void ui_UpdateScreen_screen_init(void);
 extern lv_obj_t * ui_UpdateScreen;
@@ -166,9 +145,34 @@ extern lv_obj_t * ui_SlaveInf;
 extern lv_obj_t * uic_SlaveActiveScreen;
 extern lv_obj_t * uic_SlaveInf;
 
+// SCREEN: ui_FocusScreen
+void ui_FocusScreen_screen_init(void);
+extern lv_obj_t * ui_FocusScreen;
+extern lv_obj_t * ui_Panel11;
+extern lv_obj_t * ui_FocusTask;
+extern lv_obj_t * ui_Task;
+extern lv_obj_t * ui_speachbar;
+extern lv_obj_t * ui_Panel12;
+extern lv_obj_t * ui_FocusTime;
+extern lv_obj_t * ui_FocusTime2;
+extern lv_obj_t * ui_FocusLoadingpanel;
+extern lv_obj_t * ui_OperatingTime3;
+extern lv_obj_t * ui_Time7;
+extern lv_obj_t * ui_Time4;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_FocusScreen;
+extern lv_obj_t * uic_FocusTask;
+extern lv_obj_t * uic_Task2;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_OperatingTime;
+
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
+
+// IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_speach_png);    // assets/speach.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Chinese_20);

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "ui.h"
+#include "../../components/ui/ui.h"
 #include "lvgl_helpers.h"
 #include "ssd1680.h"
 //--------------------------------------lvgl相关的内容-------------------------------------//
@@ -42,10 +42,10 @@ void periodic_timer_callback(void *arg) {
     lv_tick_inc(1);
 }
 
-uint8_t ChooseTask_big_height = 0;
-uint8_t ChooseTask_big_width = 0;
-uint8_t ChooseTask_small_height = 0;
-uint8_t ChooseTask_small_width = 0;
+int16_t ChooseTask_big_height = 32;
+int16_t ChooseTask_big_width = 200;
+int16_t ChooseTask_small_height = 28;
+int16_t ChooseTask_small_width = 175;
 
 uint8_t get_button_size(Button_type button_type)
 {
@@ -139,10 +139,6 @@ void guiTask(void *pvParameter) {
     //--------------开始lvgl线程--------------//
     ESP_LOGI("lvgl", "start gui task.\n");
     ui_init();
-    ChooseTask_big_height = lv_obj_get_height(ui_Button2);
-    ChooseTask_big_width = lv_obj_get_width(ui_Button2);
-    ChooseTask_small_height = lv_obj_get_height(ui_Button1);
-    ChooseTask_small_width = lv_obj_get_width(ui_Button1);
     lv_refr_now(NULL);
     while (1) {
         /* lvgl刷新率10ms*/
@@ -255,7 +251,7 @@ void lvgl_add_task(const char *task_content)
     lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_endlabel, "\n");
+    lv_label_set_text(ui_endlabel, "\n\n\n\n\n\n");
 
     ESP_LOGI("LVGL","任务 \"%s\" 添加成功！\n", task_content);
 }
