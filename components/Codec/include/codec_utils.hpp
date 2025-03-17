@@ -57,7 +57,7 @@ void i2s_init(i2s_port_t port)
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
         .dma_buf_count = 2,
-        .dma_buf_len = 128,
+        .dma_buf_len = 512,
         .use_apll = true,
         .tx_desc_auto_clear = true,
     };

@@ -107,6 +107,18 @@ typedef struct {
     bool running;
 } button_single_t;
 
+typedef struct {
+    Button* btn;
+    adc1_channel_t adc_chan;
+    bool running;
+} button_single_adc1_t;
+
+typedef struct {
+    Button* btn;
+    adc2_channel_t adc_chan;
+    bool running;   
+} button_single_adc2_t;
+
 void button_single_task(void* arg) {
     button_single_t* pair = (button_single_t*)arg;
 
@@ -127,6 +139,69 @@ void button_single_task(void* arg) {
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }
+
+    delete pair;
+    vTaskDelete(NULL);
+}
+
+void button_single_adc1_task(void* arg) {
+    button_single_adc1_t* pair = (button_single_adc1_t*)arg;
+
+    // 记录上一次的状态
+    bool last_btn_state = false;
+
+    // 当前状态
+    bool current_btn_state = false;
+
+    while (pair->running) {
+        int adc_value = adc1_get_raw(pair->adc_chan);
+        float voltage = adc_value * 3.3 / 4095; 
+
+        // 判断当前状态
+        if (voltage > 3.3 - 0.5 && voltage < 3.3 + 0.5) {  // 都未按下
+            current_btn_state = false;
+        } else {  // 按下
+            current_btn_state = true;
+        }
+
+        // 检查状态变化并触发中断
+        if (current_btn_state != last_btn_state) {
+            pair->btn->isPressed = current_btn_state;
+            pair->btn->isrTriggered = true;
+        }
+    }   
+
+    delete pair;
+    vTaskDelete(NULL);
+}
+
+void button_single_adc2_task(void* arg) {
+    button_single_adc2_t* pair = (button_single_adc2_t*)arg;
+
+    // 记录上一次的状态
+    bool last_btn_state = false;    
+
+    // 当前状态
+    bool current_btn_state = false;
+
+    while (pair->running) {
+        int adc_value; 
+        adc2_get_raw(pair->adc_chan, ADC_WIDTH_BIT_12, &adc_value); 
+        float voltage = adc_value * 3.3 / 4095; 
+
+        // 判断当前状态
+        if (voltage > 3.3 - 0.5 && voltage < 3.3 + 0.5) {  // 都未按下
+            current_btn_state = false;
+        } else {  // 按下
+            current_btn_state = true;
+        }       
+
+        // 检查状态变化并触发中断
+        if (current_btn_state != last_btn_state) {
+            pair->btn->isPressed = current_btn_state;
+            pair->btn->isrTriggered = true;
+        }
+    }   
 
     delete pair;
     vTaskDelete(NULL);
@@ -153,6 +228,61 @@ void Button::register_single_io(gpio_num_t gpio, Button* button)
     gpio_config(&io_conf);
 
     xTaskCreate(button_single_task, task_name, 1024, pair, 5, NULL);
+}
+
+// 重载函数 - ADC1 版本
+void Button::register_single_io(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button)
+{    
+    button_single_adc1_t* pair = new button_single_adc1_t{
+        .btn = button,
+        .adc_chan = adc1_chan,
+        .running = true
+    };
+
+    char task_name[32];
+    snprintf(task_name, sizeof(task_name), "button_adc_gpio%d", gpio);
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << gpio),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf);
+
+    // ADC1 配置
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
+
+    xTaskCreate(button_single_adc1_task, task_name, 1024, pair, 5, NULL);
+}
+
+// 重载函数 - ADC2 版本
+void Button::register_single_io(gpio_num_t gpio, adc2_channel_t adc2_chan, Button* button)
+{    
+    button_single_adc2_t* pair = new button_single_adc2_t{
+        .btn = button,
+        .adc_chan = adc2_chan,
+        .running = true
+    };
+
+    char task_name[32];
+    snprintf(task_name, sizeof(task_name), "button_adc_gpio%d", gpio);
+
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL << gpio),
+        .mode = GPIO_MODE_INPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf);
+
+    // ADC2 配置
+    adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
+
+    xTaskCreate(button_single_adc2_task, task_name, 1024, pair, 5, NULL);
 }
 //----------------------------------------------单个IO控制一个按钮----------------------------------------------//
 
@@ -308,7 +438,7 @@ void Button::register_share_io_2(gpio_num_t gpio, adc1_channel_t adc1_chan, Butt
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc1_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_adc1_task, task_name, 1024, pair, 5, NULL);
 }
 
 // 重载函数 - ADC2 版本

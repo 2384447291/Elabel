@@ -5,6 +5,9 @@
 #include "esp_log.h"
 #include "driver/adc.h"
 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
+
 // IO定义
 #define BATTERY_POWER_CTRL    GPIO_NUM_15  // 控制电池开关
 #define USB_CONNECT_DET       GPIO_NUM_16   // 检测USB连接

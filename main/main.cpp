@@ -20,6 +20,33 @@
 #include "esp_now_slave.hpp"
 #include "codec.hpp"
 
+void play_music()
+{
+    //播放开机音乐
+    MCodec::Instance()->play_music("speech_guidance");
+}
+
+void play_music_2()
+{
+    //播放开机音乐
+    MCodec::Instance()->play_music("open");
+}
+
+uint8_t sound = 80;
+void set_sound_up()
+{
+    sound += 5;
+    esp_codec_dev_set_out_vol(MCodec::Instance()->codec_dev, sound);
+    ESP_LOGI("sound", "sound: %d", sound);
+}
+
+void set_sound_down()
+{
+    sound -= 5;
+    esp_codec_dev_set_out_vol(MCodec::Instance()->codec_dev, sound);
+    ESP_LOGI("sound", "sound: %d", sound);
+}
+
 
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
@@ -75,8 +102,11 @@ extern "C" void app_main(void)
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;
 
-    //播放开机音乐
-    MCodec::Instance()->play_music("open");
+    //初始化控制器
+    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(play_music);
+    ControlDriver::Instance()->button2.CallbackShortPress.registerCallback(play_music_2);
+    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(set_sound_up);
+    ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(set_sound_down);
 
     while(1)
     {
@@ -84,6 +114,6 @@ extern "C" void app_main(void)
         elabelUpdateTick += 10;
         //5ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
         //初始化的第一个状态机为init_state
-        if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
+        //if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
     }
 }

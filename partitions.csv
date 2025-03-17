@@ -2,4 +2,4 @@
 nvs,      data,   nvs,      0x9000,  0x6000
 phy_init, data,   phy,      ,        0x1000
 factory,  app,    factory,  ,        4M
-music,    data,   spiffs,   ,        2M
+music,    data,   spiffs,   ,        10M

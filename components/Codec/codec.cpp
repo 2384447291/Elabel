@@ -42,7 +42,6 @@ static void mic_task_func(void* arg) {
         } else {
             ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
         }
-        vTaskDelay(pdMS_TO_TICKS(10));
     }
     
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
@@ -89,7 +88,6 @@ static void speaker_task_func(void* arg) {
         total_played += bytes_to_play;
         // ESP_LOGI(TAG, "Playing: %d bytes (%.1f seconds)", 
         //         total_played, (float)total_played/BytesPerSecond);
-        vTaskDelay(pdMS_TO_TICKS(10));
     }
     
     // 清理工作
@@ -120,7 +118,7 @@ void MCodec::init()
     };
     
     esp_codec_dev_open(codec_dev, &fs);
-    esp_codec_dev_set_out_vol(codec_dev, 70.0);
+    esp_codec_dev_set_out_vol(codec_dev, 90.0);
     esp_codec_dev_set_in_gain(codec_dev, 40.0);
     ESP_LOGI(TAG, "Codec initialized");
 

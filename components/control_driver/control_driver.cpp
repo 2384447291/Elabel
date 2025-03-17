@@ -6,8 +6,8 @@
 // ControlDriver类实现
 void ControlDriver::init() {
     // 注册按钮
-    Button::register_single_io(DEVICE_BUTTON_1, &button1);
-    Button::register_single_io(DEVICE_BUTTON_2, &button2);
+    Button::register_single_io(DEVICE_BUTTON_1, DEVICE_BUTTON_1_CHANNEL, &button1);
+    Button::register_single_io(DEVICE_BUTTON_2, DEVICE_BUTTON_2_CHANNEL, &button2);
     Button::register_share_io_2(DEVICE_BUTTON_34, DEVICE_BUTTON_34_CHANNEL, &button4, &button3);
     Button::register_share_io_2(DEVICE_BUTTON_56, DEVICE_BUTTON_56_CHANNEL, &button5, &button6);
     Button::register_share_io_2(DEVICE_BUTTON_78, DEVICE_BUTTON_78_CHANNEL, &button8, &button7);

@@ -11,8 +11,8 @@
 #include "codec.hpp"
 #define TAG "BATTERY_MANAGER"
 
-// #undef ESP_LOGI
-// #define ESP_LOGI(tag, format, ...) 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 
 
 static esp_adc_cal_characteristics_t adc_chars;

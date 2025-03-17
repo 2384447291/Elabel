@@ -35,6 +35,8 @@ public:
 
     //不同的按钮数据来源
     static void register_single_io(gpio_num_t gpio, Button* button);
+    static void register_single_io(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button);
+    static void register_single_io(gpio_num_t gpio, adc2_channel_t adc2_chan, Button* button);
     static void register_share_io_2(gpio_num_t gpio, adc1_channel_t adc_chan, Button* button1, Button* button2);
     static void register_share_io_2(gpio_num_t gpio, adc2_channel_t adc_chan, Button* button1, Button* button2);
 };
