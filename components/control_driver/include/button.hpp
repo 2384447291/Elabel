@@ -10,10 +10,9 @@
 class Button {
 public:
     enum class State {
-        IDLE,               // 空闲状态
-        PRESSED,            // 按下状态
-        WAIT_RELEASE,       // 等待释放状态
-        WAIT_DOUBLE_CLICK   // 等待双击状态
+        IDLE,           // 空闲状态
+        PRESSED,        // 按下状态
+        WAIT_RELEASE    // 等待释放状态
     };
 
     Button(const char* buttonName, uint32_t longPressTime, uint32_t doubleClickTime);

@@ -12,6 +12,7 @@
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 lv_obj_t * ui_HalfmindScreen;
+lv_obj_t * ui_Image1;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
 
@@ -19,20 +20,12 @@ lv_obj_t * uic_HalfmindScreen;
 // SCREEN: ui_ActiveScreen
 void ui_ActiveScreen_screen_init(void);
 lv_obj_t * ui_ActiveScreen;
-lv_obj_t * ui_Panel3;
-lv_obj_t * ui_ActiveGuide;
-lv_obj_t * ui_Label2;
-lv_obj_t * ui_Panel4;
-lv_obj_t * ui_ActiveGuide3;
-lv_obj_t * ui_Label4;
 lv_obj_t * ui_Panel2;
-lv_obj_t * ui_ActiveGuide2;
-lv_obj_t * ui_Label3;
+lv_obj_t * ui_Activate1;
+lv_obj_t * ui_Activate2;
+lv_obj_t * ui_Activate3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ActiveScreen;
-lv_obj_t * uic_HostGuide;
-lv_obj_t * uic_HostGuide;
-lv_obj_t * uic_HostGuide;
 
 
 // SCREEN: ui_OTAScreen
@@ -56,6 +49,7 @@ lv_obj_t * uic_VersionChange;
 void ui_TaskScreen_screen_init(void);
 lv_obj_t * ui_TaskScreen;
 lv_obj_t * ui_HaveTaskContainer;
+lv_obj_t * ui_TaskContainer;
 lv_obj_t * ui_startlabel;
 lv_obj_t * ui_Button1;
 lv_obj_t * ui_chooseTaskF;
@@ -67,35 +61,59 @@ lv_obj_t * ui_Button3;
 lv_obj_t * ui_chooseTaskT;
 lv_obj_t * ui_chooseTask11;
 lv_obj_t * ui_endlabel;
+lv_obj_t * ui_scrollbar;
+lv_obj_t * ui_Arc1;
 lv_obj_t * ui_NoTaskContainer;
-lv_obj_t * ui_NoTaskNote;
-lv_obj_t * ui_NoTaskNote14;
-lv_obj_t * ui_NoTaskNote2;
+lv_obj_t * ui_Notask;
+lv_obj_t * ui_NotaskTip1;
+lv_obj_t * ui_NotaskTip2;
+lv_obj_t * ui_NotaskTip3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_TaskScreen;
 lv_obj_t * uic_chooseTaskF;
 lv_obj_t * uic_chooseTaskS;
 lv_obj_t * uic_chooseTaskT;
-lv_obj_t * uic_NoTaskNote1;
-lv_obj_t * uic_NoTaskNote5;
-lv_obj_t * uic_NoTaskNote6;
 
 
 // SCREEN: ui_OperatingScreen
 void ui_OperatingScreen_screen_init(void);
 lv_obj_t * ui_OperatingScreen;
 lv_obj_t * ui_Panel10;
-lv_obj_t * ui_OperatingTime;
-lv_obj_t * ui_Time2;
-lv_obj_t * ui_Time3;
-lv_obj_t * ui_OperatingLoadingpanel;
-lv_obj_t * ui_OperatingTime2;
-lv_obj_t * ui_Time5;
-lv_obj_t * ui_Time1;
+lv_obj_t * ui_NoOperate;
+lv_obj_t * ui_NoOperatetTime;
+lv_obj_t * ui_Label8;
+lv_obj_t * ui_NoOperateChooseButton;
+lv_obj_t * ui_NoOperateChooseCancel;
+lv_obj_t * ui_NoOperateChooseStart;
+lv_obj_t * ui_NoOperateAutoGuide;
+lv_obj_t * ui_RecordOperate;
+lv_obj_t * ui_RecordOperateUpText;
+lv_obj_t * ui_Label9;
+lv_obj_t * ui_RecordOperateTime;
+lv_obj_t * ui_Label7;
+lv_obj_t * ui_RecordAgain;
+lv_obj_t * ui_RecordOperateMiddleText;
+lv_obj_t * ui_RecordOperateButton;
+lv_obj_t * ui_Image8;
+lv_obj_t * ui_RecordComfirmButton;
+lv_obj_t * ui_RecordComfirmCancel;
+lv_obj_t * ui_RecordComfirmFinish;
+lv_obj_t * ui_RecordOperateDownText;
+lv_obj_t * ui_TaskOperate;
+lv_obj_t * ui_TaskName;
+lv_obj_t * ui_Label3;
+lv_obj_t * ui_TaskOperatetTime;
+lv_obj_t * ui_Label5;
+lv_obj_t * ui_TaskOperateAutoGuide;
+lv_obj_t * ui_TaskOperateButton;
+lv_obj_t * ui_TaskOperateCancel;
+lv_obj_t * ui_TaskOperateStart;
 // CUSTOM VARIABLES
 lv_obj_t * uic_OperatingScreen;
-lv_obj_t * uic_OperatingTime;
-lv_obj_t * uic_OperatingTime;
+lv_obj_t * uic_RecordOperateTime;
+lv_obj_t * uic_RecordOperateTime;
+lv_obj_t * uic_RecordComfirmFinish;
+lv_obj_t * uic_RecordOperateDownText;
 
 
 // SCREEN: ui_UpdateScreen
@@ -118,6 +136,7 @@ lv_obj_t * ui_ShutdownScreen;
 lv_obj_t * ui_Panel13;
 lv_obj_t * ui_ShutdownGuide;
 lv_obj_t * ui_ShutdownGuide2;
+lv_obj_t * ui_Battery;
 // CUSTOM VARIABLES
 lv_obj_t * uic_ShutdownScreen;
 lv_obj_t * uic_ShutdownGuide;
@@ -127,52 +146,81 @@ lv_obj_t * uic_ShutdownGuide;
 // SCREEN: ui_HostActiveScreen
 void ui_HostActiveScreen_screen_init(void);
 lv_obj_t * ui_HostActiveScreen;
-lv_obj_t * ui_Panel5;
-lv_obj_t * ui_HostName;
-lv_obj_t * ui_HostInf;
+lv_obj_t * ui_ConnectingWIFI;
+lv_obj_t * ui_HostActiveGuide1;
+lv_obj_t * ui_WIFIname;
+lv_obj_t * ui_Label2;
+lv_obj_t * ui_HostActiveAutoTime;
+lv_obj_t * ui_DisconnectWIFI;
+lv_obj_t * ui_HostActiveCancel;
+lv_obj_t * ui_Disconnectwifiname;
+lv_obj_t * ui_Label4;
+lv_obj_t * ui_HostActiveRetry;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HostActiveScreen;
-lv_obj_t * uic_HostName;
-lv_obj_t * uic_HostInf;
+lv_obj_t * uic_HostActiveAutoTime;
+lv_obj_t * uic_HostActiveCancel;
+lv_obj_t * uic_HostActiveRetry;
 
 
 // SCREEN: ui_SlaveActiveScreen
 void ui_SlaveActiveScreen_screen_init(void);
 lv_obj_t * ui_SlaveActiveScreen;
 lv_obj_t * ui_Panel6;
-lv_obj_t * ui_SlaveName;
-lv_obj_t * ui_SlaveInf;
+lv_obj_t * ui_Username;
+lv_obj_t * ui_Label6;
 // CUSTOM VARIABLES
 lv_obj_t * uic_SlaveActiveScreen;
-lv_obj_t * uic_SlaveInf;
 
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 lv_obj_t * ui_FocusScreen;
-lv_obj_t * ui_Panel11;
+lv_obj_t * ui_TaskFocus;
+lv_obj_t * ui_TaskFocus1;
 lv_obj_t * ui_FocusTask;
 lv_obj_t * ui_Task;
-lv_obj_t * ui_speachbar;
-lv_obj_t * ui_Panel12;
-lv_obj_t * ui_FocusTime;
+lv_obj_t * ui_TaskFocus2;
+lv_obj_t * ui_TaskFocusTime;
 lv_obj_t * ui_FocusTime2;
-lv_obj_t * ui_FocusLoadingpanel;
-lv_obj_t * ui_OperatingTime3;
-lv_obj_t * ui_Time7;
-lv_obj_t * ui_Time4;
+lv_obj_t * ui_TaskFocusWarning;
+lv_obj_t * ui_Image4;
+lv_obj_t * ui_Image5;
+lv_obj_t * ui_RecordFocus;
+lv_obj_t * ui_RecordFocus1;
+lv_obj_t * ui_Image7;
+lv_obj_t * ui_RecordFocus2;
+lv_obj_t * ui_RecordFocusTime;
+lv_obj_t * ui_FocusTime1;
+lv_obj_t * ui_RecordFocusWarning;
+lv_obj_t * ui_Image6;
+lv_obj_t * ui_Image2;
+lv_obj_t * ui_NoFocus;
+lv_obj_t * ui_NoFocusTime;
+lv_obj_t * ui_NoFocusTime2;
+lv_obj_t * ui_NoFocusWarning;
+lv_obj_t * ui_Image9;
+lv_obj_t * ui_Image3;
+lv_obj_t * ui_Image10;
+lv_obj_t * ui_Image11;
+lv_obj_t * ui_Image12;
+lv_obj_t * ui_Image13;
 // CUSTOM VARIABLES
 lv_obj_t * uic_FocusScreen;
 lv_obj_t * uic_FocusTask;
 lv_obj_t * uic_Task2;
 lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTime1;
-lv_obj_t * uic_OperatingTime;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_NoFocusWarning;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+const lv_img_dsc_t * ui_imgset_activate[3] = {&ui_img_activate1_png, &ui_img_activate2_png, &ui_img_activate3_png};
+const lv_img_dsc_t * ui_imgset_tips[3] = {&ui_img_tips1_png, &ui_img_tips2_png, &ui_img_tips3_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 // #if LV_COLOR_DEPTH != 8

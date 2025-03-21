@@ -2,6 +2,8 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                         "elabel_state_machine/ElabelController.cpp"
                         "elabel_state_machine/ChoosingTaskState.cpp"
                         "elabel_state_machine/OperatingTaskState.cpp"
+                        "elabel_state_machine/OperatingRecorderState.cpp"
+                        "elabel_state_machine/OperatingTimerState.cpp"
                         "elabel_state_machine/FocusTaskState.cpp"
                         "elabel_state_machine/ActiveState.cpp"
                         "elabel_state_machine/HostActiveState.cpp"

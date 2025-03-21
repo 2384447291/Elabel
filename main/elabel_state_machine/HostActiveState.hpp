@@ -15,34 +15,14 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool Out_ActiveState = false;
+    bool button_choose_left = true;
+    bool is_fail = false;
+    bool is_set_wifi = false;
 
-    uint8_t painted_slave_num = 0;
+    bool need_back = false;
+    bool need_forward = false;
 
-    void repaint_para()
-    {
-        if(get_global_data()->m_language == English)
-        {
-            char Host_info[400];
-            sprintf(Host_info, "Username: %s\nWIFIname: %s\nWIFIPassword: %s\nSlaveNum: %d", 
-            get_global_data()->m_userName, 
-            get_global_data()->m_wifi_ssid, 
-            get_global_data()->m_wifi_password, 
-            EspNowHost::Instance()->slave_num);
-            set_text_with_change_font(ui_HostInf, Host_info, false);
-        }
-        else if(get_global_data()->m_language == Chinese)
-        {
-            char Host_info[400];
-            sprintf(Host_info, "用户名: %s\nWIFI名称: %s\nWIFI密码: %s\n从机数量: %d", 
-            get_global_data()->m_userName, 
-            get_global_data()->m_wifi_ssid, 
-            get_global_data()->m_wifi_password, 
-            EspNowHost::Instance()->slave_num);
-            set_text_with_change_font(ui_HostInf, Host_info, false);
-        }
-        painted_slave_num = EspNowHost::Instance()->slave_num;
-    }
+    uint32_t reconnect_count_down = 15;
 
     static HostActiveState* Instance()
     {

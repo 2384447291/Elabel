@@ -10,60 +10,60 @@ void ui_FocusScreen_screen_init(void)
     ui_FocusScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_FocusScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Panel11 = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_Panel11, 250);
-    lv_obj_set_height(ui_Panel11, 72);
-    lv_obj_clear_flag(ui_Panel11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Panel11, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Panel11, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Panel11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_TaskFocus = lv_obj_create(ui_FocusScreen);
+    lv_obj_remove_style_all(ui_TaskFocus);
+    lv_obj_set_width(ui_TaskFocus, 250);
+    lv_obj_set_height(ui_TaskFocus, 122);
+    lv_obj_set_align(ui_TaskFocus, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_TaskFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_TaskFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_FocusTask = lv_label_create(ui_Panel11);
+    ui_TaskFocus1 = lv_obj_create(ui_TaskFocus);
+    lv_obj_set_width(ui_TaskFocus1, 250);
+    lv_obj_set_height(ui_TaskFocus1, 72);
+    lv_obj_clear_flag(ui_TaskFocus1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_TaskFocus1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_TaskFocus1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TaskFocus1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_FocusTask = lv_label_create(ui_TaskFocus1);
     lv_obj_set_align(ui_FocusTask, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_FocusTask, "我我我\n我我我");
+    lv_label_set_text(ui_FocusTask, "fuck you");
     lv_obj_set_style_text_color(ui_FocusTask, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTask, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTask, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTask, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Task = lv_label_create(ui_FocusTask);
     lv_obj_set_x(ui_Task, -1);
     lv_obj_set_y(ui_Task, 0);
     lv_obj_set_align(ui_Task, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Task, "我我我\n我我我");
+    lv_label_set_text(ui_Task, "fuck you");
     lv_obj_set_style_text_color(ui_Task, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Task, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Task, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_speachbar = lv_img_create(ui_Panel11);
-    lv_img_set_src(ui_speachbar, &ui_img_speach_png);
-    lv_obj_set_width(ui_speachbar, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_speachbar, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_speachbar, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_speachbar, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_speachbar, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_TaskFocus2 = lv_obj_create(ui_TaskFocus);
+    lv_obj_set_width(ui_TaskFocus2, 250);
+    lv_obj_set_height(ui_TaskFocus2, 50);
+    lv_obj_set_x(ui_TaskFocus2, 0);
+    lv_obj_set_y(ui_TaskFocus2, 72);
+    lv_obj_clear_flag(ui_TaskFocus2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_TaskFocus2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_TaskFocus2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TaskFocus2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_TaskFocus2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_TaskFocus2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel12 = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_Panel12, 250);
-    lv_obj_set_height(ui_Panel12, 50);
-    lv_obj_set_x(ui_Panel12, 0);
-    lv_obj_set_y(ui_Panel12, 72);
-    lv_obj_clear_flag(ui_Panel12, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Panel12, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Panel12, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Panel12, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Panel12, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Panel12, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_TaskFocusTime = lv_label_create(ui_TaskFocus2);
+    lv_obj_set_width(ui_TaskFocusTime, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_TaskFocusTime, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_TaskFocusTime, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_TaskFocusTime, "5:00");
+    lv_obj_set_style_text_color(ui_TaskFocusTime, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_TaskFocusTime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_TaskFocusTime, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_FocusTime = lv_label_create(ui_Panel12);
-    lv_obj_set_width(ui_FocusTime, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_FocusTime, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_FocusTime, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_FocusTime, "5:00");
-    lv_obj_set_style_text_color(ui_FocusTime, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_FocusTime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTime, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_FocusTime2 = lv_label_create(ui_FocusTime);
+    ui_FocusTime2 = lv_label_create(ui_TaskFocusTime);
     lv_obj_set_width(ui_FocusTime2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_FocusTime2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_FocusTime2, -1);
@@ -72,53 +72,229 @@ void ui_FocusScreen_screen_init(void)
     lv_label_set_text(ui_FocusTime2, "5:00");
     lv_obj_set_style_text_color(ui_FocusTime2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTime2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTime2, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTime2, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_FocusLoadingpanel = lv_obj_create(ui_FocusScreen);
-    lv_obj_set_width(ui_FocusLoadingpanel, 250);
-    lv_obj_set_height(ui_FocusLoadingpanel, 122);
-    lv_obj_add_flag(ui_FocusLoadingpanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
-    lv_obj_clear_flag(ui_FocusLoadingpanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_FocusLoadingpanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_FocusLoadingpanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_FocusLoadingpanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_FocusLoadingpanel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_FocusLoadingpanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_TaskFocusWarning = lv_obj_create(ui_TaskFocus);
+    lv_obj_set_width(ui_TaskFocusWarning, 250);
+    lv_obj_set_height(ui_TaskFocusWarning, 50);
+    lv_obj_set_x(ui_TaskFocusWarning, 0);
+    lv_obj_set_y(ui_TaskFocusWarning, 72);
+    lv_obj_clear_flag(ui_TaskFocusWarning, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_TaskFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_TaskFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TaskFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_TaskFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_TaskFocusWarning, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_OperatingTime3 = lv_label_create(ui_FocusLoadingpanel);
-    lv_obj_set_width(ui_OperatingTime3, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_OperatingTime3, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OperatingTime3, 1);
-    lv_obj_set_y(ui_OperatingTime3, 0);
-    lv_obj_set_align(ui_OperatingTime3, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OperatingTime3, "同步中...");
-    lv_obj_set_style_text_color(ui_OperatingTime3, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_OperatingTime3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_OperatingTime3, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Image4 = lv_img_create(ui_TaskFocusWarning);
+    lv_img_set_src(ui_Image4, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image4, -80);
+    lv_obj_set_y(ui_Image4, 0);
+    lv_obj_set_align(ui_Image4, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image4, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Time7 = lv_label_create(ui_OperatingTime3);
-    lv_obj_set_width(ui_Time7, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Time7, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Time7, -1);
-    lv_obj_set_y(ui_Time7, 0);
-    lv_obj_set_align(ui_Time7, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Time7, "同步中...");
-    lv_obj_set_style_text_color(ui_Time7, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Time7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Time7, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Image5 = lv_img_create(ui_TaskFocusWarning);
+    lv_img_set_src(ui_Image5, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image5, 80);
+    lv_obj_set_y(ui_Image5, 0);
+    lv_obj_set_align(ui_Image5, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Time4 = lv_label_create(ui_OperatingTime3);
-    lv_obj_set_width(ui_Time4, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Time4, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Time4, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Time4, "同步中...");
-    lv_obj_set_style_text_font(ui_Time4, &ui_font_Chinese_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_RecordFocus = lv_obj_create(ui_FocusScreen);
+    lv_obj_remove_style_all(ui_RecordFocus);
+    lv_obj_set_width(ui_RecordFocus, 250);
+    lv_obj_set_height(ui_RecordFocus, 122);
+    lv_obj_set_align(ui_RecordFocus, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_RecordFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_RecordFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_RecordFocus1 = lv_obj_create(ui_RecordFocus);
+    lv_obj_set_width(ui_RecordFocus1, 250);
+    lv_obj_set_height(ui_RecordFocus1, 72);
+    lv_obj_clear_flag(ui_RecordFocus1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordFocus1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordFocus1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordFocus1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Image7 = lv_img_create(ui_RecordFocus1);
+    lv_img_set_src(ui_Image7, &ui_img_player_png);
+    lv_obj_set_width(ui_Image7, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image7, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Image7, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image7, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_RecordFocus2 = lv_obj_create(ui_RecordFocus);
+    lv_obj_set_width(ui_RecordFocus2, 250);
+    lv_obj_set_height(ui_RecordFocus2, 50);
+    lv_obj_set_x(ui_RecordFocus2, 0);
+    lv_obj_set_y(ui_RecordFocus2, 72);
+    lv_obj_clear_flag(ui_RecordFocus2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordFocus2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordFocus2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordFocus2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_RecordFocus2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_RecordFocus2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordFocusTime = lv_label_create(ui_RecordFocus2);
+    lv_obj_set_width(ui_RecordFocusTime, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_RecordFocusTime, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_RecordFocusTime, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_RecordFocusTime, "5:00");
+    lv_obj_set_style_text_color(ui_RecordFocusTime, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_RecordFocusTime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RecordFocusTime, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_FocusTime1 = lv_label_create(ui_RecordFocusTime);
+    lv_obj_set_width(ui_FocusTime1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_FocusTime1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_FocusTime1, -1);
+    lv_obj_set_y(ui_FocusTime1, 0);
+    lv_obj_set_align(ui_FocusTime1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_FocusTime1, "5:00");
+    lv_obj_set_style_text_color(ui_FocusTime1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_FocusTime1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTime1, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RecordFocusWarning = lv_obj_create(ui_RecordFocus);
+    lv_obj_set_width(ui_RecordFocusWarning, 250);
+    lv_obj_set_height(ui_RecordFocusWarning, 50);
+    lv_obj_set_x(ui_RecordFocusWarning, 0);
+    lv_obj_set_y(ui_RecordFocusWarning, 72);
+    lv_obj_clear_flag(ui_RecordFocusWarning, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RecordFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RecordFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RecordFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_RecordFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_RecordFocusWarning, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Image6 = lv_img_create(ui_RecordFocusWarning);
+    lv_img_set_src(ui_Image6, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image6, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image6, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image6, -80);
+    lv_obj_set_y(ui_Image6, 0);
+    lv_obj_set_align(ui_Image6, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image6, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image2 = lv_img_create(ui_RecordFocusWarning);
+    lv_img_set_src(ui_Image2, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image2, 80);
+    lv_obj_set_y(ui_Image2, 0);
+    lv_obj_set_align(ui_Image2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_NoFocus = lv_obj_create(ui_FocusScreen);
+    lv_obj_remove_style_all(ui_NoFocus);
+    lv_obj_set_width(ui_NoFocus, 250);
+    lv_obj_set_height(ui_NoFocus, 122);
+    lv_obj_set_align(ui_NoFocus, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_NoFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_NoFocusTime = lv_label_create(ui_NoFocus);
+    lv_obj_set_width(ui_NoFocusTime, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_NoFocusTime, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_NoFocusTime, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_NoFocusTime, "55:00");
+    lv_obj_set_style_text_font(ui_NoFocusTime, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_NoFocusTime2 = lv_label_create(ui_NoFocusTime);
+    lv_obj_set_width(ui_NoFocusTime2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_NoFocusTime2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_NoFocusTime2, 1);
+    lv_obj_set_y(ui_NoFocusTime2, -1);
+    lv_obj_set_align(ui_NoFocusTime2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_NoFocusTime2, "55:00");
+    lv_obj_set_style_text_font(ui_NoFocusTime2, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_NoFocusWarning = lv_obj_create(ui_NoFocus);
+    lv_obj_set_width(ui_NoFocusWarning, 250);
+    lv_obj_set_height(ui_NoFocusWarning, 122);
+    lv_obj_set_align(ui_NoFocusWarning, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_NoFocusWarning, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_NoFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_NoFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_NoFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_NoFocusWarning, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_NoFocusWarning, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Image9 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image9, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image9, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image9, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image9, -60);
+    lv_obj_set_y(ui_Image9, 40);
+    lv_obj_set_align(ui_Image9, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image9, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image9, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image3 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image3, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image3, 0);
+    lv_obj_set_y(ui_Image3, 40);
+    lv_obj_set_align(ui_Image3, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image10 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image10, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image10, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image10, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image10, 60);
+    lv_obj_set_y(ui_Image10, 40);
+    lv_obj_set_align(ui_Image10, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image10, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image10, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image11 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image11, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image11, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image11, -60);
+    lv_obj_set_y(ui_Image11, -40);
+    lv_obj_set_align(ui_Image11, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image11, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image12 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image12, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image12, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image12, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image12, 0);
+    lv_obj_set_y(ui_Image12, -40);
+    lv_obj_set_align(ui_Image12, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image12, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image12, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Image13 = lv_img_create(ui_NoFocusWarning);
+    lv_img_set_src(ui_Image13, &ui_img_warning_amber_png);
+    lv_obj_set_width(ui_Image13, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image13, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image13, 60);
+    lv_obj_set_y(ui_Image13, -40);
+    lv_obj_set_align(ui_Image13, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image13, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image13, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     uic_FocusScreen = ui_FocusScreen;
     uic_FocusTask = ui_FocusTask;
     uic_Task2 = ui_Task;
-    uic_FocusTime1 = ui_FocusTime;
+    uic_FocusTime1 = ui_TaskFocusTime;
     uic_FocusTime1 = ui_FocusTime2;
-    uic_OperatingTime = ui_OperatingTime3;
+    uic_FocusTime1 = ui_RecordFocusTime;
+    uic_FocusTime1 = ui_FocusTime1;
+    uic_NoFocusWarning = ui_NoFocusWarning;
 
 }

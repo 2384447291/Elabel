@@ -7,8 +7,8 @@
 #include "bitmap.h"
 #include "../ui/ui.h"
 
-// #undef ESP_LOGI
-// #define ESP_LOGI(tag, format, ...) 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 
 #define TAG "SSD1680"
 
@@ -20,10 +20,14 @@ static uint8_t ssd1680_border_part[] = {0x80}; //partial update
 //A2 - 1 Follow LUT; A1:A0 - 01 LUT1;
 
 screen elabel_screen;
-bitmap_state elabel_bitmap_state;
-partial_area elabel_partial_area;
 update_mode elabel_update_mode;
 bool isBaseMapFresh = false;
+bool force_full_update = false;
+void set_force_full_update(bool _force_full_update)
+{
+    force_full_update = _force_full_update;
+}
+
 
 static void ssd1680_update_display();
 static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, uint16_t ye);
@@ -53,19 +57,25 @@ static inline void ssd1680_send_data(uint8_t *data, uint16_t length);
 void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
     lv_obj_t * act_scr = lv_scr_act();
-    if(act_scr == ui_HalfmindScreen)
+    if(act_scr == ui_HalfmindScreen) //只能快刷
     {
-        if(elabel_screen != HALFMIND_SCREEN)
-        {
-            isBaseMapFresh = false;
-            elabel_screen = HALFMIND_SCREEN;
-        }
-        elabel_update_mode = BITMAP_UPDATE;
-        elabel_bitmap_state = HALFMIND_STATE;
+        force_full_update = false;
+        elabel_screen = HALFMIND_SCREEN;
+        isBaseMapFresh = false;
+        elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
     }
-    else if(act_scr == ui_ActiveScreen)
+    else if(act_scr == ui_ShutdownScreen)
     {
+        force_full_update = false;
+        elabel_screen = SHUTDOWN_SCREEN;
+        isBaseMapFresh = false;
+        elabel_update_mode = FAST_UPDATE;
+        ESP_LOGI(TAG,"ui_ShutdownScreen Flush called.");
+    }
+    else if(act_scr == ui_ActiveScreen) //只能快刷
+    {
+        force_full_update = false;
         elabel_screen = ACTIVE_SCREEN;
         isBaseMapFresh = false;
         elabel_update_mode = FAST_UPDATE;
@@ -73,57 +83,59 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     }
     else if(act_scr == ui_HostActiveScreen)
     {
-        elabel_update_mode = FAST_UPDATE;
-        isBaseMapFresh = false;
-        elabel_screen = HOSTACTIVE_SCREEN;
-        ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
-    }
-    else if(act_scr == ui_SlaveActiveScreen)
-    {
-        elabel_update_mode = FAST_UPDATE;
-        isBaseMapFresh = false;
-        elabel_screen = SLAVEACTIVE_SCREEN;
-        ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");
-    }
-    else if(act_scr == ui_OTAScreen)
-    {
-        if(elabel_screen != OTA_SCREEN)
+        if(elabel_screen != HOSTACTIVE_SCREEN || force_full_update)
         {
-            isBaseMapFresh = false;
-            elabel_screen = OTA_SCREEN;
-        }
-        elabel_update_mode = FAST_UPDATE;
-        ESP_LOGI(TAG,"ui_OTAScreen Flush called.");
-    }
-    else if(act_scr == ui_ShutdownScreen)
-    {
-        if(elabel_screen != SHUTDOWN_SCREEN)
-        {
-            isBaseMapFresh = false;
-            elabel_screen = SHUTDOWN_SCREEN;
-        }
-        elabel_update_mode = FAST_UPDATE;
-        ESP_LOGI(TAG,"ui_ShutdownScreen Flush called.");
-    }
-    else if(act_scr == ui_UpdateScreen)
-    {
-        if(elabel_screen != UPDATE_SCREEN)
-        {
+            force_full_update = false;
             elabel_update_mode = FAST_UPDATE;
             isBaseMapFresh = false;
-            elabel_screen = UPDATE_SCREEN;
+            elabel_screen = HOSTACTIVE_SCREEN;
         }
         else
         {
             elabel_update_mode = PARTIAL_UPDATE;
-            elabel_partial_area = OTA_PROCESS;
         }
-        ESP_LOGI(TAG,"ui_UpdateScreen Flush called.");
+        ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
     }
+    // else if(act_scr == ui_SlaveActiveScreen)
+    // {
+    //     elabel_update_mode = FAST_UPDATE;
+    //     isBaseMapFresh = false;
+    //     elabel_screen = SLAVEACTIVE_SCREEN;
+    //     ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");
+    // }
+    // else if(act_scr == ui_OTAScreen)
+    // {
+    //     if(elabel_screen != OTA_SCREEN)
+    //     {
+    //         force_full_update = false;
+    //         isBaseMapFresh = false;
+    //         elabel_screen = OTA_SCREEN;
+    //     }
+    //     elabel_update_mode = FAST_UPDATE;
+    //     ESP_LOGI(TAG,"ui_OTAScreen Flush called.");
+    // }
+
+    // else if(act_scr == ui_UpdateScreen)
+    // {
+    //     if(elabel_screen != UPDATE_SCREEN)
+    //     {
+    //         force_full_update = false;
+    //         elabel_update_mode = FAST_UPDATE;
+    //         isBaseMapFresh = false;
+    //         elabel_screen = UPDATE_SCREEN;
+    //     }
+    //     else
+    //     {
+    //         elabel_update_mode = PARTIAL_UPDATE;
+    //         elabel_partial_area = OTA_PROCESS;
+    //     }
+    //     ESP_LOGI(TAG,"ui_UpdateScreen Flush called.");
+    // }
     else if(act_scr == ui_TaskScreen)
     {
-        if(elabel_screen != TASK_SCREEN)
+        if(elabel_screen != TASK_SCREEN || force_full_update)
         {
+            force_full_update = false;
             elabel_update_mode = FAST_UPDATE;
             isBaseMapFresh = false;
             elabel_screen = TASK_SCREEN;
@@ -131,14 +143,14 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         else
         {
             elabel_update_mode = PARTIAL_UPDATE;
-            elabel_partial_area = TASK_LIST;
         }
         ESP_LOGI(TAG,"ui_TaskScreen Flush called.");
     }
     else if(act_scr == ui_OperatingScreen)
     {
-        if(elabel_screen != OPERATING_SCREEN)
+        if(elabel_screen != OPERATING_SCREEN || force_full_update)
         {
+            force_full_update = false;
             elabel_update_mode = FAST_UPDATE;
             isBaseMapFresh = false;
             elabel_screen = OPERATING_SCREEN;
@@ -146,14 +158,14 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         else
         {
             elabel_update_mode = PARTIAL_UPDATE;
-            elabel_partial_area = TIME_SET; 
         }
         ESP_LOGI(TAG,"ui_OperatingScreen Flush called.");
     }
     else if(act_scr == ui_FocusScreen)
     {
-        if(elabel_screen != FOCUS_SCREEN)
+        if(elabel_screen != FOCUS_SCREEN || force_full_update)
         {
+            force_full_update = false;
             elabel_update_mode = FAST_UPDATE;
             isBaseMapFresh = false;
             elabel_screen = FOCUS_SCREEN;
@@ -161,7 +173,6 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         else
         {
             elabel_update_mode = PARTIAL_UPDATE;
-            elabel_partial_area = TIME_CHANGE; 
         }
         ESP_LOGI(TAG,"ui_FocusScreen Flush called.");
     }
@@ -190,18 +201,18 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     }
     if(elabel_update_mode == BITMAP_UPDATE)
     {
-        if(elabel_bitmap_state == HALFMIND_STATE)
-        {
-            ESP_LOGI("SSD1680", "BITMAP HALFMIND_STATE Start Send.");
-            buffer = (uint8_t *) gImage_halfmind;
-            ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
-            ssd1680_send_data(buffer,4000);
-            //局刷前的basemap的全刷需要刷新这个,但这里后面不会跟局刷，所以不处理
-            // buffer = (uint8_t *) gImage_halfmind;
-            // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
-            // ssd1680_send_data(buffer,4000);
-            ssd1680_update_display();
-        }
+        // if(elabel_bitmap_state == HALFMIND_STATE)
+        // {
+        //     ESP_LOGI("SSD1680", "BITMAP HALFMIND_STATE Start Send.");
+        //     buffer = (uint8_t *) gImage_halfmind;
+        //     ssd1680_send_cmd(SSD1680_CMD_WRITE1_RAM);
+        //     ssd1680_send_data(buffer,4000);
+        //     //局刷前的basemap的全刷需要刷新这个,但这里后面不会跟局刷，所以不处理
+        //     // buffer = (uint8_t *) gImage_halfmind;
+        //     // ssd1680_send_cmd(SSD1680_CMD_WRITE2_RAM);
+        //     // ssd1680_send_data(buffer,4000);
+        //     ssd1680_update_display();
+        // }
     }
     else if(elabel_update_mode == FAST_UPDATE)
     {
@@ -226,34 +237,41 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         uint16_t y1 = 0;
         uint16_t x2 = 250;
         uint16_t y2 = 122;
-        if(elabel_partial_area == TASK_LIST)
-        {
-            x1 = 0;
-            y1 = 0;
-            x2 = 250;
-            y2 = 122;
-        }
-        else if(elabel_partial_area == OTA_PROCESS)
-        {
-            x1 = 0;
-            y1 = 0;
-            x2 = 250;
-            y2 = 122;
-        }
-        else if(elabel_partial_area == TIME_CHANGE)
-        {
-            x1 = 48;
-            y1 = 56;
-            x2 = 200;
-            y2 = 122;
-        }
-        else if(elabel_partial_area == TIME_SET)
-        {
-            x1 = 32;
-            y1 = 24;
-            x2 = 216;
-            y2 = 104;
-        }
+        // if(elabel_partial_area == TASK_LIST)
+        // {
+        //     x1 = 0;
+        //     y1 = 0;
+        //     x2 = 250;
+        //     y2 = 122;
+        // }
+        // else if(elabel_partial_area == OTA_PROCESS)
+        // {
+        //     x1 = 0;
+        //     y1 = 0;
+        //     x2 = 250;
+        //     y2 = 122;
+        // }
+        // else if(elabel_partial_area == TIME_CHANGE)
+        // {
+        //     x1 = 48;
+        //     y1 = 56;
+        //     x2 = 200;
+        //     y2 = 122;
+        // }
+        // else if(elabel_partial_area == TIME_SET)
+        // {
+        //     x1 = 0;
+        //     y1 = 0;
+        //     x2 = 250;
+        //     y2 = 122;
+        // }
+        // else if(elabel_partial_area == HOSTACTIVE_LOWER_PLACE)
+        // {
+        //     x1 = 10;
+        //     y1 = 66;
+        //     x2 = 240;
+        //     y2 = 122;
+        // }
         uint16_t X1 = y1;
         uint16_t X2 = y2;
         uint16_t Y1 = x1;
@@ -288,6 +306,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     //一定要加，不然会烧屏幕
     ssd1680_deep_sleep();
     ESP_LOGI("SSD1680", "FINISH Send.\n");
+    //通知lvgl传输完毕
     lv_disp_flush_ready(drv);
 }
 

@@ -18,10 +18,14 @@ public:
     void brush_task_list();
     void scroll_to_center(lv_obj_t *container, lv_obj_t *child);
     void resize_task();
+    void update_progress_bar();
 
-    bool need_stay_choosen = false;
-    bool is_jump_to_activate = false;
+    bool is_jump_to_task_mode = false;
+    bool is_jump_to_time_mode = false;
+    bool is_jump_to_record_mode = false;
 
+    //刷新标记
+    bool need_flash_paper = false;
 
     static ChoosingTaskState* Instance()
     {

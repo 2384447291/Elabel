@@ -151,6 +151,8 @@ Global_data* get_global_data() {
         if (instance != NULL) 
         {
             Global_message_mutex = xSemaphoreCreateMutex();
+
+            instance->m_is_read_guidance = false;
             
             instance->m_is_host = 0;
             instance->m_language = English;

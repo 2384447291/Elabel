@@ -20,13 +20,15 @@ typedef enum
     HALFMIND_STATE,
 } bitmap_state;
 
-typedef enum
-{
-    TASK_LIST,
-    OTA_PROCESS,
-    TIME_SET,
-    TIME_CHANGE,
-} partial_area;
+// typedef enum
+// {
+//     //HostActive
+//     HOSTACTIVE_LOWER_PLACE,
+//     TASK_LIST,
+//     OTA_PROCESS,
+//     TIME_SET,
+//     TIME_CHANGE,
+// } partial_area;
 
 typedef enum
 {
@@ -135,6 +137,8 @@ void ssd1680_rounder(lv_disp_drv_t * disp_drv, lv_area_t *area);
 void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w, lv_coord_t x, lv_coord_t y, lv_color_t color, lv_opa_t opa);
 
 void ssd1680_deep_sleep(void);
+
+void set_force_full_update(bool _force_full_update);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

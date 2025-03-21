@@ -9,7 +9,7 @@
 #include "esp_spiffs.h"
 #include <sys/stat.h>
 
-#define RECORD_BUFFER_SIZE (120 * 1024)  // 120KB 的录音缓冲区
+#define RECORD_BUFFER_SIZE (150 * 1024)  // 150KB 的录音缓冲区
 
 typedef enum {
     mic,

@@ -35,19 +35,15 @@ class ElabelController
 
         //所选择的task的id(一定要以id来传递，不要用number来传递，id是唯一的)
         uint16_t ChosenTaskId;
-        
         //任务倒计时的实际时间
-        uint32_t TimeCountdown;
+        uint32_t TimeCountdown = TimeCountdownOffset;
         //所选择的task在当前列表中的位置
         uint16_t ChosenTaskNum;
         //当前task_length的长度
         uint16_t TaskLength;
-        //刷新标记
-        bool need_flash_paper = false;
-        //是否确认任务
-        bool is_confirm_task = false;
-        //是否确认录音
-        bool is_confirm_record = false;
+
+        //获取如何进入的focus状态
+        uint8_t get_focus_type();
 
         static ElabelController* Instance()
         {

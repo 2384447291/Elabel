@@ -79,6 +79,8 @@ void clean_todo_list(TodoList *list);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
+    //taskscreen处有唯一显示的guidance
+    bool m_is_read_guidance;
     //语言
     language m_language;
     //主机还是从机 0 是没有设定 1 是主机 2 是从机

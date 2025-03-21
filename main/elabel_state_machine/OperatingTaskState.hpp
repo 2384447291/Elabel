@@ -4,7 +4,16 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 
-#define auto_enter_time 1000; //1000次20ms，刚好20s
+#define CONFIRM_TASK_TIME 15
+#define RECONFIRM_TASK_TIME 3
+
+typedef enum
+{
+    default_task_process,
+    Task_confirm_process,
+    Task_reconfirm_process,
+    finish_task_process,
+} Task_process;
 
 class OperatingTaskState : public State<ElabelController>
 {
@@ -16,15 +25,79 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool is_not_confirm_task = false;
-    bool is_confirm_time = false;
-
-    int auto_reload_time = auto_enter_time;
-
     static OperatingTaskState* Instance()
     {
         static OperatingTaskState instance;
         return &instance;
+    }
+
+    Task_process task_process = default_task_process;
+    bool button_choose_task_confirm_left = true;
+    uint8_t task_confirm_countdown = CONFIRM_TASK_TIME;
+    uint8_t task_reconfirm_countdown = RECONFIRM_TASK_TIME;
+    bool need_flash_paper = false;
+    bool need_out_state = false;
+
+    void enter_screen_confirm_task()
+    {
+        ESP_LOGI("OperatingTaskState", "enter_screen_confirm_task");
+        task_process = Task_confirm_process;
+        task_confirm_countdown = CONFIRM_TASK_TIME;
+        button_choose_task_confirm_left = true;
+ 
+        lock_lvgl();
+        switch_screen(ui_OperatingScreen);
+        lv_obj_add_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TaskOperate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_NoOperate, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_clear_flag(ui_TaskName, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TaskOperatetTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TaskOperateButton, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(ui_TaskOperateCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_TaskOperateStart, LV_STATE_PRESSED );
+
+        lv_obj_add_flag(ui_TaskOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
+
+        //设置任务名称
+        TodoItem* chose_todo;   
+        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, ElabelController::Instance()->ChosenTaskId);
+        set_text_without_change_font(ui_TaskName, chose_todo->title);
+
+        //设置设定的时间
+        char timestr[10] = "00:00";
+        uint32_t total_seconds = ElabelController::Instance()->TimeCountdown;  // 倒计时总秒数
+        uint8_t minutes = total_seconds / 60;  // 计算分钟数
+        uint8_t seconds = total_seconds % 60;  // 计算剩余秒数
+        sprintf(timestr, "%02d:%02d", minutes, seconds);
+        set_text_without_change_font(ui_TaskOperatetTime, timestr);
+        release_lvgl();
+    }
+
+    void enter_screen_reconfirm_task()
+    {
+        ESP_LOGI("OperatingTaskState", "enter_screen_reconfirm_task");
+        task_process = Task_reconfirm_process;
+        task_reconfirm_countdown = RECONFIRM_TASK_TIME;
+ 
+        lock_lvgl();
+        switch_screen(ui_OperatingScreen);
+        lv_obj_add_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TaskOperate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_NoOperate, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_clear_flag(ui_TaskName, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_TaskOperatetTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_TaskOperateButton, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(ui_TaskOperateCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_TaskOperateStart, LV_STATE_PRESSED );
+
+        lv_obj_clear_flag(ui_TaskOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
+
+        char time_str[30];
+        sprintf(time_str, "Auto start in %d secs", task_reconfirm_countdown);
+        set_text_without_change_font(ui_TaskOperateAutoGuide, time_str);
+        release_lvgl();
     }
 };
 #endif

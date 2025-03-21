@@ -37,8 +37,8 @@ static void mic_task_func(void* arg) {
             // 复制数据到录音缓冲区
             memcpy(codec->record_buffer + codec->recorded_size, buffer, READ_BLOCK_SIZE);
             codec->recorded_size += READ_BLOCK_SIZE;
-            ESP_LOGI(TAG, "Recording: %d bytes (%.1f seconds)", 
-                    codec->recorded_size, (float)codec->recorded_size/BytesPerSecond);
+            // ESP_LOGI(TAG, "Recording: %d bytes (%.1f seconds)", 
+            //         codec->recorded_size, (float)codec->recorded_size/BytesPerSecond);
         } else {
             ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
         }
@@ -47,7 +47,6 @@ static void mic_task_func(void* arg) {
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
     // 清除任务句柄
     codec->mic_task = NULL;
-    MCodec::Instance()->play_music("ding");
     vTaskDelete(NULL);
 }
 

@@ -37,14 +37,17 @@ public:
         return &instance;
     }
 
-    Button button1{"Button_1", 1500, 100};
-    Button button2{"Button_2", 1500, 100};
-    Button button3{"Button_3", 1500, 100};
-    Button button4{"Button_4", 1500, 100};
-    Button button5{"Button_5", 1500, 100};
-    Button button6{"Button_6", 1500, 100};
-    Button button7{"Button_7", 1500, 100};
-    Button button8{"Button_8", 1500, 100};
+    Button button1{"Button_1", 1000, 100};
+    Button button2{"Button_2", 1000, 100};
+    Button button3{"Button_3", 1000, 100};
+    Button button4{"Button_4", 1000, 100};
+    Button button5{"Button_5", 1000, 100};
+    Button button6{"Button_6", 1000, 100};
+    Button button7{"Button_7", 1000, 100};
+    Button button8{"Button_8", 1000, 100};
+
+    void register_all_button_callback(Callback::CallbackFunc callback);
+    void unregister_button_callback(Callback::CallbackFunc callback);
 private:
     static void controlPanelUpdateTask(void* parameters);
 };

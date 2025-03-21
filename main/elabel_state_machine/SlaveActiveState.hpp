@@ -25,7 +25,7 @@ public:
             sprintf(Slave_info, "Username: %s\nHostMac: \n " MACSTR "", 
             EspNowSlave::Instance()->username, 
             MAC2STR(EspNowSlave::Instance()->host_mac));
-            set_text_with_change_font(ui_SlaveInf, Slave_info, false);
+            // set_text_with_change_font(ui_SlaveInf, Slave_info, false);
         }
         else if(get_global_data()->m_language == Chinese)
         {
@@ -33,7 +33,7 @@ public:
             sprintf(Slave_info, "用户名: %s\n主机Mac: \n " MACSTR "", 
             EspNowSlave::Instance()->username, 
             MAC2STR(EspNowSlave::Instance()->host_mac));
-            set_text_with_change_font(ui_SlaveInf, Slave_info, false);
+            // set_text_with_change_font(ui_SlaveInf, Slave_info, false);
         }
     }
 

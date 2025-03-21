@@ -1,6 +1,7 @@
 #include "ChoosingTaskState.hpp"
 #include "Esp_now_client.hpp"
 #include "control_driver.hpp"
+#include <cmath>
 
 void choose_next_task()
 {
@@ -12,7 +13,7 @@ void choose_next_task()
     uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
     if(temp_chosen_task >= ElabelController::Instance()->TaskLength) temp_chosen_task = 0;
     ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
-    ElabelController::Instance()->need_flash_paper = true;
+    ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
 void choose_previous_task()
@@ -25,38 +26,45 @@ void choose_previous_task()
     uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
     if(temp_chosen_task == 255) temp_chosen_task = ElabelController::Instance()->TaskLength - 1;
     ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
-    ElabelController::Instance()->need_flash_paper = true;
+    ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
-void confirm_record()
+void jump_to_task_mode()
 {
-    ElabelController::Instance()->is_confirm_record = true;
-    ESP_LOGI("ChoosingTaskState","confirm record");
-}
-
-
-void confirm_task()
-{
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
     if(get_global_data()->m_todo_list->size==0)
     {
         ESP_LOGE("ChoosingTaskState","No task no need confirm task");
         return;
     }
     ElabelController::Instance()->ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
+    ChoosingTaskState::Instance()->is_jump_to_task_mode = true;
     ESP_LOGI("ChoosingTaskState","confirm task: %d",ElabelController::Instance()->ChosenTaskId);
-    ElabelController::Instance()->is_confirm_task = true;
 }
 
-void jump_to_activate()
+void jump_to_record_mode()
 {
-    ChoosingTaskState::Instance()->is_jump_to_activate = true;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
+    ChoosingTaskState::Instance()->is_jump_to_record_mode = true;
+    ESP_LOGI("ChoosingTaskState","jump to record mode");
 }
 
+void jump_to_time_mode()
+{
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
+    ChoosingTaskState::Instance()->is_jump_to_time_mode = true;
+    ESP_LOGI("ChoosingTaskState","jump to time mode");
+}
 void ChoosingTaskState::brush_task_list()
 {
+    lock_lvgl();
     update_lvgl_task_list();
-    if(!need_stay_choosen) ElabelController::Instance()->ChosenTaskNum = 0;
+    release_lvgl();
     ElabelController::Instance()->TaskLength = get_global_data()->m_todo_list->size;
+    ChoosingTaskState::Instance()->need_flash_paper = true;
+    //等待100ms组件加载完成
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+
 }
 
 void ChoosingTaskState::Init(ElabelController* pOwner)
@@ -66,47 +74,51 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
-    pOwner->need_flash_paper = false;
-    pOwner->is_confirm_task = false;
-    pOwner->is_confirm_record = false;
-    is_jump_to_activate = false;
-
+    //只有在每次进入choosetask的时候或者推出focus的时候需要重置时间
+    ElabelController::Instance()->TimeCountdown = TimeCountdownOffset;
     lock_lvgl();
     //加载界面
     switch_screen(ui_TaskScreen);
     //更新任务列表ui
-    brush_task_list();
     release_lvgl();
+    //这个里面自带一个locklvgl
+    brush_task_list();
+    
+    need_flash_paper = true;
+    is_jump_to_task_mode = false;
+    is_jump_to_record_mode = false;
+    is_jump_to_time_mode = false;
 
     //等待100ms组件加载完成
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    ElabelController::Instance()->need_flash_paper = true;
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(choose_next_task);
 
-    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(confirm_record);
-    ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(confirm_record);
-    ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(confirm_record);
-    ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(confirm_record);
+    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(jump_to_task_mode);
 
-    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_task);
+    ControlDriver::Instance()->button2.CallbackShortPress.registerCallback(jump_to_record_mode);
 
-    ControlDriver::Instance()->button2.CallbackDoubleClick.registerCallback(jump_to_activate);
-    ControlDriver::Instance()->button3.CallbackDoubleClick.registerCallback(jump_to_activate);
+    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(jump_to_time_mode);
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
-    if(pOwner->need_flash_paper && pOwner->TaskLength > 0)
+    //这里的刷新只会刷新位置
+    if(need_flash_paper && pOwner->TaskLength > 0)
     {
+        //等待100ms组件加载完成
+        vTaskDelay(100 / portTICK_PERIOD_MS);
         lock_lvgl();
-        lv_obj_t *child = lv_obj_get_child(ui_HaveTaskContainer, pOwner->ChosenTaskNum + 1);
+        lv_obj_t *child = lv_obj_get_child(ui_TaskContainer, pOwner->ChosenTaskNum + 1);
         if(child != NULL) {
-            scroll_to_center(ui_HaveTaskContainer, child);
+            scroll_to_center(ui_TaskContainer, child);
         }
         release_lvgl();
-        pOwner->need_flash_paper = false;
+        need_flash_paper = false;
         ESP_LOGI("Scroll", "Scroll to center%d", pOwner->ChosenTaskNum);
     }
 }
@@ -117,15 +129,14 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(choose_previous_task);
     ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(choose_next_task);
 
-    ControlDriver::Instance()->button1.CallbackShortPress.unregisterCallback(confirm_record);
-    ControlDriver::Instance()->button4.CallbackShortPress.unregisterCallback(confirm_record);
-    ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(confirm_record);
-    ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(confirm_record);
+    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(jump_to_task_mode);
 
-    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_task);
+    ControlDriver::Instance()->button2.CallbackShortPress.unregisterCallback(jump_to_record_mode);
 
-    ControlDriver::Instance()->button2.CallbackDoubleClick.unregisterCallback(jump_to_activate);
-    ControlDriver::Instance()->button3.CallbackDoubleClick.unregisterCallback(jump_to_activate);
+    ControlDriver::Instance()->button1.CallbackShortPress.unregisterCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button4.CallbackShortPress.unregisterCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(jump_to_time_mode);
+    ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
 }
 
 // 滚动指定子对象到容器中心
@@ -143,16 +154,19 @@ void ChoosingTaskState::scroll_to_center(lv_obj_t *container, lv_obj_t *child) {
 
     // 更新task大小
     resize_task();
+
+    // 更新进度条
+    update_progress_bar();
 }
 void ChoosingTaskState::resize_task()
 {
     lv_area_t container_area;
-    lv_obj_get_coords(ui_HaveTaskContainer, &container_area);
+    lv_obj_get_coords(ui_TaskContainer, &container_area);
     lv_coord_t y_center = container_area.y1 + lv_area_get_height(&container_area) / 2;
-    uint8_t child_count = lv_obj_get_child_cnt(ui_HaveTaskContainer);
+    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
     for(int i = 1; i<child_count - 1;i++)
     {
-        lv_obj_t *child = lv_obj_get_child(ui_HaveTaskContainer, i);
+        lv_obj_t *child = lv_obj_get_child(ui_TaskContainer, i);
         lv_area_t child_area;
         lv_obj_get_coords(child, &child_area);
         lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
@@ -183,4 +197,22 @@ void ChoosingTaskState::resize_task()
             }
         }
     }
+}
+
+void ChoosingTaskState::update_progress_bar()
+{
+    //现在的任务数目
+    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer)-2;
+    //当前任务id
+    ESP_LOGI("update_progress_bar", "child_count: %d", child_count);
+    uint8_t current_task_id = ElabelController::Instance()->ChosenTaskNum;
+    ESP_LOGI("update_progress_bar", "current_task_id: %d", current_task_id);
+    //进度条的长度
+    uint8_t progress_bar_length =  round(100.0f / (float)child_count);
+    ESP_LOGI("update_progress_bar", "progress_bar_length: %d", progress_bar_length);
+    lv_arc_set_value(ui_Arc1, progress_bar_length);
+    //进度条的起点
+    uint8_t progress_bar_start = round((float)current_task_id / (float)child_count * 36.0f);
+    ESP_LOGI("update_progress_bar", "progress_bar_start: %d", progress_bar_start);
+    lv_arc_set_bg_angles(ui_Arc1,0+progress_bar_start,36+progress_bar_start);
 }

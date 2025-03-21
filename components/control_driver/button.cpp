@@ -7,7 +7,7 @@
 #define TAG "BUTTON"
 
 #define V_00 3.3
-#define V_01 1.575
+#define V_01 1.56
 #define V_10 1.025
 #define V_11 0.765
 
@@ -43,8 +43,9 @@ void Button::handle() {
             case State::PRESSED:
                 if (!isPressed) {  // 释放
                     if (currentTime - pressTime < longPressTime) {  // 未达到长按时间
-                        lastPressTime = currentTime;
-                        state = State::WAIT_DOUBLE_CLICK;
+                        CallbackShortPress.trigger();
+                        ESP_LOGI(TAG, "%s short pressed", name);
+                        state = State::IDLE;
                     }
                 }
                 break;
@@ -54,24 +55,10 @@ void Button::handle() {
                     state = State::IDLE;
                 }
                 break;
-
-            case State::WAIT_DOUBLE_CLICK:
-                if (isPressed) {  // 第二次按下
-                    if (currentTime - lastPressTime < doubleClickTime) {
-                        CallbackDoubleClick.trigger();
-                        ESP_LOGI(TAG, "%s double clicked", name);
-                        state = State::IDLE;
-                    } else {
-                        // 如果超过双击时间，视为新的按下
-                        pressTime = currentTime;
-                        state = State::PRESSED;
-                    }
-                }
-                break;
         }
     }
 
-    // 检查长按和超时情况
+    // 检查长按情况
     switch (state) {
         case State::IDLE:
             // 空闲状态不需要额外处理
@@ -87,14 +74,6 @@ void Button::handle() {
 
         case State::WAIT_RELEASE:
             // 等待释放状态不需要额外处理
-            break;
-
-        case State::WAIT_DOUBLE_CLICK:
-            if (currentTime - lastPressTime >= doubleClickTime) {
-                CallbackShortPress.trigger();
-                ESP_LOGI(TAG, "%s short press confirmed", name);
-                state = State::IDLE;
-            }
             break;
     }
 }
@@ -158,9 +137,10 @@ void button_single_adc1_task(void* arg) {
         float voltage = adc_value * 3.3 / 4095; 
 
         // 判断当前状态
-        if (voltage > 3.3 - 0.5 && voltage < 3.3 + 0.5) {  // 都未按下
+        if (voltage  > 3.0) {  
             current_btn_state = false;
-        } else {  // 按下
+        } 
+        else if(voltage < 0.3){  
             current_btn_state = true;
         }
 
@@ -168,7 +148,9 @@ void button_single_adc1_task(void* arg) {
         if (current_btn_state != last_btn_state) {
             pair->btn->isPressed = current_btn_state;
             pair->btn->isrTriggered = true;
+            last_btn_state = current_btn_state;
         }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }   
 
     delete pair;
@@ -190,17 +172,19 @@ void button_single_adc2_task(void* arg) {
         float voltage = adc_value * 3.3 / 4095; 
 
         // 判断当前状态
-        if (voltage > 3.3 - 0.5 && voltage < 3.3 + 0.5) {  // 都未按下
+        if (voltage  > 3.3 - 0.5) {  // 都未按下
             current_btn_state = false;
-        } else {  // 按下
+        } 
+        else if(voltage < 3.3 - 0.5){  // 按下
             current_btn_state = true;
-        }       
+        }   
 
         // 检查状态变化并触发中断
         if (current_btn_state != last_btn_state) {
             pair->btn->isPressed = current_btn_state;
             pair->btn->isrTriggered = true;
         }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }   
 
     delete pair;
@@ -227,7 +211,7 @@ void Button::register_single_io(gpio_num_t gpio, Button* button)
     };
     gpio_config(&io_conf);
 
-    xTaskCreate(button_single_task, task_name, 1024, pair, 5, NULL);
+    xTaskCreate(button_single_task, task_name, 2048, pair, 5, NULL);
 }
 
 // 重载函数 - ADC1 版本
@@ -255,7 +239,7 @@ void Button::register_single_io(gpio_num_t gpio, adc1_channel_t adc1_chan, Butto
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_single_adc1_task, task_name, 1024, pair, 5, NULL);
+    xTaskCreate(button_single_adc1_task, task_name, 2048, pair, 5, NULL);
 }
 
 // 重载函数 - ADC2 版本
@@ -282,7 +266,7 @@ void Button::register_single_io(gpio_num_t gpio, adc2_channel_t adc2_chan, Butto
     // ADC2 配置
     adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_single_adc2_task, task_name, 1024, pair, 5, NULL);
+    xTaskCreate(button_single_adc2_task, task_name, 2048, pair, 5, NULL);
 }
 //----------------------------------------------单个IO控制一个按钮----------------------------------------------//
 
@@ -316,39 +300,60 @@ void button_adc1_task(void* arg) {
     bool current_btn1_state = false;
     bool current_btn2_state = false;
 
+    // 用于记录状态持续时间
+    uint32_t state_start_time = 0;
+    const uint32_t STATE_DURATION_MS = 50;  // 状态持续时间阈值
+
     while (pair->running) {
+        // 单次采样
         int adc_value = adc1_get_raw(pair->adc1_chan);
         float voltage = adc_value * 3.3 / 4095;
 
+        // 临时状态变量
+        bool temp_btn1_state = false;
+        bool temp_btn2_state = false;
+
         // 判断当前状态
-        if (voltage > V_00 - 0.1 && voltage < V_00 + 0.1) {  // 都未按下
-            current_btn1_state = false;
-            current_btn2_state = false;
-        } else if (voltage > V_01 - 0.1 && voltage < V_01 + 0.1) {  // 按下按键1
-            current_btn1_state = true;
-            current_btn2_state = false;
-        } else if (voltage > V_10 - 0.1 && voltage < V_10 + 0.1) {  // 按下按键2
-            current_btn1_state = false;
-            current_btn2_state = true;
-        } else if (voltage > V_11 - 0.1 && voltage < V_11 + 0.1) {  // 同时按下
-            current_btn1_state = true;
-            current_btn2_state = true;
+        if (voltage > V_00 - 0.02 && voltage < V_00 + 0.02) {  // 都未按下
+            temp_btn1_state = false;
+            temp_btn2_state = false;
+        } else if (voltage > V_01 - 0.02 && voltage < V_01 + 0.02) {  // 按下按键1
+            temp_btn1_state = true;
+            temp_btn2_state = false;
+        } else if (voltage > V_10 - 0.1 && voltage < V_10 + 0.05) {  // 按下按键2
+            temp_btn1_state = false;
+            temp_btn2_state = true;
+        } else if (voltage > V_11 - 0.05 && voltage < V_11 + 0.05) {  // 同时按下
+            temp_btn1_state = true;
+            temp_btn2_state = true;
         }
 
-        // 检查状态变化并触发中断
-        if (current_btn1_state != last_btn1_state) {
-            pair->btn1->isPressed = current_btn1_state;
-            pair->btn1->isrTriggered = true;
-            // 更新上一次的状态
-            last_btn1_state = current_btn1_state;
+        // 检查状态是否发生变化
+        if (temp_btn1_state != current_btn1_state || temp_btn2_state != current_btn2_state) {
+            // 状态发生变化，重置计时器
+            state_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            current_btn1_state = temp_btn1_state;
+            current_btn2_state = temp_btn2_state;
+        } else {
+            // 状态未变化，检查持续时间
+            uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            if (current_time - state_start_time >= STATE_DURATION_MS) {
+                // 持续时间达到阈值，触发状态变化
+                if (current_btn1_state != last_btn1_state) {
+                    pair->btn1->isPressed = current_btn1_state;
+                    pair->btn1->isrTriggered = true;
+                    last_btn1_state = current_btn1_state;
+                    // ESP_LOGI(TAG, "gpio: %d, voltage: %f", pair->gpio, voltage);
+                }
+                if (current_btn2_state != last_btn2_state) {
+                    pair->btn2->isPressed = current_btn2_state;
+                    pair->btn2->isrTriggered = true;
+                    last_btn2_state = current_btn2_state;
+                    // ESP_LOGI(TAG, "gpio: %d, voltage: %f", pair->gpio, voltage);
+                }
+            }
         }
-        if (current_btn2_state != last_btn2_state) {
-            pair->btn2->isPressed = current_btn2_state;
-            pair->btn2->isrTriggered = true;
-            // 更新上一次的状态
-            last_btn2_state = current_btn2_state;
-        }
-
+        
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
@@ -358,52 +363,70 @@ void button_adc1_task(void* arg) {
 
 void button_adc2_task(void* arg) {
     button_adc2_pair_t* pair = (button_adc2_pair_t*)arg;
-    const float V_00_10_MID = (V_00 + V_10) / 2;
-    const float V_10_01_MID = (V_10 + V_01) / 2;
-    const float V_01_11_MID = (V_01 + V_11) / 2;
 
     // 记录上一次的状态
     bool last_btn1_state = false;
     bool last_btn2_state = false;
 
+    // 当前状态
+    bool current_btn1_state = false;
+    bool current_btn2_state = false;
+
+    // 用于记录状态持续时间
+    uint32_t state_start_time = 0;
+    const uint32_t STATE_DURATION_MS = 50;  // 状态持续时间阈值
+
     while (pair->running) {
+        // 单次采样
         int adc_value; 
         adc2_get_raw(pair->adc2_chan, ADC_WIDTH_BIT_12, &adc_value);
         float voltage = adc_value * 3.3 / 4095;
 
-        // 当前状态
-        bool current_btn1_state = false;
-        bool current_btn2_state = false;
+        // 临时状态变量
+        bool temp_btn1_state = false;
+        bool temp_btn2_state = false;
 
         // 判断当前状态
-        if (voltage > V_00_10_MID) {  // 都未按下
-            current_btn1_state = false;
-            current_btn2_state = false;
-        } else if (voltage > V_10_01_MID) {  // 按下按键1
-            current_btn1_state = false;
-            current_btn2_state = true;
-        } else if (voltage > V_01_11_MID) {  // 按下按键2
-            current_btn1_state = true;
-            current_btn2_state = false;
-        } else {  // 同时按下
-            current_btn1_state = true;
-            current_btn2_state = true;
+        if (voltage > V_00 - 0.02 && voltage < V_00 + 0.02) {  // 都未按下
+            temp_btn1_state = false;
+            temp_btn2_state = false;
+        } else if (voltage > V_01 - 0.02 && voltage < V_01 + 0.02) {  // 按下按键1
+            temp_btn1_state = true;
+            temp_btn2_state = false;
+        } else if (voltage > V_10 - 0.1 && voltage < V_10 + 0.05) {  // 按下按键2
+            temp_btn1_state = false;
+            temp_btn2_state = true;
+        } else if (voltage > V_11 - 0.05 && voltage < V_11 + 0.05) {  // 同时按下
+            temp_btn1_state = true;
+            temp_btn2_state = true;
         }
 
-        // 检查状态变化并触发中断
-        if (current_btn1_state != last_btn1_state) {
-            pair->btn1->isPressed = current_btn1_state;
-            pair->btn1->isrTriggered = true;
+        // 检查状态是否发生变化
+        if (temp_btn1_state != current_btn1_state || temp_btn2_state != current_btn2_state) {
+            // 状态发生变化，重置计时器
+            state_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            current_btn1_state = temp_btn1_state;
+            current_btn2_state = temp_btn2_state;
+        } else {
+            // 状态未变化，检查持续时间
+            uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            if (current_time - state_start_time >= STATE_DURATION_MS) {
+                // 持续时间达到阈值，触发状态变化
+                if (current_btn1_state != last_btn1_state) {
+                    pair->btn1->isPressed = current_btn1_state;
+                    pair->btn1->isrTriggered = true;
+                    last_btn1_state = current_btn1_state;
+                    // ESP_LOGI(TAG, "gpio: %d, voltage: %f", pair->gpio, voltage);
+                }
+                if (current_btn2_state != last_btn2_state) {
+                    pair->btn2->isPressed = current_btn2_state;
+                    pair->btn2->isrTriggered = true;
+                    last_btn2_state = current_btn2_state;
+                    // ESP_LOGI(TAG, "gpio: %d, voltage: %f", pair->gpio, voltage);
+                }
+            }
         }
-        if (current_btn2_state != last_btn2_state) {
-            pair->btn2->isPressed = current_btn2_state;
-            pair->btn2->isrTriggered = true;
-        }
-
-        // 更新上一次的状态
-        last_btn1_state = current_btn1_state;
-        last_btn2_state = current_btn2_state;
-
+        
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
@@ -438,7 +461,7 @@ void Button::register_share_io_2(gpio_num_t gpio, adc1_channel_t adc1_chan, Butt
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc1_task, task_name, 1024, pair, 5, NULL);
+    xTaskCreate(button_adc1_task, task_name, 2048, pair, 5, NULL);
 }
 
 // 重载函数 - ADC2 版本
@@ -467,6 +490,6 @@ void Button::register_share_io_2(gpio_num_t gpio, adc2_channel_t adc2_chan, Butt
     // ADC2 配置
     adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc2_task, task_name, 1024, pair, 5, NULL);
+    xTaskCreate(button_adc2_task, task_name, 2048, pair, 5, NULL);
 }
 //----------------------------------------------单个IO控制两个按钮----------------------------------------------//

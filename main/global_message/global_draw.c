@@ -43,9 +43,9 @@ void periodic_timer_callback(void *arg) {
 }
 
 int16_t ChooseTask_big_height = 32;
-int16_t ChooseTask_big_width = 200;
-int16_t ChooseTask_small_height = 28;
-int16_t ChooseTask_small_width = 175;
+int16_t ChooseTask_big_width = 209;
+int16_t ChooseTask_small_height = 32;
+int16_t ChooseTask_small_width = 192;
 
 uint8_t get_button_size(Button_type button_type)
 {
@@ -179,9 +179,9 @@ const lv_font_t* get_language_font(bool Is_bigger)
 //--------------------------------------修改任务内容-------------------------------------//
 void lvgl_modify_task(int position, const char *task_content) 
 {
-    uint8_t child_count = lv_obj_get_child_cnt(ui_HaveTaskContainer);
+    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
     ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
-    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_HaveTaskContainer, position+1);
+    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
     lv_obj_t *ui_Label1 = lv_obj_get_child(ui_tmpButton, 0);
     set_text_with_change_font(ui_Label1, task_content, false);
     ESP_LOGI("LVGL","任务%d \"%s\" 修改成功！\n", position, task_content);
@@ -193,17 +193,17 @@ void lvgl_modify_task(int position, const char *task_content)
 void lvgl_add_task(const char *task_content) 
 {
     //ui_Container3是存储了task_list的容器
-    uint8_t child_count = lv_obj_get_child_cnt(ui_HaveTaskContainer);
+    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
     ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
     //取出最后一个元素，并删除，0开始计数所以要减1
-    lv_obj_t *empty_label = lv_obj_get_child(ui_HaveTaskContainer, child_count-1);
+    lv_obj_t *empty_label = lv_obj_get_child(ui_TaskContainer, child_count-1);
     if(empty_label != NULL && empty_label!= 0)
     {
         lv_obj_del(empty_label);
     }
 
     //新建Button承接task
-    lv_obj_t *ui_tmpButton = lv_btn_create(ui_HaveTaskContainer);
+    lv_obj_t *ui_tmpButton = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_tmpButton, ChooseTask_small_width);
     lv_obj_set_height(ui_tmpButton, ChooseTask_small_height);
     lv_obj_set_align(ui_tmpButton, LV_ALIGN_CENTER);
@@ -247,7 +247,7 @@ void lvgl_add_task(const char *task_content)
     }
 
     //给末尾附上新的空button填补
-    ui_endlabel = lv_label_create(ui_HaveTaskContainer);
+    ui_endlabel = lv_label_create(ui_TaskContainer);
     lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
@@ -266,12 +266,12 @@ void lvgl_delete_task(int position)
     if (position == 0) 
     {
         //由于空头节点的出现，所以要删除第二个
-        lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_HaveTaskContainer, position+1);
+        lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
         lv_obj_del(ui_tmpButton);
         return;
     }
 
-    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_HaveTaskContainer, position+1);
+    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
     lv_obj_del(ui_tmpButton);
 }
 //--------------------------------------删除指定位置的任务-------------------------------------//
@@ -286,13 +286,13 @@ void update_lvgl_task_list()
         //如果有事件，则显示任务列表,默认任务列表有两个空节点
         _ui_flag_modify(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
         _ui_flag_modify(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);   
-        uint8_t child_count = lv_obj_get_child_cnt(ui_HaveTaskContainer);
+        uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
         for(int i = 0; i < (child_count - 2 - get_global_data()->m_todo_list->size); i++)
         {
             lvgl_delete_task(i);
         }
-        child_count = lv_obj_get_child_cnt(ui_HaveTaskContainer);
-        for(int i = 0; i<get_global_data()->m_todo_list->size; i++)
+        child_count = lv_obj_get_child_cnt(ui_TaskContainer);
+        for(int i = 0; i <get_global_data()->m_todo_list->size; i++)
         {
             if(child_count > 2 )
             {
@@ -352,59 +352,15 @@ void Change_All_language()
 {
     if(get_global_data()->m_language == 0)
     {
-        set_text_with_change_font(ui_ActiveGuide, "Activate with App\n"
-                                        "Halfmind Todo", false);
-        set_text_with_change_font(ui_ActiveGuide3, "or", false);
-        set_text_with_change_font(ui_ActiveGuide2, "Move close to\n"
-                                        "an activated sticker", false);
-
-        set_text_with_change_font(ui_HostName, "Host", true);
-        set_text_with_change_font(ui_SlaveName, "Slave", true);
-        set_text_with_change_font(ui_HostInf, "Username:\n"
-                                    "WIFIname:\n"
-                                    "WIFIPassword:\n"
-                                    "SlaveNum:", false);
-        set_text_with_change_font(ui_SlaveInf, "Username:\n"
-                                    "HostMac:\n", false);
-        set_text_with_change_font(ui_NewFirmware, "New Firmware", false);
-        set_text_with_change_font(ui_OperateGuide ,"Click: Apply\n"
-                                        "Rotate: Skip", false);
-        set_text_with_change_font(ui_Updating, "Updating...", false);
-        set_text_with_change_font(ui_FocusTask, "Focus Task", true);
-        set_text_with_change_font(ui_ShutdownGuide, "See you next time", true);
-        set_text_with_change_font(ui_NoTaskNote, "Nothing left yet", true);
-        set_text_with_change_font(ui_NoTaskNote2, "Enjoy your life", false);
     }
     else if(get_global_data()->m_language == 1)
     {
-        set_text_with_change_font(ui_ActiveGuide, "使用手机激活\n"
-                                        "智能便签", false);
-        set_text_with_change_font(ui_ActiveGuide3, "或者", false);
-        set_text_with_change_font(ui_ActiveGuide2, "靠近一个已近\n"
-                                        "激活的便签", false);
-
-        set_text_with_change_font(ui_HostName, "主机", true);
-        set_text_with_change_font(ui_SlaveName, "从机", true);
-        set_text_with_change_font(ui_HostInf, "用户名:\n"
-                                    "无线网名字:\n"
-                                    "无线网密码:\n"
-                                    "从机数量:", false);
-        set_text_with_change_font(ui_SlaveInf, "用户名:\n"
-                                    "主机MAC:\n", false);
-        set_text_with_change_font(ui_NewFirmware, "新固件", false);
-        set_text_with_change_font(ui_OperateGuide ,"点击: 应用\n"
-                                        "旋转: 跳过", false);
-        set_text_with_change_font(ui_Updating, "更新中...", false);
-        set_text_with_change_font(ui_FocusTask, "专注任务", true);
-        set_text_with_change_font(ui_ShutdownGuide, "明天再见", true);
-        set_text_with_change_font(ui_NoTaskNote, "已完成所有任务", true);
-        set_text_with_change_font(ui_NoTaskNote2, "享受生活", false);
     }
 }
 //--------------------------------------更改所有语言------------------------------------//
 
 void switch_screen(lv_obj_t* new_screen) {
-    //如果没有事件，则显示no task enjoy life
     // lv_obj_set_parent(ui_LED, new_screen);
+    set_force_full_update(true);
     lv_scr_load(new_screen);
 }

@@ -183,8 +183,7 @@ static const uint8_t is_notify[2]      = {0x00, 0x00};
 
 char wifi_ssid[100] = { 0 };     /* 定义一个数组用来存储ssid*/
 char wifi_passwd[100] = { 0 };   /* 定义一个数组用来存储passwd */
-char customer[100] = { 0 };   /* 定义一个数组用来存储passwd */
-char username[100] = { 0 };   /* 定义一个数组用来存储username */
+char customer[100] = { 0 };   /* 定义一个数组用来存储customer */
 
 uint8_t wifi_state = 0x00;//0x00 noconnect 0x01 connecting 0x02 connected 0x03 为绑定了设备
 bool enable_reconnect = true; //是否要触发未连接上再次连接

@@ -25,6 +25,7 @@ void ui_ShutdownScreen_screen_init(void)
     lv_obj_set_height(ui_ShutdownGuide, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_ShutdownGuide, LV_ALIGN_CENTER);
     lv_label_set_text(ui_ShutdownGuide, "See you next time");
+    lv_obj_add_flag(ui_ShutdownGuide, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_font(ui_ShutdownGuide, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_ShutdownGuide2 = lv_label_create(ui_ShutdownGuide);
@@ -35,6 +36,14 @@ void ui_ShutdownScreen_screen_init(void)
     lv_obj_set_align(ui_ShutdownGuide2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_ShutdownGuide2, "See you next time");
     lv_obj_set_style_text_font(ui_ShutdownGuide2, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Battery = lv_img_create(ui_ShutdownScreen);
+    lv_img_set_src(ui_Battery, &ui_img_battery_png);
+    lv_obj_set_width(ui_Battery, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Battery, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Battery, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Battery, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Battery, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     uic_ShutdownScreen = ui_ShutdownScreen;
     uic_ShutdownGuide = ui_ShutdownGuide;

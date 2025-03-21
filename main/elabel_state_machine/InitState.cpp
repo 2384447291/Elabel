@@ -37,6 +37,8 @@ void InitState::Enter(ElabelController* pOwner)
 
 void InitState::Execute(ElabelController* pOwner)
 {
+    //如果激活过了但是没有开始连接WiFi则连接wifi
+    if(get_wifi_status() == 0 && get_global_data()->m_usertoken!=NULL) m_wifi_connect();
     //如果正在连接或者没有用户，则不进行初始化
     if(get_wifi_status() == 1 && get_global_data()->m_usertoken!=NULL) return;
     if(is_init) return;
@@ -55,30 +57,30 @@ void InitState::Execute(ElabelController* pOwner)
     http_get_latest_version(true);
 
     //如果判断为需要OTA
-    if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
-    {
-        lock_lvgl();
-        switch_screen(ui_OTAScreen);
-        char version_change[150];
-        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
-        set_text_without_change_font(ui_VersionChange, version_change);
-        release_lvgl();
-        ota_Wait_tick = 0;      
+    // if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+    // {
+    //     lock_lvgl();
+    //     switch_screen(ui_OTAScreen);
+    //     char version_change[150];
+    //     sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
+    //     set_text_without_change_font(ui_VersionChange, version_change);
+    //     release_lvgl();
+    //     ota_Wait_tick = 0;      
 
-        while(true)
-        {
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-            ota_Wait_tick++;      
-            if(ota_Wait_tick >= 300)
-            {
-                break;
-            }
-        }
-    }
-    else
-    {
-        ESP_LOGI("OTA", "No need OTA, newest version");
-    }
+    //     while(true)
+    //     {
+    //         vTaskDelay(100 / portTICK_PERIOD_MS);
+    //         ota_Wait_tick++;      
+    //         if(ota_Wait_tick >= 300)
+    //         {
+    //             break;
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     ESP_LOGI("OTA", "No need OTA, newest version");
+    // }
     //刷新一下focus状态
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;

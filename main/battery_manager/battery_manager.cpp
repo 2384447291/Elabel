@@ -43,7 +43,7 @@ void power_off_system()
     // 创建2秒倒计时定时器
     TimerHandle_t shutdownTimer = xTimerCreate(
         "ShutdownTimer",
-        pdMS_TO_TICKS(8000),
+        pdMS_TO_TICKS(7000),
         pdFALSE,  // 单次触发
         nullptr,
         shutdown_timer_callback

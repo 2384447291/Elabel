@@ -2,6 +2,27 @@
 
 #define TAG "CONTROL_DRIVER"
 
+void ControlDriver::register_all_button_callback(Callback::CallbackFunc callback)
+{
+    button1.CallbackShortPress.registerCallback(callback);
+    button2.CallbackShortPress.registerCallback(callback);
+    button3.CallbackShortPress.registerCallback(callback);
+    button4.CallbackShortPress.registerCallback(callback);
+    button5.CallbackShortPress.registerCallback(callback);
+    button6.CallbackShortPress.registerCallback(callback);
+    button7.CallbackShortPress.registerCallback(callback);
+}
+
+void ControlDriver::unregister_button_callback(Callback::CallbackFunc callback)
+{
+    button1.CallbackShortPress.unregisterCallback(callback);
+    button2.CallbackShortPress.unregisterCallback(callback);
+    button3.CallbackShortPress.unregisterCallback(callback);
+    button4.CallbackShortPress.unregisterCallback(callback);
+    button5.CallbackShortPress.unregisterCallback(callback);
+    button6.CallbackShortPress.unregisterCallback(callback);
+    button7.CallbackShortPress.unregisterCallback(callback);
+}
 
 // ControlDriver类实现
 void ControlDriver::init() {
