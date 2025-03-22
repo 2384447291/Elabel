@@ -45,6 +45,8 @@ void InitState::Init(ElabelController* pOwner)
 
 void InitState::Enter(ElabelController* pOwner)
 {
+    //连接wifi
+    m_wifi_connect();
     is_init = false;
     is_need_ota = 0;
     lock_lvgl();
@@ -55,8 +57,6 @@ void InitState::Enter(ElabelController* pOwner)
 
 void InitState::Execute(ElabelController* pOwner)
 {
-    //如果激活过了但是没有开始连接WiFi则连接wifi
-    if(get_wifi_status() == 0 && get_global_data()->m_usertoken!=NULL) m_wifi_connect();
     //如果正在连接或者没有用户，则不进行初始化
     if(get_wifi_status() == 1 && get_global_data()->m_usertoken!=NULL) return;
     //如果已经初始化或者需要OTA则不进行初始化

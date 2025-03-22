@@ -66,6 +66,17 @@ void ElabelFsm::HandleInput()
             ChangeState(ActiveState::Instance());
         }
     }
+
+    //如果wifi断开连接了，且激活过了，则跳转到激活状态
+    if(get_wifi_status() == 0 && strlen(get_global_data()->m_usertoken)!= 0 && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=ActiveState::Instance())
+    {
+        ESP_LOGI("ElabelFsm","wifi disconnect, reconnect wifi");
+        start_blue_activate();
+        ChangeState(HostActiveState::Instance());
+        m_wifi_connect();
+    }
+
+
     //-------------------------------整个激活--------------------------------//
     //如果没有被激活，则进入激活状态
     if(GetCurrentState()==ActiveState::Instance())

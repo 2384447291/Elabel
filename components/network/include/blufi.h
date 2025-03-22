@@ -186,7 +186,7 @@ char wifi_passwd[100] = { 0 };   /* 定义一个数组用来存储passwd */
 char customer[100] = { 0 };   /* 定义一个数组用来存储customer */
 
 uint8_t wifi_state = 0x00;//0x00 noconnect 0x01 connecting 0x02 connected 0x03 为绑定了设备
-bool enable_reconnect = true; //是否要触发未连接上再次连接
+bool enable_reconnect = false; //是否要触发未连接上再次连接
 bool is_connect_to_phone = false;
 
 uint8_t is_blufi_init = false;
@@ -453,7 +453,7 @@ static void blufi_notify(void *arg)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(100));
         if (blufi_notify_flag == false)
         {
             blufi_cleanup();

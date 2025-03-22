@@ -6,6 +6,7 @@
 
 bool is_wifi_init = false;
 bool is_wifi_preprocess = false;
+int retry_num = 0;     
 
 static void wifi_init_sta(void);
 static void wifi_preprocess(void);
@@ -32,9 +33,8 @@ void set_wifi_status(uint8_t _wifi_state)
 
 void start_blue_activate()
 {
-    is_connect_to_phone = false;
-    m_wifi_disconnect();
     if(blufi_notify_flag) return;
+    m_wifi_disconnect();
     //允许省电模式，否则不能wifi，蓝牙混用
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
     start_blufi();
@@ -47,11 +47,11 @@ void stop_blue_activate()
 
 void m_wifi_connect(void)
 {   
-    enable_reconnect = true;
     if(is_wifi_init == false || wifi_state != 0x00)
     {
         return;
     }
+    enable_reconnect = true;
     //...................................判断是否能找到历史记录..........................................//
     if(strlen(get_global_data()->m_wifi_ssid) != 0 && strlen(get_global_data()->m_wifi_password) != 0)
     {
@@ -84,9 +84,11 @@ void m_wifi_disconnect(void)
     {
         return;
     }
-    enable_reconnect = false;
-    ESP_ERROR_CHECK(esp_wifi_disconnect());
+    ESP_LOGE(WIFI_CONNECT,"Fail connecting wifi with Password: %s and ssid %s\n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
     wifi_state = 0x00;
+    retry_num = 0;
+    ESP_ERROR_CHECK(esp_wifi_disconnect());
+    enable_reconnect = false;
     ESP_LOGI(WIFI_CONNECT,"Successful_disconnect_wifi.\n");
 }
 
@@ -202,13 +204,21 @@ void start_blufi(void)
 /* 系统事件循环处理函数 */
 static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_id, void* event_data)
 {
-    static int retry_num = 0;           /* 记录wifi重连次数 */
     /* 系统事件为WiFi事件 */
     if (event_base == WIFI_EVENT) 
     {
         if (event_id == WIFI_EVENT_STA_DISCONNECTED) /* 当wifi失去STA连接 */ 
         {
-            if(!enable_reconnect) return;
+            if(!enable_reconnect) 
+            {
+                ESP_LOGE(WIFI_CONNECT,"Fail connecting wifi with Password: %s and ssid %s\n", get_global_data()->m_wifi_password, get_global_data()->m_wifi_ssid);
+                // 清零 wifi_state
+                wifi_state = 0x00;
+                retry_num = 0;
+                ESP_ERROR_CHECK(esp_wifi_disconnect());
+                enable_reconnect = false;
+                return;
+            }
             wifi_state = 0x01;
             esp_wifi_connect();
             retry_num++;
@@ -222,10 +232,13 @@ static void event_handler(void* arg, esp_event_base_t event_base,int32_t event_i
                 wifi_state = 0x00;
                 retry_num = 0;
                 ESP_ERROR_CHECK(esp_wifi_disconnect());
+                enable_reconnect = false;
             }
         }
         else if (event_id == WIFI_EVENT_STA_CONNECTED) /* 当wifi成功连接 */ 
         {
+            //连接成功后，关闭自动重连,自动重连需要手动开启
+            enable_reconnect = false;
             ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data; /* 获取IP地址信息*/
             ESP_LOGI(WIFI_CONNECT,"got ip:%d.%d.%d.%d \n" , IP2STR(&event->ip_info.ip));  /* 打印ip地址*/
             retry_num = 0;                                              /* WiFi重连次数清零 */

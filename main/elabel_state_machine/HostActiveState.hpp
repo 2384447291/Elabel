@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "esp_now_host.hpp"
+#define RECONNECT_COUNT_DOWN 30
 
 class HostActiveState : public State<ElabelController>
 {
@@ -22,7 +23,7 @@ public:
     bool need_back = false;
     bool need_forward = false;
 
-    uint32_t reconnect_count_down = 15;
+    uint32_t reconnect_count_down = RECONNECT_COUNT_DOWN;
 
     static HostActiveState* Instance()
     {

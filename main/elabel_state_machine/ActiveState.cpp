@@ -71,7 +71,6 @@ void ActiveState::Enter(ElabelController* pOwner)
 
 void ActiveState::Execute(ElabelController* pOwner)
 {
-    
 }
 
 void ActiveState::Exit(ElabelController* pOwner)

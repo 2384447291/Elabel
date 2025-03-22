@@ -48,14 +48,13 @@ void HostActiveState::Enter(ElabelController* pOwner)
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_button_choice);
-    EspNowHost::Instance()->init();
 
     button_choose_left = true;
     is_fail = false;
     is_set_wifi = false;
     need_back = false;
     need_forward = false;
-    reconnect_count_down = 15;
+    reconnect_count_down = RECONNECT_COUNT_DOWN;
 
     lock_lvgl();
     switch_screen(ui_HostActiveScreen);
@@ -68,7 +67,7 @@ void HostActiveState::Enter(ElabelController* pOwner)
 
     set_text_without_change_font(ui_WIFIname, "Waiting...");
     set_text_without_change_font(ui_Disconnectwifiname, "Waiting...");
-    set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 15 secs");
+    set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
 
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter HostActiveState.");
@@ -115,7 +114,7 @@ void HostActiveState::Execute(ElabelController* pOwner)
             switch_screen(ui_HostActiveScreen);
             set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
             set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-            reconnect_count_down = 15;
+            reconnect_count_down = RECONNECT_COUNT_DOWN;
             release_lvgl();
         }
     }
@@ -144,5 +143,7 @@ void HostActiveState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button7.CallbackLongPress.unregisterCallback(change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_button_choice);
     stop_blue_activate();
+    //等待2s蓝牙完全清理
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     ESP_LOGI(STATEMACHINE,"Out HostActiveState.\n");
 }
