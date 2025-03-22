@@ -79,7 +79,8 @@ void guiTask(void *pvParameter) {
     //--------------------------初始化显示缓冲区--------------------------//
     //分配可用于直接内存访问（DMA）的内存，通常用于高速外设（如 SPI 或显示设备）
     //lv_color_t 用于存储颜色，这里根据宏定义为lv_color1_t 单色颜色。也有 R、G、B 字段用于兼容，但它们总是相同的值（1 个字节）
-    lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),MALLOC_CAP_DMA); 
+    // lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),MALLOC_CAP_DMA); 
+    lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t),MALLOC_CAP_SPIRAM); 
     assert(buf1 != NULL);
     //一般单色屏幕只用单buffer
     #ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
