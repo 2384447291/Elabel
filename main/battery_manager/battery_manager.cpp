@@ -77,14 +77,6 @@ void BatteryManager::battery_update_task(void* parameters) {
         {
             //锁定屏幕
             lock_lvgl();
-            if(get_global_data()->m_language == English)
-            {
-                set_text_with_change_font(ui_ShutdownGuide, "No Battery Please Charge", true);
-            }
-            else if(get_global_data()->m_language == Chinese)
-            {
-                set_text_with_change_font(ui_ShutdownGuide, "电量不足请充电", false);
-            }
             release_lvgl();
             power_off_system();
             ESP_LOGI(TAG, "Battery level is too low, power off system");
@@ -124,7 +116,7 @@ void BatteryManager::init() {
     // 初始化完成后默认开启电源
     setPowerState(true);
 
-    ControlDriver::Instance()->button1.CallbackLongPress.registerCallback(power_off_system);
+    ControlDriver::Instance()->button4.CallbackLongPress.registerCallback(power_off_system);
     
     // 创建电池电量更新线程
     xTaskCreate(battery_update_task, "battery_update", 3072, this, 10, nullptr);
