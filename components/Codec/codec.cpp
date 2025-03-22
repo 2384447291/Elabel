@@ -2,6 +2,7 @@
 #include "codec.hpp"
 #include "esp_heap_caps.h" 
 #include <string.h>  
+#include "music.hpp"
 
 #define TAG "M_CODEC"
 #define READ_BLOCK_SIZE 1024      // 减小读取块大小以减少瞬时内存占用
@@ -117,8 +118,8 @@ void MCodec::init()
     };
     
     esp_codec_dev_open(codec_dev, &fs);
-    esp_codec_dev_set_out_vol(codec_dev, 90.0);
-    esp_codec_dev_set_in_gain(codec_dev, 40.0);
+    esp_codec_dev_set_out_vol(codec_dev, 95.0);
+    esp_codec_dev_set_in_gain(codec_dev, 30.0);
     ESP_LOGI(TAG, "Codec initialized");
 
     // 在 PSRAM 中分配录音缓冲区
@@ -131,18 +132,18 @@ void MCodec::init()
              RECORD_BUFFER_SIZE, (float)RECORD_BUFFER_SIZE/BytesPerSecond);
 
     // 挂载 SPIFFS 文件系统
-    esp_vfs_spiffs_conf_t conf = {
-        .base_path = "/spiffs",       
-        .partition_label = "music",  
-        .max_files = 5,  
-        .format_if_mount_failed = true
-    };
+    // esp_vfs_spiffs_conf_t conf = {
+    //     .base_path = "/spiffs",       
+    //     .partition_label = "music",  
+    //     .max_files = 5,  
+    //     .format_if_mount_failed = true
+    // };
 
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "SPIFFS 文件系统挂载失败");
-        return;
-    }
+    // esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    // if (ret != ESP_OK) {
+    //     ESP_LOGE(TAG, "SPIFFS 文件系统挂载失败");
+    //     return;
+    // }
 }
 
 void MCodec::deinit()
@@ -156,7 +157,7 @@ void MCodec::deinit()
     }
 
     // 卸载 SPIFFS 文件系统
-    esp_vfs_spiffs_unregister("music");
+    // esp_vfs_spiffs_unregister("music");
     
     esp_codec_dev_close(codec_dev);
     esp_codec_deinit(codec_dev);
@@ -222,28 +223,54 @@ void MCodec::stop_record()
     }
 }
 
+// void MCodec::play_music(const char* filename)
+// {
+//     if(speaker_task!=NULL)
+//     {
+//         ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
+//         return;
+//     }
+//     speaker_type = spiffs;
+//     // 打开文件 spiffs+filename.pcm
+//     char path[64];
+//     snprintf(path, sizeof(path), "/spiffs/%s.pcm", filename);
+//     play_file = fopen(path, "rb");
+//     if (play_file == NULL) {
+//         ESP_LOGE(TAG, "无法打开文件");
+//         return;
+//     }
+//     fseek(play_file, 0, SEEK_END);
+//     size_t size = ftell(play_file);
+//     fseek(play_file, 0, SEEK_SET);
+//     ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
+//              size, (float)size/BytesPerSecond);
+//     xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+// }
+
 void MCodec::play_music(const char* filename)
 {
-    if(speaker_task!=NULL)
-    {
-        ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
+    // 根据文件名获取对应的音频数组
+    const uint8_t* audio_data = nullptr;
+    size_t audio_size = 0;
+
+    if(strcmp(filename, "bell") == 0) {
+        audio_data = bell;
+        audio_size = bell_size;
+    } else if(strcmp(filename, "ding") == 0) {
+        audio_data = ding; 
+        audio_size = ding_size;
+    } else if(strcmp(filename, "open") == 0) {
+        audio_data = open;
+        audio_size = open_size;
+    } else if(strcmp(filename, "stop") == 0) {
+        audio_data = stop;
+        audio_size = stop_size;
+    } else {
+        ESP_LOGE(TAG, "未找到对应的音频文件: %s", filename);
         return;
     }
-    speaker_type = spiffs;
-    // 打开文件 spiffs+filename.pcm
-    char path[64];
-    snprintf(path, sizeof(path), "/spiffs/%s.pcm", filename);
-    play_file = fopen(path, "rb");
-    if (play_file == NULL) {
-        ESP_LOGE(TAG, "无法打开文件");
-        return;
-    }
-    fseek(play_file, 0, SEEK_END);
-    size_t size = ftell(play_file);
-    fseek(play_file, 0, SEEK_SET);
-    ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
-             size, (float)size/BytesPerSecond);
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+    play_record(audio_data, audio_size);
+
 }
 
 void MCodec::play_record(const uint8_t* data, size_t size)

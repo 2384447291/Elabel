@@ -103,34 +103,37 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     //     elabel_screen = SLAVEACTIVE_SCREEN;
     //     ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");
     // }
-    // else if(act_scr == ui_OTAScreen)
-    // {
-    //     if(elabel_screen != OTA_SCREEN)
-    //     {
-    //         force_full_update = false;
-    //         isBaseMapFresh = false;
-    //         elabel_screen = OTA_SCREEN;
-    //     }
-    //     elabel_update_mode = FAST_UPDATE;
-    //     ESP_LOGI(TAG,"ui_OTAScreen Flush called.");
-    // }
+    else if(act_scr == ui_OTAScreen)
+    {
+        if(elabel_screen != OTA_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = OTA_SCREEN;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
+        ESP_LOGI(TAG,"ui_OTAScreen Flush called.");
+    }
 
-    // else if(act_scr == ui_UpdateScreen)
-    // {
-    //     if(elabel_screen != UPDATE_SCREEN)
-    //     {
-    //         force_full_update = false;
-    //         elabel_update_mode = FAST_UPDATE;
-    //         isBaseMapFresh = false;
-    //         elabel_screen = UPDATE_SCREEN;
-    //     }
-    //     else
-    //     {
-    //         elabel_update_mode = PARTIAL_UPDATE;
-    //         elabel_partial_area = OTA_PROCESS;
-    //     }
-    //     ESP_LOGI(TAG,"ui_UpdateScreen Flush called.");
-    // }
+    else if(act_scr == ui_UpdateScreen)
+    {
+        if(elabel_screen != UPDATE_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = UPDATE_SCREEN;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
+        ESP_LOGI(TAG,"ui_UpdateScreen Flush called.");
+    }
     else if(act_scr == ui_TaskScreen)
     {
         if(elabel_screen != TASK_SCREEN || force_full_update)

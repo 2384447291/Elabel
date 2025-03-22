@@ -4,19 +4,37 @@
 #include "control_driver.hpp"
 #include "network.h"
 #include "Esp_now_client.hpp"
-void enter_ota();
-void out_ota();
 
-void out_ota()
+void Confirm_ota_button_state()
 {
-    InitState::Instance()->is_need_ota = false;
-    InitState::Instance()->ota_Wait_tick = 300;
+    if(InitState::Instance()->button_choose_ota_left)
+    {
+        InitState::Instance()->is_need_ota = 2;
+    }
+    else
+    {
+        InitState::Instance()->is_need_ota = 1;
+    }
 }
 
-void enter_ota()
+void change_ota_button_state()
 {
-    InitState::Instance()->is_need_ota = true;
+    if(InitState::Instance()->is_need_ota != 0) return;
     InitState::Instance()->ota_Wait_tick = 300;
+    InitState::Instance()->button_choose_ota_left = !InitState::Instance()->button_choose_ota_left;
+    lock_lvgl();
+    lv_obj_clear_flag(ui_OTAButton, LV_OBJ_FLAG_HIDDEN);
+    if(InitState::Instance()->button_choose_ota_left)
+    {
+        lv_obj_add_state(ui_OTAButtonCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_OTAButtonStart, LV_STATE_PRESSED );
+    }
+    else
+    {
+        lv_obj_clear_state(ui_OTAButtonCancel, LV_STATE_PRESSED );
+        lv_obj_add_state(ui_OTAButtonStart, LV_STATE_PRESSED );
+    }
+    release_lvgl();
 }
 
 
@@ -28,7 +46,7 @@ void InitState::Init(ElabelController* pOwner)
 void InitState::Enter(ElabelController* pOwner)
 {
     is_init = false;
-    is_need_ota = false;
+    is_need_ota = 0;
     lock_lvgl();
     switch_screen(ui_HalfmindScreen);
     release_lvgl();
@@ -41,7 +59,8 @@ void InitState::Execute(ElabelController* pOwner)
     if(get_wifi_status() == 0 && get_global_data()->m_usertoken!=NULL) m_wifi_connect();
     //如果正在连接或者没有用户，则不进行初始化
     if(get_wifi_status() == 1 && get_global_data()->m_usertoken!=NULL) return;
-    if(is_init) return;
+    //如果已经初始化或者需要OTA则不进行初始化
+    if(is_init || is_need_ota == 1) return;
 
     //等待1swifi连接两秒稳定
     vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -57,30 +76,38 @@ void InitState::Execute(ElabelController* pOwner)
     http_get_latest_version(true);
 
     //如果判断为需要OTA
-    // if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
-    // {
-    //     lock_lvgl();
-    //     switch_screen(ui_OTAScreen);
-    //     char version_change[150];
-    //     sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
-    //     set_text_without_change_font(ui_VersionChange, version_change);
-    //     release_lvgl();
-    //     ota_Wait_tick = 0;      
-
-    //     while(true)
-    //     {
-    //         vTaskDelay(100 / portTICK_PERIOD_MS);
-    //         ota_Wait_tick++;      
-    //         if(ota_Wait_tick >= 300)
-    //         {
-    //             break;
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     ESP_LOGI("OTA", "No need OTA, newest version");
-    // }
+    if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+    {
+        is_need_ota = 0;
+        lock_lvgl();
+        switch_screen(ui_OTAScreen);
+        char version_change[150];
+        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
+        set_text_without_change_font(ui_VersionChange, version_change);
+        button_choose_ota_left = true;
+        lv_obj_add_state(ui_OTAButtonCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_OTAButtonStart, LV_STATE_PRESSED );
+        release_lvgl();
+        ota_Wait_tick = 300;      
+        ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_ota_button_state);
+        ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(change_ota_button_state);
+        ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(Confirm_ota_button_state);
+        while(is_need_ota == 0)
+        {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            ota_Wait_tick--;  
+            if(ota_Wait_tick <= 0)
+            {
+                is_need_ota = 2;
+            }
+        }
+    }
+    else
+    {
+        ESP_LOGI("OTA", "No need OTA, newest version");
+    }
+    //如果需要OTA则不进行初始化
+    if(is_need_ota == 1) return;
     //刷新一下focus状态
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
@@ -90,6 +117,9 @@ void InitState::Execute(ElabelController* pOwner)
 
 void InitState::Exit(ElabelController* pOwner)
 {
+    ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(change_ota_button_state);
+    ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(change_ota_button_state);
+    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(Confirm_ota_button_state);
     elabelUpdateTick = 0;
     ESP_LOGI(STATEMACHINE,"Out InitState.\n");
 }

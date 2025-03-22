@@ -15,15 +15,15 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_activate1_png.c
     images/ui_img_activate2_png.c
     images/ui_img_activate3_png.c
+    images/ui_img_cancel_n_png.c
+    images/ui_img_cancel_y_png.c
+    images/ui_img_start_n_png.c
+    images/ui_img_start_y_png.c
     images/ui_img_scollarbar_png.c
     images/ui_img_seeyounexttime_png.c
     images/ui_img_tips1_png.c
     images/ui_img_tips2_png.c
     images/ui_img_tips3_png.c
-    images/ui_img_cancel_n_png.c
-    images/ui_img_cancel_y_png.c
-    images/ui_img_start_n_png.c
-    images/ui_img_start_y_png.c
     images/ui_img_recordagain_png.c
     images/ui_img_finish_y_png.c
     images/ui_img_finish_n_png.c
@@ -39,6 +39,3 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     fonts/ui_font_Chinese_20.c
     fonts/ui_font_Chinese_28.c
     REQUIRES lvgl)
-
-
-

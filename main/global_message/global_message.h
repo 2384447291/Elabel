@@ -8,7 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "2.0.6"
+#define FIRMWARE_VERSION "3.0.0"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，未专注2

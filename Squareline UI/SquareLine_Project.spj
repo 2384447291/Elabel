@@ -3836,7 +3836,8 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "PANEL"
+                "saved_objtypeKey": "PANEL",
+                "tree_closed": true
               },
               {
                 "guid": "GUID32719972-958649S480477",
@@ -5216,7 +5217,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           }
         ],
         "isPage": true,
@@ -5745,25 +5747,25 @@
                           {
                             "nid": 1050,
                             "strtype": "IMGBUTTON/Image_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1060,
                             "strtype": "IMGBUTTON/Image_checked_released",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1070,
                             "strtype": "IMGBUTTON/Image_checked_pressed",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1080,
                             "strtype": "IMGBUTTON/Image_checked_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
@@ -6259,6 +6261,12 @@
                     "flags": 1048576,
                     "strtype": "OBJECT/Flags",
                     "InheritedType": 1
+                  },
+                  {
+                    "nid": 100,
+                    "strtype": "OBJECT/Hidden",
+                    "strval": "True",
+                    "InheritedType": 2
                   },
                   {
                     "nid": 110,
@@ -7647,25 +7655,25 @@
                           {
                             "nid": 1050,
                             "strtype": "IMGBUTTON/Image_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1060,
                             "strtype": "IMGBUTTON/Image_checked_released",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1070,
                             "strtype": "IMGBUTTON/Image_checked_pressed",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1080,
                             "strtype": "IMGBUTTON/Image_checked_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
@@ -7798,25 +7806,25 @@
                           {
                             "nid": 1050,
                             "strtype": "IMGBUTTON/Image_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1060,
                             "strtype": "IMGBUTTON/Image_checked_released",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1070,
                             "strtype": "IMGBUTTON/Image_checked_pressed",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
                             "nid": 1080,
                             "strtype": "IMGBUTTON/Image_checked_disabled",
-                            "strval": "",
+                            "strval": "-",
                             "InheritedType": 5
                           },
                           {
@@ -9482,12 +9490,6 @@
                     "flags": 1048576,
                     "strtype": "OBJECT/Flags",
                     "InheritedType": 1
-                  },
-                  {
-                    "nid": 100,
-                    "strtype": "OBJECT/Hidden",
-                    "strval": "True",
-                    "InheritedType": 2
                   },
                   {
                     "nid": 110,
@@ -14502,7 +14504,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Position",
                         "intarray": [
-                          -60,
+                          -80,
                           0
                         ],
                         "InheritedType": 7
@@ -14647,7 +14649,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Position",
                         "intarray": [
-                          60,
+                          80,
                           0
                         ],
                         "InheritedType": 7
@@ -14818,12 +14820,6 @@
                     "InheritedType": 1
                   },
                   {
-                    "nid": 100,
-                    "strtype": "OBJECT/Hidden",
-                    "strval": "True",
-                    "InheritedType": 2
-                  },
-                  {
                     "nid": 230,
                     "strtype": "OBJECT/Scrollable",
                     "strval": "False",
@@ -14969,6 +14965,12 @@
                 "InheritedType": 1
               },
               {
+                "nid": 100,
+                "strtype": "OBJECT/Hidden",
+                "strval": "True",
+                "InheritedType": 2
+              },
+              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -15015,7 +15017,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           },
           {
             "guid": "GUID5191471-525739S20963478",
@@ -15301,7 +15304,8 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "PANEL"
+                "saved_objtypeKey": "PANEL",
+                "tree_closed": true
               },
               {
                 "guid": "GUID84505242-525773S10304478",
@@ -15769,7 +15773,8 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "PANEL"
+                "saved_objtypeKey": "PANEL",
+                "tree_closed": true
               },
               {
                 "guid": "GUID44611780-525779S14386478",
@@ -15815,7 +15820,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Position",
                         "intarray": [
-                          -60,
+                          -80,
                           0
                         ],
                         "InheritedType": 7
@@ -15960,7 +15965,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Position",
                         "intarray": [
-                          60,
+                          80,
                           0
                         ],
                         "InheritedType": 7
@@ -16327,7 +16332,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           },
           {
             "guid": "GUID70100928-525741S21411478",
@@ -16614,8 +16620,7 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "LABEL",
-                "tree_closed": true
+                "saved_objtypeKey": "LABEL"
               },
               {
                 "guid": "GUID24492347-525787S3494478",
@@ -17565,12 +17570,6 @@
                     "InheritedType": 1
                   },
                   {
-                    "nid": 100,
-                    "strtype": "OBJECT/Hidden",
-                    "strval": "True",
-                    "InheritedType": 2
-                  },
-                  {
                     "nid": 230,
                     "strtype": "OBJECT/Scrollable",
                     "strval": "False",
@@ -17625,7 +17624,7 @@
                               255,
                               255,
                               255,
-                              255
+                              0
                             ],
                             "InheritedType": 7
                           }
@@ -17647,8 +17646,7 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "PANEL",
-                "tree_closed": true
+                "saved_objtypeKey": "PANEL"
               }
             ],
             "dont_export": false,
@@ -17714,12 +17712,6 @@
                 "flags": 1048576,
                 "strtype": "OBJECT/Flags",
                 "InheritedType": 1
-              },
-              {
-                "nid": 100,
-                "strtype": "OBJECT/Hidden",
-                "strval": "True",
-                "InheritedType": 2
               },
               {
                 "nid": 110,
@@ -17917,7 +17909,7 @@
     "uiExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\components\\ui",
     "projectExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\Squareline UI",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 128,
+    "backup_cnt": 130,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

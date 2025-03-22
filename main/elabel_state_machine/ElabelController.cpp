@@ -100,7 +100,7 @@ void ElabelFsm::HandleInput()
     //-------------------------------初始化流程--------------------------------//
     else if(GetCurrentState()==InitState::Instance())
     {
-        if(InitState::Instance()->is_need_ota)
+        if(InitState::Instance()->is_need_ota == 1)
         {
             ChangeState(OTAState::Instance());
         }

@@ -39,15 +39,15 @@ extern lv_obj_t * ui_OTAScreen;
 extern lv_obj_t * ui_Panel7;
 extern lv_obj_t * ui_NewFirmware;
 extern lv_obj_t * ui_NewFirmware2;
-extern lv_obj_t * ui_OperateGuide;
-extern lv_obj_t * ui_OperateGuide2;
 extern lv_obj_t * ui_VersionChange;
+extern lv_obj_t * ui_OTAButton;
+extern lv_obj_t * ui_OTAButtonCancel;
+extern lv_obj_t * ui_OTAButtonStart;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_NewFirmware;
 extern lv_obj_t * uic_NewFirmware2;
-extern lv_obj_t * uic_OperateGuide;
-extern lv_obj_t * uic_OperateGuide2;
 extern lv_obj_t * uic_VersionChange;
+extern lv_obj_t * uic_OTAButtonStart;
 
 // SCREEN: ui_TaskScreen
 void ui_TaskScreen_screen_init(void);
@@ -222,15 +222,15 @@ LV_IMG_DECLARE(ui_img_halfmind_png);    // assets/halfmind.png
 LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
 LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
 LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
+LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
+LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
+LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
+LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
 LV_IMG_DECLARE(ui_img_scollarbar_png);    // assets/scollarbar.png
 LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
 LV_IMG_DECLARE(ui_img_tips1_png);    // assets/Tips1.png
 LV_IMG_DECLARE(ui_img_tips2_png);    // assets/Tips2.png
 LV_IMG_DECLARE(ui_img_tips3_png);    // assets/Tips3.png
-LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
-LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
-LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
-LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
 LV_IMG_DECLARE(ui_img_recordagain_png);    // assets/recordagain.png
 LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
 LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png

@@ -38,26 +38,6 @@ void ui_OTAScreen_screen_init(void)
     lv_label_set_text(ui_NewFirmware2, "New Firmware");
     lv_obj_set_style_text_font(ui_NewFirmware2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_OperateGuide = lv_label_create(ui_Panel7);
-    lv_obj_set_width(ui_OperateGuide, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_OperateGuide, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OperateGuide, -2);
-    lv_obj_set_y(ui_OperateGuide, 27);
-    lv_obj_set_align(ui_OperateGuide, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OperateGuide, "Click: Apply\nRotate: Skip");
-    lv_obj_set_style_text_font(ui_OperateGuide, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_OperateGuide2 = lv_label_create(ui_OperateGuide);
-    lv_obj_set_width(ui_OperateGuide2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_OperateGuide2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OperateGuide2, -1);
-    lv_obj_set_y(ui_OperateGuide2, 0);
-    lv_obj_set_align(ui_OperateGuide2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OperateGuide2, "Click: Apply\nRotate: Skip");
-    lv_obj_set_style_text_color(ui_OperateGuide2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_OperateGuide2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_OperateGuide2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     ui_VersionChange = lv_label_create(ui_Panel7);
     lv_obj_set_width(ui_VersionChange, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_VersionChange, LV_SIZE_CONTENT);    /// 1
@@ -67,10 +47,41 @@ void ui_OTAScreen_screen_init(void)
     lv_label_set_text(ui_VersionChange, "V1.2-------->V2.4");
     lv_obj_set_style_text_font(ui_VersionChange, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_OTAButton = lv_obj_create(ui_OTAScreen);
+    lv_obj_set_width(ui_OTAButton, 250);
+    lv_obj_set_height(ui_OTAButton, 40);
+    lv_obj_set_x(ui_OTAButton, 0);
+    lv_obj_set_y(ui_OTAButton, 40);
+    lv_obj_set_align(ui_OTAButton, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_OTAButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_border_color(ui_OTAButton, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_OTAButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_OTAButtonCancel = lv_imgbtn_create(ui_OTAButton);
+    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_obj_set_height(ui_OTAButtonCancel, 19);
+    lv_obj_set_width(ui_OTAButtonCancel, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_OTAButtonCancel, -60);
+    lv_obj_set_y(ui_OTAButtonCancel, 0);
+    lv_obj_set_align(ui_OTAButtonCancel, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_OTAButtonCancel,
+                      LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                      LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
+                      LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
+
+    ui_OTAButtonStart = lv_imgbtn_create(ui_OTAButton);
+    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
+    lv_obj_set_height(ui_OTAButtonStart, 19);
+    lv_obj_set_width(ui_OTAButtonStart, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_OTAButtonStart, 60);
+    lv_obj_set_y(ui_OTAButtonStart, 0);
+    lv_obj_set_align(ui_OTAButtonStart, LV_ALIGN_CENTER);
+
     uic_NewFirmware = ui_NewFirmware;
     uic_NewFirmware2 = ui_NewFirmware2;
-    uic_OperateGuide = ui_OperateGuide;
-    uic_OperateGuide2 = ui_OperateGuide2;
     uic_VersionChange = ui_VersionChange;
+    uic_OTAButtonStart = ui_OTAButtonStart;
 
 }

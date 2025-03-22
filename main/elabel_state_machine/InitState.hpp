@@ -15,7 +15,9 @@ public:
     virtual void Exit(ElabelController* pOwner);
 
     bool is_init = false;
-    bool is_need_ota = false;
+    
+    uint8_t is_need_ota = 0;//0:没有选择,1:选择ota,2:选择不ota
+    bool button_choose_ota_left = true;
     uint32_t ota_Wait_tick = 0;
 
     static InitState* Instance()

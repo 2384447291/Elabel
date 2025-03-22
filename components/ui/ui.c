@@ -34,15 +34,15 @@ lv_obj_t * ui_OTAScreen;
 lv_obj_t * ui_Panel7;
 lv_obj_t * ui_NewFirmware;
 lv_obj_t * ui_NewFirmware2;
-lv_obj_t * ui_OperateGuide;
-lv_obj_t * ui_OperateGuide2;
 lv_obj_t * ui_VersionChange;
+lv_obj_t * ui_OTAButton;
+lv_obj_t * ui_OTAButtonCancel;
+lv_obj_t * ui_OTAButtonStart;
 // CUSTOM VARIABLES
 lv_obj_t * uic_NewFirmware;
 lv_obj_t * uic_NewFirmware2;
-lv_obj_t * uic_OperateGuide;
-lv_obj_t * uic_OperateGuide2;
 lv_obj_t * uic_VersionChange;
+lv_obj_t * uic_OTAButtonStart;
 
 
 // SCREEN: ui_TaskScreen
