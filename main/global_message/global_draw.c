@@ -162,18 +162,18 @@ void guiTask(void *pvParameter) {
 
 
 //--------------------------------------获取语言字体-------------------------------------//
-const lv_font_t* get_language_font(bool Is_bigger)
-{
-    switch(get_global_data()->m_language) {
-        case Chinese:
-            if(Is_bigger) return &ui_font_Chinese_28;
-            else return &ui_font_Chinese_20;
-        case English:
-        default:
-            if(Is_bigger) return &lv_font_montserrat_20;
-            else return &lv_font_montserrat_16;
-    }
-}
+// const lv_font_t* get_language_font(bool Is_bigger)
+// {
+//     switch(get_global_data()->m_language) {
+//         case Chinese:
+//             if(Is_bigger) return &ui_font_Chinese_28;
+//             else return &ui_font_Chinese_20;
+//         case English:
+//         default:
+//             if(Is_bigger) return &lv_font_montserrat_20;
+//             else return &lv_font_montserrat_16;
+//     }
+// }
 //--------------------------------------获取语言字体-------------------------------------//
 
 
@@ -182,128 +182,57 @@ void lvgl_modify_task(int position, const char *task_content)
 {
     uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
     ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
-    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
+    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position);
     lv_obj_t *ui_Label1 = lv_obj_get_child(ui_tmpButton, 0);
-    set_text_with_change_font(ui_Label1, task_content, false);
+    //获取文本长度
+    size_t len = strlen(task_content);
+    //如果超过13个字符,截断并添加省略号
+    char truncated[14];
+    if(len > 13) {
+        strncpy(truncated, task_content, 13);
+        truncated[10] = '.';
+        truncated[11] = '.';
+        truncated[12] = '.';
+        truncated[13] = '\0';
+        task_content = truncated;
+    }
+    set_text_without_change_font(ui_Label1, task_content);
     ESP_LOGI("LVGL","任务%d \"%s\" 修改成功！\n", position, task_content);
 }
 //--------------------------------------修改任务内容-------------------------------------//
 
 
-//--------------------------------------添加任务到链表末尾-------------------------------------//
-void lvgl_add_task(const char *task_content) 
-{
-    //ui_Container3是存储了task_list的容器
-    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-    ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
-    //取出最后一个元素，并删除，0开始计数所以要减1
-    lv_obj_t *empty_label = lv_obj_get_child(ui_TaskContainer, child_count-1);
-    if(empty_label != NULL && empty_label!= 0)
-    {
-        lv_obj_del(empty_label);
-    }
-
-    //新建Button承接task
-    lv_obj_t *ui_tmpButton = lv_btn_create(ui_TaskContainer);
-    lv_obj_set_width(ui_tmpButton, ChooseTask_small_width);
-    lv_obj_set_height(ui_tmpButton, ChooseTask_small_height);
-    lv_obj_set_align(ui_tmpButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_tmpButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_tmpButton, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_tmpButton, lv_color_hex(0xF6F6F6), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_tmpButton, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_tmpButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_tmpButton, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    //构建第一个挂载button下面的第一个label
-    lv_obj_t *ui_Label1 = lv_label_create(ui_tmpButton);
-    lv_obj_set_width(ui_Label1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Label1, LV_ALIGN_CENTER);
-    lv_obj_set_style_text_font(ui_Label1, get_language_font(false), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_label_set_text(ui_Label1, task_content);
-    lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_Label1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_x(ui_Label1, 0);
-    lv_obj_set_y(ui_Label1, 0);
-
-    //给新建的button赋具体的文字，5遍是为了加粗
-    for(int i = 0; i < 1; i++)
-    {
-        lv_obj_t *ui_tmpLabel = lv_label_create(ui_Label1);
-        lv_obj_set_width(ui_tmpLabel, LV_SIZE_CONTENT);     /// 1
-        lv_obj_set_height(ui_tmpLabel, LV_SIZE_CONTENT);    /// 1
-        lv_obj_set_align(ui_tmpLabel, LV_ALIGN_CENTER);
-        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(false), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_label_set_text(ui_tmpLabel, task_content);
-        lv_obj_set_style_text_color(ui_tmpLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_set_style_text_opa(ui_tmpLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-        if(i == 0)
-        {
-            lv_obj_set_x(ui_tmpLabel, -1);
-            lv_obj_set_y(ui_tmpLabel, 0);
-        }
-    }
-
-    //给末尾附上新的空button填补
-    ui_endlabel = lv_label_create(ui_TaskContainer);
-    lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_endlabel, "\n\n\n\n\n\n");
-
-    ESP_LOGI("LVGL","任务 \"%s\" 添加成功！\n", task_content);
-}
-//--------------------------------------添加任务到链表末尾-------------------------------------//
-
-
-
-//--------------------------------------删除指定位置的任务-------------------------------------//
-void lvgl_delete_task(int position) 
-{
-    // 删除头结点
-    if (position == 0) 
-    {
-        //由于空头节点的出现，所以要删除第二个
-        lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
-        lv_obj_del(ui_tmpButton);
-        return;
-    }
-
-    lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position+1);
-    lv_obj_del(ui_tmpButton);
-}
-//--------------------------------------删除指定位置的任务-------------------------------------//
-
-
-
 //--------------------------------------更新任务列表-------------------------------------//
-void update_lvgl_task_list()
+//chose_task: 从0开始表示第一个task在中间
+void update_lvgl_task_list(int center_task)
 {
-    if(get_global_data()->m_todo_list->size > 0)
+    int task_num = get_global_data()->m_todo_list->size;
+    if(task_num > 0)
     {
         //如果有事件，则显示任务列表,默认任务列表有两个空节点
         _ui_flag_modify(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
         _ui_flag_modify(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);   
-        uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-        for(int i = 0; i < (child_count - 2 - get_global_data()->m_todo_list->size); i++)
+        lv_obj_clear_flag(ui_Button1, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_Button3, LV_OBJ_FLAG_HIDDEN);
+        lvgl_modify_task(1, get_global_data()->m_todo_list->items[center_task].title);
+        if(task_num - center_task - 1 == 0) 
         {
-            lvgl_delete_task(i);
+            lv_obj_add_flag(ui_Button3, LV_OBJ_FLAG_HIDDEN);
         }
-        child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-        for(int i = 0; i <get_global_data()->m_todo_list->size; i++)
+        else
         {
-            if(child_count > 2 )
-            {
-                lvgl_modify_task(i, get_global_data()->m_todo_list->items[i].title); 
-                child_count --;
-            }
-            else
-            {
-                lvgl_add_task(get_global_data()->m_todo_list->items[i].title);
-            }
+            lvgl_modify_task(2, get_global_data()->m_todo_list->items[center_task + 1].title);
+            
+        }
+
+        if(center_task == 0)
+        {
+            lv_obj_add_flag(ui_Button1, LV_OBJ_FLAG_HIDDEN);
+        }
+        else
+        {
+            lvgl_modify_task(0, get_global_data()->m_todo_list->items[center_task - 1].title);
         }
     }
     else
@@ -318,20 +247,20 @@ void update_lvgl_task_list()
 
 
 //--------------------------------------修改label-------------------------------------//
-void set_text_with_change_font(lv_obj_t * target_label,  const char * text, bool Is_bigger)
-{
-    //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
-    //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
-    lv_label_set_text(target_label, text);
-    lv_obj_set_style_text_font(target_label, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
-    uint8_t child_count = lv_obj_get_child_cnt(target_label);
-    for(int i = 0; i < child_count; i++)
-    {
-        lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
-        lv_label_set_text(ui_tmpLabel, text);
-        lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
-    }
-}
+// void set_text_with_change_font(lv_obj_t * target_label,  const char * text, bool Is_bigger)
+// {
+//     //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
+//     //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
+//     lv_label_set_text(target_label, text);
+//     lv_obj_set_style_text_font(target_label, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
+//     uint8_t child_count = lv_obj_get_child_cnt(target_label);
+//     for(int i = 0; i < child_count; i++)
+//     {
+//         lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
+//         lv_label_set_text(ui_tmpLabel, text);
+//         lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
+//     }
+// }
 
 
 //--------------------------------------修改label-------------------------------------//

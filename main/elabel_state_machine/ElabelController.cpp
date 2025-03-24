@@ -52,6 +52,7 @@ void ElabelController::Init()
 
 void ElabelController::Update()
 {
+    if(lock_running) return;
     m_elabelFsm.HandleInput();
     m_elabelFsm.Update();
 }
@@ -162,8 +163,14 @@ void ElabelFsm::HandleInput()
                 //其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
                 if(GetCurrentState()==ChoosingTaskState::Instance())
                 {
+                    lock_lvgl();
                     //刷新任务列表
                     ChoosingTaskState::Instance()->brush_task_list();
+                    //刷新任务列表
+                    ChoosingTaskState::Instance()->recolor_task();
+                    //刷新任务列表
+                    ChoosingTaskState::Instance()->update_progress_bar();
+                    release_lvgl();
                 }
             }
             set_task_list_state(newest);

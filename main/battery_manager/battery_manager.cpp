@@ -9,6 +9,8 @@
 #include "freertos/timers.h"
 #include "global_message.h"
 #include "codec.hpp"
+#include "ssd1680.h"
+#include "ElabelController.hpp"
 #define TAG "BATTERY_MANAGER"
 
 #undef ESP_LOGI
@@ -26,6 +28,7 @@ static void shutdown_timer_callback(TimerHandle_t xTimer) {
 
 void power_off_system()
 {
+    ElabelController::Instance()->lock_running = true;
     //如果连接了电源不允许关机
     if(BatteryManager::Instance()->isUsbConnected()) 
     {
@@ -36,6 +39,9 @@ void power_off_system()
     switch_screen(ui_ShutdownScreen);
     //释放lvgl
     release_lvgl();
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    set_lock_flush(true);
+
     // 播放关机音乐
     MCodec::Instance()->play_music("stop");
     

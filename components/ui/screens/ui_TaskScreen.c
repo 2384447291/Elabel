@@ -28,8 +28,6 @@ void ui_TaskScreen_screen_init(void)
     ui_TaskContainer = lv_obj_create(ui_HaveTaskContainer);
     lv_obj_set_width(ui_TaskContainer, 224);
     lv_obj_set_height(ui_TaskContainer, 122);
-    lv_obj_set_flex_flow(ui_TaskContainer, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(ui_TaskContainer, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_clear_flag(ui_TaskContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE |
                       LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
                       LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -42,17 +40,11 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_pad_row(ui_TaskContainer, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_column(ui_TaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_startlabel = lv_label_create(ui_TaskContainer);
-    lv_obj_set_width(ui_startlabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_startlabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_startlabel, -4);
-    lv_obj_set_y(ui_startlabel, -67);
-    lv_obj_set_align(ui_startlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_startlabel, "\n\n\n\n\n\n");
-
     ui_Button1 = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_Button1, 192);
     lv_obj_set_height(ui_Button1, 32);
+    lv_obj_set_x(ui_Button1, 0);
+    lv_obj_set_y(ui_Button1, -40);
     lv_obj_set_align(ui_Button1, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_Button1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -85,8 +77,6 @@ void ui_TaskScreen_screen_init(void)
     ui_Button2 = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_Button2, 209);
     lv_obj_set_height(ui_Button2, 32);
-    lv_obj_set_x(ui_Button2, 0);
-    lv_obj_set_y(ui_Button2, -15);
     lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_Button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -121,6 +111,8 @@ void ui_TaskScreen_screen_init(void)
     ui_Button3 = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_Button3, 192);
     lv_obj_set_height(ui_Button3, 32);
+    lv_obj_set_x(ui_Button3, 0);
+    lv_obj_set_y(ui_Button3, 40);
     lv_obj_set_align(ui_Button3, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button3, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_Button3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -151,12 +143,6 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_text_color(ui_chooseTask11, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTask11, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_endlabel = lv_label_create(ui_TaskContainer);
-    lv_obj_set_width(ui_endlabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_endlabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_endlabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_endlabel, "\n\n\n\n\n\n");
 
     ui_scrollbar = lv_obj_create(ui_HaveTaskContainer);
     lv_obj_set_width(ui_scrollbar, 32);

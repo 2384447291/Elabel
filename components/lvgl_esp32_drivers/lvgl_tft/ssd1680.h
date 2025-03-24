@@ -139,6 +139,7 @@ void ssd1680_set_px_cb(lv_disp_drv_t * disp_drv, uint8_t* buf, lv_coord_t buf_w,
 void ssd1680_deep_sleep(void);
 
 void set_force_full_update(bool _force_full_update);
+void set_lock_flush(bool _lock_flush);
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

@@ -17,7 +17,7 @@
 #define ADC_ATTEN      ADC_ATTEN_DB_12  // 12dB衰减，量程0-3.3V
 #define ADC_WIDTH      ADC_WIDTH_BIT_12 // 12位分辨率
 #define ADC_SAMPLES    64               // 采样次数
-#define LOWLEST_VOLTAGE 3.32
+#define LOWLEST_VOLTAGE 3.00
 
 class BatteryManager {
 public:

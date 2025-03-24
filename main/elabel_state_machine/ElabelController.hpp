@@ -33,12 +33,16 @@ class ElabelController
         void Update();
         void Init();
 
+        bool lock_running = false;
+
         //所选择的task的id(一定要以id来传递，不要用number来传递，id是唯一的)
         uint16_t ChosenTaskId;
         //任务倒计时的实际时间
         uint32_t TimeCountdown = TimeCountdownOffset;
         //所选择的task在当前列表中的位置
         uint16_t ChosenTaskNum;
+        //处在中心的task在列表中的位置
+        uint16_t CenterTaskNum;
         //当前task_length的长度
         uint16_t TaskLength;
 
