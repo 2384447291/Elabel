@@ -54,7 +54,6 @@ void ui_TaskScreen_screen_init(void);
 extern lv_obj_t * ui_TaskScreen;
 extern lv_obj_t * ui_HaveTaskContainer;
 extern lv_obj_t * ui_TaskContainer;
-extern lv_obj_t * ui_startlabel;
 extern lv_obj_t * ui_Button1;
 extern lv_obj_t * ui_chooseTaskF;
 extern lv_obj_t * ui_chooseTask1;
@@ -64,7 +63,6 @@ extern lv_obj_t * ui_chooseTask2;
 extern lv_obj_t * ui_Button3;
 extern lv_obj_t * ui_chooseTaskT;
 extern lv_obj_t * ui_chooseTask11;
-extern lv_obj_t * ui_endlabel;
 extern lv_obj_t * ui_scrollbar;
 extern lv_obj_t * ui_Arc1;
 extern lv_obj_t * ui_NoTaskContainer;
@@ -243,10 +241,6 @@ LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
-
-// FONTS
-LV_FONT_DECLARE(ui_font_Chinese_20);
-LV_FONT_DECLARE(ui_font_Chinese_28);
 
 // UI INIT
 void ui_init(void);

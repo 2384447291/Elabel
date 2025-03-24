@@ -28,6 +28,11 @@ void set_force_full_update(bool _force_full_update)
     force_full_update = _force_full_update;
 }
 
+bool lock_flush = false;
+void set_lock_flush(bool _lock_flush)
+{
+    lock_flush = _lock_flush;
+}
 
 static void ssd1680_update_display();
 static inline void ssd1680_set_window( uint16_t sx, uint16_t ex, uint16_t ys, uint16_t ye);
@@ -56,6 +61,7 @@ static inline void ssd1680_send_data(uint8_t *data, uint16_t length);
 //每行像素数据按照显示区域的宽度依次存储，行与行之间连续排列。数据对应 area 中的矩形区域。
 void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
 {
+    if(lock_flush) return;
     lv_obj_t * act_scr = lv_scr_act();
     if(act_scr == ui_HalfmindScreen) //只能快刷
     {
@@ -240,41 +246,6 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         uint16_t y1 = 0;
         uint16_t x2 = 250;
         uint16_t y2 = 122;
-        // if(elabel_partial_area == TASK_LIST)
-        // {
-        //     x1 = 0;
-        //     y1 = 0;
-        //     x2 = 250;
-        //     y2 = 122;
-        // }
-        // else if(elabel_partial_area == OTA_PROCESS)
-        // {
-        //     x1 = 0;
-        //     y1 = 0;
-        //     x2 = 250;
-        //     y2 = 122;
-        // }
-        // else if(elabel_partial_area == TIME_CHANGE)
-        // {
-        //     x1 = 48;
-        //     y1 = 56;
-        //     x2 = 200;
-        //     y2 = 122;
-        // }
-        // else if(elabel_partial_area == TIME_SET)
-        // {
-        //     x1 = 0;
-        //     y1 = 0;
-        //     x2 = 250;
-        //     y2 = 122;
-        // }
-        // else if(elabel_partial_area == HOSTACTIVE_LOWER_PLACE)
-        // {
-        //     x1 = 10;
-        //     y1 = 66;
-        //     x2 = 240;
-        //     y2 = 122;
-        // }
         uint16_t X1 = y1;
         uint16_t X2 = y2;
         uint16_t Y1 = x1;

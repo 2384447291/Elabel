@@ -16,8 +16,7 @@ public:
     virtual void Exit(ElabelController* pOwner);
 
     void brush_task_list();
-    void scroll_to_center(lv_obj_t *container, lv_obj_t *child);
-    void resize_task();
+    void recolor_task();
     void update_progress_bar();
 
     bool is_jump_to_task_mode = false;

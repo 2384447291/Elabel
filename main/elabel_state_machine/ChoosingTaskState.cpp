@@ -10,9 +10,24 @@ void choose_next_task()
         ESP_LOGE("ChoosingTaskState","No task no need choose next task");
         return;
     }
-    uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
-    if(temp_chosen_task >= ElabelController::Instance()->TaskLength) temp_chosen_task = 0;
-    ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+    int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
+    if(temp_chosen_task < ElabelController::Instance()->TaskLength) 
+    {
+        ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+        if(ElabelController::Instance()->ChosenTaskNum > ElabelController::Instance()->CenterTaskNum + 1)
+        {
+            ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum + 1;
+        }
+    }
+    else
+    {
+        int temp_center_task = ElabelController::Instance()->CenterTaskNum + 1;
+        if(temp_center_task < ElabelController::Instance()->TaskLength)
+        {
+            ElabelController::Instance()->CenterTaskNum = temp_center_task;
+        }
+    }
+    ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
@@ -20,12 +35,27 @@ void choose_previous_task()
 {
     if(get_global_data()->m_todo_list->size==0)
     {
-        ESP_LOGE("ChoosingTaskState","No task no need choose previous task");
+        ESP_LOGE("ChoosingTaskState","No task no need choose next task");
         return;
     }
-    uint8_t temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
-    if(temp_chosen_task == 255) temp_chosen_task = ElabelController::Instance()->TaskLength - 1;
-    ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+    int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
+    if(temp_chosen_task >= 0) 
+    {
+        ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+        if(ElabelController::Instance()->ChosenTaskNum < ElabelController::Instance()->CenterTaskNum - 1)
+        {
+            ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum - 1;
+        }
+    }
+    else
+    {
+        int temp_center_task = ElabelController::Instance()->CenterTaskNum - 1;
+        if(temp_center_task >= 0)
+        {
+            ElabelController::Instance()->CenterTaskNum = temp_center_task;
+        }
+    }
+    ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
@@ -57,14 +87,9 @@ void jump_to_time_mode()
 }
 void ChoosingTaskState::brush_task_list()
 {
-    lock_lvgl();
-    update_lvgl_task_list();
-    release_lvgl();
+    update_lvgl_task_list(ElabelController::Instance()->CenterTaskNum);
     ElabelController::Instance()->TaskLength = get_global_data()->m_todo_list->size;
-    ChoosingTaskState::Instance()->need_flash_paper = true;
-    //等待100ms组件加载完成
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-
+    ESP_LOGI("ChoosingTaskState","brush_task_list");
 }
 
 void ChoosingTaskState::Init(ElabelController* pOwner)
@@ -74,23 +99,20 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
-    //只有在每次进入choosetask的时候或者推出focus的时候需要重置时间
+    //只有在每次进入choosetask的时候或者退出focus的时候需要重置时间
     ElabelController::Instance()->TimeCountdown = TimeCountdownOffset;
     lock_lvgl();
     //加载界面
     switch_screen(ui_TaskScreen);
+    brush_task_list();
+    recolor_task();
+    update_progress_bar();
     //更新任务列表ui
     release_lvgl();
-    //这个里面自带一个locklvgl
-    brush_task_list();
-    
-    need_flash_paper = true;
     is_jump_to_task_mode = false;
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;
 
-    //等待100ms组件加载完成
-    vTaskDelay(100 / portTICK_PERIOD_MS);
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(choose_next_task);
@@ -108,15 +130,12 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
     //这里的刷新只会刷新位置
-    if(need_flash_paper && pOwner->TaskLength > 0)
+    if(need_flash_paper)
     {
-        //等待100ms组件加载完成
-        vTaskDelay(100 / portTICK_PERIOD_MS);
         lock_lvgl();
-        lv_obj_t *child = lv_obj_get_child(ui_TaskContainer, pOwner->ChosenTaskNum + 1);
-        if(child != NULL) {
-            scroll_to_center(ui_TaskContainer, child);
-        }
+        brush_task_list();
+        recolor_task();
+        update_progress_bar();
         release_lvgl();
         need_flash_paper = false;
         ESP_LOGI("Scroll", "Scroll to center%d", pOwner->ChosenTaskNum);
@@ -139,42 +158,15 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
 }
 
-// 滚动指定子对象到容器中心
-void ChoosingTaskState::scroll_to_center(lv_obj_t *container, lv_obj_t *child) {
-    lv_area_t child_area;
-    lv_obj_get_coords(child, &child_area);
-    lv_area_t container_area;
-    lv_obj_get_coords(container, &container_area);
-    lv_coord_t y_center = container_area.y1 + lv_area_get_height(&container_area) / 2;
-    lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
-    lv_coord_t diff_y = y_center - child_y_center;
-
-    // 滚动到计算的位置
-    lv_obj_scroll_by(container, 0, diff_y, LV_ANIM_OFF);
-
-    // 更新task大小
-    resize_task();
-
-    // 更新进度条
-    update_progress_bar();
-}
-void ChoosingTaskState::resize_task()
+void ChoosingTaskState::recolor_task()
 {
-    lv_area_t container_area;
-    lv_obj_get_coords(ui_TaskContainer, &container_area);
-    lv_coord_t y_center = container_area.y1 + lv_area_get_height(&container_area) / 2;
     uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-    for(int i = 1; i<child_count - 1;i++)
+        uint8_t chosen_task_button_index = ElabelController::Instance()->ChosenTaskNum - ElabelController::Instance()->CenterTaskNum + 1;
+    for(int i = 0; i<child_count; i++)
     {
         lv_obj_t *child = lv_obj_get_child(ui_TaskContainer, i);
-        lv_area_t child_area;
-        lv_obj_get_coords(child, &child_area);
-        lv_coord_t child_y_center = child_area.y1 + lv_area_get_height(&child_area) / 2;
-        lv_coord_t diff_y = LV_ABS(y_center - child_y_center);
-        //其实可以等于0，但是为了防止某些四舍五入的问题，所以设置为2
-        if(diff_y < 2)
+        if(i == chosen_task_button_index)
         {
-            lv_obj_set_size(child, get_button_size(Btn_ChooseTask_big_width), get_button_size(Btn_ChooseTask_big_height));
             lv_obj_set_style_bg_color(child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
 
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
@@ -186,7 +178,6 @@ void ChoosingTaskState::resize_task()
             }
         }
         else {
-            lv_obj_set_size(child, get_button_size(Btn_ChooseTask_small_width), get_button_size(Btn_ChooseTask_small_height));
             lv_obj_set_style_bg_color(child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -202,17 +193,17 @@ void ChoosingTaskState::resize_task()
 void ChoosingTaskState::update_progress_bar()
 {
     //现在的任务数目
-    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer)-2;
+    uint8_t child_count = ElabelController::Instance()->TaskLength;
     //当前任务id
-    ESP_LOGI("update_progress_bar", "child_count: %d", child_count);
     uint8_t current_task_id = ElabelController::Instance()->ChosenTaskNum;
-    ESP_LOGI("update_progress_bar", "current_task_id: %d", current_task_id);
     //进度条的长度
     uint8_t progress_bar_length =  round(100.0f / (float)child_count);
-    ESP_LOGI("update_progress_bar", "progress_bar_length: %d", progress_bar_length);
     lv_arc_set_value(ui_Arc1, progress_bar_length);
     //进度条的起点
     uint8_t progress_bar_start = round((float)current_task_id / (float)child_count * 36.0f);
-    ESP_LOGI("update_progress_bar", "progress_bar_start: %d", progress_bar_start);
     lv_arc_set_bg_angles(ui_Arc1,0+progress_bar_start,36+progress_bar_start);
+    // ESP_LOGI("update_progress_bar", "child_count: %d", child_count);
+    // ESP_LOGI("update_progress_bar", "current_task_id: %d", current_task_id);
+    // ESP_LOGI("update_progress_bar", "progress_bar_length: %d", progress_bar_length);
+    // ESP_LOGI("update_progress_bar", "progress_bar_start: %d", progress_bar_start);
 }

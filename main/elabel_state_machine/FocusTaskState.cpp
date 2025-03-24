@@ -183,6 +183,7 @@ void FocusTaskState::Exit(ElabelController* pOwner)
     pOwner->TimeCountdown = TimeCountdownOffset;
     //出focus的时候还要重置选择的是第几个taskNumNum
     pOwner->ChosenTaskNum = 0;
+    pOwner->CenterTaskNum = 0;
     ControlDriver::Instance()->button3.CallbackLongPress.unregisterCallback(outfocus);
     ESP_LOGI(STATEMACHINE,"Out FocusTaskState.\n");
 }
