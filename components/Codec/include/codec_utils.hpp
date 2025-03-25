@@ -24,11 +24,6 @@
 #define I2S_DI_PIN      GPIO_NUM_8
 #define AMP_EN_PIN      GPIO_NUM_38
 
-#define I2C_PORT I2C_NUM_0
-#define I2S_PORT I2S_NUM_0
-#define I2S_SAMPLE_RATE   16000
-#define I2S_BITS_PER_SAMPLE 16
-#define I2S_CHANNEL_NUM 1
 
 void i2c_init(i2c_port_t port)
 {

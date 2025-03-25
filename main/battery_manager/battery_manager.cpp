@@ -28,12 +28,12 @@ static void shutdown_timer_callback(TimerHandle_t xTimer) {
 
 void power_off_system()
 {
-    ElabelController::Instance()->lock_running = true;
     //如果连接了电源不允许关机
     if(BatteryManager::Instance()->isUsbConnected()) 
     {
         return;
     }
+    ElabelController::Instance()->lock_running = true;
     //锁定屏幕
     lock_lvgl();
     switch_screen(ui_ShutdownScreen);
@@ -62,16 +62,16 @@ void power_off_system()
 
 void BatteryManager::battery_update_task(void* parameters) {
     while (true) {
-        //1s检查一次电量
-        vTaskDelay(1000 / portTICK_PERIOD_MS);  
+        //0.5s检查一次电量
+        vTaskDelay(500 / portTICK_PERIOD_MS);  
         // 检测充电状态变化
         
-        static bool lastChargingStatus = false;
-        if (!lastChargingStatus && BatteryManager::Instance()->isUsbConnected()) {
+        static bool lastUsbStatus = false;
+        if (!lastUsbStatus && BatteryManager::Instance()->isUsbConnected()) {
             // 从未充电变为充电状态,播放充电音乐
             MCodec::Instance()->play_music("ding");
         }
-        lastChargingStatus = BatteryManager::Instance()->isUsbConnected();
+        lastUsbStatus = BatteryManager::Instance()->isUsbConnected();
 
         //如果连接了电源不允许关机
         if(BatteryManager::Instance()->isUsbConnected()) 

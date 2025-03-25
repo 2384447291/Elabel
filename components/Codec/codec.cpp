@@ -15,7 +15,12 @@ static volatile bool should_stop_playing = false;
 // 录音任务函数
 static void mic_task_func(void* arg) {
     MCodec::Instance()->play_music("ding");
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    while(MCodec::Instance()->speaker_task!=NULL)
+    {
+        ESP_LOGI(TAG,"Recording Guidance playing");
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    MCodec::Instance()->open_dev();
     ESP_LOGI(TAG, "Mic task started");
     MCodec* codec = MCodec::Instance();
     uint8_t buffer[READ_BLOCK_SIZE];
@@ -46,6 +51,8 @@ static void mic_task_func(void* arg) {
     }
     
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
+    //关闭设备
+    codec->close_dev();
     // 清除任务句柄
     codec->mic_task = NULL;
     vTaskDelete(NULL);
@@ -95,7 +102,8 @@ static void speaker_task_func(void* arg) {
         fclose(codec->play_file);
         codec->play_file = NULL;
     }
-    
+    //关闭设备
+    codec->close_dev();
     ESP_LOGI(TAG, "播放结束，总共播放: %d bytes", total_played);
     codec->speaker_task = NULL;
     vTaskDelete(NULL);
@@ -107,19 +115,8 @@ void MCodec::init()
     esp_codec_init(codec_dev);
     // 确保codec_dev已经创建成功
     assert(codec_dev);
-    
-    // 设置默认配置
-    esp_codec_dev_sample_info_t fs = {
-        .bits_per_sample = I2S_BITS_PER_SAMPLE,
-        .channel = (uint8_t)I2S_CHANNEL_NUM,
-        .channel_mask = ESP_CODEC_DEV_MAKE_CHANNEL_MASK(0),
-        .sample_rate = I2S_SAMPLE_RATE,
-        .mclk_multiple = I2S_MCLK_MULTIPLE_256,
-    };
-    
-    esp_codec_dev_open(codec_dev, &fs);
-    esp_codec_dev_set_out_vol(codec_dev, 95.0);
-    esp_codec_dev_set_in_gain(codec_dev, 30.0);
+    //关闭时反使能
+    esp_codec_set_disable_when_closed(codec_dev,true);
     ESP_LOGI(TAG, "Codec initialized");
 
     // 在 PSRAM 中分配录音缓冲区
@@ -166,7 +163,7 @@ void MCodec::deinit()
 void MCodec::set_volume(uint8_t volume)
 {
     if(codec_dev) {
-        esp_codec_dev_set_out_vol(codec_dev, (float)volume);
+        MCodec::Instance()->codec_vol = volume;
         ESP_LOGI(TAG, "Volume set to %d", volume);
     }
 }
@@ -174,7 +171,7 @@ void MCodec::set_volume(uint8_t volume)
 void MCodec::set_mic_gain(float gain)
 {
     if(codec_dev) {
-        esp_codec_dev_set_in_gain(codec_dev, gain);
+        MCodec::Instance()->codec_gain = gain;
         ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
     }
 }
@@ -196,7 +193,6 @@ void MCodec::start_record()
         ESP_LOGW(TAG, "Mic task already exists");
         return;
     }
-
     recorded_size = 0;
     ESP_LOGI(TAG, "Starting recording...");
     xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
@@ -270,7 +266,6 @@ void MCodec::play_music(const char* filename)
         return;
     }
     play_record(audio_data, audio_size);
-
 }
 
 void MCodec::play_record(const uint8_t* data, size_t size)
@@ -290,7 +285,7 @@ void MCodec::play_record(const uint8_t* data, size_t size)
         ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
         return;
     }
-
+    open_dev();
     // 保存播放数据的指针和大小
     play_data = data;
     play_data_size = size;

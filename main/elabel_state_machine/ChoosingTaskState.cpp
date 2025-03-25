@@ -10,24 +10,42 @@ void choose_next_task()
         ESP_LOGE("ChoosingTaskState","No task no need choose next task");
         return;
     }
-    int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
-    if(temp_chosen_task < ElabelController::Instance()->TaskLength) 
+    else if(get_global_data()->m_todo_list->size==1)
     {
-        ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
-        if(ElabelController::Instance()->ChosenTaskNum > ElabelController::Instance()->CenterTaskNum + 1)
+        ElabelController::Instance()->ChosenTaskNum = 0;
+        ElabelController::Instance()->CenterTaskNum = 0;
+    }
+    else if(get_global_data()->m_todo_list->size==2)
+    {
+        if(ElabelController::Instance()->ChosenTaskNum == 0)
         {
-            ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum + 1;
+            ElabelController::Instance()->ChosenTaskNum = 1;
+            ElabelController::Instance()->CenterTaskNum = 1;
+        }
+        else if(ElabelController::Instance()->ChosenTaskNum == 1)
+        {
+            ElabelController::Instance()->ChosenTaskNum = 0;
+            ElabelController::Instance()->CenterTaskNum = 0;
         }
     }
     else
     {
-        int temp_center_task = ElabelController::Instance()->CenterTaskNum + 1;
-        if(temp_center_task < ElabelController::Instance()->TaskLength)
+        int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum + 1;
+        if(temp_chosen_task < ElabelController::Instance()->TaskLength) 
         {
-            ElabelController::Instance()->CenterTaskNum = temp_center_task;
+            ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+            if(ElabelController::Instance()->ChosenTaskNum > ElabelController::Instance()->CenterTaskNum + 1)
+            {
+                ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum + 1;
+            }
         }
+        else if(temp_chosen_task == ElabelController::Instance()->TaskLength)
+        {
+            ElabelController::Instance()->ChosenTaskNum = 0;
+            ElabelController::Instance()->CenterTaskNum = 1;
+        }
+        ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     }
-    ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
@@ -38,24 +56,42 @@ void choose_previous_task()
         ESP_LOGE("ChoosingTaskState","No task no need choose next task");
         return;
     }
-    int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
-    if(temp_chosen_task >= 0) 
+    else if(get_global_data()->m_todo_list->size==1)
     {
-        ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
-        if(ElabelController::Instance()->ChosenTaskNum < ElabelController::Instance()->CenterTaskNum - 1)
+        ElabelController::Instance()->ChosenTaskNum = 0;
+        ElabelController::Instance()->CenterTaskNum = 0;
+    }
+    else if(get_global_data()->m_todo_list->size==2)
+    {
+        if(ElabelController::Instance()->ChosenTaskNum == 0)
         {
-            ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum - 1;
+            ElabelController::Instance()->ChosenTaskNum = 1;
+            ElabelController::Instance()->CenterTaskNum = 1;
+        }
+        else if(ElabelController::Instance()->ChosenTaskNum == 1)
+        {
+            ElabelController::Instance()->ChosenTaskNum = 0;
+            ElabelController::Instance()->CenterTaskNum = 0;
         }
     }
     else
     {
-        int temp_center_task = ElabelController::Instance()->CenterTaskNum - 1;
-        if(temp_center_task >= 0)
+        int temp_chosen_task = ElabelController::Instance()->ChosenTaskNum - 1;
+        if(temp_chosen_task >= 0) 
         {
-            ElabelController::Instance()->CenterTaskNum = temp_center_task;
+            ElabelController::Instance()->ChosenTaskNum = temp_chosen_task;
+            if(ElabelController::Instance()->ChosenTaskNum < ElabelController::Instance()->CenterTaskNum - 1)
+            {
+                ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->CenterTaskNum - 1;
+            }
         }
+        else if(temp_chosen_task == -1)
+        {
+            ElabelController::Instance()->ChosenTaskNum = ElabelController::Instance()->TaskLength - 1;
+            ElabelController::Instance()->CenterTaskNum = ElabelController::Instance()->TaskLength - 2;
+        }
+        ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     }
-    ESP_LOGI("ChoosingTaskState","choose next task, ChosenTaskNum: %d, CenterTaskNum: %d", ElabelController::Instance()->ChosenTaskNum, ElabelController::Instance()->CenterTaskNum);
     ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 

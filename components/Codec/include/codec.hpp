@@ -8,6 +8,14 @@
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include <sys/stat.h>
+#include "driver/i2s.h"
+#include "driver/i2c.h"
+
+#define I2C_PORT I2C_NUM_0
+#define I2S_PORT I2S_NUM_0
+#define I2S_SAMPLE_RATE   16000
+#define I2S_BITS_PER_SAMPLE 16
+#define I2S_CHANNEL_NUM 1
 
 #define RECORD_BUFFER_SIZE (150 * 1024)  // 150KB 的录音缓冲区
 
@@ -58,6 +66,27 @@ public:
     size_t play_data_size = 0;
     // 播放文件
     FILE *play_file = NULL;
+    // 设置默认配置
+    esp_codec_dev_sample_info_t fs = {
+        .bits_per_sample = I2S_BITS_PER_SAMPLE,
+        .channel = (uint8_t)I2S_CHANNEL_NUM,
+        .channel_mask = ESP_CODEC_DEV_MAKE_CHANNEL_MASK(0),
+        .sample_rate = I2S_SAMPLE_RATE,
+        .mclk_multiple = I2S_MCLK_MULTIPLE_256,
+    };
+    uint8_t codec_gain = 30;
+    uint8_t codec_vol = 95;
+    
+    void open_dev()
+    {
+        esp_codec_dev_open(codec_dev, &fs);
+        esp_codec_dev_set_out_vol(codec_dev, codec_vol);
+        esp_codec_dev_set_in_gain(codec_dev, codec_gain);
+    }
+    void close_dev()
+    {
+        esp_codec_dev_close(codec_dev);
+    }
 };
 
 #endif
