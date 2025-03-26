@@ -35,7 +35,7 @@ public:
     }
 
     Record_process record_process = default_record_process;
-    bool button_choose_record_confirm_left = true;
+    bool button_choose_record_confirm_left = false;
     uint8_t record_voice_countdown = RECORD_TIME;
     uint8_t confirm_voice_countdown = CONFIRM_VOICE_TIME;
     uint8_t reconfirm_process_countdown = RECONFIRM_VOICE_TIME;
@@ -87,7 +87,7 @@ public:
         need_flash_paper = true;
         MCodec::Instance()->stop_record();
         confirm_voice_countdown = CONFIRM_VOICE_TIME;
-        button_choose_record_confirm_left = true;
+        button_choose_record_confirm_left = false;
         MCodec::Instance()->play_record(MCodec::Instance()->record_buffer, MCodec::Instance()->recorded_size);
 
         lock_lvgl();
@@ -109,8 +109,8 @@ public:
         lv_obj_add_flag(ui_RecordOperateButton, LV_OBJ_FLAG_HIDDEN);
 
         lv_obj_clear_flag(ui_RecordComfirmButton, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_state(ui_RecordComfirmCancel, LV_STATE_PRESSED );
-        lv_obj_clear_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_RecordComfirmCancel, LV_STATE_PRESSED );
+        lv_obj_add_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_RecordOperateDownText, LV_OBJ_FLAG_HIDDEN);
 

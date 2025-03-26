@@ -32,7 +32,7 @@ public:
     }
 
     Time_process time_process = default_time_process;
-    bool button_choose_time_confirm_left = true;
+    bool button_choose_time_confirm_left = false;
     uint8_t time_confirm_countdown = CONFIRM_TIMER_TIME;
     uint8_t time_reconfirm_countdown = RECONFIRM_TIMER_TIME;
     bool need_flash_paper = false;
@@ -44,7 +44,7 @@ public:
         ESP_LOGI("OperatingTimeState", "enter_screen_confirm_time");
         time_process = Time_confirm_process;
         time_confirm_countdown = CONFIRM_TIMER_TIME;
-        button_choose_time_confirm_left = true;
+        button_choose_time_confirm_left = false;
  
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
@@ -54,8 +54,8 @@ public:
 
         lv_obj_clear_flag(ui_NoOperatetTime, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_NoOperateChooseButton, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_state(ui_NoOperateChooseCancel, LV_STATE_PRESSED );
-        lv_obj_clear_state(ui_NoOperateChooseStart, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_NoOperateChooseCancel, LV_STATE_PRESSED );
+        lv_obj_add_state(ui_NoOperateChooseStart, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_NoOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
 

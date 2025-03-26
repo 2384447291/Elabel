@@ -32,7 +32,7 @@ public:
     }
 
     Task_process task_process = default_task_process;
-    bool button_choose_task_confirm_left = true;
+    bool button_choose_task_confirm_left = false;
     uint8_t task_confirm_countdown = CONFIRM_TASK_TIME;
     uint8_t task_reconfirm_countdown = RECONFIRM_TASK_TIME;
     bool need_flash_paper = false;
@@ -43,7 +43,7 @@ public:
         ESP_LOGI("OperatingTaskState", "enter_screen_confirm_task");
         task_process = Task_confirm_process;
         task_confirm_countdown = CONFIRM_TASK_TIME;
-        button_choose_task_confirm_left = true;
+        button_choose_task_confirm_left = false;
  
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
@@ -54,8 +54,8 @@ public:
         lv_obj_clear_flag(ui_TaskName, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_TaskOperatetTime, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_TaskOperateButton, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_state(ui_TaskOperateCancel, LV_STATE_PRESSED );
-        lv_obj_clear_state(ui_TaskOperateStart, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_TaskOperateCancel, LV_STATE_PRESSED );
+        lv_obj_add_state(ui_TaskOperateStart, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_TaskOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
 
