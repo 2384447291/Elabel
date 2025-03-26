@@ -28,18 +28,17 @@ enum message_type
     Bind_Control_Host2Slave = 1,
     Bind_Feedback_Slave2Host = 2,
 
-    Heart_Control_Host2Slave = 3,
-    Wakeup_Control_Host2Slave = 4,
+    Wakeup_Control_Host2Slave = 3,
     
-    UpdateTaskList_Control_Host2Slave = 5,
+    UpdateTaskList_Control_Host2Slave = 4,
 
-    EnterFocus_Control_Host2Slave = 6,
-    EnterFocus_Control_Slave2Host = 7,
+    EnterFocus_Control_Host2Slave = 5,
+    EnterFocus_Control_Slave2Host = 6,
 
-    OutFocus_Control_Host2Slave = 8,
-    OutFocus_Control_Slave2Host = 9,
+    OutFocus_Control_Host2Slave = 7,
+    OutFocus_Control_Slave2Host = 8,
 
-    Feedback_ACK = 10,
+    Feedback_ACK = 9,
 };
 
 // 定义ESP-NOW消息结构体
@@ -76,6 +75,7 @@ class EspNowClient{
         QueueHandle_t recv_message_queue;   // 接收消息队列
         QueueHandle_t recv_packet_queue;    // 接收数据包队列
 
+        uint32_t m_recieve_packet_count = 0;
         bool is_connect_to_host = false;
 
         static EspNowClient* Instance() {

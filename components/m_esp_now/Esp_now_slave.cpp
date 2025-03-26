@@ -18,8 +18,8 @@ static void esp_now_recieve_update(void *pvParameter)
             {
                 EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
                 //处理接收到的信息
-                ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
-                EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
+                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
+                // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
                 //如果收到和当前发送消息对应的feedback，则完成一次发送
                 if(recv_packet.m_message_type == Feedback_ACK)
                 {

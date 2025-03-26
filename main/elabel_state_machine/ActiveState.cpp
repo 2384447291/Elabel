@@ -3,6 +3,8 @@
 #include "http.h"
 #include "esp_now_host.hpp"
 #include "esp_now_slave.hpp"
+#include "Esp_now_client.hpp"
+
 void change_guide_page(uint8_t page)
 {
     lock_lvgl();
@@ -53,9 +55,13 @@ void ActiveState::Enter(ElabelController* pOwner)
     set_is_connect_to_host(false);
     set_is_connect_to_phone(false);
 
+    EspNowHost::Instance()->deinit();
+    EspNowSlave::Instance()->deinit();
 
     //启动蓝牙激活任务用来激活主机
     start_blue_activate();
+    //启动espnow激活任务用来激活从机
+    EspNowClient::Instance()->start_find_channel();
     
     lock_lvgl();
     switch_screen(ui_ActiveScreen);

@@ -163,11 +163,20 @@ extern lv_obj_t * uic_HostActiveRetry;
 // SCREEN: ui_SlaveActiveScreen
 void ui_SlaveActiveScreen_screen_init(void);
 extern lv_obj_t * ui_SlaveActiveScreen;
-extern lv_obj_t * ui_Panel6;
+extern lv_obj_t * ui_ConnectingHost;
 extern lv_obj_t * ui_Username;
 extern lv_obj_t * ui_Label6;
+extern lv_obj_t * ui_SlaveActiveCancel;
+extern lv_obj_t * ui_SlaveActiveConfirm;
+extern lv_obj_t * ui_TestConnecting;
+extern lv_obj_t * ui_ConnectGuide1;
+extern lv_obj_t * ui_Label10;
+extern lv_obj_t * ui_ConnectGuide2;
+extern lv_obj_t * ui_Image14;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_SlaveActiveScreen;
+extern lv_obj_t * uic_HostActiveCancel;
+extern lv_obj_t * uic_HostActiveRetry;
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
@@ -237,10 +246,10 @@ LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
 LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
 LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
 LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
+LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
-LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 
 // UI INIT
 void ui_init(void);

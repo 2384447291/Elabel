@@ -68,7 +68,7 @@ void ElabelFsm::HandleInput()
         }
     }
 
-    //如果wifi断开连接了，且激活过了，则跳转到激活状态
+    //如果wifi断开连接了，且激活过了，则跳转到无wifi状态
     if(get_wifi_status() == 0 && strlen(get_global_data()->m_usertoken)!= 0 && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=ActiveState::Instance())
     {
         ESP_LOGI("ElabelFsm","wifi disconnect, reconnect wifi");

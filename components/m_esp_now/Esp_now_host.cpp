@@ -2,27 +2,6 @@
 #include "Esp_now_host.hpp"
 #include "global_nvs.h"
 #include "http.h"
-
-void EspNowHost::Broadcast_bind_message()
-{
-    send_state = broadcasting;
-    uint8_t wifi_channel = 0;
-    wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
-    ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
-
-    uint8_t username_len = strlen(get_global_data()->m_userName);
-    // 计算数据包总长度：用户名 + 通讯信道
-    uint8_t total_len = 1 + username_len;
-    uint8_t broadcast_data[total_len];
-    
-    broadcast_data[0] = wifi_channel;  // WiFi通道
-    memcpy(&broadcast_data[1], get_global_data()->m_userName, username_len);// 填充用户名
-
-    // 发送数据
-    uint16_t unique_id = esp_random() & 0xFFFF;
-    EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, broadcast_data, total_len, Bind_Control_Host2Slave, false, unique_id);
-}
-
 static void esp_now_recieve_update(void *pvParameter)
 {
     while (1)
@@ -35,8 +14,8 @@ static void esp_now_recieve_update(void *pvParameter)
             if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, 0) == pdTRUE)
             {
                 //处理接收到的信息
-                ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
-                EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
+                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
+                // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
                 if(recv_packet.m_message_type == Bind_Feedback_Slave2Host)
                 {
                     EspNowHost::Instance()->add_slave(recv_packet.mac_addr);
@@ -132,14 +111,22 @@ static void esp_now_send_update(void *pvParameter)
         }
         else if(EspNowHost::Instance()->send_state == waiting)
         {
-            if(innerclock % 2000 != 0) continue;
+            if(innerclock % 1000 != 0) continue;
             uint8_t wifi_channel = 0;
             wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
             ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
 
+            uint8_t username_len = strlen(get_global_data()->m_userName);
+            // 计算数据包总长度：用户名 + 通讯信道
+            uint8_t total_len = 1 + username_len;
+            uint8_t broadcast_data[total_len];
+            
+            broadcast_data[0] = wifi_channel;  // WiFi通道
+            memcpy(&broadcast_data[1], get_global_data()->m_userName, username_len);// 填充用户名
+
             // 发送数据
             uint16_t unique_id = esp_random() & 0xFFFF;
-            EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, &wifi_channel, 1, Heart_Control_Host2Slave, false, unique_id);
+            EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, broadcast_data, total_len, Bind_Control_Host2Slave, false, unique_id);
         }
     }
 }
@@ -158,6 +145,7 @@ void EspNowHost::init()
     EspNowClient::Instance()->Addpeer(0, BROADCAST_MAC);
     xTaskCreate(esp_now_recieve_update, "esp_now_host_recieve_update_task", 4096, NULL, 1, &host_recieve_update_task_handle);
     xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 10, &host_send_update_task_handle);
+    send_state = waiting;
     ESP_LOGI(ESP_NOW, "Host init success");
 }
 
