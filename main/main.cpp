@@ -29,7 +29,7 @@ extern "C" void app_main(void)
     //初始化nvs
     nvs_init();
     //删除nvs信息
-    // erase_nvs();
+    erase_nvs();
     //获取nvs信息
     get_nvs_info();
 

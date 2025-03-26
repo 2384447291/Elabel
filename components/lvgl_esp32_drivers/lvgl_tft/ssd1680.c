@@ -102,13 +102,21 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         }
         ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
     }
-    // else if(act_scr == ui_SlaveActiveScreen)
-    // {
-    //     elabel_update_mode = FAST_UPDATE;
-    //     isBaseMapFresh = false;
-    //     elabel_screen = SLAVEACTIVE_SCREEN;
-    //     ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");
-    // }
+    else if(act_scr == ui_SlaveActiveScreen || force_full_update)
+    {
+        if(elabel_screen != SLAVEACTIVE_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_update_mode = FAST_UPDATE;
+            isBaseMapFresh = false;
+            elabel_screen = SLAVEACTIVE_SCREEN;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
+        ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
+    }
     else if(act_scr == ui_OTAScreen)
     {
         if(elabel_screen != OTA_SCREEN || force_full_update)

@@ -32,8 +32,8 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_retry_n_png.c
     images/ui_img_retry_y_png.c
     images/ui_img_hostactive_png.c
-    images/ui_img_warning_amber_png.c
-    images/ui_img_player_png.c
     images/ui_img_accept_n_png.c
     images/ui_img_accept_y_png.c
+    images/ui_img_warning_amber_png.c
+    images/ui_img_player_png.c
     REQUIRES lvgl)

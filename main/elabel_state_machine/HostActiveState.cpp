@@ -2,6 +2,7 @@
 #include "network.h"
 #include "http.h"
 #include "esp_now_host.hpp"
+#include "Esp_now_client.hpp"
 #include "global_message.h"
 
 void change_button_choice()
@@ -45,6 +46,9 @@ void HostActiveState::Init(ElabelController* pOwner)
 
 void HostActiveState::Enter(ElabelController* pOwner)
 {
+    //停止寻找频道
+    EspNowClient::Instance()->stop_find_channel();
+    
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_button_choice);
@@ -75,10 +79,12 @@ void HostActiveState::Enter(ElabelController* pOwner)
 
 void HostActiveState::Execute(ElabelController* pOwner)
 {
+    //如果连接失败，等待操作
     if(is_fail) return;
     //如果正在连接wifi
     if(get_wifi_status() == 0x01)
     {
+        //如果没有设置wifi，设置wifi。如果设置完wifi开始倒计时
         if(is_set_wifi)
         {
             if(elabelUpdateTick%1000 == 0)

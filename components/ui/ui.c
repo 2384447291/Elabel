@@ -164,11 +164,20 @@ lv_obj_t * uic_HostActiveRetry;
 // SCREEN: ui_SlaveActiveScreen
 void ui_SlaveActiveScreen_screen_init(void);
 lv_obj_t * ui_SlaveActiveScreen;
-lv_obj_t * ui_Panel6;
+lv_obj_t * ui_ConnectingHost;
 lv_obj_t * ui_Username;
 lv_obj_t * ui_Label6;
+lv_obj_t * ui_SlaveActiveCancel;
+lv_obj_t * ui_SlaveActiveConfirm;
+lv_obj_t * ui_TestConnecting;
+lv_obj_t * ui_ConnectGuide1;
+lv_obj_t * ui_Label10;
+lv_obj_t * ui_ConnectGuide2;
+lv_obj_t * ui_Image14;
 // CUSTOM VARIABLES
 lv_obj_t * uic_SlaveActiveScreen;
+lv_obj_t * uic_HostActiveCancel;
+lv_obj_t * uic_HostActiveRetry;
 
 
 // SCREEN: ui_FocusScreen

@@ -154,7 +154,6 @@ void Espclient_recv_packet_task(void* parameters)
                     continue;
                 }
 
-
                 bool need_feedback = recv_msg.data[1] & 0x01;
                 int received_value = (recv_msg.data[1] >> 1);
                 message_type m_message_type = static_cast<message_type>(received_value);
@@ -181,6 +180,12 @@ void Espclient_recv_packet_task(void* parameters)
                 memcpy(packet.mac_addr, recv_msg.mac_addr, ESP_NOW_ETH_ALEN);
                 packet.unique_id = unique_id;
                 packet.m_message_type = m_message_type;
+
+                //专门给从机激活时的计数
+                if(m_message_type == Feedback_ACK)
+                {
+                    EspNowClient::Instance()->m_recieve_packet_count++;
+                }
 
                 if(xQueueSend(EspNowClient::Instance()->recv_packet_queue, &packet, 0) != pdTRUE)
                 {

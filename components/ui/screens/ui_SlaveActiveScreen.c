@@ -10,18 +10,18 @@ void ui_SlaveActiveScreen_screen_init(void)
     ui_SlaveActiveScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_SlaveActiveScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Panel6 = lv_obj_create(ui_SlaveActiveScreen);
-    lv_obj_set_width(ui_Panel6, 250);
-    lv_obj_set_height(ui_Panel6, 122);
-    lv_obj_clear_flag(ui_Panel6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_Panel6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Panel6, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_img_src(ui_Panel6, &ui_img_hostactive_png, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Panel6, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_ConnectingHost = lv_obj_create(ui_SlaveActiveScreen);
+    lv_obj_set_width(ui_ConnectingHost, 250);
+    lv_obj_set_height(ui_ConnectingHost, 122);
+    lv_obj_clear_flag(ui_ConnectingHost, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_ConnectingHost, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ConnectingHost, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ConnectingHost, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_ConnectingHost, &ui_img_hostactive_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_ConnectingHost, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ConnectingHost, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Username = lv_label_create(ui_SlaveActiveScreen);
+    ui_Username = lv_label_create(ui_ConnectingHost);
     lv_obj_set_width(ui_Username, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Username, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Username, 0);
@@ -38,6 +38,74 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label6, "FUCK");
 
+    ui_SlaveActiveCancel = lv_imgbtn_create(ui_ConnectingHost);
+    lv_imgbtn_set_src(ui_SlaveActiveCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
+    lv_imgbtn_set_src(ui_SlaveActiveCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_obj_set_height(ui_SlaveActiveCancel, 19);
+    lv_obj_set_width(ui_SlaveActiveCancel, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_SlaveActiveCancel, -60);
+    lv_obj_set_y(ui_SlaveActiveCancel, 40);
+    lv_obj_set_align(ui_SlaveActiveCancel, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SlaveActiveCancel, LV_STATE_PRESSED);       /// States
+
+    ui_SlaveActiveConfirm = lv_imgbtn_create(ui_ConnectingHost);
+    lv_imgbtn_set_src(ui_SlaveActiveConfirm, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_png, NULL);
+    lv_imgbtn_set_src(ui_SlaveActiveConfirm, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
+    lv_obj_set_height(ui_SlaveActiveConfirm, 19);
+    lv_obj_set_width(ui_SlaveActiveConfirm, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_SlaveActiveConfirm, 60);
+    lv_obj_set_y(ui_SlaveActiveConfirm, 40);
+    lv_obj_set_align(ui_SlaveActiveConfirm, LV_ALIGN_CENTER);
+
+    ui_TestConnecting = lv_obj_create(ui_SlaveActiveScreen);
+    lv_obj_set_width(ui_TestConnecting, 250);
+    lv_obj_set_height(ui_TestConnecting, 122);
+    lv_obj_add_flag(ui_TestConnecting, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_TestConnecting, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_TestConnecting, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_TestConnecting, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_TestConnecting, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_TestConnecting, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_TestConnecting, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ConnectGuide1 = lv_label_create(ui_TestConnecting);
+    lv_obj_set_width(ui_ConnectGuide1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ConnectGuide1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ConnectGuide1, 0);
+    lv_obj_set_y(ui_ConnectGuide1, -35);
+    lv_obj_set_align(ui_ConnectGuide1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ConnectGuide1, "Deploy your Reminder");
+    lv_obj_set_style_text_font(ui_ConnectGuide1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label10 = lv_label_create(ui_ConnectGuide1);
+    lv_obj_set_width(ui_Label10, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label10, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label10, 1);
+    lv_obj_set_y(ui_Label10, 0);
+    lv_obj_set_align(ui_Label10, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label10, "Deploy your Reminder");
+
+    ui_ConnectGuide2 = lv_label_create(ui_TestConnecting);
+    lv_obj_set_width(ui_ConnectGuide2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ConnectGuide2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ConnectGuide2, 0);
+    lv_obj_set_y(ui_ConnectGuide2, 5);
+    lv_obj_set_align(ui_ConnectGuide2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ConnectGuide2, "Deplay : 100ms\nLoss : 92%");
+    lv_obj_set_style_text_align(ui_ConnectGuide2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Image14 = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_Image14, &ui_img_accept_y_png);
+    lv_obj_set_width(ui_Image14, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Image14, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Image14, 0);
+    lv_obj_set_y(ui_Image14, 40);
+    lv_obj_set_align(ui_Image14, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image14, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_Image14, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
     uic_SlaveActiveScreen = ui_SlaveActiveScreen;
+    uic_HostActiveCancel = ui_SlaveActiveCancel;
+    uic_HostActiveRetry = ui_SlaveActiveConfirm;
 
 }
