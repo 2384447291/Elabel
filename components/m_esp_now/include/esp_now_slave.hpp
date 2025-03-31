@@ -18,6 +18,8 @@ class EspNowSlave {
     private:
         TaskHandle_t slave_recieve_update_task_handle = NULL;
         TaskHandle_t slave_send_update_task_handle = NULL;
+        QueueHandle_t remind_queue = NULL;  // 提醒队列
+        bool is_host_connected = false;
     public:   
         uint8_t host_mac[ESP_NOW_ETH_ALEN];
         uint8_t host_channel;
@@ -28,15 +30,57 @@ class EspNowSlave {
         void init();
         void deinit();
 
-        // 上一次收到包的时间
-        TickType_t last_recv_heart_time = 0;  
+        bool get_host_status()
+        {
+            return is_host_connected;
+        }
+        void set_host_status(bool status)
+        {
+            is_host_connected = status;
+        }
 
-        void send_bind_message();
-        void send_out_focus_message(int task_id);
-        void send_enter_focus_message(int task_id, int fall_time);
         static EspNowSlave* Instance() {
             static EspNowSlave instance;
             return &instance;
+        }
+
+        // 上一次收到包的时间
+        TickType_t last_recv_heart_time = 0;  
+        void slave_espnow_http_get_todo_list();
+        void slave_espnow_http_bind_host_request();
+        void check_host_status();
+
+        // 添加新的remind_slave到队列
+        bool add_remind_to_queue(const remind_host_t& remind) {
+            if (xQueueSend(remind_queue, &remind, 0) != pdTRUE) {
+                ESP_LOGW(ESP_NOW, "Remind queue is full!");
+                return false;
+            }
+            else
+            {
+                uint16_t queue_length = (uint16_t)uxQueueMessagesWaiting(remind_queue);
+                (void)queue_length;
+                ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d", queue_length);
+                return true;
+            }
+        }
+
+        // 获取当前正在处理的remind_slave
+        remind_host_t* get_current_remind() {
+            remind_host_t* current_remind = nullptr;
+            if (xQueuePeek(remind_queue, &current_remind, 0) == pdTRUE) {
+                return current_remind;
+            }
+            return nullptr;
+        }
+
+        // 完成当前remind_slave的处理
+        void finish_current_remind() {
+            remind_host_t temp;
+            if (xQueueReceive(remind_queue, &temp, 0) == pdTRUE) {
+                // 成功删除队列头部的数据
+                ESP_LOGI(ESP_NOW, "Finished processing remind_host, removed from queue");
+            }
         }
 };
 

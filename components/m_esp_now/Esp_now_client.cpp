@@ -36,7 +36,7 @@ void EspNowClient::print_uint8_array(uint8_t *array, size_t length) {
     ESP_LOGI("data", "Array: %s\n", buffer);
 }
 
-void EspNowClient::send_esp_now_message(uint8_t target_mac[6], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id)
+void EspNowClient::send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id)
 {
     if(len > MAX_EFFECTIVE_DATA_LEN)
     {
@@ -62,7 +62,7 @@ void EspNowClient::send_esp_now_message(uint8_t target_mac[6], uint8_t* data, si
     }
 }
 
-void EspNowClient::send_ack_message(uint8_t _target_mac[6], uint16_t _unique_id)
+void EspNowClient::send_ack_message(uint8_t _target_mac[ESP_NOW_ETH_ALEN], uint16_t _unique_id)
 {
     uint16_t unique_id = esp_random() & 0xFFFF;
     uint8_t data[2];

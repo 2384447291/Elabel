@@ -62,19 +62,22 @@ void ElabelFsm::HandleInput()
     //当没有在任何激活状态下，并且没有激活码，则进入激活状态
     if(GetCurrentState()!=ActiveState::Instance() && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=SlaveActiveState::Instance())
     {
+        //如果没有激活码，则进入激活状态
         if(strlen(get_global_data()->m_usertoken) == 0)
         {
             ChangeState(ActiveState::Instance());
         }
-    }
-
-    //如果wifi断开连接了，且激活过了，则跳转到无wifi状态
-    if(get_wifi_status() == 0 && strlen(get_global_data()->m_usertoken)!= 0 && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=ActiveState::Instance())
-    {
-        ESP_LOGI("ElabelFsm","wifi disconnect, reconnect wifi");
-        start_blue_activate();
-        ChangeState(HostActiveState::Instance());
-        m_wifi_connect();
+        //如果激活过了，则判断wifi状态，如果wifi断开连接了，则进入主机激活模式
+        else
+        {
+            if(get_wifi_status() == 0 && get_global_data()->m_is_host == 1)
+            {
+                ESP_LOGI("ElabelFsm","wifi disconnect, reconnect wifi");
+                start_blue_activate();
+                ChangeState(HostActiveState::Instance());
+                m_wifi_connect();
+            }
+        }
     }
 
 
@@ -98,6 +101,17 @@ void ElabelFsm::HandleInput()
     else if(GetCurrentState()==HostActiveState::Instance())
     {
         if(HostActiveState::Instance()->need_forward)
+        {
+            ChangeState(InitState::Instance());
+        }
+        else if(HostActiveState::Instance()->need_back)
+        {
+            ChangeState(ActiveState::Instance());
+        }
+    }
+    else if(GetCurrentState()==SlaveActiveState::Instance())
+    {
+        if(SlaveActiveState::Instance()->need_forward)
         {
             ChangeState(InitState::Instance());
         }

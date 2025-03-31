@@ -7,36 +7,24 @@
 
 void change_button_choice()
 {
-    if(!HostActiveState::Instance()->is_fail) return;
+    if(HostActiveState::Instance()->host_active_process != Hostactive_disconnecting_wifi_process) return;
     ESP_LOGI("HostActiveState", "change_button_choice");
-    HostActiveState::Instance()->button_choose_left = !HostActiveState::Instance()->button_choose_left;
-    lock_lvgl();
-    if(HostActiveState::Instance()->button_choose_left)
-    {
-        lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
-        lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
-    }
-    else
-    {
-        lv_obj_clear_state(ui_HostActiveCancel, LV_STATE_PRESSED );
-        lv_obj_add_state(ui_HostActiveRetry, LV_STATE_PRESSED );
-    }
-    //改这个属性不会单独触发刷新
-    set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-    release_lvgl();
+    HostActiveState::Instance()->button_host_active_choose_left = !HostActiveState::Instance()->button_host_active_choose_left;
+    HostActiveState::Instance()->need_flash_paper = true;
 }
 
 void confirm_button_choice()
 {
+    if(HostActiveState::Instance()->host_active_process != Hostactive_disconnecting_wifi_process) return;
     //如果是cancel则退回到activeState
-    if(HostActiveState::Instance()->button_choose_left)
+    if(HostActiveState::Instance()->button_host_active_choose_left)
     {
         HostActiveState::Instance()->need_back = true;
     }
     //如果是retry重新进入这个状态机
     else
     {
-        HostActiveState::Instance()->Enter(ElabelController::Instance());
+        HostActiveState::Instance()->enter_waiting_wifi();
     }
 }
 
@@ -48,97 +36,59 @@ void HostActiveState::Enter(ElabelController* pOwner)
 {
     //停止寻找频道
     EspNowClient::Instance()->stop_find_channel();
-    
+    enter_waiting_wifi();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_button_choice);
 
-    button_choose_left = true;
-    is_fail = false;
-    is_set_wifi = false;
-    need_back = false;
-    need_forward = false;
-    reconnect_count_down = RECONNECT_COUNT_DOWN;
-
-    lock_lvgl();
-    switch_screen(ui_HostActiveScreen);
-
-    lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
-
-    lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
-    lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
-
-    set_text_without_change_font(ui_WIFIname, "Waiting...");
-    set_text_without_change_font(ui_Disconnectwifiname, "Waiting...");
-    set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
-
-    release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter HostActiveState.");
 }
 
 void HostActiveState::Execute(ElabelController* pOwner)
 {
-    //如果连接失败，等待操作
-    if(is_fail) return;
-    //如果正在连接wifi
-    if(get_wifi_status() == 0x01)
+    if(host_active_process == Hostactive_waiting_wifi_process)
     {
-        //如果没有设置wifi，设置wifi。如果设置完wifi开始倒计时
-        if(is_set_wifi)
+        if(get_wifi_status() == 0x01)
         {
-            if(elabelUpdateTick%1000 == 0)
-            {
-                reconnect_count_down--;
-                lock_lvgl();
-                char time_str[40];
-                sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
-                set_text_without_change_font(ui_HostActiveAutoTime, time_str);
-                release_lvgl();
-            }
-            if(reconnect_count_down == 0)
-            {
-                is_fail = true;
-                //禁止重新连接的断连
-                m_wifi_disconnect();
-                button_choose_left = true;
-                lock_lvgl();
-                switch_screen(ui_HostActiveScreen);
-                lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
-
-                lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
-                lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
-                release_lvgl();
-                return;
-            }
-        }
-        else
-        {
-            is_set_wifi = true;
-            lock_lvgl();
-            switch_screen(ui_HostActiveScreen);
-            set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
-            set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-            reconnect_count_down = RECONNECT_COUNT_DOWN;
-            release_lvgl();
+            enter_connect_wifi();
         }
     }
-    //当wifi连接成功后，开始注册
-    if(get_wifi_status()==0x02)
+    else if(host_active_process == Hostactive_connecting_wifi_process)
     {
-        lock_lvgl();
-        set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
-        release_lvgl();
-        //等待500ms连接稳定和token接收
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-        http_find_usr(true);
-        http_bind_user(true);
-        //保存连接记录
-        set_nvs_info("username",get_global_data()->m_userName);
-        //完成激活标志                  
-        need_forward = true;
-        set_wifi_status(0x03);
+        if(get_wifi_status() == 0x02) enter_success_connect_wifi();
+        if(elabelUpdateTick%1000 == 0)
+        {
+            reconnect_count_down--;
+            lock_lvgl();
+            char time_str[40];
+            sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+            set_text_without_change_font(ui_HostActiveAutoTime, time_str);
+            release_lvgl();
+        }
+        if(reconnect_count_down == 0)
+        {
+            enter_disconnect_wifi();
+        }
+    }
+    else if(host_active_process == Hostactive_disconnecting_wifi_process)
+    {
+        if(need_flash_paper)
+        {
+            lock_lvgl();
+            //重新刷新按钮
+            if(button_host_active_choose_left)
+            {
+                lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
+                lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
+            }
+            else
+            {
+                lv_obj_clear_state(ui_HostActiveCancel, LV_STATE_PRESSED );
+                lv_obj_add_state(ui_HostActiveRetry, LV_STATE_PRESSED );
+            }
+            set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
+            release_lvgl();           
+        }
     }
 }
 

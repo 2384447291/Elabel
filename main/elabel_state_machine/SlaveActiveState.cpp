@@ -2,7 +2,6 @@
 #include "Esp_now_client.hpp"
 #include "network.h"
 #include "control_driver.hpp"
-#include "Esp_now_slave.hpp"
 
 void change_slave_active_button_choice()
 {
@@ -17,11 +16,13 @@ void confirm_slave_active_button_choice()
     //如果是在测试连接状态
     if(SlaveActiveState::Instance()->need_test_connect)
     {
+        //初始化完成后就发送绑定请求
+        EspNowSlave::Instance()->slave_espnow_http_bind_host_request();
         SlaveActiveState::Instance()->need_forward = true;
     }
     //如果是在确定激活者的状态
     else
-    {
+    { 
         if(SlaveActiveState::Instance()->button_slave_active_confirm_left)
         {
             SlaveActiveState::Instance()->need_back = true;

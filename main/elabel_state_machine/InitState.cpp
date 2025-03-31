@@ -123,9 +123,12 @@ void InitState::Execute(ElabelController* pOwner)
         EspNowHost::Instance()->init();
     }
     //从机的初始化流程
-    else
+    else if(get_global_data()->m_is_host == 2)
     {
+        
         is_init = true;
+        //初始化EspNowSlave
+        EspNowSlave::Instance()->init();
     }
 }
 
