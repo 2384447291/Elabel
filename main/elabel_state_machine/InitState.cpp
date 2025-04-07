@@ -47,7 +47,7 @@ void InitState::Init(ElabelController* pOwner)
 void InitState::Enter(ElabelController* pOwner)
 {
     //连接wifi
-    m_wifi_connect();
+    if(get_global_data()->m_is_host == 1) m_wifi_connect();
     is_init = false;
     is_need_ota = 0;
     lock_lvgl();
@@ -125,10 +125,19 @@ void InitState::Execute(ElabelController* pOwner)
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        
-        is_init = true;
+        //等待1sespnow连接两秒稳定
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
         //初始化EspNowSlave
-        EspNowSlave::Instance()->init();
+        EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+
+        //绑定主机
+        EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+
+        //获取任务列表
+        EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
+
+        is_init = true;
     }
 }
 

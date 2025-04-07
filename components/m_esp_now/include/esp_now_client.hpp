@@ -6,11 +6,11 @@
 #include "network.h"
 #include "global_message.h"
 #include "freertos/queue.h"
-#include <set>
+#include <deque>
 
 #define ESP_NOW "ESPNOW"
-#define MAX_RECV_MESSAGE_QUEUE_SIZE 32
-#define MAX_RECV_PACKET_QUEUE_SIZE 32
+#define MAX_RECV_MESSAGE_QUEUE_SIZE 64
+#define MAX_RECV_PACKET_QUEUE_SIZE 64
 #define PACKET_HEAD 0xAB
 #define PACKET_TAIL 0xEF
 //数据最大长度等于减去包头包尾crc和唯一id和标识符
@@ -24,32 +24,45 @@ extern uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN];
 // 这里采用优化的结构，http只会从从机发送到主机，主机会根据从机的http请求，发送对应的mqtt信息
 enum message_type
 {
-    default_message_type = 0,
+    default_message_type = 0, 
 
     // 绑定+心跳消息
-    Bind_Control_Host2Slave,
+    Bind_Control_Host2Slave, 
     // 唤醒消息
     Wakeup_Control_Host2Slave,
 
-    // 从机发送给主机的http 消息
-    Slave2Host_UpdateTaskList_Request_Http,
-    // 从机发送给主机的绑定消息
+    // 从机发送给主机的http消息
     Slave2Host_Bind_Request_Http,
-    // 从机发送给主机的检查主机状态消息
-    Slave2Host_Check_Host_Status_Request_Http,
+    Slave2Host_Check_Host_Status_Request_Http, 
+    Slave2Host_UpdateTaskList_Request_Http,
+    Slave2Host_Enter_Focus_Request_Http,
+    Slave2Host_Out_Focus_Request_Http,
     
     // 主机发送给从机的mqtt 消息
     Host2Slave_UpdateTaskList_Control_Mqtt,
+    Host2Slave_Enter_Focus_Control_Mqtt,
+    Host2Slave_Out_Focus_Control_Mqtt,
+    Host2Slave_UpdateRecording_Control_Mqtt,
 
+    // 反馈消息
     Feedback_ACK
 };
 
-struct MacAddress {
-    uint8_t bytes[ESP_NOW_ETH_ALEN];
-    bool operator==(const MacAddress& other) const {
-        return memcmp(bytes, other.bytes, ESP_NOW_ETH_ALEN) == 0;
-    }
-};
+//定义focus任务的结构体
+typedef struct {
+    uint8_t focus_type; //0表示默认，1表示纯时间任务，2表示任务，3表示录音任务
+    uint16_t focus_time;
+    int focus_id;
+
+    //对于task类型，需要记录task的名字
+    uint8_t task_name_len;
+    char task_name[100];
+} focus_message_t;
+
+focus_message_t pack_focus_message(uint8_t focus_type, uint16_t focus_time, int focus_id, char* task_name);
+void focus_message_to_data(focus_message_t focus_message, uint8_t* data, size_t &data_len);
+focus_message_t data_to_focus_message(uint8_t* data);
+
 
 // 定义ESP-NOW消息结构体
 typedef struct {
@@ -94,7 +107,7 @@ class EspNowClient{
         }
 
         TaskHandle_t update_task_handle = NULL;
-        std::set<uint16_t> received_unique_ids;
+        std::deque<uint16_t> received_unique_ids;
         const size_t max_received_ids = 10;
 
         //打印uint8_t数组

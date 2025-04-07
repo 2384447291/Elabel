@@ -46,9 +46,6 @@ class ElabelController
         //当前task_length的长度
         uint16_t TaskLength;
 
-        //获取如何进入的focus状态
-        uint8_t get_focus_type();
-
         static ElabelController* Instance()
         {
             static ElabelController instance;

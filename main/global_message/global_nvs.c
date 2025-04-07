@@ -43,7 +43,7 @@ void get_nvs_info(void)
     else ESP_LOGI(NVS_TAG,"history username found : %s. \n", get_global_data()->m_userName);
 
     //--------------------------从nvs中获取language--------------------------------//   
-    len = sizeof(get_global_data()->m_language);      
+    len = 20;      
     char language_str[len];
     esp_err_t language_err = nvs_get_str(wificfg_nvs_handler,"language",language_str,&len) ;
     if(language_err != ESP_OK) ESP_LOGE(NVS_TAG,"No language found. \n");
@@ -66,7 +66,7 @@ void get_nvs_info(void)
     }
 
     //--------------------------从nvs中获取is_host--------------------------------//
-    len = sizeof(get_global_data()->m_is_host);     
+    len = 20;     
     char is_host_str[len];
     esp_err_t is_host_err = nvs_get_str(wificfg_nvs_handler,"is_host",is_host_str,&len) ;
     if(is_host_err != ESP_OK) ESP_LOGE(NVS_TAG,"No is_host found. \n");
@@ -74,11 +74,11 @@ void get_nvs_info(void)
     {
         ESP_LOGI(NVS_TAG,"history is_host found : %s. \n", is_host_str);
         //如果is_host_str为"0"，则设置为0，否则设置为1
-        if(strcmp(is_host_str,"1") == 1)
+        if(strcmp(is_host_str,"01") == 0)
         {
-        get_global_data()->m_is_host = 1;
+            get_global_data()->m_is_host = 1;
         }
-        else if(strcmp(is_host_str,"2") == 2)
+        else if(strcmp(is_host_str,"02") == 0)
         {
             get_global_data()->m_is_host = 2;
         }
@@ -88,39 +88,62 @@ void get_nvs_info(void)
         }
     }
 
-    //--------------------------从nvs中获取host_mac--------------------------------//
+    //--------------------------从nvs中获取slave_mac--------------------------------//
     if(get_global_data()->m_is_host == 1)
     {
         //如果判断为主机，则加载从机地址
-        len = sizeof(get_global_data()->m_slave_mac) + sizeof(get_global_data()->m_slave_num);     
+        len = 100;
         char slave_mac_str[len];
-        esp_err_t slave_mac_err = nvs_get_str(wificfg_nvs_handler,"slave_mac",slave_mac_str,&len) ;
+        esp_err_t slave_mac_err = nvs_get_str(wificfg_nvs_handler,"slave_mac",slave_mac_str,&len);
         if(slave_mac_err != ESP_OK) ESP_LOGE(NVS_TAG,"Device is host, But no slave_mac found. \n");
         else 
         {
-            ESP_LOGI(NVS_TAG,"Device is host, history found slave_num is %d. \n", slave_mac_str[0]);
-            get_global_data()->m_slave_num = slave_mac_str[0];
+            uint8_t slave_mac[len];
+            get_nvs_info_uint8_t_array(slave_mac_str, slave_mac);
+
+            get_global_data()->m_slave_num = slave_mac[0];
             for(int i = 0; i < get_global_data()->m_slave_num; i++)
             {
-                memcpy(get_global_data()->m_slave_mac[i], &slave_mac_str[i*6+1], 6);
+                memcpy(get_global_data()->m_slave_mac[i], &slave_mac[i*6+1], 6);
+            }
+
+            ESP_LOGI(NVS_TAG,"Device is host, history found slave_num is %d.", get_global_data()->m_slave_num);
+            for(int i = 0; i < get_global_data()->m_slave_num; i++)
+            {
+                ESP_LOGI(NVS_TAG,"Slave %d mac is " MACSTR, i, MAC2STR(get_global_data()->m_slave_mac[i]));
             }
         }
-
     }
+
+    //--------------------------从nvs中获取host_mac--------------------------------//
     else if(get_global_data()->m_is_host == 2)
     {
         //如果判断为从机，则加载主机地址
-        len = sizeof(get_global_data()->m_host_mac);     
-        char host_mac_str[len];
-        esp_err_t host_mac_err = nvs_get_str(wificfg_nvs_handler,"host_mac",host_mac_str,&len) ;
-        if(host_mac_err != ESP_OK) ESP_LOGE(NVS_TAG,"Device is slave, But no host_mac found. \n");
+        len = 150;
+        char host_message_str[len];
+        esp_err_t host_message_err = nvs_get_str(wificfg_nvs_handler,"host_message",host_message_str,&len) ;
+        if(host_message_err != ESP_OK) ESP_LOGE(NVS_TAG,"Device is slave, But no host_message found. \n");
         else 
         {
-            ESP_LOGI(NVS_TAG,"Device is slave, history found host_mac is %s. \n", host_mac_str);
-            memcpy(get_global_data()->m_host_mac, host_mac_str, 6);
+            uint8_t host_message[len];
+            get_nvs_info_uint8_t_array(host_message_str, host_message);
+            // 读取主机mac地址
+            memcpy(get_global_data()->m_host_mac, host_message, 6);
+            // 读取主机通道
+            get_global_data()->m_host_channel = host_message[6];
+            // 读取主机用户名
+            int username_len = host_message[7];
+            char username[username_len+1];
+            memcpy(username, &host_message[8], username_len);
+            username[username_len] = '\0';
+            memcpy(get_global_data()->m_userName, username, username_len+1);
+            
+            ESP_LOGI(NVS_TAG,"Device is slave, history found host_mac is " MACSTR ", host_channel is %d, username is %s. \n", 
+                MAC2STR(get_global_data()->m_host_mac), get_global_data()->m_host_channel, get_global_data()->m_userName);
         }
     }
-    ESP_ERROR_CHECK( nvs_commit(wificfg_nvs_handler) ); /* 提交 */
+
+    ESP_ERROR_CHECK(nvs_commit(wificfg_nvs_handler) ); /* 提交 */
     nvs_close(wificfg_nvs_handler);                     /* 关闭 */
 }
 
@@ -165,17 +188,54 @@ void set_nvs_info(const char *tag, const char *value)
     ESP_LOGI(NVS_TAG,"Save NVS %s to %s successfully. \n", tag, value);
 }
 
-void set_nvs_info_uint8_t(const char *tag, uint8_t value)
+//对于输入数组 {0x01, 0x02, 0x03, 0x04}，会正确生成字符串 "01 02 03 04"
+void set_nvs_info_uint8_t_array(const char *tag, uint8_t* value, int length)
 {
-    char value_str[20];
-    snprintf(value_str, sizeof(value_str), "%d", value);
-    set_nvs_info(tag,value_str);
+    char value_str[length*3+1];
+    int offset = 0;
+    
+    for(int i = 0; i < length; i++)
+    {
+        offset += snprintf(value_str + offset, sizeof(value_str) - offset, "%02X ", value[i]);
+    }
+    
+    // 移除最后一个空格
+    if (offset > 0 && value_str[offset - 1] == ' ') {
+        value_str[offset - 1] = '\0';
+    }
+    
+    set_nvs_info(tag, value_str);
 }
 
-void set_nvs_info_set_host_mac(uint8_t value[6])
+void get_nvs_info_uint8_t_array(const char *value_str, uint8_t* value)
 {
+    int index = 0;
+    char hex[3] = {0};
+    
+    while (value_str[index * 3] != '\0' && value_str[index * 3 + 1] != '\0') 
+    {
+        hex[0] = value_str[index * 3];
+        hex[1] = value_str[index * 3 + 1];
+        hex[2] = '\0';
+        
+        unsigned int byte_val;
+        sscanf(hex, "%x", &byte_val);
+        value[index] = (uint8_t)byte_val;
+        
+        index++;
+    }
+}
+
+void set_nvs_info_set_host_message(uint8_t host_mac[6], uint8_t host_channel, char username[100])
+{
+    uint8_t data_len = 6 + 1 + strlen(username);
+    uint8_t data[data_len];
     // 直接存储6字节MAC地址
-    set_nvs_info("host_mac", (const char*)value);
+    memcpy(data, host_mac, 6);
+    data[6] = host_channel;
+    data[7] = strlen(username);
+    memcpy(data + 8, username, strlen(username));
+    set_nvs_info_uint8_t_array("host_message", data, data_len);
 }
 
 void set_nvs_info_set_slave_mac(uint8_t slave_num, uint8_t* value)
@@ -188,5 +248,5 @@ void set_nvs_info_set_slave_mac(uint8_t slave_num, uint8_t* value)
     // 存储MAC地址
     memcpy(&data[1], value, slave_num * 6);
     // 写入NVS
-    set_nvs_info("slave_mac", (const char*)data);
+    set_nvs_info_uint8_t_array("slave_mac", data, data_size);
 }

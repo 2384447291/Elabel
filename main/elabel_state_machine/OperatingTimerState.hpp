@@ -3,6 +3,7 @@
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
+#include "Esp_now_slave.hpp"
 
 #define CONFIRM_TIMER_TIME 15
 #define RECONFIRM_TIMER_TIME 3
@@ -92,6 +93,39 @@ public:
         sprintf(time_str, "Auto start in %d secs", time_reconfirm_countdown);
         set_text_without_change_font(ui_NoOperateAutoGuide, time_str);
         release_lvgl();
+    }
+
+    void enter_screen_finish_time()
+    {
+        ESP_LOGI("OperatingTimeState", "enter_screen_finish_time");
+        time_process = finish_time_process;
+        if(get_global_data()->m_is_host == 1)
+        {
+            //下面的操作模仿了收到了mqtt和http
+            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
+            get_global_data()->m_focus_state->is_focus = 0;
+            get_global_data()->m_focus_state->focus_task_id = 0;
+
+            TodoItem todo;
+            cleantodoItem(&todo);
+
+            todo.foucs_type = 1;
+            todo.fallTiming = ElabelController::Instance()->TimeCountdown;
+            todo.id = 0;
+            todo.isFocus = 1;
+            todo.startTime = get_unix_time();
+            char title[20] = "Pure Time Task";
+            todo.title = title;
+            clean_todo_list(get_global_data()->m_todo_list);
+            add_or_update_todo_item(get_global_data()->m_todo_list, todo);
+            set_task_list_state(firmware_need_update);
+        }
+        else if(get_global_data()->m_is_host == 2)
+        {
+            char title[20] = "Pure Time Task";
+            focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, title);
+            EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
+        }
     }
 };
 #endif

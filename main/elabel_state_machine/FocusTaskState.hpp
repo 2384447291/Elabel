@@ -28,7 +28,7 @@ public:
 
     void play_focus_music()
     {
-        if(focus_type == 1)
+        if(focus_type == 3 && MCodec::Instance()->recorded_size > 0)
         {
             MCodec::Instance()->play_record(MCodec::Instance()->record_buffer,MCodec::Instance()->recorded_size);
         }
@@ -48,15 +48,15 @@ public:
         {
             if(focus_type == 1)
             {
-                lv_obj_clear_flag(ui_RecordFocusWarning, LV_OBJ_FLAG_HIDDEN);
-            }
-            else if(focus_type == 2)
-            {
                 lv_obj_clear_flag(ui_NoFocusWarning, LV_OBJ_FLAG_HIDDEN);
+            }
+            else if(focus_type == 2 || focus_type == 0)
+            {
+                lv_obj_clear_flag(ui_TaskFocusWarning, LV_OBJ_FLAG_HIDDEN);
             }
             else if(focus_type == 3)
             {
-                lv_obj_clear_flag(ui_TaskFocusWarning, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_RecordFocusWarning, LV_OBJ_FLAG_HIDDEN);
             }
         }
 
@@ -79,15 +79,15 @@ public:
 
         if(focus_type == 1)
         {
-            set_text_without_change_font(ui_RecordFocusTime, timestr);
-        }
-        else if(focus_type == 2)
-        {
             set_text_without_change_font(ui_NoFocusTime, timestr);
+        }
+        else if(focus_type == 2 || focus_type == 0)
+        {
+            set_text_without_change_font(ui_TaskFocusTime, timestr);
         }
         else if(focus_type == 3)
         {
-            set_text_without_change_font(ui_TaskFocusTime, timestr);
+            set_text_without_change_font(ui_RecordFocusTime, timestr); 
         }
     }
 };

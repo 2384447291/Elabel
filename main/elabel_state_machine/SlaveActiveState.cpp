@@ -14,14 +14,24 @@ void confirm_slave_active_button_choice()
 {
     ESP_LOGI("SlaveActiveState", "confirm_slave_active_button_choice");
     //如果是在测试连接状态
-    if(SlaveActiveState::Instance()->need_test_connect)
+    if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_test_connect_process)
     {
-        //初始化完成后就发送绑定请求
-        EspNowSlave::Instance()->slave_espnow_http_bind_host_request();
+        SlaveActiveState::Instance()->slave_active_process = Slaveactive_success_connect_process;
+        EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+        //等待从机任务装填完成
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        //等待绑定流程完成
+        while(EspNowSlave::Instance()->need_send_data)
+        {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
+        //保存激活信息
+        get_global_data()->m_is_host = 2;
+        set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
         SlaveActiveState::Instance()->need_forward = true;
     }
     //如果是在确定激活者的状态
-    else
+    else if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
     { 
         if(SlaveActiveState::Instance()->button_slave_active_confirm_left)
         {
@@ -42,9 +52,10 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
 {
     //停止蓝牙激活
     stop_blue_activate();
+    //停止寻找信道
+    EspNowClient::Instance()->stop_find_channel();
 
     button_slave_active_confirm_left = false;
-    need_test_connect = false;
     need_back = false;
     need_forward = false;
     need_flash_paper = false;
@@ -58,13 +69,14 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
 
 void SlaveActiveState::Execute(ElabelController* pOwner)
 {
-    if(need_test_connect)
+    if(slave_active_process == Slaveactive_test_connect_process)
     {
         if(elabelUpdateTick%20 == 0)
         {
             //发送espnow消息来测试连接
             uint8_t message = 0x00;
-            EspNowClient::Instance()->send_esp_now_message(EspNowSlave::Instance()->host_mac, &message, 1, default_message_type, true, 0);
+            uint16_t unique_id = esp_random() & 0xFFFF;
+            EspNowClient::Instance()->send_esp_now_message(EspNowSlave::Instance()->host_mac, &message, 1, Slave2Host_Check_Host_Status_Request_Http, true, unique_id);
         }  
 
         if(elabelUpdateTick%2000 == 0)
@@ -79,7 +91,7 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
             EspNowClient::Instance()->m_recieve_packet_count = 0;
         }
     }
-    else
+    else if(slave_active_process == Slaveactive_waiting_connect_process)
     {   
         if(need_flash_paper)
         {
@@ -95,8 +107,10 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
                 lv_obj_clear_state(ui_SlaveActiveCancel, LV_STATE_PRESSED );
                 lv_obj_add_state(ui_SlaveActiveConfirm, LV_STATE_PRESSED );
             }
-            set_text_without_change_font(ui_Username, EspNowSlave::Instance()->username);
+            Global_data* global_data = get_global_data();
+            set_text_without_change_font(ui_Username, global_data->m_userName);
             release_lvgl();
+            need_flash_paper = false;
         }
     }
 }   

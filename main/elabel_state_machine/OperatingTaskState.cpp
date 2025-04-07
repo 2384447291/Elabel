@@ -57,12 +57,10 @@ void confirm_task_confirm_button_choice()
 {
     if(OperatingTaskState::Instance()->task_process != Task_confirm_process) return;
     ESP_LOGI("OperatingTaskState", "confirm_task_confirm_button_choice");
-    //如果选择了cancel，从哪来回哪去
     if(OperatingTaskState::Instance()->button_choose_task_confirm_left)
     {
         OperatingTaskState::Instance()->need_out_state = true;
     }
-    //如果选择了finish，结束录音
     else
     {
         OperatingTaskState::Instance()->enter_screen_reconfirm_task();
@@ -158,13 +156,7 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
         }
         if(task_reconfirm_countdown == 0)
         {
-            task_process = finish_task_process;
-            //并且发送enterfocus的指令
-            char sstr[12];
-            sprintf(sstr, "%d", ElabelController::Instance()->ChosenTaskId);
-            http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
-            TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, ElabelController::Instance()->ChosenTaskId);
-            ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,ElabelController::Instance()->TimeCountdown);
+            enter_screen_finish_task();
         }
     }
 }

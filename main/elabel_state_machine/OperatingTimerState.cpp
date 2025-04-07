@@ -162,7 +162,7 @@ void OperatingTimeState::Execute(ElabelController* pOwner)
         }
         if(time_reconfirm_countdown == 0)
         {
-            time_process = finish_time_process;
+            enter_screen_finish_time();
         }
     }
 }

@@ -2,8 +2,6 @@
 #include "esp_log.h"
 #include "freertos/semphr.h"
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
-SemaphoreHandle_t Global_message_mutex;
-
 task_list_state m_task_list_state = newest;
 
 task_list_state get_task_list_state()
@@ -31,6 +29,7 @@ void cleantodoItem(TodoItem* _todoitem)
     _todoitem->fallTiming = 0;
     _todoitem->isFocus = 0;
     _todoitem->isImportant = 0;    
+    _todoitem->foucs_type = 0;
 }
 
 // 根据 ID 查找 TodoItem
@@ -89,6 +88,7 @@ void copy_write_todo_item(TodoItem* src, TodoItem* dst)
     dst->fallTiming = src->fallTiming;
     dst->isFocus = src->isFocus;
     dst->isImportant = src->isImportant;
+    dst->foucs_type = src->foucs_type;
 }
 
 void clean_todo_list(TodoList *list)
@@ -106,7 +106,7 @@ void clean_todo_list(TodoList *list)
     list->items = NULL;
 }
 
-// 向 TodoList 添加一个 TodoItem
+// 向 TodoList 添加一个 TodoItem，使用的是内存拷贝，申请一片新的内存，完全复制TodoItem
 void add_or_update_todo_item(TodoList *list, TodoItem item) 
 {
     if(item.isFocus == 1)
@@ -115,7 +115,7 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
         {
             get_global_data()->m_focus_state->is_focus = 1;
             get_global_data()->m_focus_state->focus_task_id = item.id;
-            ESP_LOGI("Task_list", "A New focus Task show up, its number is %d, its id is %d.\n", list->size, item.id);
+            ESP_LOGI("Task_list", "A New focus Task show up, its title is %s, its id is %d.\n", item.title, item.id);
         }
     }
 
@@ -133,7 +133,7 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
     }
     copy_write_todo_item(&item,&(list->items[list->size]));
     list->size++;
-    ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, focus state is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus);
+    ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, focus state is %d, foucs_type is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus, item.foucs_type);
 }
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 
@@ -150,8 +150,6 @@ Global_data* get_global_data() {
         instance = (Global_data*)malloc(sizeof(Global_data));
         if (instance != NULL) 
         {
-            Global_message_mutex = xSemaphoreCreateMutex();
-
             instance->m_is_read_guidance = false;
             
             instance->m_is_host = 0;

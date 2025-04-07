@@ -238,7 +238,7 @@ void printTaskList(TaskQueue *q)
     if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
     {
         if (isEmpty(q)) {
-            ESP_LOGE("http_task_list","Task queue is empty.\n");
+            // ESP_LOGE("http_task_list","Task queue is empty.\n");
             xSemaphoreGive(Task_list_Mutex);
             return;
         }

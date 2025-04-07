@@ -187,7 +187,7 @@ void OperatingRecorderState::Execute(ElabelController* pOwner)
         }
         if(reconfirm_process_countdown == 0)
         {
-            record_process = finish_record_process;
+            enter_screen_finish_record();
         }
     }
 }

@@ -41,6 +41,7 @@ typedef struct {
     long long startTime;
     int fallTiming;
     int isFocus;
+    int foucs_type; //0表示默认，1表示纯时间任务，2表示任务，3表示录音任务
     int isImportant;
 } TodoItem;
 
@@ -111,6 +112,7 @@ typedef struct
 
     //如果是从机保存的主机mac
     uint8_t m_host_mac[6];
+    uint8_t m_host_channel;
     //如果是主机保存的从机mac
     uint8_t m_slave_mac[MAX_SLAVE_NUM][6];
     uint8_t m_slave_num;

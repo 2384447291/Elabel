@@ -79,8 +79,8 @@ public:
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
         set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-        lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
         release_lvgl();
     }
 
@@ -96,6 +96,9 @@ public:
         http_bind_user(true);
         //保存user的激活记录
         set_nvs_info("username",get_global_data()->m_userName);
+        //保存主机标志
+        get_global_data()->m_is_host = 1;
+        set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
         //完成激活标志                  
         need_forward = true;
     }

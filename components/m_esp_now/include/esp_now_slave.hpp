@@ -7,7 +7,7 @@ typedef struct {
     //该次发送的包的唯一id
     uint16_t unique_id = 0;
     //发送的数据长度
-    int data_len;
+    size_t data_len;
     //发送的数据
     uint8_t data[MAX_EFFECTIVE_DATA_LEN];
     //发送的消息类型
@@ -24,11 +24,13 @@ class EspNowSlave {
         uint8_t host_mac[ESP_NOW_ETH_ALEN];
         uint8_t host_channel;
         bool need_send_data = false;
-        remind_host_t remind_host;
 
         char username[100];
-        void init();
+        void init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100]);
         void deinit();
+
+        // 当前正在处理的remind_host
+        remind_host_t remind_host; 
 
         bool get_host_status()
         {
@@ -46,32 +48,43 @@ class EspNowSlave {
 
         // 上一次收到包的时间
         TickType_t last_recv_heart_time = 0;  
-        void slave_espnow_http_get_todo_list();
-        void slave_espnow_http_bind_host_request();
-        void check_host_status();
+
+        // 从机发送给主机的http消息
+        void slave_send_espnow_http_get_todo_list();
+        void slave_send_espnow_http_bind_host_request();
+        void slave_send_espnow_http_enter_focus_task(focus_message_t focus_message);
+        void slave_send_espnow_http_out_focus_task(focus_message_t focus_message);
+
+        // 从机收到主机需要怎么反应
+        void slave_respense_espnow_mqtt_get_todo_list(const espnow_packet_t& recv_packet);
+        void slave_respense_espnow_mqtt_get_enter_focus(const espnow_packet_t& recv_packet);
+        void slave_respense_espnow_mqtt_get_out_focus();
+        void slave_respense_espnow_mqtt_get_update_recording(const espnow_packet_t& recv_packet);
 
         // 添加新的remind_slave到队列
-        bool add_remind_to_queue(const remind_host_t& remind) {
+        bool add_remind_to_queue(remind_host_t remind) {
             if (xQueueSend(remind_queue, &remind, 0) != pdTRUE) {
-                ESP_LOGW(ESP_NOW, "Remind queue is full!");
+                // ESP_LOGW(ESP_NOW, "Remind queue is full!");
                 return false;
             }
             else
             {
                 uint16_t queue_length = (uint16_t)uxQueueMessagesWaiting(remind_queue);
                 (void)queue_length;
-                ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d", queue_length);
+                ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d.\n", queue_length);
                 return true;
             }
         }
 
-        // 获取当前正在处理的remind_slave
-        remind_host_t* get_current_remind() {
-            remind_host_t* current_remind = nullptr;
-            if (xQueuePeek(remind_queue, &current_remind, 0) == pdTRUE) {
-                return current_remind;
+        // 获取当前正在处理的remind_host
+        bool get_current_remind(remind_host_t* remind_host) {
+            if (xQueuePeek(remind_queue, remind_host, 0) == pdTRUE) {
+                return true;
             }
-            return nullptr;
+            else
+            {
+                return false;
+            }
         }
 
         // 完成当前remind_slave的处理
@@ -79,7 +92,7 @@ class EspNowSlave {
             remind_host_t temp;
             if (xQueueReceive(remind_queue, &temp, 0) == pdTRUE) {
                 // 成功删除队列头部的数据
-                ESP_LOGI(ESP_NOW, "Finished processing remind_host, removed from queue");
+                ESP_LOGI(ESP_NOW, "Finished processing remind_host, removed from queue.\n");
             }
         }
 };

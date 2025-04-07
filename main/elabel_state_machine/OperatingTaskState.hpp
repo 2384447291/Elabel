@@ -3,6 +3,8 @@
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
+#include "http.h"
+#include "Esp_now_slave.hpp"
 
 #define CONFIRM_TASK_TIME 15
 #define RECONFIRM_TASK_TIME 3
@@ -98,6 +100,25 @@ public:
         sprintf(time_str, "Auto start in %d secs", task_reconfirm_countdown);
         set_text_without_change_font(ui_TaskOperateAutoGuide, time_str);
         release_lvgl();
+    }
+
+    void enter_screen_finish_task()
+    {
+        task_process = finish_task_process;
+        TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, ElabelController::Instance()->ChosenTaskId);
+        //并且发送enterfocus的指令
+        if(get_global_data()->m_is_host == 1)
+        {
+            char sstr[12];
+            sprintf(sstr, "%d", ElabelController::Instance()->ChosenTaskId);
+            http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
+        }
+        else if(get_global_data()->m_is_host == 2)
+        {
+            focus_message_t focus_message = pack_focus_message(2, ElabelController::Instance()->TimeCountdown, ElabelController::Instance()->ChosenTaskId, chose_todo->title);
+            EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
+        }
+        ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,ElabelController::Instance()->TimeCountdown);
     }
 };
 #endif
