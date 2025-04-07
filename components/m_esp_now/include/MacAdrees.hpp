@@ -65,6 +65,13 @@ public:
         memset(bytes, 0, ESP_NOW_ETH_ALEN * MAX_SLAVE_NUM);
         count = 0;
     }
+
+    void print() {
+        ESP_LOGI(ESP_NOW, "MAC addresses: %d", count);
+        for (size_t i = 0; i < count; i++) {
+            ESP_LOGI(ESP_NOW, "MAC address %d: " MACSTR, i, MAC2STR(bytes[i]));
+        }
+    }
     // 重载赋值运算符
     MacAddress& operator=(const MacAddress& other) {
         if (this != &other) {

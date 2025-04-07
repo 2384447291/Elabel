@@ -46,7 +46,7 @@ void i2s_init(i2s_port_t port)
     //默认的通道数目就是1
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t) (I2S_MODE_TX | I2S_MODE_RX | I2S_MODE_MASTER),
-        .sample_rate = I2S_SAMPLE_RATE,
+        .sample_rate = SPEAKER_SAMPLE_RATE,
         .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE,
         .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
         .communication_format = I2S_COMM_FORMAT_STAND_I2S,

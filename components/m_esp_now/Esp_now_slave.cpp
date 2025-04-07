@@ -8,7 +8,7 @@ static void esp_now_recieve_update(void *pvParameter)
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
-        if(xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(5000) && EspNowSlave::Instance()->last_recv_heart_time != 0)
+        if(EspNowSlave::Instance()->get_host_status() && xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(5000) && EspNowSlave::Instance()->last_recv_heart_time != 0)
         {
             EspNowSlave::Instance()->set_host_status(false);
             ESP_LOGE(ESP_NOW, "Slave not receive heart from host, reconnect");
@@ -338,12 +338,40 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
 }
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_update_recording(const espnow_packet_t& recv_packet)
-{
-    if(recv_packet.data[0] == 0) MCodec::Instance()->recorded_size = 0;
-
-    memcpy(&MCodec::Instance()->record_buffer[MCodec::Instance()->recorded_size], &recv_packet.data[1], recv_packet.data_len - 1);
-    MCodec::Instance()->recorded_size += (recv_packet.data_len - 1);
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message, recorded size: %d", MCodec::Instance()->recorded_size);
+{ 
+    // 获取包序号（2字节）
+    uint16_t packet_index = (recv_packet.data[0] << 8) | recv_packet.data[1];
+    
+    // 处理序号为0的信息包
+    if (packet_index == 0) {
+        // 解析录音数据总大小（4字节）
+        uint32_t total_size = (recv_packet.data[2] << 24) | 
+                             (recv_packet.data[3] << 16) | 
+                             (recv_packet.data[4] << 8) | 
+                             recv_packet.data[5];
+        
+        // 解析包的总数量（2字节）
+        uint16_t total_packets = (recv_packet.data[6] << 8) | recv_packet.data[7];
+        
+        // 重置录音缓冲区
+        MCodec::Instance()->recorded_size = 0;
+        MCodec::Instance()->target_record_size = total_size;
+        
+        ESP_LOGI(ESP_NOW, "Received info packet: total_size=%d, total_packets=%d", 
+                 total_size, total_packets);
+        return;
+    }
+    
+    // 处理数据包（序号从1开始）
+    // 计算实际数据长度（总长度减去序号字节）
+    size_t data_length = recv_packet.data_len - 2;  
+    // 复制数据到录音缓冲区
+    memcpy(&MCodec::Instance()->record_buffer[MCodec::Instance()->recorded_size], 
+           &recv_packet.data[2], data_length);
+    // 更新已记录的大小
+    MCodec::Instance()->recorded_size += data_length;
+    ESP_LOGI(ESP_NOW, "Received data packet %d, size: %d, total recorded: %d/%d", 
+             packet_index, data_length, MCodec::Instance()->recorded_size, MCodec::Instance()->target_record_size);
 }
 
 

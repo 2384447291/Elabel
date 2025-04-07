@@ -114,11 +114,11 @@ void EspNowClient::send_ack_message(uint8_t _target_mac[ESP_NOW_ETH_ALEN], uint1
     data[1] = _unique_id & 0xFF;
     if(m_role == slave_role)
     {
-        EspNowClient::Instance()->send_esp_now_message(_target_mac, data, 2, Feedback_ACK, false, _unique_id+1);
+        EspNowClient::Instance()->send_esp_now_message(_target_mac, data, 2, Feedback_ACK, false, _unique_id);
     }
     else
     {
-        EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, data, 2, Feedback_ACK, false, _unique_id+1);
+        EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, data, 2, Feedback_ACK, false, _unique_id);
     }
 }
  
@@ -180,7 +180,7 @@ void Espclient_recv_packet_task(void* parameters)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(20)); // 避免占用过多CPU
+        vTaskDelay(pdMS_TO_TICKS(10)); // 避免占用过多CPU
         // 处理接收到的消息
         while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_message_queue) < MAX_RECV_MESSAGE_QUEUE_SIZE)
         {
@@ -275,7 +275,7 @@ void espnow_update_task(void* parameters)
             espnow_packet_t recv_packet;   
             if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, 0) == pdTRUE)
             {
-                
+
                 // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
                 // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
                 if(recv_packet.m_message_type == Bind_Control_Host2Slave)

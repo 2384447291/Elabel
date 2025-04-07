@@ -89,7 +89,7 @@ public:
         MCodec::Instance()->stop_record();
         confirm_voice_countdown = CONFIRM_VOICE_TIME;
         button_choose_record_confirm_left = false;
-        MCodec::Instance()->play_record(MCodec::Instance()->record_buffer, MCodec::Instance()->recorded_size);
+        MCodec::Instance()->play_mic();
 
         lock_lvgl();
         switch_screen(ui_OperatingScreen);

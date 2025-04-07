@@ -28,12 +28,13 @@ public:
 
     void play_focus_music()
     {
-        if(focus_type == 3 && MCodec::Instance()->recorded_size > 0)
+        if(focus_type == 3 && MCodec::Instance()->recorded_size > 0 && MCodec::Instance()->recorded_size == MCodec::Instance()->target_record_size)
         {
-            MCodec::Instance()->play_record(MCodec::Instance()->record_buffer,MCodec::Instance()->recorded_size);
+            MCodec::Instance()->play_mic();
         }
         else
         {
+            ESP_LOGI("fuck", "play_focus_music, recorded_size: %d, target_record_size: %d", MCodec::Instance()->recorded_size, MCodec::Instance()->target_record_size);
             MCodec::Instance()->play_music("bell");
         }
     }

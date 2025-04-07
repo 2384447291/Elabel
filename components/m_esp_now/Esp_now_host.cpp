@@ -8,59 +8,106 @@
 // 添加录音数据发送线程的句柄
 static TaskHandle_t recording_send_task_handle = NULL;
 
+// 添加一个辅助函数，用于发送数据包
+static bool send_recording_packet(const uint8_t* data, size_t data_len, uint16_t unique_id, message_type msg_type, const MacAddress& target_mac, bool need_pinning) {
+    // 填充remind_slave结构体
+    remind_slave_t remind_slave;
+    remind_slave.data_len = data_len;
+    memcpy(remind_slave.data, data, data_len);
+    remind_slave.unique_id = unique_id;
+    remind_slave.m_message_type = msg_type;
+    
+    // 填充Target_slave_mac
+    remind_slave.Target_slave_mac.clear();
+    remind_slave.Target_slave_mac = target_mac;
+    
+    // 清除Online_slave_mac
+    remind_slave.Online_slave_mac.clear();
+    remind_slave.need_pinning = need_pinning;
+    
+    // 尝试添加remind_slave到队列，如果队列满则等待
+    bool added = false;
+    while (!added) {
+        added = EspNowHost::Instance()->add_remind_to_queue(remind_slave);
+        if (!added) {
+            vTaskDelay(pdMS_TO_TICKS(100)); // 等待100ms后重试
+        }
+    }
+    
+    return added;
+}
+
 // 录音数据发送线程函数
 static void recording_send_task(void *pvParameter)
 {
     // 获取录音数据大小
-    int recorded_size = MCodec::Instance()->recorded_size;
+    uint32_t recorded_size = MCodec::Instance()->recorded_size;
     
     // 计算一共要发多少包，向上取整
-    int packet_num = (recorded_size + MAX_EFFECTIVE_DATA_LEN - 1) / MAX_EFFECTIVE_DATA_LEN;
+    uint16_t packet_num = (recorded_size + (MAX_EFFECTIVE_DATA_LEN - 2) - 1) / (MAX_EFFECTIVE_DATA_LEN - 2);
     ESP_LOGI(ESP_NOW, "Recording data size: %d, packet num: %d", recorded_size, packet_num);
     
+    // 首先发送序号为0的包，告知接收方录音数据总大小和包的总数量
+    uint8_t info_packet[MAX_EFFECTIVE_DATA_LEN];
+    info_packet[0] = 0; // 序号高字节为0
+    info_packet[1] = 0; // 序号低字节为0，表示这是信息包
+    
+    // 将录音数据总大小和包的总数量编码到信息包中
+    // 使用4字节存储录音数据总大小，2字节存储包的总数量
+    info_packet[2] = (recorded_size >> 24) & 0xFF;
+    info_packet[3] = (recorded_size >> 16) & 0xFF;
+    info_packet[4] = (recorded_size >> 8) & 0xFF;
+    info_packet[5] = recorded_size & 0xFF;
+    info_packet[6] = (packet_num >> 8) & 0xFF;
+    info_packet[7] = packet_num & 0xFF;
+    
+    // 发送信息包
+    send_recording_packet(info_packet, 8, esp_random() & 0xFFFF, 
+                         Host2Slave_UpdateRecording_Control_Mqtt, 
+                         EspNowHost::Instance()->Bind_slave_mac,true);
+    
+    ESP_LOGI(ESP_NOW, "Sent info packet: recorded_size=%d, packet_num=%d", recorded_size, packet_num);
+
+    //等待第一条消息收到回复
+    while(true)
+    {
+        //如果取不到remind_slave，或者当前状态不是waiting，则退出
+        if(!EspNowHost::Instance()->get_current_remind(&EspNowHost::Instance()->current_remind) && EspNowHost::Instance()->send_state == waiting)
+        {
+            break;
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+
+    MacAddress pin_slave_mac = EspNowHost::Instance()->last_pin_slave_mac;
+    EspNowHost::Instance()->last_pin_slave_mac.print();
+
     // 发送所有数据包
     int current_data_index = 0;
-    for(int i = 0; i < packet_num; i++)
+    for(int i = 1; i <= packet_num; i++) // 从1开始，因为0已经用于信息包
     {
         // 计算当前包的数据大小
-        int current_packet_size = (i == packet_num - 1) ? 
+        int current_packet_size = (i == packet_num) ? 
             (recorded_size - current_data_index) : 
-            MAX_EFFECTIVE_DATA_LEN;
+            (MAX_EFFECTIVE_DATA_LEN - 2);
         
         // 准备当前数据包
         uint8_t current_packet[MAX_EFFECTIVE_DATA_LEN];
-        // 第一个字节存储包序号
-        current_packet[0] = i;
+        // 前两个字节存储包序号
+        current_packet[0] = (i >> 8) & 0xFF;  // 序号高字节
+        current_packet[1] = i & 0xFF;         // 序号低字节
         // 复制实际数据
-        memcpy(&current_packet[1], &MCodec::Instance()->record_buffer[current_data_index], current_packet_size - 1);
+        memcpy(&current_packet[2], &MCodec::Instance()->record_buffer[current_data_index], current_packet_size);
 
-        // 填充remind_slave结构体
-        remind_slave_t remind_slave;
-        remind_slave.data_len = current_packet_size;
-        memcpy(remind_slave.data, current_packet, current_packet_size);
-        remind_slave.unique_id = esp_random() & 0xFFFF;
-        remind_slave.m_message_type = Host2Slave_UpdateRecording_Control_Mqtt;
-
-        // 填充Target_slave_mac
-        remind_slave.Target_slave_mac.clear();
-        remind_slave.Target_slave_mac = EspNowHost::Instance()->Bind_slave_mac;
-
-        // 清除Online_slave_mac
-        remind_slave.Online_slave_mac.clear();
-
-        // 尝试添加remind_slave到队列，如果队列满则等待
-        bool added = false;
-        while (!added) {
-            added = EspNowHost::Instance()->add_remind_to_queue(remind_slave);
-            if (!added) {
-                vTaskDelay(pdMS_TO_TICKS(100)); // 等待100ms后重试
-            }
-        }
+        // 发送数据包
+        send_recording_packet(current_packet, current_packet_size + 2, esp_random() & 0xFFFF, 
+                            Host2Slave_UpdateRecording_Control_Mqtt, 
+                            pin_slave_mac,false);
 
         // 更新当前数据索引
-        current_data_index += (current_packet_size - 1);
+        current_data_index += current_packet_size;
         
-        ESP_LOGI(ESP_NOW, "Sent packet %d/%d, size: %d", i+1, packet_num, current_packet_size);
+        ESP_LOGI(ESP_NOW, "Sent packet %d/%d, size: %d, data_index: %d", i, packet_num, current_packet_size, current_data_index);
     }
     
     ESP_LOGI(ESP_NOW, "All recording data sent successfully");
@@ -91,7 +138,7 @@ static void esp_now_recieve_update(void *pvParameter)
                     {
                         if(EspNowHost::Instance()->pin_message_unique_id == feedback_unique_id)
                         {
-                            ESP_LOGI(ESP_NOW, "Get online slave from " MACSTR " ,unique_id: %d", MAC2STR(recv_packet.mac_addr), feedback_unique_id);
+                            // ESP_LOGI(ESP_NOW, "Get online slave from " MACSTR " ,unique_id: %d", MAC2STR(recv_packet.mac_addr), feedback_unique_id);
                             EspNowHost::Instance()->get_online_slave(recv_packet.mac_addr);
                         }
                     }
@@ -99,7 +146,7 @@ static void esp_now_recieve_update(void *pvParameter)
                     {
                         if(EspNowHost::Instance()->current_remind.unique_id == feedback_unique_id)
                         {
-                            ESP_LOGI(ESP_NOW, "Get feedback from " MACSTR " ,unique_id: %d", MAC2STR(recv_packet.mac_addr), feedback_unique_id);
+                            // ESP_LOGI(ESP_NOW, "Get feedback from " MACSTR " ,unique_id: %d", MAC2STR(recv_packet.mac_addr), feedback_unique_id);
                             EspNowHost::Instance()->get_feedback_from_online_slave(recv_packet.mac_addr);
                         }
                     }
@@ -143,10 +190,18 @@ static void esp_now_send_update(void *pvParameter)
         {
             if(EspNowHost::Instance()->get_current_remind(&EspNowHost::Instance()->current_remind))
             {
-                EspNowHost::Instance()->send_state = pinning;
-                EspNowHost::Instance()->current_remind.Online_slave_mac.clear();
-                EspNowHost::Instance()->pinning_start_time = xTaskGetTickCount();
-                EspNowHost::Instance()->pin_message_unique_id = esp_random() & 0xFFFF;
+                if(EspNowHost::Instance()->current_remind.need_pinning)
+                {
+                    EspNowHost::Instance()->send_state = pinning;
+                    EspNowHost::Instance()->current_remind.Online_slave_mac.clear();
+                    EspNowHost::Instance()->pinning_start_time = xTaskGetTickCount();
+                    EspNowHost::Instance()->pin_message_unique_id = esp_random() & 0xFFFF;
+                }
+                else
+                {
+                    EspNowHost::Instance()->send_state = target_sending;
+                    EspNowHost::Instance()->current_remind.Online_slave_mac = EspNowHost::Instance()->current_remind.Target_slave_mac;
+                }
             }  
         }
 
@@ -335,7 +390,7 @@ void EspNowHost::http_response_out_focus(const espnow_packet_t& recv_packet)
     } 
 }
 
-void EspNowHost::Mqtt_update_recording()
+void EspNowHost::Start_Mqtt_update_recording()
 {
     // 检查是否已经有录音发送任务在运行
     if (recording_send_task_handle != NULL) {
@@ -366,6 +421,16 @@ void EspNowHost::Mqtt_update_recording()
     }
     
     ESP_LOGI(ESP_NOW, "Recording send task created successfully");
+}
+
+void EspNowHost::Stop_Mqtt_update_recording()
+{
+    if(recording_send_task_handle != NULL)
+    {
+        vTaskDelete(recording_send_task_handle);
+        recording_send_task_handle = NULL;
+    }
+    ESP_LOGI(ESP_NOW, "Recording send task deleted successfully");
 }
 
 void EspNowHost::Mqtt_update_task_list(uint8_t target_mac[ESP_NOW_ETH_ALEN], bool need_broadcast)

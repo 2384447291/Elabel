@@ -12,15 +12,18 @@
 #include "driver/i2c.h"
 
 #define I2C_PORT I2C_NUM_0
-#define I2S_PORT I2S_NUM_0
-#define I2S_SAMPLE_RATE   16000
+#define I2S_PORT I2S_NUM_0 
 #define I2S_BITS_PER_SAMPLE 16
+#define MIC_SAMPLE_RATE 16000
+#define SPEAKER_SAMPLE_RATE 16000
 #define I2S_CHANNEL_NUM 1
 
-#define RECORD_BUFFER_SIZE (150 * 1024)  // 150KB 的录音缓冲区
+#define RECORD_BUFFER_SIZE (128 * 1024)  // 150KB 的录音缓冲区
 
 typedef enum {
+    default_speaker,
     mic,
+    music,
     spiffs,
 } Speakertype;
 
@@ -41,6 +44,7 @@ public:
     
     void play_record(const uint8_t* data, size_t size);
     void play_music(const char* filename);
+    void play_mic();
     void stop_play();
     
     void set_volume(uint8_t volume);
@@ -55,11 +59,12 @@ public:
     TaskHandle_t speaker_task = NULL;
     TaskHandle_t mic_task = NULL;
 
-    Speakertype speaker_type = spiffs;
+    Speakertype speaker_type = default_speaker;
 
     // 录音数据
     uint8_t* record_buffer = NULL;  // PSRAM 中的录音缓冲区
     size_t recorded_size = 0;       // 已录制的数据大小
+    size_t target_record_size = 0;  // 目标录音缓冲区大小
 
     // 播放数据
     const uint8_t* play_data = NULL;
@@ -71,14 +76,15 @@ public:
         .bits_per_sample = I2S_BITS_PER_SAMPLE,
         .channel = (uint8_t)I2S_CHANNEL_NUM,
         .channel_mask = ESP_CODEC_DEV_MAKE_CHANNEL_MASK(0),
-        .sample_rate = I2S_SAMPLE_RATE,
+        .sample_rate = SPEAKER_SAMPLE_RATE,
         .mclk_multiple = I2S_MCLK_MULTIPLE_256,
     };
     uint8_t codec_gain = 30;
     uint8_t codec_vol = 95;
     
-    void open_dev()
+    void open_dev(uint32_t sample_rate)
     {
+        fs.sample_rate = sample_rate;
         esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_out_vol(codec_dev, codec_vol);
         esp_codec_dev_set_in_gain(codec_dev, codec_gain);

@@ -30,21 +30,24 @@ typedef struct {
     MacAddress Target_slave_mac;
     //在线的从机
     MacAddress Online_slave_mac;
+    //是否需要pining
+    bool need_pinning = true;
 } remind_slave_t;
 
 class EspNowHost {
-    private:
+    public:
         TaskHandle_t host_recieve_update_task_handle = NULL;
         TaskHandle_t host_send_update_task_handle = NULL;
         QueueHandle_t remind_queue = NULL;  // 提醒队列
-    public:
+
         //收到http的相应发送的mqtt更新任务列表
         void Mqtt_update_task_list(uint8_t target_mac[ESP_NOW_ETH_ALEN] = BROADCAST_MAC, bool need_broadcast = false);
 
         //mqtt更新任务列表
         void Mqtt_enter_focus(focus_message_t focus_message);
         void Mqtt_out_focus();
-        void Mqtt_update_recording();
+        void Start_Mqtt_update_recording();
+        void Stop_Mqtt_update_recording();
 
         //http的响应函数
         void http_response_enter_focus(const espnow_packet_t& recv_packet);
@@ -52,6 +55,9 @@ class EspNowHost {
 
         //绑定的从机的数目和地址
         MacAddress Bind_slave_mac;
+        //上次pin的记录
+        MacAddress last_pin_slave_mac;
+
         
         //当前正在处理的
         remind_slave_t current_remind;
@@ -84,7 +90,7 @@ class EspNowHost {
             {
                 uint16_t queue_length = (uint16_t)uxQueueMessagesWaiting(remind_queue);
                 (void)queue_length;
-                ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d.\n", queue_length);
+                // ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d.\n", queue_length);
                 return true;
             }
         }
@@ -147,7 +153,7 @@ class EspNowHost {
             if(send_state != target_sending) return;
             if(current_remind.Online_slave_mac.removeByMac(slave_mac))
             {
-                ESP_LOGI(ESP_NOW, "Removed slave " MACSTR " from online list.\n", MAC2STR(slave_mac));
+                // ESP_LOGI(ESP_NOW, "Removed slave " MACSTR " from online list.\n", MAC2STR(slave_mac));
             }
         }
 
@@ -161,12 +167,12 @@ class EspNowHost {
                 //插入到online列表中
                 if(current_remind.Online_slave_mac.insert(slave_mac))
                 {
-                    ESP_LOGI(ESP_NOW, "Added slave " MACSTR " to online list.\n", MAC2STR(slave_mac));
+                    // ESP_LOGI(ESP_NOW, "Added slave " MACSTR " to online list.\n", MAC2STR(slave_mac));
                 }
             }
             else
             {
-                ESP_LOGI(ESP_NOW, "Slave " MACSTR " is not in target list", MAC2STR(slave_mac));
+                ESP_LOGE(ESP_NOW, "Slave " MACSTR " is not in target list", MAC2STR(slave_mac));
             }
         }
 
@@ -174,6 +180,8 @@ class EspNowHost {
         void Print_pin_situation()
         {
             if(send_state != pinning) return;
+            //记录这次pin的从机
+            last_pin_slave_mac = EspNowHost::Instance()->current_remind.Online_slave_mac;
             if (EspNowHost::Instance()->current_remind.Online_slave_mac.count != EspNowHost::Instance()->current_remind.Target_slave_mac.count) 
             {
                 ESP_LOGE(ESP_NOW, "Pinning timeout!");

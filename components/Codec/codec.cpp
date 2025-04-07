@@ -6,7 +6,7 @@
 
 #define TAG "M_CODEC"
 #define READ_BLOCK_SIZE 1024      // 减小读取块大小以减少瞬时内存占用
-#define BytesPerSecond (I2S_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
+#define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 
 // 用于任务间通信的标志
 static volatile bool should_stop_recording = false;
@@ -18,15 +18,16 @@ static void mic_task_func(void* arg) {
     while(MCodec::Instance()->speaker_task!=NULL)
     {
         ESP_LOGI(TAG,"Recording Guidance playing");
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
-    MCodec::Instance()->open_dev();
+    MCodec::Instance()->open_dev(MIC_SAMPLE_RATE);
     ESP_LOGI(TAG, "Mic task started");
     MCodec* codec = MCodec::Instance();
     uint8_t buffer[READ_BLOCK_SIZE];
 
     // 重置录音大小
     codec->recorded_size = 0;
+    codec->target_record_size = 0;
     should_stop_recording = false;
     
     while(!should_stop_recording) {
@@ -49,7 +50,7 @@ static void mic_task_func(void* arg) {
             ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
         }
     }
-    
+    codec->target_record_size = codec->recorded_size;
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
     //关闭设备
     codec->close_dev();
@@ -76,7 +77,7 @@ static void speaker_task_func(void* arg) {
             // 从文件读取数据
             bytes_to_play = fread(buffer, 1, READ_BLOCK_SIZE, codec->play_file);
             if(bytes_to_play == 0) break;  // 文件读取完毕
-        } else if(codec->speaker_type == mic) {
+        } else if(codec->speaker_type == mic || codec->speaker_type == music) {
             // 从内存数组读取数据
             size_t remaining = codec->play_data_size - total_played;
             if(remaining == 0) break;  // 数据播放完毕
@@ -194,6 +195,7 @@ void MCodec::start_record()
         return;
     }
     recorded_size = 0;
+    target_record_size = 0;
     ESP_LOGI(TAG, "Starting recording...");
     xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
 }
@@ -242,6 +244,11 @@ void MCodec::stop_record()
 //              size, (float)size/BytesPerSecond);
 //     xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
 // }
+void MCodec::play_mic()
+{
+    speaker_type = mic;
+    play_record(MCodec::Instance()->record_buffer, MCodec::Instance()->recorded_size);
+}
 
 void MCodec::play_music(const char* filename)
 {
@@ -265,6 +272,7 @@ void MCodec::play_music(const char* filename)
         ESP_LOGE(TAG, "未找到对应的音频文件: %s", filename);
         return;
     }
+    speaker_type = music;
     play_record(audio_data, audio_size);
 }
 
@@ -275,7 +283,6 @@ void MCodec::play_record(const uint8_t* data, size_t size)
         ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
         return;
     }
-    speaker_type = mic;
     if (data == NULL || size == 0) {
         ESP_LOGE(TAG, "Invalid play parameters: data=%p, size=%d", data, size);
         return;
@@ -285,7 +292,14 @@ void MCodec::play_record(const uint8_t* data, size_t size)
         ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
         return;
     }
-    open_dev();
+    if(speaker_type == music)
+    {
+        open_dev(SPEAKER_SAMPLE_RATE);
+    }
+    else
+    {
+        open_dev(MIC_SAMPLE_RATE);
+    }
     // 保存播放数据的指针和大小
     play_data = data;
     play_data_size = size;

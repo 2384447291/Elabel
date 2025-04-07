@@ -105,7 +105,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
         EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
         if(focus_type == 3)
         {
-            EspNowHost::Instance()->Mqtt_update_recording();
+            EspNowHost::Instance()->Start_Mqtt_update_recording();
         }
     }
 
