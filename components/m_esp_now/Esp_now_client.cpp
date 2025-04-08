@@ -66,8 +66,8 @@ uint8_t EspNowClient::crc_check(uint8_t *data, int len)
     return crc;
 }
 
-
-void EspNowClient::print_uint8_array(uint8_t *array, size_t length) {
+void EspNowClient::print_uint8_array(uint8_t *array, size_t length) 
+{
     // 创建一个字符串缓冲区以存储打印内容
     char buffer[512]; // 假设最大长度为 256 字节
     size_t offset = 0;
@@ -81,12 +81,13 @@ void EspNowClient::print_uint8_array(uint8_t *array, size_t length) {
     ESP_LOGI("data", "Array: %s\n", buffer);
 }
 
-void EspNowClient::send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id)
-{
+bool EspNowClient::send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id)
+{   
+    xSemaphoreTake(send_lock, portMAX_DELAY);
     if(len > MAX_EFFECTIVE_DATA_LEN)
     {
         ESP_LOGE(ESP_NOW, "Send espnow message Error occurred: data length is too long");
-        return;
+        return false;
     }
     uint8_t pack[ESP_NOW_MAX_DATA_LEN];
     pack[0] = 0xAB;
@@ -96,15 +97,20 @@ void EspNowClient::send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], ui
     memcpy(pack + 4, data, len);
     pack[len + 4] = crc_check(data , len);
     pack[len + 5] = 0xEF;
-    // 发送广播数据
+    // 发送数据
     esp_err_t err;
+    
     err = esp_now_send(target_mac, pack, len + 6);
-    if (err!= ESP_OK) ESP_LOGE(ESP_NOW, "Send espnow message Error occurred: %s", esp_err_to_name(err));
+    if (err!= ESP_OK) 
+    {
+        // ESP_LOGE(ESP_NOW, "Send espnow message Error occurred: %s", esp_err_to_name(err));
+    }
     else 
     {
         // ESP_LOGI(ESP_NOW, "Send espnow message success");
         // print_uint8_array(pack, len + 5);
     }
+    xSemaphoreGive(send_lock);
 }
 
 void EspNowClient::send_ack_message(uint8_t _target_mac[ESP_NOW_ETH_ALEN], uint16_t _unique_id)
@@ -146,6 +152,13 @@ void EspNowClient::Delpeer(uint8_t peer_mac[ESP_NOW_ETH_ALEN])
 
 static void m_espnow_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status)
 {
+    EspNowClient::Instance()->send_buffered_num --;
+    if (status == ESP_NOW_SEND_SUCCESS) {
+        xEventGroupSetBits(EspNowClient::Instance()->send_event_group, SEND_CB_OK);
+    } else {
+        xEventGroupSetBits(EspNowClient::Instance()->send_event_group, SEND_CB_FAIL);
+    }
+    
     if(status != ESP_NOW_SEND_SUCCESS)
     {
         ESP_LOGE(ESP_NOW, "Send espnow message fail to " MACSTR ", status: %d", 
@@ -180,81 +193,77 @@ void Espclient_recv_packet_task(void* parameters)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10)); // 避免占用过多CPU
-        // 处理接收到的消息
-        while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_message_queue) < MAX_RECV_MESSAGE_QUEUE_SIZE)
+        espnow_data_t recv_msg;   
+        if (xQueueReceive(EspNowClient::Instance()->recv_message_queue, &recv_msg, portMAX_DELAY) != pdTRUE) {
+            continue;
+        }
+
+        // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
+        // EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
+        // 判断收到的包是否有效
+        if(recv_msg.data[0] != 0xAB || recv_msg.data[recv_msg.data_len-1] != 0xEF)
         {
-            espnow_data_t recv_msg;   
-            if(xQueueReceive(EspNowClient::Instance()->recv_message_queue, &recv_msg, 0) == pdTRUE)
-            {
-                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_msg.mac_addr), recv_msg.data_len);
-                // EspNowClient::Instance()->print_uint8_array(recv_msg.data, recv_msg.data_len);
-                // 判断收到的包是否有效
-                if(recv_msg.data[0] != 0xAB || recv_msg.data[recv_msg.data_len-1] != 0xEF)
-                {
-                    ESP_LOGE(ESP_NOW, "Receive message header or tail error");
-                    continue;
-                }
-                if(recv_msg.data[recv_msg.data_len-2] != EspNowClient::crc_check(&recv_msg.data[4], recv_msg.data_len-6))
-                {
-                    ESP_LOGE(ESP_NOW, "Receive message crc error, recieve crc: %d, calc crc: %d", recv_msg.data[recv_msg.data_len-1], EspNowClient::crc_check(&recv_msg.data[4], recv_msg.data_len-6));
-                    continue;
-                }
+            ESP_LOGE(ESP_NOW, "Receive message header or tail error");
+            continue;
+        }
+        if(recv_msg.data[recv_msg.data_len-2] != EspNowClient::crc_check(&recv_msg.data[4], recv_msg.data_len-6))
+        {
+            ESP_LOGE(ESP_NOW, "Receive message crc error, recieve crc: %d, calc crc: %d", recv_msg.data[recv_msg.data_len-1], EspNowClient::crc_check(&recv_msg.data[4], recv_msg.data_len-6));
+            continue;
+        }
 
-                bool need_feedback = recv_msg.data[1] & 0x01;
-                uint8_t received_value = (recv_msg.data[1] >> 1);
-                message_type m_message_type = static_cast<message_type>(received_value);
-                uint16_t unique_id = ((uint16_t)(recv_msg.data[2]) << 8) | recv_msg.data[3];
+        bool need_feedback = recv_msg.data[1] & 0x01;
+        uint8_t received_value = (recv_msg.data[1] >> 1);
+        message_type m_message_type = static_cast<message_type>(received_value);
+        uint16_t unique_id = ((uint16_t)(recv_msg.data[2]) << 8) | recv_msg.data[3];
 
-                //如果需要feedback则返回发送Feedback_ACK消息
-                if(need_feedback)
-                {
-                    EspNowClient::Instance()->send_ack_message(recv_msg.mac_addr, unique_id);
-                } 
+        //如果需要feedback则返回发送Feedback_ACK消息
+        if(need_feedback)
+        {
+            EspNowClient::Instance()->send_ack_message(recv_msg.mac_addr, unique_id);
+        } 
 
-                // 绑定心跳消息与不参与重复处理，每一条心跳消息都是独一无二的
-                if(m_message_type != Bind_Control_Host2Slave)
-                {
-                    // 检查unique_id是否已存在
-                    bool is_duplicate = false;
-                    for(auto it = EspNowClient::Instance()->received_unique_ids.begin(); it != EspNowClient::Instance()->received_unique_ids.end(); ++it) {
-                        if(*it == unique_id) {
-                            is_duplicate = true;
-                            // 如果是重复ID，将其从当前位置移除
-                            EspNowClient::Instance()->received_unique_ids.erase(it);
-                            break;
-                        }
-                    }
-                    
-                    // 将ID添加到队列末尾（无论是新的还是重复的）
-                    EspNowClient::Instance()->received_unique_ids.push_back(unique_id);
-                    
-                    // 如果队列大小超过限制，移除最旧的元素（队列前端）
-                    if (EspNowClient::Instance()->received_unique_ids.size() > EspNowClient::Instance()->max_received_ids) {
-                        EspNowClient::Instance()->received_unique_ids.pop_front();
-                    }
-                    if(is_duplicate) continue;
-                }
-
-                // 解析广播包
-                espnow_packet_t packet;
-                memcpy(packet.data, &recv_msg.data[4], recv_msg.data_len-6);
-                packet.data_len = recv_msg.data_len-6;
-                memcpy(packet.mac_addr, recv_msg.mac_addr, ESP_NOW_ETH_ALEN);
-                packet.unique_id = unique_id;
-                packet.m_message_type = m_message_type;
-
-                //专门给从机激活时的计数
-                if(m_message_type == Feedback_ACK)
-                {
-                    EspNowClient::Instance()->m_recieve_packet_count++;
-                }
-
-                if(xQueueSend(EspNowClient::Instance()->recv_packet_queue, &packet, 0) != pdTRUE)
-                {
-                    ESP_LOGE(ESP_NOW, "Receive packet queue fail");
+        // 绑定心跳消息与不参与重复处理，每一条心跳消息都是独一无二的
+        if(m_message_type != Bind_Control_Host2Slave)
+        {
+            // 检查unique_id是否已存在
+            bool is_duplicate = false;
+            for(auto it = EspNowClient::Instance()->received_unique_ids.begin(); it != EspNowClient::Instance()->received_unique_ids.end(); ++it) {
+                if(*it == unique_id) {
+                    is_duplicate = true;
+                    // 如果是重复ID，将其从当前位置移除
+                    EspNowClient::Instance()->received_unique_ids.erase(it);
+                    break;
                 }
             }
+            
+            // 将ID添加到队列末尾（无论是新的还是重复的）
+            EspNowClient::Instance()->received_unique_ids.push_back(unique_id);
+            
+            // 如果队列大小超过限制，移除最旧的元素（队列前端）
+            if (EspNowClient::Instance()->received_unique_ids.size() > EspNowClient::Instance()->max_received_ids) {
+                EspNowClient::Instance()->received_unique_ids.pop_front();
+            }
+            if(is_duplicate) continue;
+        }
+
+        // 解析广播包
+        espnow_packet_t packet;
+        memcpy(packet.data, &recv_msg.data[4], recv_msg.data_len-6);
+        packet.data_len = recv_msg.data_len-6;
+        memcpy(packet.mac_addr, recv_msg.mac_addr, ESP_NOW_ETH_ALEN);
+        packet.unique_id = unique_id;
+        packet.m_message_type = m_message_type;
+
+        //专门给从机激活时的计数
+        if(m_message_type == Feedback_ACK)
+        {
+            EspNowClient::Instance()->m_recieve_packet_count++;
+        }
+
+        if(xQueueSend(EspNowClient::Instance()->recv_packet_queue, &packet, 0) != pdTRUE)
+        {
+            ESP_LOGE(ESP_NOW, "Receive packet queue fail");
         }
     }
 }
@@ -267,34 +276,29 @@ void espnow_update_task(void* parameters)
 
     while (1)
     {
-        // 避免占用过多CPU
-        vTaskDelay(pdMS_TO_TICKS(10));
+        espnow_packet_t recv_packet;  
         // 处理接收到的消息
-        while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_packet_queue) < MAX_RECV_PACKET_QUEUE_SIZE)
-        {
-            espnow_packet_t recv_packet;   
-            if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, 0) == pdTRUE)
-            {
+        if (xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, portMAX_DELAY) != pdTRUE) {
+            continue;
+        }
 
-                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
-                // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
-                if(recv_packet.m_message_type == Bind_Control_Host2Slave)
-                {
-                    Global_data* global_data = get_global_data();
-                    global_data->m_host_channel = recv_packet.data[0];
-                    memcpy(global_data->m_userName, &recv_packet.data[1], recv_packet.data_len-1);
-                    memcpy(global_data->m_host_mac, (uint8_t*)(recv_packet.mac_addr), ESP_NOW_ETH_ALEN);
-                    ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-                        global_data->m_userName, 
-                        MAC2STR(global_data->m_host_mac), 
-                        global_data->m_host_channel);
-                    //更新nvs
-                    set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
-                    //delay 1s，等待nvs更新
-                    vTaskDelay(pdMS_TO_TICKS(1000));
-                    EspNowClient::Instance()->is_connect_to_host = true;
-                }
-            }
+        // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
+        // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
+        if(recv_packet.m_message_type == Bind_Control_Host2Slave)
+        {
+            Global_data* global_data = get_global_data();
+            global_data->m_host_channel = recv_packet.data[0];
+            memcpy(global_data->m_userName, &recv_packet.data[1], recv_packet.data_len-1);
+            memcpy(global_data->m_host_mac, (uint8_t*)(recv_packet.mac_addr), ESP_NOW_ETH_ALEN);
+            ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
+                global_data->m_userName, 
+                MAC2STR(global_data->m_host_mac), 
+                global_data->m_host_channel);
+            //更新nvs
+            set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
+            //delay 1s，等待nvs更新
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            EspNowClient::Instance()->is_connect_to_host = true;
         }
 
         // 检查是否需要切换信道
@@ -364,7 +368,14 @@ void EspNowClient::init(){
     #endif
    //-----------------------------节能模式下的操作-----------------------------//
 
-    //设置espnow速率
+    //-----------------------------设置espnow速率-----------------------------//
     ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_LORA_500K));
-    xTaskCreate(Espclient_recv_packet_task, "Espclient_recv_packet_task", 4096, NULL, 10, NULL);
+    //-----------------------------设置espnow速率-----------------------------//
+
+
+    //-----------------------------维护发送的结构-----------------------------//
+    send_buffered_num = 0;
+    send_event_group = xEventGroupCreate();
+    send_lock = xSemaphoreCreateMutex();
+    //-----------------------------维护发送的结构-----------------------------//
 }

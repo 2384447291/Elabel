@@ -180,8 +180,6 @@ void guiTask(void *pvParameter) {
 //--------------------------------------修改任务内容-------------------------------------//
 void lvgl_modify_task(int position, const char *task_content) 
 {
-    uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-    ESP_LOGI("Task_list", "Child count is %d.\n", child_count);
     lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position);
     lv_obj_t *ui_Label1 = lv_obj_get_child(ui_tmpButton, 0);
     //获取文本长度

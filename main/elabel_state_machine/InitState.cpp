@@ -125,11 +125,13 @@ void InitState::Execute(ElabelController* pOwner)
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        //等待1sespnow连接两秒稳定
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-
         //初始化EspNowSlave
         EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+
+        while(EspNowSlave::Instance()->is_host_connected == false)
+        {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
 
         //绑定主机
         EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();

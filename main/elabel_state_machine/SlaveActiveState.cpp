@@ -20,11 +20,6 @@ void confirm_slave_active_button_choice()
         EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
         //等待从机任务装填完成
         vTaskDelay(1000 / portTICK_PERIOD_MS);
-        //等待绑定流程完成
-        while(EspNowSlave::Instance()->need_send_data)
-        {
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-        }
         //保存激活信息
         get_global_data()->m_is_host = 2;
         set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);

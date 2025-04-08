@@ -2,83 +2,69 @@
 #include "esp_now_slave.hpp"
 #include "global_nvs.h"
 #include "codec.hpp"
-
 static void esp_now_recieve_update(void *pvParameter)
 {
     while (1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
-        if(EspNowSlave::Instance()->get_host_status() && xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(5000) && EspNowSlave::Instance()->last_recv_heart_time != 0)
+        espnow_packet_t recv_packet;  
+        if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, portMAX_DELAY) != pdTRUE)
         {
-            EspNowSlave::Instance()->set_host_status(false);
-            ESP_LOGE(ESP_NOW, "Slave not receive heart from host, reconnect");
+            continue;
         }
+
+        EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
         //处理接收到的信息
-        while(uxQueueSpacesAvailable(EspNowClient::Instance()->recv_packet_queue)<MAX_RECV_PACKET_QUEUE_SIZE)
+        // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
+        // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
+        //处理http的请求，如果收到了，则说明主机收到了请求，从机不用再发了，等待主机的mqtt更新即可
+        if(recv_packet.m_message_type == Feedback_ACK)
         {
-            espnow_packet_t recv_packet;   
-            if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, 0) == pdTRUE)
+            uint16_t feedback_unique_id = (recv_packet.data[0] << 8) | recv_packet.data[1];
+            feedback_message_t feedback_message;
+            feedback_message.unique_id = feedback_unique_id;
+            memcpy(feedback_message.mac, recv_packet.mac_addr, ESP_NOW_ETH_ALEN);
+            xQueueSend(EspNowSlave::Instance()->remind_host.feedback_queue, &feedback_message, 0);
+        }
+        else if(recv_packet.m_message_type == Bind_Control_Host2Slave)
+        {
+            if(EspNowSlave::Instance()->is_host_connected)
             {
-                EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
-                //处理接收到的信息
-                // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
-                // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
-                //处理http的请求，如果收到了，则说明主机收到了请求，从机不用再发了，等待主机的mqtt更新即可
-                if(recv_packet.m_message_type == Feedback_ACK)
-                {
-                    uint16_t feedback_unique_id = (recv_packet.data[0] << 8) | recv_packet.data[1];
-                    if (EspNowSlave::Instance()->remind_host.unique_id == feedback_unique_id)
-                    {
-                        if(EspNowSlave::Instance()->need_send_data)
-                        {
-                            ESP_LOGI(ESP_NOW, "Receive feedback from host, unique id: %d", feedback_unique_id);
-                            EspNowSlave::Instance()->finish_current_remind();
-                            EspNowSlave::Instance()->need_send_data = false;
-                        }
-                    }
-                }
-                else if(recv_packet.m_message_type == Bind_Control_Host2Slave)
-                {
-                    if(EspNowSlave::Instance()->get_host_status())
-                    {
-                        continue;
-                    }
-                    ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message unique id: %d", recv_packet.unique_id);
-                    Global_data* global_data = get_global_data();
-                    global_data->m_host_channel = recv_packet.data[0];
-                    memcpy(global_data->m_userName, &recv_packet.data[1], recv_packet.data_len-1);
-                    memcpy(global_data->m_host_mac, (uint8_t*)(recv_packet.mac_addr), ESP_NOW_ETH_ALEN);
-                    ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-                        global_data->m_userName, 
-                        MAC2STR(global_data->m_host_mac), 
-                        global_data->m_host_channel);
-                    //设置信道
-                    ESP_ERROR_CHECK(esp_wifi_set_channel(global_data->m_host_channel, WIFI_SECOND_CHAN_NONE));
-                    //更新nvs
-                    set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
-                    EspNowSlave::Instance()->set_host_status(true);
-                }
-                else if(recv_packet.m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
-                {
-                    ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-                    EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(recv_packet);
-                }
-                else if(recv_packet.m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
-                {
-                    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-                    EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(recv_packet);
-                }
-                else if(recv_packet.m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
-                {
-                    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-                    EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
-                }
-                else if(recv_packet.m_message_type == Host2Slave_UpdateRecording_Control_Mqtt)
-                {
-                    ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-                    EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_update_recording(recv_packet);
-                }
+                continue;
             }
+            ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message unique id: %d", recv_packet.unique_id);
+            Global_data* global_data = get_global_data();
+            global_data->m_host_channel = recv_packet.data[0];
+            memcpy(global_data->m_userName, &recv_packet.data[1], recv_packet.data_len-1);
+            memcpy(global_data->m_host_mac, (uint8_t*)(recv_packet.mac_addr), ESP_NOW_ETH_ALEN);
+            ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
+                global_data->m_userName, 
+                MAC2STR(global_data->m_host_mac), 
+                global_data->m_host_channel);
+            //设置信道
+            ESP_ERROR_CHECK(esp_wifi_set_channel(global_data->m_host_channel, WIFI_SECOND_CHAN_NONE));
+            //更新nvs
+            set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
+            EspNowSlave::Instance()->is_host_connected = true;
+        }
+        else if(recv_packet.m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
+        {
+            ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id: %d", recv_packet.unique_id);
+            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(recv_packet);
+        }
+        else if(recv_packet.m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
+        {
+            ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
+            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(recv_packet);
+        }
+        else if(recv_packet.m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
+        {
+            ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
+            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
+        }
+        else if(recv_packet.m_message_type == Host2Slave_UpdateRecording_Control_Mqtt)
+        {
+            ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message unique id: %d", recv_packet.unique_id);
+            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_update_recording(recv_packet);
         }
     }
 }
@@ -86,63 +72,44 @@ static void esp_now_recieve_update(void *pvParameter)
 static void esp_now_send_update(void *pvParameter)
 {
     uint8_t channel = 0;
-    const TickType_t channel_switch_delay = pdMS_TO_TICKS(1000);  // 信道切换间隔1秒 ，这里转tick了所以不用转时间
-    TickType_t last_switch_time = xTaskGetTickCount();
     while(1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
-        if(!EspNowSlave::Instance()->get_host_status())
+        vTaskDelay(pdMS_TO_TICKS(2000));
+        if(EspNowSlave::Instance()->is_host_connected)
         {
-            // 检查是否需要切换信道
-            if ((xTaskGetTickCount() - last_switch_time) >= channel_switch_delay)
+            if(xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(5000))
             {
-                // 只有在未连接到主机时才进行信道切换
-                if (!EspNowClient::Instance()->is_connect_to_host)
-                {
-                    channel = channel % 13 + 1;
-                    uint8_t actual_wifi_channel = 0;
-                    wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
-                    ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
-                    ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
-                    ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
-                }
-                last_switch_time = xTaskGetTickCount();
+                EspNowSlave::Instance()->is_host_connected = false;
+                ESP_LOGE(ESP_NOW, "Slave not receive heart from host, reconnect");
             }
         }
         else
         {
-            if(EspNowSlave::Instance()->need_send_data)
-            {
-                //发送remind消息
-                EspNowClient::Instance()->send_esp_now_message(EspNowSlave::Instance()->host_mac, 
-                    EspNowSlave::Instance()->remind_host.data, 
-                    EspNowSlave::Instance()->remind_host.data_len, 
-                    EspNowSlave::Instance()->remind_host.m_message_type, 
-                    true, 
-                    EspNowSlave::Instance()->remind_host.unique_id);
-            }
-            else
-            {
-                if(EspNowSlave::Instance()->get_current_remind(&EspNowSlave::Instance()->remind_host))
-                {
-                    EspNowSlave::Instance()->need_send_data = true;
-                }
-            }
+            channel = channel % 13 + 1;
+            uint8_t actual_wifi_channel = 0;
+            wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+            ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
+            ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
+            ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
         }
     }
 }
 
 void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100])
 {
-    memcpy(this->host_mac, host_mac, ESP_NOW_ETH_ALEN);
-    this->host_channel = host_channel;
-    memcpy(this->username, username, sizeof(this->username));
-
     if(slave_recieve_update_task_handle != NULL) 
     {
         ESP_LOGI(ESP_NOW, "Slave already init");
         return;
     }
+
+    //初始化espnowslave参数
+    memcpy(this->host_mac, host_mac, ESP_NOW_ETH_ALEN);
+    this->host_channel = host_channel;
+    memcpy(this->username, username, sizeof(this->username));
+    is_host_connected = false;
+    last_recv_heart_time = 0;
+
     EspNowClient::Instance()->m_role = slave_role;
     //停止搜索设备
     EspNowClient::Instance()->stop_find_channel();
@@ -150,16 +117,6 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
     ESP_ERROR_CHECK(esp_wifi_set_channel(this->host_channel, WIFI_SECOND_CHAN_NONE));
     //添加配对host
     EspNowClient::Instance()->Addpeer(this->host_channel, this->host_mac);
-
-    //初始化host连接状态
-    is_host_connected = false;
-
-    //创建remind队列
-    remind_queue = xQueueCreate(10, sizeof(remind_host_t));
-    if (remind_queue == NULL) {
-        ESP_LOGE(ESP_NOW, "Failed to create remind queue!");
-        return;
-    }
 
     xTaskCreate(esp_now_recieve_update, "esp_now_slave_recieve_update_task", 4096, NULL, 1, &slave_recieve_update_task_handle);
     xTaskCreate(esp_now_send_update, "esp_now_slave_send_update_task", 4096, NULL, 10, &slave_send_update_task_handle);
@@ -180,11 +137,6 @@ void EspNowSlave::deinit()
     slave_recieve_update_task_handle = NULL;
     slave_send_update_task_handle = NULL;
 
-    // 删除remind队列
-    if (remind_queue != NULL) {
-        vQueueDelete(remind_queue);
-        remind_queue = NULL;
-    }
     EspNowClient::Instance()->Delpeer(this->host_mac);
     ESP_LOGI(ESP_NOW, "Slave deinit success");
 }
@@ -192,43 +144,41 @@ void EspNowSlave::deinit()
 void EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     ESP_LOGI(ESP_NOW, "Slave send update task list request message");
-    remind_host_t temp_remind_host;
-    temp_remind_host.data[0] = 0x00;
-    temp_remind_host.data_len = 1;
-    temp_remind_host.unique_id = esp_random() & 0xFFFF;
-    temp_remind_host.m_message_type = Slave2Host_UpdateTaskList_Request_Http;
-    add_remind_to_queue(temp_remind_host);
+    uint8_t temp_data = 0;
+    MacAddress target_mac;
+    target_mac.insert(this->host_mac);
+    remind_host.esp_now_send(this->host_mac, &temp_data, 1, Slave2Host_UpdateTaskList_Request_Http, target_mac, true);
 }
 
 void EspNowSlave::slave_send_espnow_http_bind_host_request()
 {
     ESP_LOGI(ESP_NOW, "Slave send bind host request message");
-    remind_host_t temp_remind_host;
-    temp_remind_host.data[0] = 0x00;
-    temp_remind_host.data_len = 1;
-    temp_remind_host.unique_id = esp_random() & 0xFFFF;
-    temp_remind_host.m_message_type = Slave2Host_Bind_Request_Http;
-    add_remind_to_queue(temp_remind_host);
+    uint8_t temp_data = 0;
+    MacAddress target_mac;
+    target_mac.insert(this->host_mac);
+    remind_host.esp_now_send(this->host_mac, &temp_data, 1, Slave2Host_Bind_Request_Http, target_mac, true);
 }
 
 void EspNowSlave::slave_send_espnow_http_enter_focus_task(focus_message_t focus_message)
 {
     ESP_LOGI(ESP_NOW, "Slave send enter focus task request message");
-    remind_host_t temp_remind_host;
-    focus_message_to_data(focus_message, temp_remind_host.data, temp_remind_host.data_len);
-    temp_remind_host.unique_id = esp_random() & 0xFFFF;
-    temp_remind_host.m_message_type = Slave2Host_Enter_Focus_Request_Http;
-    add_remind_to_queue(temp_remind_host);
+    uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
+    size_t temp_data_len = 0;
+    focus_message_to_data(focus_message, temp_data, temp_data_len);
+    MacAddress target_mac;
+    target_mac.insert(this->host_mac);
+    remind_host.esp_now_send(this->host_mac, temp_data, temp_data_len, Slave2Host_Enter_Focus_Request_Http, target_mac, true);
 }
 
 void EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t focus_message)
 {
     ESP_LOGI(ESP_NOW, "Slave send out focus task request message");
-    remind_host_t temp_remind_host;
-    focus_message_to_data(focus_message, temp_remind_host.data, temp_remind_host.data_len);
-    temp_remind_host.unique_id = esp_random() & 0xFFFF;
-    temp_remind_host.m_message_type = Slave2Host_Out_Focus_Request_Http;
-    add_remind_to_queue(temp_remind_host);
+    uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
+    size_t temp_data_len = 0;
+    focus_message_to_data(focus_message, temp_data, temp_data_len);
+    MacAddress target_mac;
+    target_mac.insert(this->host_mac);
+    remind_host.esp_now_send(this->host_mac, temp_data, temp_data_len, Slave2Host_Out_Focus_Request_Http, target_mac, true);
 }
 
 

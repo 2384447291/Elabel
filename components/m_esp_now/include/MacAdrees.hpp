@@ -81,7 +81,7 @@ public:
             memcpy(bytes, other.bytes, ESP_NOW_ETH_ALEN * MAX_SLAVE_NUM);
             // 复制计数
             count = other.count;
-            ESP_LOGI(ESP_NOW, "Copied %d MAC addresses", count);
+            // ESP_LOGI(ESP_NOW, "Copied %d MAC addresses", count);
         }
         return *this;
     }

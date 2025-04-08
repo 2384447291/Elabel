@@ -1,112 +1,158 @@
 #include "esp_now_remind.hpp"
+#include "esp_log.h"
 
-void esp_now_remind_host::update()
+espnow_event_status esp_now_remind::check_feedback(MacAddress &Online_slave_mac, uint16_t &unique_id, uint8_t &count)
 {
-    switch (send_state) 
-    {
-        case waiting:
-            if(need_pinning)
-            {
-                send_state = pinning;
-                //清空在线从机
-                Online_slave_mac.clear();
-                pinning_start_time = xTaskGetTickCount();
-                pin_message_unique_id = esp_random() & 0xFFFF;
+    //count 表示发送次数
+    /* retry backoff time (2,4,8,16,32,64,100,100,...)ms */
+    feedback_message_t ack_magic;
+    uint32_t delay_ms = (count < 6 ? 1 << count : 50) * SEND_DELAY_UNIT_MSECS;
+    do {
+        vTaskDelay(pdMS_TO_TICKS(SEND_DELAY_UNIT_MSECS));
+        while (feedback_queue && xQueueReceive(feedback_queue, &ack_magic, 0) == pdPASS) 
+        {
+            if (ack_magic.unique_id == unique_id) {
+                Online_slave_mac.removeByMac(ack_magic.mac);
+                if(Online_slave_mac.count == 0)
+                {
+                    return ESPNOW_EVENT_FEEDBACK_ALL_RECEIVED;
+                }
             }
-            else
-            {
-                send_state = target_sending;
-                Online_slave_mac = Target_slave_mac;
-            }  
-            break;
-        case pinning:
-            // 检查是否超时或者所有从机都在线
-            if ((xTaskGetTickCount() - pinning_start_time >= pdMS_TO_TICKS(PINNING_TIMEOUT_MS)) || 
-                (Online_slave_mac.count == Target_slave_mac.count)) 
-            {
-                // 打印pinning情况
-                Print_pin_situation();                   
-                // 切换到target_sending状态
-                send_state = target_sending;
-            } 
-            else 
-            {
-                // 继续执行pin操作
-                uint8_t broadcast_data = 0;
-                EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC, &broadcast_data, 1, Wakeup_Control_Host2Slave, true, pin_message_unique_id);
-            }
-            break;
-        case target_sending:
-            //发送实际消息
-            EspNowClient::Instance()->send_esp_now_message(BROADCAST_MAC,data,data_len,m_message_type,true,unique_id);
-            break;
-    }
+        }
+        delay_ms -= SEND_DELAY_UNIT_MSECS;
+    }while (delay_ms > 0);
+
+    return ESPNOW_EVENT_FEEDBACK_TIME_OUT;
 }
 
-// 获取在线的从机
-void esp_now_remind_host::get_online_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+espnow_event_status esp_now_remind::check_pining(MacAddress& Target_slave_mac, MacAddress& Online_slave_mac, uint16_t &unique_id, uint8_t &count)
 {
-    if(send_state != pinning) return;
-    //检测是否在target列表中
-    if(Target_slave_mac.exists(slave_mac))
-    {
-        //插入到online列表中
-        if(Online_slave_mac.insert(slave_mac))
-        {   
-            // ESP_LOGI(ESP_NOW, "Added slave " MACSTR " to online list.\n", MAC2STR(slave_mac));
+    //count 表示发送次数
+    /* retry backoff time (2,4,8,16,32,64,100,100,...)ms */
+    feedback_message_t ack_magic;
+    uint32_t delay_ms = (count < 6 ? 1 << count : 50) * SEND_DELAY_UNIT_MSECS;
+    do {
+        vTaskDelay(pdMS_TO_TICKS(SEND_DELAY_UNIT_MSECS));
+        while (feedback_queue && xQueueReceive(feedback_queue, &ack_magic, 0) == pdPASS) 
+        {
+            if (ack_magic.unique_id == unique_id) 
+            {
+                if(Target_slave_mac.exists(ack_magic.mac))
+                {
+                    Online_slave_mac.insert(ack_magic.mac);
+                }
+                if(Target_slave_mac.count == Online_slave_mac.count)
+                {
+                    return ESPNOW_EVENT_FEEDBACK_ALL_RECEIVED;
+                }
+            }
         }
+        delay_ms -= SEND_DELAY_UNIT_MSECS;
+    }while (delay_ms > 0);
+
+    return ESPNOW_EVENT_FEEDBACK_TIME_OUT;
+}
+
+
+
+espnow_event_status esp_now_remind::esp_now_send(uint8_t _send_mac[ESP_NOW_ETH_ALEN], uint8_t* _data, size_t _data_len, 
+                                                message_type _m_message_type, MacAddress _target_mac, bool _need_pinning)
+{
+    if(is_running)
+    {
+        ESP_LOGE(ESP_NOW, "Espnow send is busy");
+        return ESPNOW_EVENT_SEND_BUSY;
+    }
+    is_running = true;
+    //---------------------------------------------------------init----------------------------------------------------------------//
+    memcpy(send_mac, _send_mac, ESP_NOW_ETH_ALEN);
+
+    memcpy(data, _data, _data_len);
+
+    data_len = _data_len;
+
+    m_message_type = _m_message_type;
+
+    Target_slave_mac = _target_mac;
+    Online_slave_mac.clear();
+
+    need_pinning = _need_pinning;
+    if(!need_pinning)
+    {
+        Online_slave_mac = Target_slave_mac;
+    }
+    //清空feedback_queue
+    feedback_message_t temp_msg;
+    while (xQueueReceive(feedback_queue, &temp_msg, pdMS_TO_TICKS(100)) == pdTRUE) {
+        // 循环直到队列为空或超时
+    }
+    espnow_event_status ret = ESPNOW_EVENT_DEFAULT;
+    //---------------------------------------------------------init----------------------------------------------------------------//
+
+
+
+    //---------------------------------------------------------pinning----------------------------------------------------------------//
+    if(need_pinning)
+    {
+        uint16_t pin_unique_id = esp_random()&0xFFFF;
+        TickType_t pinning_start_time = xTaskGetTickCount();
+        uint8_t pin_count = 0;
+        uint8_t pin_data = 0;
+        do{
+            if(EspNowClient::Instance()->send_esp_now_message(send_mac, &pin_data, 1, Wakeup_Control_Host2Slave, true, pin_unique_id))
+            {
+                ret = check_pining(Target_slave_mac, Online_slave_mac, pin_unique_id, pin_count);
+                if(ret == ESPNOW_EVENT_FEEDBACK_ALL_RECEIVED) break;
+                pin_count++;
+            }
+        }while(xTaskGetTickCount() - pinning_start_time < pdMS_TO_TICKS(PINNING_TIME_MSECS));
+
+        Print_pin_situation();
+    }
+
+    if(Online_slave_mac.count == 0)
+    {
+        ret = ESPNOW_EVENT_PINING_NOBODY_ONLINE;
+        is_running = false;
+        ESP_LOGE(ESP_NOW, "No slave online");
+        return ret;
+    }
+    else if(Online_slave_mac.count < Target_slave_mac.count)
+    {
+        ret = ESPNOW_EVENT_PINING_SOMEBODY_ONLINE;
     }
     else
     {
-        ESP_LOGE(ESP_NOW, "Slave " MACSTR " is not in target list", MAC2STR(slave_mac));
+        ret = ESPNOW_EVENT_PINING_ALL_ONLINE;
     }
-}
+    //---------------------------------------------------------sending----------------------------------------------------------------//
 
-// 获取从机反馈,2表示完成，1表示成功，0表示失败
-bool esp_now_remind_host::get_feedback_from_online_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
-{
-    if(send_state != target_sending) return false;
-    if(Online_slave_mac.removeByMac(slave_mac))
-    {
-        // ESP_LOGI(ESP_NOW, "Removed slave " MACSTR " from online list.\n", MAC2STR(slave_mac));
-        if(Online_slave_mac.count == 0)
+
+
+    //---------------------------------------------------------sending----------------------------------------------------------------//
+    uint8_t send_count = 0;
+    uint16_t send_unique_id = esp_random()&0xFFFF;
+    TickType_t send_start_time = xTaskGetTickCount();
+    do{
+        if(EspNowClient::Instance()->send_esp_now_message(send_mac, data, data_len, m_message_type, true, send_unique_id))
         {
-            send_state = waiting;
-            return true;
+            ret = check_feedback(Online_slave_mac, send_unique_id, send_count);
+            if(ret == ESPNOW_EVENT_FEEDBACK_ALL_RECEIVED)break;
+            send_count++;
         }
+    }while(xTaskGetTickCount() - send_start_time < pdMS_TO_TICKS(SENDING_TIME_MSECS));
+
+    if(ret == ESPNOW_EVENT_FEEDBACK_ALL_RECEIVED)
+    {
+        ret = ESPNOW_EVENT_SENDING_SUCCESS;
+    }
+    else
+    {
+        ret = ESPNOW_EVENT_SENDING_TIME_OUT;
     }
 
-    return false;
-}
+    is_running = false;
 
-void esp_now_remind_host::Print_pin_situation()
-{
-    if(send_state != pinning) return;
-    if (Online_slave_mac.count != Target_slave_mac.count) 
-    {
-        ESP_LOGE(ESP_NOW, "Pinning timeout!");
-        // 打印在线从机
-        ESP_LOGE(ESP_NOW, "Online slaves (%d):", Online_slave_mac.count);
-        for(size_t i = 0; i < Online_slave_mac.count; i++) {
-            ESP_LOGE(ESP_NOW, "  - " MACSTR "", MAC2STR(Online_slave_mac.bytes[i]));
-        }
-        
-        // 找出未回复的从机
-        MacAddress offline_slaves;
-        for(size_t i = 0; i < Target_slave_mac.count; i++) 
-        {   
-            if(!Online_slave_mac.exists(Target_slave_mac.bytes[i])) {
-                offline_slaves.insert(Target_slave_mac.bytes[i]);
-            }
-        }
-        // 打印未回复的从机
-        ESP_LOGE(ESP_NOW, "Offline slaves (%d):", offline_slaves.count);
-        for(size_t i = 0; i < offline_slaves.count; i++) {
-            ESP_LOGE(ESP_NOW, "  - " MACSTR "", MAC2STR(offline_slaves.bytes[i]));
-        }
-    } 
-    else 
-    {
-        ESP_LOGI(ESP_NOW, "Pinning finished: All slaves online");
-    }
+    return ret;
+    //---------------------------------------------------------sending----------------------------------------------------------------//
 }

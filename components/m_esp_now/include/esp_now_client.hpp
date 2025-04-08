@@ -17,6 +17,10 @@
 #define MAX_EFFECTIVE_DATA_LEN (ESP_NOW_MAX_DATA_LEN - 1 - 1 - 2 - 1 - 1)
 
 extern uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN];
+//发送回调事件
+#define SEND_CB_OK                      BIT0
+#define SEND_CB_FAIL                    BIT1
+#define MAX_BUFFERED_NUM                10
 
 // 消息类型用7位标识
 // 这里采用优化的结构，http只会从从机发送到主机，主机会根据从机的http请求，发送对应的mqtt信息
@@ -61,7 +65,6 @@ focus_message_t pack_focus_message(uint8_t focus_type, uint16_t focus_time, int 
 void focus_message_to_data(focus_message_t focus_message, uint8_t* data, size_t &data_len);
 focus_message_t data_to_focus_message(uint8_t* data);
 
-
 // 定义ESP-NOW消息结构体
 typedef struct {
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];                   // 发送者的mac地址
@@ -89,7 +92,7 @@ class EspNowClient{
         esp_now_role m_role = default_role;
         void Addpeer(uint8_t peer_chaneel, uint8_t peer_mac[ESP_NOW_ETH_ALEN]);
         void Delpeer(uint8_t peer_mac[ESP_NOW_ETH_ALEN]);
-        void send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id);
+        bool send_esp_now_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint8_t* data, size_t len, message_type type, bool need_feedback, uint16_t unique_id);
         void send_ack_message(uint8_t target_mac[ESP_NOW_ETH_ALEN], uint16_t unique_id);
         void start_find_channel();
         void stop_find_channel();
@@ -111,6 +114,11 @@ class EspNowClient{
         //打印uint8_t数组
         static void print_uint8_array(uint8_t *array, size_t length);
         static uint8_t crc_check(uint8_t *data, int len);
+
+        //维护发送的结构
+        uint32_t send_buffered_num;
+        EventGroupHandle_t send_event_group;
+        SemaphoreHandle_t send_lock;
 };
 
 bool Is_connect_to_host();
