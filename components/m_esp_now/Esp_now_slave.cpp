@@ -90,7 +90,7 @@ static void esp_now_send_update(void *pvParameter)
     TickType_t last_switch_time = xTaskGetTickCount();
     while(1)
     {
-        vTaskDelay(pdMS_TO_TICKS(Esp_Now_Send_Interval));
+        vTaskDelay(pdMS_TO_TICKS(10));
         if(!EspNowSlave::Instance()->get_host_status())
         {
             // 检查是否需要切换信道

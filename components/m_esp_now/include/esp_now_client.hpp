@@ -16,8 +16,6 @@
 //数据最大长度等于减去包头包尾crc和唯一id和标识符
 #define MAX_EFFECTIVE_DATA_LEN (ESP_NOW_MAX_DATA_LEN - 1 - 1 - 2 - 1 - 1)
 
-//1s25个包
-#define Esp_Now_Send_Interval 10
 extern uint8_t BROADCAST_MAC[ESP_NOW_ETH_ALEN];
 
 // 消息类型用7位标识

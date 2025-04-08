@@ -2,7 +2,9 @@
 #define MAC_ADDRESS_HPP
 
 #include "esp_now.h"
+#include "esp_log.h"
 #include <cstring>
+#include "esp_now_client.hpp"
 #define MAX_SLAVE_NUM 6
 
 class MacAddress {

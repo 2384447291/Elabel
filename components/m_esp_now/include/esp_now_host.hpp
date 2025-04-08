@@ -5,40 +5,19 @@
 #include "global_nvs.h"
 #include <algorithm>
 #include <stdio.h>
-#include "freertos/queue.h"
-#include "MacAdrees.hpp"
+#include <deque>
+#include "esp_now_remind.hpp"
 
-#define PINNING_TIMEOUT_MS 2000
-
-enum host_send_state
-{
-    waiting, //没有发送需求，发送心跳即可
-    pinning, //需要唤醒设备
-    target_sending, //发送消息，需要确定接收者
-};
-
-typedef struct {
-    //该次发送的包的唯一id
-    uint16_t unique_id = 0;
-    //发送的数据长度
-    size_t data_len;
-    //发送的数据
-    uint8_t data[MAX_EFFECTIVE_DATA_LEN];
-    //信息类型
-    message_type m_message_type;
-    //需要发送的从机
-    MacAddress Target_slave_mac;
-    //在线的从机
-    MacAddress Online_slave_mac;
-    //是否需要pining
-    bool need_pinning = true;
-} remind_slave_t;
+#define MAX_REMIND_COUNT 10
 
 class EspNowHost {
     public:
         TaskHandle_t host_recieve_update_task_handle = NULL;
         TaskHandle_t host_send_update_task_handle = NULL;
-        QueueHandle_t remind_queue = NULL;  // 提醒队列
+        std::deque<esp_now_remind_host> remind_queue;  // 使用std::deque
+
+        //是否正在处理任务
+        bool is_available = false;
 
         //收到http的相应发送的mqtt更新任务列表
         void Mqtt_update_task_list(uint8_t target_mac[ESP_NOW_ETH_ALEN] = BROADCAST_MAC, bool need_broadcast = false);
@@ -55,21 +34,6 @@ class EspNowHost {
 
         //绑定的从机的数目和地址
         MacAddress Bind_slave_mac;
-        //上次pin的记录
-        MacAddress last_pin_slave_mac;
-
-        
-        //当前正在处理的
-        remind_slave_t current_remind;
-        //发送状态
-        host_send_state send_state = waiting;
-        // 是否正在执行pin操作
-        bool is_pinning = false;
-
-        // 开始pinning的时间
-        TickType_t pinning_start_time = 0;  
-        // pin消息的唯一id
-        uint16_t pin_message_unique_id = 0;
 
         void init();
         void deinit();
@@ -81,44 +45,39 @@ class EspNowHost {
         EspNowHost() {}
 
         // 添加新的remind_slave到队列
-        bool add_remind_to_queue(const remind_slave_t& remind) {
-            if (xQueueSend(remind_queue, &remind, 0) != pdTRUE) {
-                // ESP_LOGW(ESP_NOW, "Remind queue is full!");
+        bool add_remind_to_queue(const esp_now_remind_host& remind) {
+            if (remind_queue.size() >= MAX_REMIND_COUNT) {
+                ESP_LOGW(ESP_NOW, "Remind queue is full!");
                 return false;
             }
-            else
-            {
-                uint16_t queue_length = (uint16_t)uxQueueMessagesWaiting(remind_queue);
-                (void)queue_length;
-                // ESP_LOGI(ESP_NOW, "Add remind to queue, current queue length: %d.\n", queue_length);
-                return true;
-            }
+            remind_queue.push_back(remind);
+            return true;
         }
 
         // 获取当前正在处理的remind_slave
-        bool get_current_remind(remind_slave_t* remind_slave) {
-            if (xQueuePeek(remind_queue, remind_slave, 0) == pdTRUE) {
-                return true;
-            }
-            else
-            {
+        bool get_current_remind(esp_now_remind_host* remind_slave) {
+            if (remind_queue.empty()) {
                 return false;
             }
+            *remind_slave = remind_queue.front();
+            return true;
         }
 
         // 完成当前remind_slave的处理
-        void finish_current_remind() {
-            remind_slave_t temp;
-            if (xQueueReceive(remind_queue, &temp, 0) == pdTRUE) {
-                // 成功删除队列头部的数据
-                ESP_LOGI(ESP_NOW, "Finished processing remind_slave, removed from queue.\n");
+        void finish_current_remind(uint16_t unique_id) {
+            auto it = std::find_if(remind_queue.begin(), remind_queue.end(),
+                [unique_id](const esp_now_remind_host& remind) {
+                    return remind.unique_id == unique_id;
+                });
+            if (it != remind_queue.end()) {
+                remind_queue.erase(it);
             }
         }
+
 
         // 发送心跳绑定包
         void send_bind_heartbeat()
         {
-            if(send_state != waiting) return;
             uint8_t wifi_channel = 0;
             wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
             ESP_ERROR_CHECK(esp_wifi_get_channel(&wifi_channel, &wifi_second_channel));
@@ -137,77 +96,11 @@ class EspNowHost {
         // 添加新的从机到Bind_slave_mac，并存到nvs中
         void Add_new_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
         {
-            //只有在waiting状态才能添加从机
-            if(send_state != waiting) return;
             if(Bind_slave_mac.insert(slave_mac))
             {
                 // 存储从机mac到nvs
                 set_nvs_info_set_slave_mac(Bind_slave_mac.count, &(Bind_slave_mac.bytes[0][0]));
                 ESP_LOGI(ESP_NOW, "Added new slave " MACSTR " to Bind_slave_mac", MAC2STR(slave_mac));
-            }
-        }
-
-        // 获取从机反馈
-        void get_feedback_from_online_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
-        {
-            if(send_state != target_sending) return;
-            if(current_remind.Online_slave_mac.removeByMac(slave_mac))
-            {
-                // ESP_LOGI(ESP_NOW, "Removed slave " MACSTR " from online list.\n", MAC2STR(slave_mac));
-            }
-        }
-
-        // 获取在线的从机
-        void get_online_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
-        {
-            if(send_state != pinning) return;
-            //检测是否在target列表中
-            if(current_remind.Target_slave_mac.exists(slave_mac))
-            {
-                //插入到online列表中
-                if(current_remind.Online_slave_mac.insert(slave_mac))
-                {
-                    // ESP_LOGI(ESP_NOW, "Added slave " MACSTR " to online list.\n", MAC2STR(slave_mac));
-                }
-            }
-            else
-            {
-                ESP_LOGE(ESP_NOW, "Slave " MACSTR " is not in target list", MAC2STR(slave_mac));
-            }
-        }
-
-        // 打印pinning情况
-        void Print_pin_situation()
-        {
-            if(send_state != pinning) return;
-            //记录这次pin的从机
-            last_pin_slave_mac = EspNowHost::Instance()->current_remind.Online_slave_mac;
-            if (EspNowHost::Instance()->current_remind.Online_slave_mac.count != EspNowHost::Instance()->current_remind.Target_slave_mac.count) 
-            {
-                ESP_LOGE(ESP_NOW, "Pinning timeout!");
-                // 打印在线从机
-                ESP_LOGE(ESP_NOW, "Online slaves (%d):", current_remind.Online_slave_mac.count);
-                for(size_t i = 0; i < current_remind.Online_slave_mac.count; i++) {
-                    ESP_LOGE(ESP_NOW, "  - " MACSTR "", MAC2STR(current_remind.Online_slave_mac.bytes[i]));
-                }
-                
-                // 找出未回复的从机
-                MacAddress offline_slaves;
-                for(size_t i = 0; i < current_remind.Target_slave_mac.count; i++) 
-                {   
-                    if(!current_remind.Online_slave_mac.exists(current_remind.Target_slave_mac.bytes[i])) {
-                        offline_slaves.insert(current_remind.Target_slave_mac.bytes[i]);
-                    }
-                }
-                // 打印未回复的从机
-                ESP_LOGE(ESP_NOW, "Offline slaves (%d):", offline_slaves.count);
-                for(size_t i = 0; i < offline_slaves.count; i++) {
-                    ESP_LOGE(ESP_NOW, "  - " MACSTR "", MAC2STR(offline_slaves.bytes[i]));
-                }
-            } 
-            else 
-            {
-                ESP_LOGI(ESP_NOW, "Pinning finished: All slaves online");
             }
         }
 };
