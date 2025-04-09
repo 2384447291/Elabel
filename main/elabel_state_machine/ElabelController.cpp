@@ -156,7 +156,7 @@ void ElabelFsm::HandleInput()
                 //如果当前是主机，还要向从机广播
                 if(get_global_data()->m_is_host == 1)
                 {
-                    EspNowHost::Instance()->Mqtt_update_task_list(BROADCAST_MAC,true);
+                    EspNowHost::Instance()->Mqtt_update_task_list();
                 }
                 //如果当前是选择task界面则刷新，
                 //其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list

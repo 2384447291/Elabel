@@ -3,10 +3,6 @@
 
 #include "esp_now_client.hpp"
 #include "global_nvs.h"
-#include <algorithm>
-#include <stdio.h>
-#include <deque>
-#include "esp_now_remind.hpp"
 
 class EspNowSlave {
     public:   
@@ -24,10 +20,7 @@ class EspNowSlave {
             return &instance;
         }
 
-        TaskHandle_t slave_recieve_update_task_handle = NULL;
         TaskHandle_t slave_send_update_task_handle = NULL; 
-        //用来发送的结构
-        esp_now_remind remind_host;
 
         // 从机发送给主机的http消息
         void slave_send_espnow_http_get_todo_list();
@@ -36,10 +29,25 @@ class EspNowSlave {
         void slave_send_espnow_http_out_focus_task(focus_message_t focus_message);
 
         // 从机收到主机需要怎么反应
-        void slave_respense_espnow_mqtt_get_todo_list(const espnow_packet_t& recv_packet);
-        void slave_respense_espnow_mqtt_get_enter_focus(const espnow_packet_t& recv_packet);
+        void slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size);
+        void slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_out_focus();
-        void slave_respense_espnow_mqtt_get_update_recording(const espnow_packet_t& recv_packet);
+        void slave_respense_espnow_mqtt_get_update_recording(uint8_t* data, size_t size);
+
+        esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)
+        {
+            if(!is_host_connected)
+            {
+                ESP_LOGI(ESP_NOW, "Slave not connected to host");
+                return ESP_FAIL;
+            }
+            uint8_t packet_data[size+1];
+            packet_data[0] = m_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, host_mac, packet_data,
+                      size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            return ret;
+        }
 };
 
 #endif

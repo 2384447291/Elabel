@@ -2,40 +2,29 @@
 #include "esp_now_slave.hpp"
 #include "global_nvs.h"
 #include "codec.hpp"
-static void esp_now_recieve_update(void *pvParameter)
+static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
+                                       size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
-    while (1)
-    {
-        espnow_packet_t recv_packet;  
-        if(xQueueReceive(EspNowClient::Instance()->recv_packet_queue, &recv_packet, portMAX_DELAY) != pdTRUE)
-        {
-            continue;
-        }
+    // ESP_PARAM_CHECK(src_addr);
+    // ESP_PARAM_CHECK(data);
+    // ESP_PARAM_CHECK(size);
+    // ESP_PARAM_CHECK(rx_ctrl);
 
-        EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
-        //处理接收到的信息
-        // ESP_LOGI(ESP_NOW, "Receive data from " MACSTR ", len: %d", MAC2STR(recv_packet.mac_addr), recv_packet.data_len);
-        // EspNowClient::Instance()->print_uint8_array(recv_packet.data, recv_packet.data_len);
-        //处理http的请求，如果收到了，则说明主机收到了请求，从机不用再发了，等待主机的mqtt更新即可
-        if(recv_packet.m_message_type == Feedback_ACK)
-        {
-            uint16_t feedback_unique_id = (recv_packet.data[0] << 8) | recv_packet.data[1];
-            feedback_message_t feedback_message;
-            feedback_message.unique_id = feedback_unique_id;
-            memcpy(feedback_message.mac, recv_packet.mac_addr, ESP_NOW_ETH_ALEN);
-            xQueueSend(EspNowSlave::Instance()->remind_host.feedback_queue, &feedback_message, 0);
-        }
-        else if(recv_packet.m_message_type == Bind_Control_Host2Slave)
-        {
-            if(EspNowSlave::Instance()->is_host_connected)
-            {
-                continue;
-            }
-            ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message unique id: %d", recv_packet.unique_id);
+    uint8_t* data_ptr = (uint8_t*)data;
+    message_type m_message_type = (message_type)(data_ptr[0]);
+    //读取数据
+    data_ptr++;
+    size--;
+    EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
+    if(m_message_type == Bind_Control_Host2Slave)
+    {
+        if(!EspNowSlave::Instance()->is_host_connected)
+        {     
+            ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message.");
             Global_data* global_data = get_global_data();
-            global_data->m_host_channel = recv_packet.data[0];
-            memcpy(global_data->m_userName, &recv_packet.data[1], recv_packet.data_len-1);
-            memcpy(global_data->m_host_mac, (uint8_t*)(recv_packet.mac_addr), ESP_NOW_ETH_ALEN);
+            global_data->m_host_channel = data_ptr[0];
+            memcpy(global_data->m_userName, &data_ptr[1], size-1);
+            memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
             ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
                 global_data->m_userName, 
                 MAC2STR(global_data->m_host_mac), 
@@ -46,27 +35,28 @@ static void esp_now_recieve_update(void *pvParameter)
             set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
             EspNowSlave::Instance()->is_host_connected = true;
         }
-        else if(recv_packet.m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
-        {
-            ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(recv_packet);
-        }
-        else if(recv_packet.m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
-        {
-            ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(recv_packet);
-        }
-        else if(recv_packet.m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
-        {
-            ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
-        }
-        else if(recv_packet.m_message_type == Host2Slave_UpdateRecording_Control_Mqtt)
-        {
-            ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message unique id: %d", recv_packet.unique_id);
-            EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_update_recording(recv_packet);
-        }
     }
+    else if(m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(data_ptr, size);
+    }
+    else if(m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
+    }
+    else if(m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
+    }
+    else if(m_message_type == Host2Slave_UpdateRecording_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message unique id.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_update_recording(data_ptr, size);
+    }
+    return ESP_OK;
 }
 
 static void esp_now_send_update(void *pvParameter)
@@ -97,7 +87,7 @@ static void esp_now_send_update(void *pvParameter)
 
 void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100])
 {
-    if(slave_recieve_update_task_handle != NULL) 
+    if(slave_send_update_task_handle != NULL) 
     {
         ESP_LOGI(ESP_NOW, "Slave already init");
         return;
@@ -116,28 +106,26 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
     //设置信道
     ESP_ERROR_CHECK(esp_wifi_set_channel(this->host_channel, WIFI_SECOND_CHAN_NONE));
     //添加配对host
-    EspNowClient::Instance()->Addpeer(this->host_channel, this->host_mac);
+    espnow_add_peer(host_mac, NULL);
 
-    xTaskCreate(esp_now_recieve_update, "esp_now_slave_recieve_update_task", 4096, NULL, 1, &slave_recieve_update_task_handle);
     xTaskCreate(esp_now_send_update, "esp_now_slave_send_update_task", 4096, NULL, 10, &slave_send_update_task_handle);
 
+    espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Slave_handle);
     ESP_LOGI(ESP_NOW, "Slave init success");
 }
 
 void EspNowSlave::deinit()
 {
-    if(slave_recieve_update_task_handle == NULL) 
+    if(slave_send_update_task_handle == NULL) 
     {
         ESP_LOGI(ESP_NOW, "Slave not init");
         return;
     }
     EspNowClient::Instance()->m_role = default_role;
-    vTaskDelete(slave_recieve_update_task_handle);
     vTaskDelete(slave_send_update_task_handle);
-    slave_recieve_update_task_handle = NULL;
     slave_send_update_task_handle = NULL;
 
-    EspNowClient::Instance()->Delpeer(this->host_mac);
+    espnow_del_peer(this->host_mac);
     ESP_LOGI(ESP_NOW, "Slave deinit success");
 }
 
@@ -145,18 +133,14 @@ void EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     ESP_LOGI(ESP_NOW, "Slave send update task list request message");
     uint8_t temp_data = 0;
-    MacAddress target_mac;
-    target_mac.insert(this->host_mac);
-    remind_host.esp_now_send(this->host_mac, &temp_data, 1, Slave2Host_UpdateTaskList_Request_Http, target_mac, true);
+    send_message(&temp_data, 1, Slave2Host_UpdateTaskList_Request_Http);
 }
 
 void EspNowSlave::slave_send_espnow_http_bind_host_request()
 {
     ESP_LOGI(ESP_NOW, "Slave send bind host request message");
     uint8_t temp_data = 0;
-    MacAddress target_mac;
-    target_mac.insert(this->host_mac);
-    remind_host.esp_now_send(this->host_mac, &temp_data, 1, Slave2Host_Bind_Request_Http, target_mac, true);
+    send_message(&temp_data, 1, Slave2Host_Bind_Request_Http);
 }
 
 void EspNowSlave::slave_send_espnow_http_enter_focus_task(focus_message_t focus_message)
@@ -165,9 +149,7 @@ void EspNowSlave::slave_send_espnow_http_enter_focus_task(focus_message_t focus_
     uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
     size_t temp_data_len = 0;
     focus_message_to_data(focus_message, temp_data, temp_data_len);
-    MacAddress target_mac;
-    target_mac.insert(this->host_mac);
-    remind_host.esp_now_send(this->host_mac, temp_data, temp_data_len, Slave2Host_Enter_Focus_Request_Http, target_mac, true);
+    send_message(temp_data, temp_data_len, Slave2Host_Enter_Focus_Request_Http);
 }
 
 void EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t focus_message)
@@ -176,32 +158,19 @@ void EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t focus_me
     uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
     size_t temp_data_len = 0;
     focus_message_to_data(focus_message, temp_data, temp_data_len);
-    MacAddress target_mac;
-    target_mac.insert(this->host_mac);
-    remind_host.esp_now_send(this->host_mac, temp_data, temp_data_len, Slave2Host_Out_Focus_Request_Http, target_mac, true);
+    send_message(temp_data, temp_data_len, Slave2Host_Out_Focus_Request_Http);
 }
 
 
-void EspNowSlave::slave_respense_espnow_mqtt_get_todo_list(const espnow_packet_t& recv_packet)
+void EspNowSlave::slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size)
 {
-    //-----------------------------------------先判断是否要接这个包-----------------------------------------//
-    uint8_t target_mac[ESP_NOW_ETH_ALEN];
-    memcpy(target_mac, &recv_packet.data[0], ESP_NOW_ETH_ALEN);
-
-    // 如果目标mac不是本机mac且不是广播mac，则忽略
-    if(memcmp(target_mac, get_global_data()->m_mac_uint, ESP_NOW_ETH_ALEN) != 0 && memcmp(target_mac, BROADCAST_MAC, ESP_NOW_ETH_ALEN) != 0)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message for MAC: " MACSTR ", ignore", MAC2STR(target_mac));
-        return;
-    }
-    //-----------------------------------------先判断是否要接这个包-----------------------------------------//
-
+    EspNowClient::Instance()->print_uint8_array(data, size);
     //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
 
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
-    bool clear_flag = recv_packet.data[ESP_NOW_ETH_ALEN + 1];  // 获取清除标志
+    bool clear_flag = data[ESP_NOW_ETH_ALEN + 1];  // 获取清除标志
 
     // 如果是第一个包且需要清除之前的数据
     if(clear_flag) {
@@ -210,21 +179,21 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_todo_list(const espnow_packet_t
 
     // 从数据包中解析任务，注意偏移量需要加上MAC地址的长度 
     size_t offset = ESP_NOW_ETH_ALEN + 2; // MAC地址(6字节) + 头部(2字节)
-    while(offset < recv_packet.data_len) 
+    while(offset < size) 
     {
         // 读取任务长度
-        size_t title_len = recv_packet.data[offset++];
+        size_t title_len = data[offset++];
         
         // 读取任务ID（4字节）
-        uint32_t task_id = (recv_packet.data[offset] << 24) | 
-                          (recv_packet.data[offset + 1] << 16) |
-                          (recv_packet.data[offset + 2] << 8) |
-                          recv_packet.data[offset + 3];
+        uint32_t task_id = (data[offset] << 24) | 
+                          (data[offset + 1] << 16) |
+                          (data[offset + 2] << 8) |
+                          data[offset + 3];
         offset += 4;
 
         // 读取任务内容
         char task_title[50];
-        memcpy(task_title, &recv_packet.data[offset], title_len);
+        memcpy(task_title, &data[offset], title_len);
         task_title[title_len] = '\0';
         offset += title_len;
 
@@ -239,13 +208,13 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_todo_list(const espnow_packet_t
     set_task_list_state(firmware_need_update);
 }
 
-void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(const espnow_packet_t& recv_packet)
+void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size_t size)
 {
     //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
     get_global_data()->m_focus_state->is_focus = 0;
     get_global_data()->m_focus_state->focus_task_id = 0;
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
-    focus_message_t focus_message = data_to_focus_message((uint8_t*)recv_packet.data);
+    focus_message_t focus_message = data_to_focus_message(data);
     ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message, focus type: %d, focus time: %d", focus_message.focus_type, focus_message.focus_time);
 
     TodoItem todo;
@@ -287,21 +256,21 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
     slave_send_espnow_http_get_todo_list();
 }
 
-void EspNowSlave::slave_respense_espnow_mqtt_get_update_recording(const espnow_packet_t& recv_packet)
+void EspNowSlave::slave_respense_espnow_mqtt_get_update_recording(uint8_t* data, size_t size)
 { 
     // 获取包序号（2字节）
-    uint16_t packet_index = (recv_packet.data[0] << 8) | recv_packet.data[1];
+    uint16_t packet_index = (data[0] << 8) | data[1];
     
     // 处理序号为0的信息包
     if (packet_index == 0) {
         // 解析录音数据总大小（4字节）
-        uint32_t total_size = (recv_packet.data[2] << 24) | 
-                             (recv_packet.data[3] << 16) | 
-                             (recv_packet.data[4] << 8) | 
-                             recv_packet.data[5];
+        uint32_t total_size = (data[2] << 24) | 
+                             (data[3] << 16) | 
+                             (data[4] << 8) | 
+                             data[5];
         
         // 解析包的总数量（2字节）
-        uint16_t total_packets = (recv_packet.data[6] << 8) | recv_packet.data[7];
+        uint16_t total_packets = (data[6] << 8) | data[7];
         
         // 重置录音缓冲区
         MCodec::Instance()->recorded_size = 0;
@@ -314,10 +283,10 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_update_recording(const espnow_p
     
     // 处理数据包（序号从1开始）
     // 计算实际数据长度（总长度减去序号字节）
-    size_t data_length = recv_packet.data_len - 2;  
+    size_t data_length = size - 2;  
     // 复制数据到录音缓冲区
     memcpy(&MCodec::Instance()->record_buffer[MCodec::Instance()->recorded_size], 
-           &recv_packet.data[2], data_length);
+           &data[2], data_length);
     // 更新已记录的大小
     MCodec::Instance()->recorded_size += data_length;
     ESP_LOGI(ESP_NOW, "Received data packet %d, size: %d, total recorded: %d/%d", 

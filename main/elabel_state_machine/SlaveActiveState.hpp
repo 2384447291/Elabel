@@ -35,8 +35,6 @@ public:
     {
         EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
         slave_active_process = Slaveactive_test_connect_process;
-        //清零计数开始重新计数
-        EspNowClient::Instance()->m_recieve_packet_count = 0;
         lock_lvgl();
         switch_screen(ui_SlaveActiveScreen);
         lv_obj_add_flag(ui_ConnectingHost, LV_OBJ_FLAG_HIDDEN);

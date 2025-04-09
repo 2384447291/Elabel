@@ -66,25 +66,25 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
 {
     if(slave_active_process == Slaveactive_test_connect_process)
     {
-        if(elabelUpdateTick%20 == 0)
-        {
-            //发送espnow消息来测试连接
-            uint8_t message = 0x00;
-            uint16_t unique_id = esp_random() & 0xFFFF;
-            EspNowClient::Instance()->send_esp_now_message(EspNowSlave::Instance()->host_mac, &message, 1, Slave2Host_Check_Host_Status_Request_Http, true, unique_id);
-        }  
+        // if(elabelUpdateTick%20 == 0)
+        // {
+        //     //发送espnow消息来测试连接
+        //     uint8_t message = 0x00;
+        //     uint16_t unique_id = esp_random() & 0xFFFF;
+        //     EspNowClient::Instance()->send_esp_now_message(EspNowSlave::Instance()->host_mac, &message, 1, Slave2Host_Check_Host_Status_Request_Http, true, unique_id);
+        // }  
 
-        if(elabelUpdateTick%2000 == 0)
-        { 
-            ESP_LOGI("SlaveActiveState", "recieve packet count: %d", EspNowClient::Instance()->m_recieve_packet_count);
-            if(EspNowClient::Instance()->m_recieve_packet_count > 100) EspNowClient::Instance()->m_recieve_packet_count = 100;
-            lock_lvgl();
-            char buffer[32];
-            sprintf(buffer, "Score: %d", EspNowClient::Instance()->m_recieve_packet_count);
-            set_text_without_change_font(ui_ConnectGuide2, buffer);
-            release_lvgl();
-            EspNowClient::Instance()->m_recieve_packet_count = 0;
-        }
+        // if(elabelUpdateTick%2000 == 0)
+        // { 
+        //     ESP_LOGI("SlaveActiveState", "recieve packet count: %d", EspNowClient::Instance()->m_recieve_packet_count);
+        //     if(EspNowClient::Instance()->m_recieve_packet_count > 100) EspNowClient::Instance()->m_recieve_packet_count = 100;
+        //     lock_lvgl();
+        //     char buffer[32];
+        //     sprintf(buffer, "Score: %d", EspNowClient::Instance()->m_recieve_packet_count);
+        //     set_text_without_change_font(ui_ConnectGuide2, buffer);
+        //     release_lvgl();
+        //     EspNowClient::Instance()->m_recieve_packet_count = 0;
+        // }
     }
     else if(slave_active_process == Slaveactive_waiting_connect_process)
     {   
