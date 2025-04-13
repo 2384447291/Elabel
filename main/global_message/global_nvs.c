@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #include "global_nvs.h"
 #include "global_message.h"
 #include "esp_log.h"
@@ -159,6 +160,7 @@ void erase_nvs(void)
 
     // 重新初始化NVS
     ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_LOGI(NVS_TAG,"Erase NVS successfully. \n");
 }
 
 void nvs_init(void)

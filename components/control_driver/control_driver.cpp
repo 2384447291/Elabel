@@ -33,7 +33,7 @@ void ControlDriver::init() {
     Button::register_share_io_2(DEVICE_BUTTON_56, DEVICE_BUTTON_56_CHANNEL, &button5, &button6);
     Button::register_share_io_2(DEVICE_BUTTON_78, DEVICE_BUTTON_78_CHANNEL, &button8, &button7);
     // 创建任务
-    xTaskCreate(controlPanelUpdateTask, "control_panel_update", 4096, nullptr, 10, nullptr);
+    xTaskCreate(controlPanelUpdateTask, "control_panel_update", 4096, nullptr, 0, nullptr);
 }
 
 void ControlDriver::controlPanelUpdateTask(void* parameters) {

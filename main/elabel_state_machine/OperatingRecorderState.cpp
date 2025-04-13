@@ -120,7 +120,7 @@ void OperatingRecorderState::Enter(ElabelController* pOwner)
 
 void OperatingRecorderState::Execute(ElabelController* pOwner)
 {
-    //保证推出后不会有其他问题
+    //保证退出后不会有其他问题
     if(need_out_state) return;
     if(record_process == Record_voice_process)
     {

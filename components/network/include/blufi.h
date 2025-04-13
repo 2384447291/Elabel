@@ -581,7 +581,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                     uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
                     if (descr_value == 0x0001){
                         ESP_LOGI(GATTS_TABLE_TAG, "notify enable");
-                        xTaskCreate(get_state, "get state", 4096, NULL, 10, pBlufi_Task_state);
+                        xTaskCreate(get_state, "get state", 4096, NULL, 0, pBlufi_Task_state);
                         state_notify_flag=true;
                     }
                     else if (descr_value == 0x0000){

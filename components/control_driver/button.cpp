@@ -211,7 +211,7 @@ void Button::register_single_io(gpio_num_t gpio, Button* button)
     };
     gpio_config(&io_conf);
 
-    xTaskCreate(button_single_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_single_task, task_name, 2048, pair, 0, NULL);
 }
 
 // 重载函数 - ADC1 版本
@@ -239,7 +239,7 @@ void Button::register_single_io(gpio_num_t gpio, adc1_channel_t adc1_chan, Butto
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_single_adc1_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_single_adc1_task, task_name, 2048, pair, 0, NULL);
 }
 
 // 重载函数 - ADC2 版本
@@ -266,7 +266,7 @@ void Button::register_single_io(gpio_num_t gpio, adc2_channel_t adc2_chan, Butto
     // ADC2 配置
     adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_single_adc2_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_single_adc2_task, task_name, 2048, pair, 0, NULL);
 }
 //----------------------------------------------单个IO控制一个按钮----------------------------------------------//
 
@@ -461,7 +461,7 @@ void Button::register_share_io_2(gpio_num_t gpio, adc1_channel_t adc1_chan, Butt
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc1_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_adc1_task, task_name, 2048, pair, 0, NULL);
 }
 
 // 重载函数 - ADC2 版本
@@ -490,6 +490,6 @@ void Button::register_share_io_2(gpio_num_t gpio, adc2_channel_t adc2_chan, Butt
     // ADC2 配置
     adc2_config_channel_atten(adc2_chan, ADC_ATTEN_DB_12);
 
-    xTaskCreate(button_adc2_task, task_name, 2048, pair, 5, NULL);
+    xTaskCreate(button_adc2_task, task_name, 2048, pair, 0, NULL);
 }
 //----------------------------------------------单个IO控制两个按钮----------------------------------------------//

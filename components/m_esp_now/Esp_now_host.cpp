@@ -114,13 +114,18 @@ static void recording_send_task(void *pvParameter)
     // // 任务完成后删除自身
     // recording_send_task_handle = NULL;
     // vTaskDelete(NULL);
+    uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
+    for(int i = 0; i < MAX_EFFECTIVE_DATA_LEN; i++)
+    {
+        temp_data[i] = esp_random() & 0xFF;
+    }
+    size_t temp_data_len = MAX_EFFECTIVE_DATA_LEN;
     TickType_t start_time = xTaskGetTickCount();
     for(int i = 0; i < 1000; i++)
     {
-        uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
-        for(int i = 0; i < MAX_EFFECTIVE_DATA_LEN; i++)
+        for(int i = 0; i < EspNowHost::Instance()->Bind_slave_mac.count; i++)
         {
-            temp_data[i] = esp_random() & 0xFF;
+            EspNowHost::Instance()->send_message(temp_data, temp_data_len, default_message_type, EspNowHost::Instance()->Bind_slave_mac.bytes[i]);
         }
         size_t temp_data_len = MAX_EFFECTIVE_DATA_LEN;
         for(int i = 0; i < EspNowHost::Instance()->Bind_slave_mac.count; i++)
@@ -137,16 +142,36 @@ static void recording_send_task(void *pvParameter)
 static esp_err_t Host_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
-    // ESP_PARAM_CHECK(src_addr);
-    // ESP_PARAM_CHECK(data);
-    // ESP_PARAM_CHECK(size);
-    // ESP_PARAM_CHECK(rx_ctrl);
-
     uint8_t* data_ptr = (uint8_t*)data;
     message_type m_message_type = (message_type)(data_ptr[0]);
     //读取数据
     data_ptr++;
     size--;
+
+    //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
+    if(m_message_type == Test_Start_Request_Slave2Host)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Test_Start_Request_Slave2Host from " MACSTR, MAC2STR(src_addr));
+        EspNowClient::Instance()->test_connecting_send_count = 0;
+        espnow_add_peer(src_addr, NULL);
+    }
+    else if(m_message_type == Test_Stop_Request_Slave2Host)
+    {
+        uint8_t temp_data[2];
+        temp_data[0] = EspNowClient::Instance()->test_connecting_send_count & 0xFF;
+        temp_data[1] = (EspNowClient::Instance()->test_connecting_send_count >> 8) & 0xFF;
+        esp_err_t ret;
+        do{
+            ret = EspNowHost::Instance()->send_message(temp_data, 2, Test_Feedback_Host2Slave,src_addr);
+        }while(ret!=ESP_OK);
+        espnow_del_peer(src_addr);
+        ESP_LOGI(ESP_NOW, "Receive Test_Stop_Request_Slave2Host from " MACSTR" , send count: %d", MAC2STR(src_addr),EspNowClient::Instance()->test_connecting_send_count);
+    }
+    else if(m_message_type == default_message_type)
+    {
+        EspNowClient::Instance()->test_connecting_send_count++;
+    }
+    //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
 
     if(m_message_type == Slave2Host_Bind_Request_Http)
     {
@@ -207,7 +232,7 @@ void EspNowHost::init()
     //添加配对设备广播设置0xFF通道
     espnow_add_peer(ESPNOW_ADDR_BROADCAST, NULL);
 
-    xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 10, &host_send_update_task_handle);
+    xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 0, &host_send_update_task_handle);
 
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Host_handle);
     ESP_LOGI(ESP_NOW, "Host init success");

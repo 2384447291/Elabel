@@ -410,7 +410,7 @@ void http_client_init(void)
     m_http_state = send_waiting;
 
     Task_list_Mutex = xSemaphoreCreateMutex();
-    xTaskCreate(http_client_update, "http_client_update", 8192, NULL, 10, phttp_Task_state);
+    xTaskCreate(http_client_update, "http_client_update", 8192, NULL, 0, phttp_Task_state);
 
     m_dealing_task = create_http_task_struct(NO_TASK, NULL, 0 ,false);
 

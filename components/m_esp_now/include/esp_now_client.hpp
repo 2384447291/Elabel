@@ -13,6 +13,12 @@
 
 #define ESPNOW_SEND_MAX_TIMEOUT pdMS_TO_TICKS(2000)
 
+#define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
+
+
+#define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
+
+
 
 //数据最大长度等于内置最大长度 - message类型
 #define MAX_EFFECTIVE_DATA_LEN ESPNOW_SEC_PACKET_MAX_SIZE - 1
@@ -27,6 +33,10 @@ enum message_type
     Bind_Control_Host2Slave, 
     // 唤醒消息
     Wakeup_Control_Host2Slave,
+    // 测试请求消息
+    Test_Start_Request_Slave2Host,
+    Test_Stop_Request_Slave2Host,
+    Test_Feedback_Host2Slave,
 
     // 从机发送给主机的http消息
     Slave2Host_Bind_Request_Http,
@@ -160,18 +170,73 @@ class EspNowClient{
             //只有满足：全局开启 forward_enable、广播包、TTL>0、信号≥阈值、且目标/源都不是自己，
             //则会转发一次，直到forward_ttl为0，并且由于是广播所以没有ack这一说
         };
+
+        //专门用来测试连接的接口
+        espnow_frame_head_t test_send_head = {  
+            .magic            = 0,  
+            .channel          = ESPNOW_CHANNEL_CURRENT,  
+            .filter_adjacent_channel = false,   
+            .filter_weak_signal      = false,
+            .security                = false,
+            .broadcast               = false,                
+            .group                 = false,
+            .ack                   = false,
+            .retransmit_count        = 0,   
+            .forward_ttl           = 0,                  
+            .forward_rssi          = 0,
+        };
+        uint16_t test_connecting_send_count = 0;
         
         //用于切换扫描信道的任务
         TaskHandle_t update_task_handle = NULL;
         void start_find_channel();
-        void stop_find_channel();
+        void stop_find_channel();   
+
+        esp_err_t send_test_message(uint8_t* data, size_t size, const espnow_addr_t dest_addr)
+        {
+            uint8_t packet_data[size+1];
+            packet_data[0] = default_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                      size+1, &EspNowClient::Instance()->test_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            return ret;
+        }
+
+        esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type, const espnow_addr_t dest_addr)
+        {
+            uint8_t packet_data[size+1];
+            packet_data[0] = m_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                      size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            return ret;
+        }
 
         //打印uint8_t数组
         void print_uint8_array(uint8_t *array, size_t length) 
         {
-            // 创建一个字符串缓冲区以存储打印内容
-            char buffer[512]; // 假设最大长度为 256 字节
-            size_t offset = 0;
+            uint8_t packet_data[size+1];
+            packet_data[0] = default_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                      size+1, &EspNowClient::Instance()->test_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            return ret;
+        }
+
+        esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type, const espnow_addr_t dest_addr)
+        {
+            uint8_t packet_data[size+1];
+            packet_data[0] = m_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                      size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            return ret;
+        }
+
+        //打印uint8_t数组
+        static void print_uint8_array(uint8_t *array, size_t length);
+        static uint8_t crc_check(uint8_t *data, int len);
+};
 
             for (size_t i = 0; i < length; i++) {
                 // 将每个元素格式化为十六进制并追加到缓冲区

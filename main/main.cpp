@@ -44,9 +44,12 @@ extern "C" void app_main(void)
     //初始化wifi
     m_wifi_init();
     //连接wifi
-    m_wifi_connect();
-    //创建httpclient更新线程
-    http_client_init();
+    if(get_global_data()->m_is_host == 1)
+    {
+        m_wifi_connect();
+        //创建httpclient更新线程
+        http_client_init();
+    }
     
     //按键初始化
     ControlDriver::Instance()->init();

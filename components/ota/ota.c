@@ -47,5 +47,5 @@ void simple_ota_example_task(void *pvParameter)
 void start_ota(void)
 {
     m_ota_state = ota_ing;
-    xTaskCreate(&simple_ota_example_task, "ota_task", 4096, NULL, 10, NULL);
+    xTaskCreate(&simple_ota_example_task, "ota_task", 4096, NULL, 0, NULL);
 }

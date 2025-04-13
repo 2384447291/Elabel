@@ -10,6 +10,9 @@
 #include "ssd1680.h"
 #include "network.h"
 
+#include "esp_now_host.hpp"
+#include "esp_now_slave.hpp"
+
 #include "OperatingTaskState.hpp"
 #include "ChoosingTaskState.hpp"
 #include "FocusTaskState.hpp"

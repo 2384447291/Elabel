@@ -82,7 +82,7 @@ void espnow_update_task(void* parameters)
 
 void EspNowClient::start_find_channel() {
     if (update_task_handle == NULL) {
-        xTaskCreate(espnow_update_task, "espnow_update_task", 4096, NULL, 10, &update_task_handle);
+        xTaskCreate(espnow_update_task, "espnow_update_task", 4096, NULL, 0, &update_task_handle);
         ESP_LOGI(ESP_NOW, "Started channel finding task");
     }
     else ESP_LOGI(ESP_NOW, "Channel finding task already started");

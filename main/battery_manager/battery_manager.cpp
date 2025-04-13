@@ -125,7 +125,7 @@ void BatteryManager::init() {
     ControlDriver::Instance()->button4.CallbackLongPress.registerCallback(power_off_system);
     
     // 创建电池电量更新线程
-    xTaskCreate(battery_update_task, "battery_update", 3072, this, 10, nullptr);
+    xTaskCreate(battery_update_task, "battery_update", 3072, this, 0, nullptr);
 }
 
 
