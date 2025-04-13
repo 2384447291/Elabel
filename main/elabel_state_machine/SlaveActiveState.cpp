@@ -86,7 +86,11 @@ void SlaveActiveState::stop_test_connecting_task()
 
 void change_slave_active_button_choice()
 {
-    SlaveActiveState::Instance()->Out_ActiveState = true;
+    if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
+    {
+        SlaveActiveState::Instance()->button_slave_active_confirm_left = !SlaveActiveState::Instance()->button_slave_active_confirm_left;
+        SlaveActiveState::Instance()->need_flash_paper = true;
+    }
 }
 
 void confirm_slave_active_button_choice()
@@ -102,6 +106,7 @@ void confirm_slave_active_button_choice()
         get_global_data()->m_is_host = 2;
         //更新nvs
         set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
+        
         SlaveActiveState::Instance()->need_forward = true;
     }
     //如果是在确定激活者的状态
@@ -156,42 +161,6 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
     }
     else if(slave_active_process == Slaveactive_waiting_connect_process)
     {  
-        if(need_flash_paper)
-        {
-            lock_lvgl();
-            //重新刷新按钮
-            if(button_slave_active_confirm_left)
-            {
-                lv_obj_add_state(ui_SlaveActiveCancel, LV_STATE_PRESSED );
-                lv_obj_clear_state(ui_SlaveActiveConfirm, LV_STATE_PRESSED );
-            }
-            else
-            {
-                lv_obj_clear_state(ui_SlaveActiveCancel, LV_STATE_PRESSED );
-                lv_obj_add_state(ui_SlaveActiveConfirm, LV_STATE_PRESSED );
-            }
-            Global_data* global_data = get_global_data();
-            set_text_without_change_font(ui_Username, global_data->m_userName);
-            release_lvgl();
-            need_flash_paper = false;
-        }
-    }
-}   
-
-        // if(elabelUpdateTick%2000 == 0)
-        // { 
-        //     ESP_LOGI("SlaveActiveState", "recieve packet count: %d", EspNowClient::Instance()->m_recieve_packet_count);
-        //     if(EspNowClient::Instance()->m_recieve_packet_count > 100) EspNowClient::Instance()->m_recieve_packet_count = 100;
-        //     lock_lvgl();
-        //     char buffer[32];
-        //     sprintf(buffer, "Score: %d", EspNowClient::Instance()->m_recieve_packet_count);
-        //     set_text_without_change_font(ui_ConnectGuide2, buffer);
-        //     release_lvgl();
-        //     EspNowClient::Instance()->m_recieve_packet_count = 0;
-        // }
-    }
-    else if(slave_active_process == Slaveactive_waiting_connect_process)
-    {   
         if(need_flash_paper)
         {
             lock_lvgl();

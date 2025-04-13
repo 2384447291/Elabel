@@ -359,7 +359,7 @@ void EspNowHost::Start_Mqtt_update_recording()
         "recording_send_task",
         4096,
         NULL,
-        10,
+        0,
         &recording_send_task_handle
     );
     

@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 #include "global_nvs.h"
 #include "global_message.h"
 #include "esp_log.h"

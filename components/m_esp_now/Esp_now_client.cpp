@@ -112,19 +112,31 @@ static esp_err_t Bind_handle(uint8_t *src_addr, void *data,
     size--;
     if(m_message_type == Bind_Control_Host2Slave)
     {
-        Global_data* global_data = get_global_data();
-        global_data->m_host_channel = data_ptr[0];
-        memcpy(global_data->m_userName, &data_ptr[1], size-1);
-        memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
-        ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-            global_data->m_userName, 
-            MAC2STR(global_data->m_host_mac), 
-            global_data->m_host_channel);
-        //更新nvs
-        set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
-        //delay 1s，等待nvs更新
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        EspNowClient::Instance()->is_connect_to_host = true;
+        ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message.");
+        if(!Same_mac(get_global_data()->m_host_mac, (uint8_t*)(src_addr)))
+        {
+            Global_data* global_data = get_global_data();
+            global_data->m_host_channel = data_ptr[0];
+
+            memcpy(global_data->m_userName, &data_ptr[1], size-1);
+            get_global_data()->m_userName[size-1] = '\0';
+            
+            memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
+            ESP_LOGI(ESP_NOW, "Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
+                global_data->m_userName, 
+                MAC2STR(global_data->m_host_mac), 
+                global_data->m_host_channel);
+            //更新nvs
+            set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
+            //保证nvs设置完毕
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            EspNowClient::Instance()->is_connect_to_host = true;
+        }
+    }
+    else if(m_message_type == Test_Feedback_Host2Slave)
+    {
+        EspNowClient::Instance()->test_connecting_send_count = data_ptr[0] | (data_ptr[1] << 8);
+        ESP_LOGI(ESP_NOW, "Test Connecting Send Count: %d", EspNowClient::Instance()->test_connecting_send_count);
     }
 
     return ESP_OK;

@@ -5,8 +5,8 @@
 #include "cJSON.h"
 #include "http.h"
 #include "global_message.h"
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
     // 解析 JSON
@@ -96,25 +96,20 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {   
        // 获取嵌套的 data 对象
         cJSON *data = cJSON_GetObjectItem(json, "data");
-        if (data != NULL) {
-            cJSON *nested_code = cJSON_GetObjectItem(data, "code");
-            if(nested_code->valueint == 1)
-            {
-                ESP_LOGI("HTTP", "This version is newest\n");
-            }
-            else
-            {
-                cJSON *nested_data = cJSON_GetObjectItem(data, "data");
-                if (nested_data != NULL) {
-                    const char *version = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "version"));
-                    const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "deviceModel"));
-                    const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "firmwareUrl"));
-                    const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "createTime"));
-                    memcpy(get_global_data()->m_version, version, strlen(version));
-                    memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
-                    memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
-                    memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-                }
+        if(data->valuestring == NULL){
+            ESP_LOGI("HTTP", "This version is newest\n");
+        }
+        else{
+            cJSON *nested_data = cJSON_GetObjectItem(data, "data");
+            if (nested_data != NULL) {
+                const char *version = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "version"));
+                const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "deviceModel"));
+                const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "firmwareUrl"));
+                const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "createTime"));
+                memcpy(get_global_data()->m_version, version, strlen(version));
+                memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
+                memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
+                memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
             }
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION\n");        

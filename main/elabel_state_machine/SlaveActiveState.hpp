@@ -56,8 +56,6 @@ public:
         test_connect_process = test_connect_process_start;
         start_test_connecting_task();
         need_flash_paper = false;
-<<<<<<< Updated upstream
-=======
     }
 
     void enter_connect_host()
@@ -73,7 +71,6 @@ public:
         lv_obj_clear_state(ui_SlaveActiveCancel, LV_STATE_PRESSED );
         lv_obj_add_state(ui_SlaveActiveConfirm, LV_STATE_PRESSED );
         release_lvgl();
->>>>>>> Stashed changes
     }
 
     static SlaveActiveState* Instance()

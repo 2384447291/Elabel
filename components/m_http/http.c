@@ -199,7 +199,7 @@ bool dequeue(TaskQueue* q, http_task_struct* dealing_task)
         }
         q->front = (q->front + 1) % MAX_TASK_SIZE; // 循环更新队头索引
         xSemaphoreGive(Task_list_Mutex);
-        ESP_LOGI("http_task_list","dequeue:");
+        // ESP_LOGI("http_task_list","dequeue:");
         printTaskList(q);
     }
     return true;
@@ -242,10 +242,10 @@ void printTaskList(TaskQueue *q)
             xSemaphoreGive(Task_list_Mutex);
             return;
         }
-        ESP_LOGI("http_task_list","front is %d, rear is %d.\n", q->front, q->rear);
-        for (int i = q->front; i != q->rear; i = (i + 1) % MAX_TASK_SIZE) {
-            ESP_LOGI("http_task_list","Task %d: para is %p, address is %p , content is %s\n", i, (void*)&(q->data[i]->parament), (void*)(q->data[i]),taskToString(q->data[i]->task));
-        }
+        // ESP_LOGI("http_task_list","front is %d, rear is %d.\n", q->front, q->rear);
+        // for (int i = q->front; i != q->rear; i = (i + 1) % MAX_TASK_SIZE) {
+        //     ESP_LOGI("http_task_list","Task %d: para is %p, address is %p , content is %s\n", i, (void*)&(q->data[i]->parament), (void*)(q->data[i]),taskToString(q->data[i]->task));
+        // }
         xSemaphoreGive(Task_list_Mutex);
     }
 }
@@ -265,16 +265,16 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             ESP_LOGE(HTTP_TAG, "Get_butongbuyang_HTTP_EVENT_ERROR");
             break;
         case HTTP_EVENT_ON_CONNECTED:
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_CONNECTED");
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_CONNECTED");
             break;
         case HTTP_EVENT_HEADER_SENT:
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_HEADER_SENT");
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_HEADER_SENT");
             break;
         case HTTP_EVENT_ON_HEADER:
             break;
         case HTTP_EVENT_ON_DATA:
             m_http_state = send_recieving;
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
             response_buffer = realloc(response_buffer, response_buffer_len + evt->data_len + 1);
             if (response_buffer == NULL) {
                 ESP_LOGE(HTTP_TAG, "Failed to allocate memory for response buffer");
@@ -284,7 +284,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             response_buffer_len += evt->data_len;
             break;
         case HTTP_EVENT_ON_FINISH:
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
             if (response_buffer != NULL) 
             {
                 ESP_LOGI(HTTP_TAG, "Full response: %s", response_buffer);
@@ -297,7 +297,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_DISCONNECTED:
             m_http_state = send_fail;
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_DISCONNECTED");
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_DISCONNECTED");
             break;
     }
     return ESP_OK;

@@ -108,7 +108,7 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
     //添加配对host
     espnow_add_peer(host_mac, NULL);
 
-    xTaskCreate(esp_now_send_update, "esp_now_slave_send_update_task", 4096, NULL, 10, &slave_send_update_task_handle);
+    xTaskCreate(esp_now_send_update, "esp_now_slave_send_update_task", 4096, NULL, 0, &slave_send_update_task_handle);
 
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Slave_handle);
     ESP_LOGI(ESP_NOW, "Slave init success");

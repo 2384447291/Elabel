@@ -197,7 +197,7 @@ void MCodec::start_record()
     recorded_size = 0;
     target_record_size = 0;
     ESP_LOGI(TAG, "Starting recording...");
-    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
+    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 0, &mic_task);
 }
 
 void MCodec::stop_record()
@@ -306,7 +306,7 @@ void MCodec::play_record(const uint8_t* data, size_t size)
 
     ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
              size, (float)size/BytesPerSecond);
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 0, &speaker_task);
 }
 
 void MCodec::stop_play()
