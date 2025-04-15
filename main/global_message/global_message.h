@@ -37,11 +37,11 @@ typedef struct {
     char *title;
     int isPressing;
     char *todoType;
+    int taskType; //0表示默认，1表示纯时间任务，2表示任务，3表示录音任务
     int isComplete;
     long long startTime;
     int fallTiming;
     int isFocus;
-    int foucs_type; //0表示默认，1表示纯时间任务，2表示任务，3表示录音任务
     int isImportant;
 } TodoItem;
 

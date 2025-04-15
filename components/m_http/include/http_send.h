@@ -36,7 +36,7 @@ void http_send(http_task_struct* m_task_struct)
         // 构造 JSON 数据
         cJSON *root = cJSON_CreateObject();
         cJSON_AddStringToObject(root, "title",    m_task_struct->parament[0]);
-        cJSON_AddStringToObject(root, "todoType", m_task_struct->parament[1]);
+        cJSON_AddStringToObject(root, "taskType", m_task_struct->parament[1]);
 
         // 将 JSON 数据转换为字符串
         const char *post_data = cJSON_Print(root);
@@ -276,15 +276,6 @@ void http_send(http_task_struct* m_task_struct)
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
-        // snprintf(body, sizeof(body),
-        //     "--%s\r\n"
-        //     "Content-Disposition: form-data; name=\"userOpenId\"\r\n\r\n"
-        //     "%s\r\n"
-        //     "--%s\r\n"
-        //     "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
-        //     "%s\r\n"
-        //     "--%s--\r\n",
-        //     m_boundary, get_global_data()->usertoken, m_boundary, get_global_data()->mac_str, m_boundary);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求

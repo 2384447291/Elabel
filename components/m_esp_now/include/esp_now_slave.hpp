@@ -32,7 +32,6 @@ class EspNowSlave {
         void slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_out_focus();
-        void slave_respense_espnow_mqtt_get_update_recording(uint8_t* data, size_t size);
 
         esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)
         {

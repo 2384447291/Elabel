@@ -43,8 +43,8 @@ extern "C" void app_main(void)
 
     //初始化wifi
     m_wifi_init();
-    //连接wifi
-    if(get_global_data()->m_is_host == 1)
+    //如果是从机就不需要连接wifi和创建http线程
+    if(get_global_data()->m_is_host != 2)
     {
         m_wifi_connect();
         //创建httpclient更新线程
@@ -61,7 +61,7 @@ extern "C" void app_main(void)
     vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     //初始化espnow
-    EspNowClient::Instance()->init();
+    // EspNowClient::Instance()->init();
 
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;

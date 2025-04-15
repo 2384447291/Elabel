@@ -27,7 +27,6 @@ static void mic_task_func(void* arg) {
 
     // 重置录音大小
     codec->recorded_size = 0;
-    codec->target_record_size = 0;
     should_stop_recording = false;
     
     while(!should_stop_recording) {
@@ -50,7 +49,6 @@ static void mic_task_func(void* arg) {
             ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
         }
     }
-    codec->target_record_size = codec->recorded_size;
     ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", codec->recorded_size);
     //关闭设备
     codec->close_dev();
@@ -195,7 +193,6 @@ void MCodec::start_record()
         return;
     }
     recorded_size = 0;
-    target_record_size = 0;
     ESP_LOGI(TAG, "Starting recording...");
     xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 0, &mic_task);
 }

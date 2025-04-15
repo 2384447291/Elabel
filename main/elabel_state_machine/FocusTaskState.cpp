@@ -12,50 +12,16 @@ void outfocus()
 {
     if(FocusTaskState::Instance()->need_out_focus) return;
     FocusTaskState::Instance()->need_out_focus = true;
-    if(FocusTaskState::Instance()->focus_type == 2 || FocusTaskState::Instance()->focus_type == 0)
+    if(get_global_data()->m_is_host == 1)
     {
-        if(get_global_data()->m_is_host == 1)
-        {
-            char sstr[12];
-            sprintf(sstr, "%d", get_global_data()->m_focus_state->focus_task_id);
-            http_out_focus(sstr,false);
-        }
-        else if(get_global_data()->m_is_host == 2)
-        {
-            focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
-            EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
-        }
+        char sstr[12];
+        sprintf(sstr, "%d", get_global_data()->m_focus_state->focus_task_id);
+        http_out_focus(sstr,false);
     }
-    //因为这两个bro都没上传到服务器所以不用out_focus
-    else if(FocusTaskState::Instance()->focus_type == 1)
+    else if(get_global_data()->m_is_host == 2)
     {
-        if(get_global_data()->m_is_host == 1)
-        {
-            //模拟http+mqtt的out_focus
-            get_global_data()->m_focus_state->is_focus = 2;
-            get_global_data()->m_focus_state->focus_task_id = 0;
-            http_get_todo_list(false);
-        }
-        else if(get_global_data()->m_is_host == 2)
-        {
-            focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
-            EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
-        }
-    }
-    else if(FocusTaskState::Instance()->focus_type == 3)
-    {
-        if(get_global_data()->m_is_host == 1)
-        {
-            //模拟http+mqtt的out_focus
-            get_global_data()->m_focus_state->is_focus = 2;
-            get_global_data()->m_focus_state->focus_task_id = 0;
-            http_get_todo_list(false);
-        }
-        else if(get_global_data()->m_is_host == 2)
-        {
-            focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
-            EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
-        }
+        focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
+        EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
     }
 }
 
@@ -74,7 +40,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
     //获取如何进入的focus状态
     TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-    focus_type = todo->foucs_type;
+    focus_type = todo->taskType;
     ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d", focus_type);
 
     ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(outfocus);
@@ -90,7 +56,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
         else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
     }
     //如果当前是从机，则不需要拿时间戳
-    else
+    else if(get_global_data()->m_is_host == 2)
     {
         pOwner->TimeCountdown = chose_todo->fallTiming;
     }
@@ -103,10 +69,6 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     {
         focus_message_t focus_message = pack_focus_message(focus_type, pOwner->TimeCountdown, get_global_data()->m_focus_state->focus_task_id, todo->title);
         EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
-        if(focus_type == 3)
-        {
-            EspNowHost::Instance()->Start_Mqtt_update_recording();
-        }
     }
 
     //更新屏幕
@@ -130,7 +92,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
         set_text_without_change_font(ui_NoFocusTime, timestr);
     }
-    else if(focus_type == 2 || focus_type == 0)
+    else if(focus_type == 2)
     {
         switch_screen(ui_FocusScreen);
         lv_obj_add_flag(ui_RecordFocus, LV_OBJ_FLAG_HIDDEN);

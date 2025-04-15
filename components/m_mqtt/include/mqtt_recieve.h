@@ -144,7 +144,6 @@ static void solve_message(char *response)
         //我会收到两个outfocus只处理一个不需要回复的那一个
         if(Mqtt_msg.order == Out_focus && Mqtt_msg.isReply == 0)
         {
-            ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A task is done.\n");
             if(get_global_data()->m_focus_state->is_focus == 2) 
             {
                 ESP_LOGE(MQTT_RECIEVE_TAG, "Not in focus yet!!.\n");

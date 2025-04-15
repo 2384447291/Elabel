@@ -5,9 +5,8 @@
 #include "esp_log.h"
 #include "network.h"
 #include "global_message.h"
-#include "freertos/queue.h"
-#include <deque>
 #include "espnow.h"
+#include "codec.hpp"
 
 #define ESP_NOW "ESPNOW"
 
@@ -17,8 +16,6 @@
 //数据最大长度等于内置最大长度 - message类型
 #define MAX_EFFECTIVE_DATA_LEN ESPNOW_SEC_PACKET_MAX_SIZE - 1
 
-// 消息类型用7位标识
-// 这里采用优化的结构，http只会从从机发送到主机，主机会根据从机的http请求，发送对应的mqtt信息
 enum message_type
 {
     default_message_type = 0, 
@@ -31,6 +28,12 @@ enum message_type
     Test_Start_Request_Slave2Host,
     Test_Stop_Request_Slave2Host,
     Test_Feedback_Host2Slave,
+
+    //语音请求消息
+    Voice_Start_Send,
+    Voice_Stop_Send,
+    Voice_Feedback,
+    Voice_Message,
 
     // 从机发送给主机的http消息
     Slave2Host_Bind_Request_Http,
@@ -167,7 +170,7 @@ class EspNowClient{
         // 第三条让他们退出该组，释放资源。
         .ack                   = true,
         //是否开启ack
-        .retransmit_count        = 10,   
+        .retransmit_count        = 15,   
         //重发的次数，当为单播且在没有收到ack               
         //1.发送的流程是从开始调用espnow_send时开始计时，在这段期间，只要没超过wait——ticks会按照(2,4,8,16,32,64,100,100,...)ms的区间循环发送和等待的流程
         //2.如果失败了，没有等到ack则按照retransmit_count重新开始一次发送，直到retransmit_count为0
@@ -215,6 +218,16 @@ class EspNowClient{
         memcpy(&packet_data[1], data, size);
         esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
                     size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+        return ret;
+    }
+
+    esp_err_t send_message_no_ack(uint8_t* data, size_t size, message_type m_message_type, const espnow_addr_t dest_addr)
+    {
+        uint8_t packet_data[size+1];
+        packet_data[0] = m_message_type;
+        memcpy(&packet_data[1], data, size);
+        esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                    size+1, &EspNowClient::Instance()->test_send_head, ESPNOW_SEND_MAX_TIMEOUT);
         return ret;
     }
 };

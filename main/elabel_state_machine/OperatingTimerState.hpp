@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "Esp_now_slave.hpp"
+#include "http.h"
 
 #define CONFIRM_TIMER_TIME 15
 #define RECONFIRM_TIMER_TIME 3
@@ -101,24 +102,25 @@ public:
         time_process = finish_time_process;
         if(get_global_data()->m_is_host == 1)
         {
-            //下面的操作模仿了收到了mqtt和http
-            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
-            get_global_data()->m_focus_state->is_focus = 0;
-            get_global_data()->m_focus_state->focus_task_id = 0;
-
-            TodoItem todo;
-            cleantodoItem(&todo);
-
-            todo.foucs_type = 1;
-            todo.fallTiming = ElabelController::Instance()->TimeCountdown;
-            todo.id = 0;
-            todo.isFocus = 1;
-            todo.startTime = get_unix_time();
-            char title[20] = "Pure Time Task";
-            todo.title = title;
-            clean_todo_list(get_global_data()->m_todo_list);
-            add_or_update_todo_item(get_global_data()->m_todo_list, todo);
-            set_task_list_state(firmware_need_update);
+            http_add_to_do((char*)"Pure Time Task",(char*)"1",true);
+            bool is_add_task = false;
+            int todo_id = 0;
+            do
+            {
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                for(int i = 0; i < get_global_data()->m_todo_list->size; i++)
+                {
+                    if(get_global_data()->m_todo_list->items[i].taskType == 1)
+                    {
+                        is_add_task = true;
+                        todo_id = get_global_data()->m_todo_list->items[i].id;
+                    }
+                }
+            } while (!is_add_task && get_task_list_state() == newest);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            char sstr[12];
+            sprintf(sstr, "%d", todo_id);
+            http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
         }
         else if(get_global_data()->m_is_host == 2)
         {

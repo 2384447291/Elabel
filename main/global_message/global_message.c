@@ -19,17 +19,18 @@ void cleantodoItem(TodoItem* _todoitem)
     _todoitem->createBy = NULL;
     _todoitem->createTime = 0;
     _todoitem->updateBy = NULL;
+    _todoitem->updateTime = 0;
     _todoitem->remark = NULL;
     _todoitem->id = 0;
     _todoitem->title = NULL;
     _todoitem->isPressing = 0;
     _todoitem->todoType = NULL;
+    _todoitem->taskType = 0;
     _todoitem->isComplete = 0;
     _todoitem->startTime = 0;
     _todoitem->fallTiming = 0;
     _todoitem->isFocus = 0;
     _todoitem->isImportant = 0;    
-    _todoitem->foucs_type = 0;
 }
 
 // 根据 ID 查找 TodoItem
@@ -88,7 +89,7 @@ void copy_write_todo_item(TodoItem* src, TodoItem* dst)
     dst->fallTiming = src->fallTiming;
     dst->isFocus = src->isFocus;
     dst->isImportant = src->isImportant;
-    dst->foucs_type = src->foucs_type;
+    dst->taskType = src->taskType;
 }
 
 void clean_todo_list(TodoList *list)
@@ -133,7 +134,7 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
     }
     copy_write_todo_item(&item,&(list->items[list->size]));
     list->size++;
-    ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, focus state is %d, foucs_type is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus, item.foucs_type);
+    ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, foucs_type is %d, Tasktype is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus, item.taskType);
 }
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 
@@ -151,9 +152,10 @@ Global_data* get_global_data() {
         if (instance != NULL) 
         {
             instance->m_is_read_guidance = false;
-            
+
+            instance->m_language = English;       
+
             instance->m_is_host = 0;
-            instance->m_language = English;
 
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));
             instance->m_focus_state->is_focus = 0;
@@ -163,6 +165,7 @@ Global_data* get_global_data() {
             instance->m_todo_list->items = NULL;
             instance->m_todo_list->size = 0;
 
+            memset(instance->m_mac_uint,0, sizeof(instance->m_mac_uint));
             memset(instance->m_mac_str, 0, sizeof(instance->m_mac_str));
 
             memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
@@ -172,8 +175,15 @@ Global_data* get_global_data() {
             
             memset(instance->m_usertoken, 0, sizeof(instance->m_usertoken));
             memset(instance->m_userName, 0, sizeof(instance->m_userName));
+
             memset(instance->m_wifi_password, 0, sizeof(instance->m_wifi_password));            
             memset(instance->m_wifi_ssid, 0, sizeof(instance->m_wifi_ssid));
+
+            //如果是从机保存的主机mac
+            memset(instance->m_host_mac,0, sizeof(instance->m_host_mac));
+            instance->m_host_channel = 0;
+            memset(instance->m_slave_mac,0, sizeof(instance->m_slave_mac)); 
+            instance->m_slave_num = 0;
         }
     }
     return instance;

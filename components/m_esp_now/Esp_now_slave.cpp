@@ -2,6 +2,7 @@
 #include "esp_now_slave.hpp"
 #include "global_nvs.h"
 #include "codec.hpp"
+#include "VoicePacketManager.hpp"
 static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
@@ -51,11 +52,49 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
     }
-    else if(m_message_type == Host2Slave_UpdateRecording_Control_Mqtt)
+    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
+    if(m_message_type == Voice_Start_Send)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateRecording_Control_Mqtt message unique id.");
-        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_update_recording(data_ptr, size);
+        ESP_LOGI(ESP_NOW, "Receive Voice_Start_Send from " MACSTR, MAC2STR(src_addr));
+        uint32_t recorded_size = (data_ptr[0] << 24) | (data_ptr[1] << 16) | (data_ptr[2] << 8) | data_ptr[3];
+        uint16_t packet_num = (data_ptr[4] << 8) | data_ptr[5];
+        MCodec::Instance()->recorded_size = 0;
+        VoicePacketManager::Instance()->total_packets = packet_num;
+        VoicePacketManager::Instance()->voice_size = recorded_size;
     }
+    else if(m_message_type == Voice_Stop_Send)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Voice_Stop_Send from " MACSTR, MAC2STR(src_addr));
+        VoicePacketManager::Instance()->send_voice_feedback(src_addr);
+    }
+    else if(m_message_type == Voice_Message)
+    {
+        uint16_t voice_packet_id = (data_ptr[0] << 8) | data_ptr[1];
+        VoicePacketManager::Instance()->receive_packet(voice_packet_id);
+        memcpy(MCodec::Instance()->record_buffer+(voice_packet_id*(MAX_EFFECTIVE_DATA_LEN-2)), data_ptr+2, size-2);
+    }
+    else if(m_message_type == Voice_Feedback)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Voice_Feedback from " MACSTR, MAC2STR(src_addr));
+        if(VoicePacketManager::Instance()->voice_packet_status == voice_packet_status_feedback)
+        {
+            uint8_t missing_packets_size = data_ptr[0] << 8 | data_ptr[1];
+            if(missing_packets_size == 0)
+            {
+                VoicePacketManager::Instance()->need_send_mac.removeByMac(src_addr);
+            }
+            else
+            {
+                for(int i = 0; i < missing_packets_size; i++)
+                {
+                    uint16_t missing_packet_id = data_ptr[2+i*2] << 8 | data_ptr[3+i*2];
+                    VoicePacketManager::Instance()->receive_packet(missing_packet_id);
+                }
+            }
+            VoicePacketManager::Instance()->voice_packet_status = voice_packet_judge_process;
+        }
+    }
+    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
     return ESP_OK;
 }
 
@@ -220,7 +259,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
     TodoItem todo;
     cleantodoItem(&todo);
 
-    todo.foucs_type = focus_message.focus_type;
+    todo.taskType = focus_message.focus_type;
     todo.fallTiming = focus_message.focus_time;
     todo.id = focus_message.focus_id;
     todo.isFocus = 1;
@@ -254,43 +293,6 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
     set_task_list_state(firmware_need_update);
     //重新拉一下http_todo_list
     slave_send_espnow_http_get_todo_list();
-}
-
-void EspNowSlave::slave_respense_espnow_mqtt_get_update_recording(uint8_t* data, size_t size)
-{ 
-    // 获取包序号（2字节）
-    uint16_t packet_index = (data[0] << 8) | data[1];
-    
-    // 处理序号为0的信息包
-    if (packet_index == 0) {
-        // 解析录音数据总大小（4字节）
-        uint32_t total_size = (data[2] << 24) | 
-                             (data[3] << 16) | 
-                             (data[4] << 8) | 
-                             data[5];
-        
-        // 解析包的总数量（2字节）
-        uint16_t total_packets = (data[6] << 8) | data[7];
-        
-        // 重置录音缓冲区
-        MCodec::Instance()->recorded_size = 0;
-        MCodec::Instance()->target_record_size = total_size;
-        
-        ESP_LOGI(ESP_NOW, "Received info packet: total_size=%d, total_packets=%d", 
-                 total_size, total_packets);
-        return;
-    }
-    
-    // 处理数据包（序号从1开始）
-    // 计算实际数据长度（总长度减去序号字节）
-    size_t data_length = size - 2;  
-    // 复制数据到录音缓冲区
-    memcpy(&MCodec::Instance()->record_buffer[MCodec::Instance()->recorded_size], 
-           &data[2], data_length);
-    // 更新已记录的大小
-    MCodec::Instance()->recorded_size += data_length;
-    ESP_LOGI(ESP_NOW, "Received data packet %d, size: %d, total recorded: %d/%d", 
-             packet_index, data_length, MCodec::Instance()->recorded_size, MCodec::Instance()->target_record_size);
 }
 
 

@@ -16,7 +16,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         return;
     }
     else{
-        ESP_LOGI("HTTP", "Start parse response\n");
+        // ESP_LOGI("HTTP", "Start parse response\n");
     };
 
     // 获取 msg 字段
@@ -70,6 +70,8 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             todo.isPressing = cJSON_GetObjectItem(item, "isPressing")->valueint;
 
             todo.todoType = cJSON_GetStringValue(cJSON_GetObjectItem(item, "todoType"));
+
+            todo.taskType = cJSON_GetObjectItem(item, "taskType")->valueint;
 
             todo.isComplete = cJSON_GetObjectItem(item, "isComplete")->valueint;
 

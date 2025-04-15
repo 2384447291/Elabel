@@ -72,9 +72,6 @@ void InitState::Execute(ElabelController* pOwner)
         HTTP_syset_time();
         //获取挂墙时间
         get_unix_time();
-        
-        //mqtt服务器初始化
-        mqtt_client_init();
 
         //获取最新版本固件
         http_get_latest_version(true);
@@ -116,11 +113,14 @@ void InitState::Execute(ElabelController* pOwner)
         //刷新一下focus状态
         get_global_data()->m_focus_state->is_focus = 0;
         get_global_data()->m_focus_state->focus_task_id = 0;
+        http_bind_user(true);
         http_get_todo_list(true);
         is_init = true;
 
         //初始化EspNowHost
-        EspNowHost::Instance()->init();
+        // EspNowHost::Instance()->init();
+        //mqtt服务器初始化
+        mqtt_client_init();
     }
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)

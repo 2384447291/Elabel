@@ -64,7 +64,6 @@ public:
     // 录音数据
     uint8_t* record_buffer = NULL;  // PSRAM 中的录音缓冲区
     size_t recorded_size = 0;       // 已录制的数据大小
-    size_t target_record_size = 0;  // 目标录音缓冲区大小
 
     // 播放数据
     const uint8_t* play_data = NULL;
