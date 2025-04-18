@@ -177,7 +177,8 @@ void EspNowClient::init(){
         }, 
     };
 
-    espnow_init(&espnow_config);
+    ESP_ERROR_CHECK(espnow_init(&espnow_config));
     // ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_LORA_500K));
-    espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Bind_handle);
+    ESP_ERROR_CHECK(espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Bind_handle));
+    ESP_ERROR_CHECK(esp_now_set_wake_window(100));                     // 监听 100ms，成功率更高
 }

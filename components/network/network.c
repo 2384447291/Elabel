@@ -284,34 +284,34 @@ static void wifi_init_sta(void)
     /* 设置WiFi的工作模式为 AP+STA, 用来兼容espnow  如果单用STA模式，wifi在不工作的时候station模式
     会放弃监听，或者使用也就检测不到espnow消息则无法使用espnow 不设置这个就要设置ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE)
     但是很奇怪不设置这个无法设置esp_wifi_set_protocol*/
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
-    /* 启动WiFi连接 */
-    ESP_ERROR_CHECK(esp_wifi_start());
-    /* 设置wifi存储模式为RAM，不保存wifi信息到flash，默认是保存到flash */
-    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-    /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
-    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-    //设置wifi协议为LR
-    ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
+    // ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
+    // /* 启动WiFi连接 */
+    // ESP_ERROR_CHECK(esp_wifi_start());
+    // /* 设置wifi存储模式为RAM，不保存wifi信息到flash，默认是保存到flash */
+    // ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+    // /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
+    // ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
+    // //设置wifi协议为LR
+    // ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
 
-    // if(get_global_data()->m_is_host ==  1 || get_global_data()->m_is_host ==  0)
-    // {
-    //     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
-    //     /* 启动WiFi连接 */
-    //     ESP_ERROR_CHECK(esp_wifi_start());
-    //     /* 设置wifi存储模式为RAM，不保存wifi信息到flash，默认是保存到flash */
-    //     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-    //     /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
-    //     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-    //     //设置wifi协议为LR
-    //     ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
-    // }
-    // else if(get_global_data()->m_is_host ==  2)
-    // {
-    //     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-    //     ESP_ERROR_CHECK(esp_wifi_start());
-    //     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-    //     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-    // }
+    if(get_global_data()->m_is_host ==  1 || get_global_data()->m_is_host ==  0)
+    {
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA) );
+        /* 启动WiFi连接 */
+        ESP_ERROR_CHECK(esp_wifi_start());
+        /* 设置wifi存储模式为RAM，不保存wifi信息到flash，默认是保存到flash */
+        ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+        /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
+        ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
+        //设置wifi协议为LR
+        ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
+    }
+    else if(get_global_data()->m_is_host ==  2)
+    {
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
+        ESP_ERROR_CHECK(esp_wifi_start());
+        ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+        ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
+    }
     //......................................初始化wifi..........................................//
 }

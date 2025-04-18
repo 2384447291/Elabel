@@ -58,7 +58,6 @@ void mqtt_event_fun(void *event_handler_arg, esp_event_base_t event_base, int32_
             mqtt_response_buffer = NULL;
             mqtt_response_buffer_len = 0;
         }
-
     }
 }
 
@@ -73,8 +72,9 @@ void mqtt_client_init(void)
     esp_mqtt_client_config_t emcct = {
         .uri="mqtt://120.77.1.151",  //MQTT服务器的uri
         .port=1883,                   //MQTT服务器的端口
-        .disable_auto_reconnect = false,
-        .keepalive = 5,//设置心跳间隔
+        .keepalive = 60,              // 保持连接时间
+        .disable_clean_session = 0,   // 启用clean session
+        .disable_auto_reconnect = 0,  // 启用自动重连
     };
     mqtt_client = esp_mqtt_client_init(&emcct);           //初始化MQTT客户端获取句柄
     if(!mqtt_client)  ESP_LOGI(MQTT_TAG,"mqtt init error!\r\n");

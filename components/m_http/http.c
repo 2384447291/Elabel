@@ -145,7 +145,7 @@ bool enqueue_front(TaskQueue *q, http_task_struct *task)
         q->data[q->front] = task; // 将任务插入到新的队头位置
         xSemaphoreGive(Task_list_Mutex);
     }
-    ESP_LOGI("http_task_list","enqueue_front:");
+    // ESP_LOGI("http_task_list","enqueue_front:");
     printTaskList(q);
     return true;
 }
@@ -303,7 +303,52 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-void http_client_sendMsg(http_task_struct* task);
+#define MAX_RETRY_COUNT 3
+#define RETRY_DELAY_MS 1000
+
+void http_client_sendMsg(http_task_struct* task)
+{
+    int retry_count = 0;
+    
+    if(get_global_data()->m_usertoken == NULL) {
+        ESP_LOGE(HTTP_TAG,"No usertoken detect\n");
+        return;
+    }
+
+    while (retry_count < MAX_RETRY_COUNT) {
+        http_send(task);  // http_send是void类型，不需要检查返回值
+        if (m_http_state != send_fail) {
+            return;  // 发送成功
+        }
+        
+        ESP_LOGE(HTTP_TAG, "HTTP request failed (attempt %d/%d)", 
+                 retry_count + 1, MAX_RETRY_COUNT);
+        
+        retry_count++;
+        if (retry_count < MAX_RETRY_COUNT) {
+            vTaskDelay(pdMS_TO_TICKS(RETRY_DELAY_MS));
+            // 重新初始化客户端
+            esp_http_client_cleanup(*get_client());
+            const esp_http_client_config_t config = {
+                .url = "http://120.77.1.151",
+                .event_handler = http_client_event_handler,
+                .timeout_ms = 10000,
+                .buffer_size = 1024,
+                .buffer_size_tx = 1024,
+                .transport_type = HTTP_TRANSPORT_UNKNOWN,
+                .skip_cert_common_name_check = true,
+                .crt_bundle_attach = NULL,
+                .disable_auto_redirect = true,
+                .max_redirection_count = 0,
+                .max_authorization_retries = 3,
+            };
+            client = esp_http_client_init(&config);
+        }
+    }
+    
+    ESP_LOGE(HTTP_TAG, "HTTP request failed after %d attempts", MAX_RETRY_COUNT);
+    m_http_state = send_fail;
+}
 
 
 TaskHandle_t phttp_Task_state;
@@ -332,7 +377,7 @@ void http_client_update(void *Parameters )
             }
             if(need_send)
             {
-                ESP_LOGI(HTTP_TAG, "Start send task %d.",m_dealing_task->task);
+                ESP_LOGI(HTTP_TAG, "Start send task %s.",taskToString(m_dealing_task->task));
                 m_http_state = send_processing;
                 http_client_sendMsg(m_dealing_task);
                 send_processing_start_time = esp_timer_get_time();
@@ -357,6 +402,15 @@ void http_client_update(void *Parameters )
             const esp_http_client_config_t config = {
                 .url = "http://120.77.1.151",
                 .event_handler = http_client_event_handler,
+                .timeout_ms = 10000,                    // 10秒超时
+                .buffer_size = 1024,                    // 接收缓冲区大小
+                .buffer_size_tx = 1024,                 // 发送缓冲区大小
+                .transport_type = HTTP_TRANSPORT_UNKNOWN,
+                .skip_cert_common_name_check = true,    // 跳过证书检查
+                .crt_bundle_attach = NULL,              // 不使用证书包
+                .disable_auto_redirect = true,          // 禁用自动重定向
+                .max_redirection_count = 0,             // 最大重定向次数
+                .max_authorization_retries = 3,         // 最大授权重试次数
             };
             client = esp_http_client_init(&config);
 
@@ -398,6 +452,15 @@ void http_client_init(void)
     const esp_http_client_config_t config = {
         .url = "http://120.77.1.151",
         .event_handler = http_client_event_handler,
+        .timeout_ms = 10000,                    // 10秒超时
+        .buffer_size = 1024,                    // 接收缓冲区大小
+        .buffer_size_tx = 1024,                 // 发送缓冲区大小
+        .transport_type = HTTP_TRANSPORT_UNKNOWN,
+        .skip_cert_common_name_check = true,    // 跳过证书检查
+        .crt_bundle_attach = NULL,              // 不使用证书包
+        .disable_auto_redirect = true,          // 禁用自动重定向
+        .max_redirection_count = 0,             // 最大重定向次数
+        .max_authorization_retries = 3,         // 最大授权重试次数
     };
     client = esp_http_client_init(&config);
     if (client == NULL) {
@@ -418,19 +481,6 @@ void http_client_init(void)
     // get_global_data()->usertoken  = strdup("d7e2be05eece4ce09c74baf798a39b99");
 }
 
-void http_client_sendMsg(http_task_struct* task)
-{
-    if(get_global_data()->m_usertoken == NULL)
-    {
-        ESP_LOGE(HTTP_TAG,"No usertoken detect\n");
-    }
-    else
-    {
-        http_send(task);
-    }
-}
-
-//优先级很高所以都用enqueue_front
 void http_get_todo_list(bool need_stuck)
 {
     set_task_list_state(updating_from_server);

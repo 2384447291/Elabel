@@ -28,8 +28,6 @@ class EspNowHost {
         //mqtt更新任务列表
         void Mqtt_enter_focus(focus_message_t focus_message);
         void Mqtt_out_focus();
-        void Start_Mqtt_update_recording();
-        void Stop_Mqtt_update_recording();
 
         //http的响应函数
         void http_response_enter_focus(uint8_t* data, size_t size);
@@ -53,8 +51,7 @@ class EspNowHost {
             
             // 发送心跳绑定包,没有ack的包无所谓delaytime，包成功的
             esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, ESPNOW_ADDR_BROADCAST, broadcast_data,
-                      total_len, &EspNowClient::Instance()->broadcast_head, portMAX_DELAY);
-            // ESP_ERROR_CONTINUE(ret != ESP_OK, "<%s> espnow_send", esp_err_to_name(ret));
+                      total_len, &EspNowClient::Instance()->broadcast_head, ESPNOW_SEND_MAX_TIMEOUT);
             return ret;
         }
 

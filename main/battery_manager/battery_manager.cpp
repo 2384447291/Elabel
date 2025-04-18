@@ -13,8 +13,8 @@
 #include "ElabelController.hpp"
 #define TAG "BATTERY_MANAGER"
 
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 
 
 static esp_adc_cal_characteristics_t adc_chars;
@@ -79,14 +79,14 @@ void BatteryManager::battery_update_task(void* parameters) {
             continue;
         }
 
-        if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) 
-        {
-            //锁定屏幕
-            lock_lvgl();
-            release_lvgl();
-            power_off_system();
-            ESP_LOGI(TAG, "Battery level is too low, power off system");
-        }
+        // if(BatteryManager::Instance()->getBatteryLevel() <= LOWLEST_VOLTAGE) 
+        // {
+        //     //锁定屏幕
+        //     lock_lvgl();
+        //     release_lvgl();
+        //     power_off_system();
+        //     ESP_LOGI(TAG, "Battery level is too low, power off system");
+        // }
     }
 }
 
@@ -119,20 +119,22 @@ void BatteryManager::init() {
     // 特性曲线校准
     esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN, ADC_WIDTH, 1100, &adc_chars);
 
+    ESP_LOGE("fuck","fuck");
     // 初始化完成后默认开启电源
     setPowerState(true);
 
     ControlDriver::Instance()->button4.CallbackLongPress.registerCallback(power_off_system);
     
     // 创建电池电量更新线程
-    xTaskCreate(battery_update_task, "battery_update", 3072, this, 0, nullptr);
+    // xTaskCreate(battery_update_task, "battery_update", 3072, this, 0, nullptr);
 }
 
 
 void BatteryManager::setPowerState(bool enable) {
     gpio_set_level(BATTERY_POWER_CTRL, enable ? 1 : 0);
+    ESP_ERROR_CHECK(gpio_hold_en(BATTERY_POWER_CTRL));
     powerEnabled = enable;
-    ESP_LOGI(TAG, "Battery power state: %s", enable ? "ON" : "OFF");
+    ESP_LOGE(TAG, "Battery power state: %s", enable ? "ON" : "OFF");
 }
 
 float BatteryManager::getBatteryLevel() {

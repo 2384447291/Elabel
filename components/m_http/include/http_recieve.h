@@ -22,13 +22,13 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     // 获取 msg 字段
     cJSON *msg = cJSON_GetObjectItem(json, "msg");
     if (cJSON_IsString(msg) && (msg->valuestring != NULL)) {
-        ESP_LOGI("HTTP", "Message: %s\n", msg->valuestring);
+        // ESP_LOGI("HTTP", "Message: %s", msg->valuestring);
     }
 
     // 获取 code 字段
     cJSON *code = cJSON_GetObjectItem(json, "code");
     if (cJSON_IsNumber(code)) {
-        ESP_LOGI("HTTP", "Code: %d\n", code->valueint);
+        // ESP_LOGI("HTTP", "Code: %d", code->valueint);
         if(code->valueint != 200)
         {
             *m_http_state = send_fail;
@@ -99,7 +99,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
        // 获取嵌套的 data 对象
         cJSON *data = cJSON_GetObjectItem(json, "data");
         if(data->valuestring == NULL){
-            ESP_LOGI("HTTP", "This version is newest\n");
+            ESP_LOGI("HTTP", "This version is newest");
         }
         else{
             cJSON *nested_data = cJSON_GetObjectItem(data, "data");

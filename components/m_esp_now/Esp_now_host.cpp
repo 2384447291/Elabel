@@ -19,6 +19,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     {
         ESP_LOGI(ESP_NOW, "Receive Test_Start_Request_Slave2Host from " MACSTR, MAC2STR(src_addr));
         EspNowClient::Instance()->test_connecting_send_count = 0;
+
         espnow_add_peer(src_addr, NULL);
     }
     else if(m_message_type == Test_Stop_Request_Slave2Host)

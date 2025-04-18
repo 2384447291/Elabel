@@ -118,7 +118,7 @@ void InitState::Execute(ElabelController* pOwner)
         is_init = true;
 
         //初始化EspNowHost
-        // EspNowHost::Instance()->init();
+        EspNowHost::Instance()->init();
         //mqtt服务器初始化
         mqtt_client_init();
     }

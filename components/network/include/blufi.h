@@ -78,7 +78,7 @@ static uint8_t raw_adv_data[] = {
         0x03, 0x03, 0x11, 0x00,
         /* 0x09 设备名 */
         // Intelligent_TAG
-        0x10, 0x09, 'I', 'n', 't', 'e', 'l', 'l', 'i', 'g', 'e', 'n', 't', '_', 'T', 'a', 'g'
+        0x10, 0x09, 'R', 'e', 'm', 'i', 'n', 'd', 'e', 'r', '-'
 };
 static uint8_t raw_scan_rsp_data[] = {
         /* flags */
