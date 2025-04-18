@@ -185,17 +185,17 @@ void lvgl_modify_task(int position, const char *task_content)
     lv_obj_t *ui_tmpButton = lv_obj_get_child(ui_TaskContainer, position);
     lv_obj_t *ui_Label1 = lv_obj_get_child(ui_tmpButton, 0);
     //获取文本长度
-    size_t len = strlen(task_content);
-    //如果超过13个字符,截断并添加省略号
-    char truncated[14];
-    if(len > 13) {
-        strncpy(truncated, task_content, 13);
-        truncated[10] = '.';
-        truncated[11] = '.';
-        truncated[12] = '.';
-        truncated[13] = '\0';
-        task_content = truncated;
-    }
+    // size_t len = strlen(task_content);
+    // //如果超过13个字符,截断并添加省略号
+    // char truncated[14];
+    // if(len > 13) {
+    //     strncpy(truncated, task_content, 13);
+    //     truncated[10] = '.';
+    //     truncated[11] = '.';
+    //     truncated[12] = '.';
+    //     truncated[13] = '\0';
+    //     task_content = truncated;
+    // }
     set_text_without_change_font(ui_Label1, task_content);
     ESP_LOGI("LVGL","任务%d \"%s\" 修改成功！\n", position, task_content);
 }

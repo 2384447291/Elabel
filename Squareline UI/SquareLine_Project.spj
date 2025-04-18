@@ -2290,7 +2290,7 @@
                                       {
                                         "nid": 10450,
                                         "strtype": "_style/Text_Font",
-                                        "strval": "montserrat_24",
+                                        "strval": "Chinese24",
                                         "InheritedType": 3
                                       }
                                     ],
@@ -2447,7 +2447,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "montserrat_24",
+                                    "strval": "Chinese24",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -2612,8 +2612,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "BUTTON",
-                    "tree_closed": true
+                    "saved_objtypeKey": "BUTTON"
                   },
                   {
                     "guid": "GUID31760985-146635S7813336",
@@ -2728,7 +2727,7 @@
                               {
                                 "nid": 1030,
                                 "strtype": "LABEL/Text",
-                                "strval": "Todo 3",
+                                "strval": "1233",
                                 "InheritedType": 10
                               },
                               {
@@ -2759,7 +2758,7 @@
                                       {
                                         "nid": 10450,
                                         "strtype": "_style/Text_Font",
-                                        "strval": "montserrat_24",
+                                        "strval": "Chinese24",
                                         "InheritedType": 3
                                       }
                                     ],
@@ -2885,7 +2884,7 @@
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "Todo 3",
+                            "strval": "1233",
                             "InheritedType": 10
                           },
                           {
@@ -2916,7 +2915,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "montserrat_24",
+                                    "strval": "Chinese24",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -3081,8 +3080,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "BUTTON",
-                    "tree_closed": true
+                    "saved_objtypeKey": "BUTTON"
                   },
                   {
                     "guid": "GUID57003884-146636S60503336",
@@ -3197,7 +3195,7 @@
                               {
                                 "nid": 1030,
                                 "strtype": "LABEL/Text",
-                                "strval": "Todo 3",
+                                "strval": "我和你",
                                 "InheritedType": 10
                               },
                               {
@@ -3228,7 +3226,7 @@
                                       {
                                         "nid": 10450,
                                         "strtype": "_style/Text_Font",
-                                        "strval": "montserrat_24",
+                                        "strval": "Chinese24",
                                         "InheritedType": 3
                                       }
                                     ],
@@ -3354,7 +3352,7 @@
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "Todo 3",
+                            "strval": "我和你",
                             "InheritedType": 10
                           },
                           {
@@ -3385,7 +3383,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "montserrat_24",
+                                    "strval": "Chinese24",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -3550,8 +3548,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "BUTTON",
-                    "tree_closed": true
+                    "saved_objtypeKey": "BUTTON"
                   }
                 ],
                 "dont_export": false,
@@ -4448,12 +4445,6 @@
                     "InheritedType": 1
                   },
                   {
-                    "nid": 100,
-                    "strtype": "OBJECT/Hidden",
-                    "strval": "True",
-                    "InheritedType": 2
-                  },
-                  {
                     "nid": 110,
                     "strtype": "OBJECT/Clickable",
                     "strval": "False",
@@ -4597,6 +4588,12 @@
                     "flags": 1048576,
                     "strtype": "OBJECT/Flags",
                     "InheritedType": 1
+                  },
+                  {
+                    "nid": 100,
+                    "strtype": "OBJECT/Hidden",
+                    "strval": "True",
+                    "InheritedType": 2
                   },
                   {
                     "nid": 110,
@@ -5132,8 +5129,7 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER",
-            "tree_closed": true
+            "saved_objtypeKey": "CONTAINER"
           }
         ],
         "isPage": true,
@@ -8290,7 +8286,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "montserrat_24",
+                                    "strval": "Chinese24",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -8428,7 +8424,7 @@
                               {
                                 "nid": 10450,
                                 "strtype": "_style/Text_Font",
-                                "strval": "montserrat_24",
+                                "strval": "Chinese24",
                                 "InheritedType": 3
                               }
                             ],
@@ -8441,8 +8437,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "LABEL",
-                    "tree_closed": true
+                    "saved_objtypeKey": "LABEL"
                   },
                   {
                     "guid": "GUID21263617-525718S4012478",
@@ -13567,7 +13562,7 @@
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "fuck you",
+                            "strval": "我爱你",
                             "InheritedType": 10
                           },
                           {
@@ -13598,7 +13593,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "montserrat_32",
+                                    "strval": "Chinese32",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -13724,7 +13719,7 @@
                       {
                         "nid": 1030,
                         "strtype": "LABEL/Text",
-                        "strval": "fuck you",
+                        "strval": "我爱你",
                         "InheritedType": 10
                       },
                       {
@@ -13755,7 +13750,7 @@
                               {
                                 "nid": 10450,
                                 "strtype": "_style/Text_Font",
-                                "strval": "montserrat_32",
+                                "strval": "Chinese32",
                                 "InheritedType": 3
                               }
                             ],
@@ -13768,8 +13763,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "LABEL",
-                    "tree_closed": true
+                    "saved_objtypeKey": "LABEL"
                   }
                 ],
                 "dont_export": false,
@@ -14878,12 +14872,6 @@
                 "InheritedType": 1
               },
               {
-                "nid": 100,
-                "strtype": "OBJECT/Hidden",
-                "strval": "True",
-                "InheritedType": 2
-              },
-              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -14930,8 +14918,7 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER",
-            "tree_closed": true
+            "saved_objtypeKey": "CONTAINER"
           },
           {
             "guid": "GUID5191471-525739S20963478",
@@ -17627,6 +17614,12 @@
                 "InheritedType": 1
               },
               {
+                "nid": 100,
+                "strtype": "OBJECT/Hidden",
+                "strval": "True",
+                "InheritedType": 2
+              },
+              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -17673,7 +17666,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           }
         ],
         "isPage": true,
@@ -17822,7 +17816,7 @@
     "uiExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\components\\ui",
     "projectExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\Squareline UI",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 131,
+    "backup_cnt": 151,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

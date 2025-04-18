@@ -15,7 +15,6 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_width(ui_TaskFocus, 250);
     lv_obj_set_height(ui_TaskFocus, 122);
     lv_obj_set_align(ui_TaskFocus, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_TaskFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_TaskFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_TaskFocus1 = lv_obj_create(ui_TaskFocus);
@@ -28,19 +27,19 @@ void ui_FocusScreen_screen_init(void)
 
     ui_FocusTask = lv_label_create(ui_TaskFocus1);
     lv_obj_set_align(ui_FocusTask, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_FocusTask, "fuck you");
+    lv_label_set_text(ui_FocusTask, "我爱你");
     lv_obj_set_style_text_color(ui_FocusTask, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTask, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTask, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTask, &ui_font_Chinese32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Task = lv_label_create(ui_FocusTask);
     lv_obj_set_x(ui_Task, -1);
     lv_obj_set_y(ui_Task, 0);
     lv_obj_set_align(ui_Task, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Task, "fuck you");
+    lv_label_set_text(ui_Task, "我爱你");
     lv_obj_set_style_text_color(ui_Task, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Task, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Task, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TaskFocus2 = lv_obj_create(ui_TaskFocus);
     lv_obj_set_width(ui_TaskFocus2, 250);
@@ -199,6 +198,7 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_width(ui_NoFocus, 250);
     lv_obj_set_height(ui_NoFocus, 122);
     lv_obj_set_align(ui_NoFocus, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_NoFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_NoFocusTime = lv_label_create(ui_NoFocus);

@@ -242,6 +242,10 @@ LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 
+// FONTS
+LV_FONT_DECLARE(ui_font_Chinese32);
+LV_FONT_DECLARE(ui_font_Chinese24);
+
 // UI INIT
 void ui_init(void);
 
