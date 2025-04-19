@@ -313,16 +313,19 @@ void button_adc1_task(void* arg) {
         bool temp_btn1_state = false;
         bool temp_btn2_state = false;
 
-        // 判断当前状态
-        if (voltage > V_00 - 0.02 && voltage < V_00 + 0.02) {  // 都未按下
+        // 判断当前状态3.2——3.4
+        if (voltage > V_00 - 0.2 && voltage < V_00 + 0.2) {  // 都未按下
             temp_btn1_state = false;
             temp_btn2_state = false;
-        } else if (voltage > V_01 - 0.02 && voltage < V_01 + 0.02) {  // 按下按键1
+        //判断当前状态1.46——1.66
+        } else if (voltage > V_01 - 0.2 && voltage < V_01 + 0.2) {  // 按下按键1
             temp_btn1_state = true;
             temp_btn2_state = false;
-        } else if (voltage > V_10 - 0.1 && voltage < V_10 + 0.05) {  // 按下按键2
+        //判断当前状态0.9025——1.1025
+        } else if (voltage > V_10 - 0.1 && voltage < V_10 + 0.1) {  // 按下按键2
             temp_btn1_state = false;
             temp_btn2_state = true;
+        //判断当前状态0.665——0.865
         } else if (voltage > V_11 - 0.05 && voltage < V_11 + 0.05) {  // 同时按下
             temp_btn1_state = true;
             temp_btn2_state = true;
