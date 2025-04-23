@@ -9,10 +9,8 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_system.h"
-#include "esp_spi_flash.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
-#include "nvs_flash.h"
 
 #ifdef __cplusplus
 extern "C" {

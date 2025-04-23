@@ -61,30 +61,30 @@ public:
 
     bool send_voice_start_message(const espnow_addr_t dest_addr)
     {
-        // 获取录音数据大小
-        uint32_t recorded_size = MCodec::Instance()->recorded_size;
-        voice_size = recorded_size;
+        // // 获取录音数据大小
+        // // uint32_t recorded_size = MCodec::Instance()->recorded_size;
+        // // voice_size = recorded_size;
         
-        // 计算一共要发多少包，向上取整
-        uint16_t packet_num = (recorded_size + (MAX_EFFECTIVE_DATA_LEN - 2) - 1) / (MAX_EFFECTIVE_DATA_LEN - 2);
-        total_packets = packet_num;
+        // // 计算一共要发多少包，向上取整
+        // // uint16_t packet_num = (recorded_size + (MAX_EFFECTIVE_DATA_LEN - 2) - 1) / (MAX_EFFECTIVE_DATA_LEN - 2);
+        // // total_packets = packet_num;
 
-        ESP_LOGI(ESP_NOW, "Recording data size: %d, packet num: %d", recorded_size, packet_num);
-        // 首先发送序号为0的包，告知接收方录音数据总大小和包的总数量
-        uint8_t info_packet[6];
-        // 将录音数据总大小和包的总数量编码到信息包中
-        // 使用4字节存储录音数据总大小，2字节存储包的总数量
-        info_packet[0] = (recorded_size >> 24) & 0xFF;
-        info_packet[1] = (recorded_size >> 16) & 0xFF;
-        info_packet[2] = (recorded_size >> 8) & 0xFF;
-        info_packet[3] = recorded_size & 0xFF;
-        info_packet[4] = (packet_num >> 8) & 0xFF;
-        info_packet[5] = packet_num & 0xFF;
-        esp_err_t ret;
-        ret = EspNowClient::Instance()->send_message(info_packet, 6, Voice_Start_Send, dest_addr);
-        if(ret!=ESP_OK){
-            return false;
-        }
+        // ESP_LOGI(ESP_NOW, "Recording data size: %d, packet num: %d", (int)recorded_size, (int)packet_num);
+        // // 首先发送序号为0的包，告知接收方录音数据总大小和包的总数量
+        // uint8_t info_packet[6];
+        // // 将录音数据总大小和包的总数量编码到信息包中
+        // // 使用4字节存储录音数据总大小，2字节存储包的总数量
+        // info_packet[0] = (recorded_size >> 24) & 0xFF;
+        // info_packet[1] = (recorded_size >> 16) & 0xFF;
+        // info_packet[2] = (recorded_size >> 8) & 0xFF;
+        // info_packet[3] = recorded_size & 0xFF;
+        // info_packet[4] = (packet_num >> 8) & 0xFF;
+        // info_packet[5] = packet_num & 0xFF;
+        // esp_err_t ret;
+        // ret = EspNowClient::Instance()->send_message(info_packet, 6, Voice_Start_Send, dest_addr);
+        // if(ret!=ESP_OK){
+        //     return false;
+        // }
         return true;
     }
 
@@ -113,7 +113,7 @@ public:
         info_packet[0] = (voice_packet_id >> 8) & 0xFF;  // 序号高字节
         info_packet[1] = voice_packet_id & 0xFF;         // 序号低字节
         // 复制实际数据
-        memcpy(&info_packet[2], &MCodec::Instance()->record_buffer[current_data_index], current_packet_size);
+        // memcpy(&info_packet[2], &MCodec::Instance()->record_buffer[current_data_index], current_packet_size);
 
         // 发送数据包
         esp_err_t ret;

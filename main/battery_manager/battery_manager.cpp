@@ -3,7 +3,6 @@
 #include "esp_log.h"
 #include "control_driver.hpp"
 #include "driver/adc.h"
-#include "driver/adc_common.h"
 #include "esp_adc_cal.h"
 #include "global_draw.h"
 #include "freertos/timers.h"

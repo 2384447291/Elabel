@@ -12,15 +12,18 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                         "elabel_state_machine/SlaveActiveState.cpp"
                         "battery_manager/battery_manager.cpp"
                     INCLUDE_DIRS "global_message" "elabel_state_machine" "battery_manager" "spiffs_data/include" "." 
-                    REQUIRES esp_adc_cal
+                    REQUIRES esp_adc
+                    REQUIRES nvs_flash
+
                     REQUIRES lvgl
-                    REQUIRES control_driver
+                    REQUIRES Codec
+
                     REQUIRES lvgl_esp32_drivers
+                    REQUIRES control_driver
                     REQUIRES m_http
                     REQUIRES m_mqtt
                     REQUIRES m_esp_now
                     REQUIRES network
                     REQUIRES ota
                     REQUIRES ui
-                    REQUIRES Codec
                     )

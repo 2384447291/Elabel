@@ -23,9 +23,13 @@ void simple_ota_example_task(void *pvParameter)
 {
     ESP_LOGI(TAG, "Starting OTA example");
 
-    esp_http_client_config_t config = {
+    esp_http_client_config_t http_config = {
         .url = get_global_data()->m_newest_firmware_url,
         .event_handler = simple_http_event_handler,
+    };
+
+    esp_https_ota_config_t config = {
+        .http_config = &http_config,
     };
 
     esp_err_t ret = esp_https_ota(&config);

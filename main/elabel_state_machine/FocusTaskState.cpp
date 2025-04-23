@@ -188,7 +188,5 @@ void FocusTaskState::Exit(ElabelController* pOwner)
     pOwner->ChosenTaskNum = 0;
     pOwner->CenterTaskNum = 0;
     ControlDriver::Instance()->button3.CallbackLongPress.unregisterCallback(outfocus);
-    //清楚一下语音信息
-    MCodec::Instance()->recorded_size = 0;
     ESP_LOGI(STATEMACHINE,"Out FocusTaskState.\n");
 }

@@ -2,6 +2,7 @@
 #include "Esp_now_client.hpp"
 #include "network.h"
 #include "control_driver.hpp"
+#include "esp_random.h"
 
 TaskHandle_t test_connecting_task_handle = NULL;
 bool need_stop_test_connecting = false;

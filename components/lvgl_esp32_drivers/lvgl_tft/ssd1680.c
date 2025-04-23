@@ -6,6 +6,7 @@
 #include "ssd1680.h"
 #include "bitmap.h"
 #include "../ui/ui.h"
+#include "rom/gpio.h"
 
 #undef ESP_LOGI
 #define ESP_LOGI(tag, format, ...) 
@@ -401,11 +402,11 @@ void ssd1680_init(void)
     uint8_t tmpdata = 0;
 
     //设置引脚模式: 调用 gpio_pad_select_gpio 函数后，指定的引脚将被配置为 GPIO 模式，允许你在后续代码中使用该引脚进行输入或输出操作。
-    gpio_pad_select_gpio(SSD1680_DC_PIN);
+    esp_rom_gpio_pad_select_gpio(SSD1680_DC_PIN);
     //设置模式为输出模式
     gpio_set_direction(SSD1680_DC_PIN, GPIO_MODE_OUTPUT);
 
-    gpio_pad_select_gpio(SSD1680_BUSY_PIN);
+    esp_rom_gpio_pad_select_gpio(SSD1680_BUSY_PIN);
     //设置模式为输入模式
     gpio_set_direction(SSD1680_BUSY_PIN,  GPIO_MODE_INPUT);
 
@@ -500,7 +501,7 @@ void ssd1680_deep_sleep(void)
     ssd1680_waitbusy(SSD1680_WAIT);
 
     ssd1680_write_cmd(SSD1680_CMD_SLEEP_MODE1, data, 1);
-    vTaskDelay(100 / portTICK_RATE_MS); // 100ms delay
+    vTaskDelay(pdMS_TO_TICKS(100)); // 100ms delay
     ESP_LOGI(TAG,"Sleep called.\n");
 }
 
@@ -508,13 +509,13 @@ static inline void ssd1680_waitbusy(int wait_ms)
 {
     int i = 0;
 
-    vTaskDelay(10 / portTICK_RATE_MS); // 10ms delay
+    vTaskDelay(pdMS_TO_TICKS(10)); // 10ms delay
 
     for(i = 0; i < (wait_ms*10); i++) {
         if(gpio_get_level(SSD1680_BUSY_PIN) != SSD1680_BUSY_LEVEL) {
             return;
         }
-        vTaskDelay(10 / portTICK_RATE_MS);
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
     ESP_LOGE( TAG, "busy exceeded %dms", i*10 );
 
@@ -528,9 +529,9 @@ static inline void ssd1680_waitbusy(int wait_ms)
 static inline void ssd1680_hw_reset(void)
 {
     gpio_set_level(SSD1680_RST_PIN, 0);
-    vTaskDelay(SSD1680_RESET_DELAY / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(SSD1680_RESET_DELAY));
     gpio_set_level(SSD1680_RST_PIN, 1);
-    vTaskDelay(SSD1680_RESET_DELAY / portTICK_RATE_MS);
+    vTaskDelay(pdMS_TO_TICKS(SSD1680_RESET_DELAY));
 }
 
 /* Set DC signal to command mode */

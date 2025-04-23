@@ -2,11 +2,13 @@
 #include "http_recieve.h"
 #include "global_message.h"
 #include "http_send.h"
+#include "esp_mac.h"
 //--------------------------------------http中控使用的参数--------------------------------------//
 esp_http_client_handle_t client;              //http客户端句柄
 http_state m_http_state;
 TaskQueue m_taskqueue;
 http_task_struct* m_dealing_task;
+TaskHandle_t* phttp_Task_state = NULL;  // 修改这里，添加初始化为NULL
 esp_http_client_handle_t* get_client(void)
 {
     return &client;
@@ -260,6 +262,9 @@ static int response_buffer_len = 0;
 esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
 {
     switch(evt->event_id) {
+        case HTTP_EVENT_REDIRECT:
+            ESP_LOGE(HTTP_TAG, "HTTP_EVENT_REDIRECT");
+            break;
         case HTTP_EVENT_ERROR:
             m_http_state = send_fail;
             ESP_LOGE(HTTP_TAG, "Get_butongbuyang_HTTP_EVENT_ERROR");
@@ -310,7 +315,7 @@ void http_client_sendMsg(http_task_struct* task)
 {
     int retry_count = 0;
     
-    if(get_global_data()->m_usertoken == NULL) {
+    if(get_global_data()->m_usertoken[0]==0) {
         ESP_LOGE(HTTP_TAG,"No usertoken detect\n");
         return;
     }
@@ -351,7 +356,6 @@ void http_client_sendMsg(http_task_struct* task)
 }
 
 
-TaskHandle_t phttp_Task_state;
 void http_client_update(void *Parameters )
 {
     int64_t send_processing_start_time = 0;
@@ -476,9 +480,6 @@ void http_client_init(void)
     xTaskCreate(http_client_update, "http_client_update", 8192, NULL, 0, phttp_Task_state);
 
     m_dealing_task = create_http_task_struct(NO_TASK, NULL, 0 ,false);
-
-    // //暂时放到这里
-    // get_global_data()->usertoken  = strdup("d7e2be05eece4ce09c74baf798a39b99");
 }
 
 void http_get_todo_list(bool need_stuck)

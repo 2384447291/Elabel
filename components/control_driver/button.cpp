@@ -67,7 +67,7 @@ void Button::handle() {
         case State::PRESSED:
             if (isPressed && (currentTime - pressTime >= longPressTime)) {
                 CallbackLongPress.trigger();
-                ESP_LOGI(TAG, "%s long pressed, duration: %u ms", name, currentTime - pressTime);
+                ESP_LOGI(TAG, "%s long pressed, duration: %d ms", name, (int)(currentTime - pressTime));
                 state = State::WAIT_RELEASE;
             }
             break;

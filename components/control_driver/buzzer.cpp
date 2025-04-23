@@ -83,7 +83,6 @@ void Buzzer::init() {
     
     ledc_channel_config(&ledc_channel);
 
-    ESP_LOGI(TAG, "Buzzer initialized on GPIO %d", Buzzer_gpio);
 }
         
 void Buzzer::start(uint32_t frequency) {
@@ -96,7 +95,6 @@ void Buzzer::start(uint32_t frequency) {
     ledc_set_freq(LEDC_LOW_SPEED_MODE, LEDC_TIMER_0, frequency);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
     busy = true;
-    ESP_LOGD(TAG, "Started buzzer at %d Hz", frequency);
 }
 
 void Buzzer::stop() {
@@ -106,14 +104,12 @@ void Buzzer::stop() {
     isPlayingMusic = false;
     currentMusicNotes = nullptr;
     currentMusicLength = 0;
-    ESP_LOGD(TAG, "Stopped buzzer");
 }
 
 void Buzzer::playNote(uint32_t frequency, uint32_t duration_ms) {
     start(frequency);
     startTime = xTaskGetTickCount() * portTICK_PERIOD_MS;
     currentDuration = duration_ms;
-    ESP_LOGD(TAG, "Playing note at %d Hz for %d ms", frequency, duration_ms);
 }
 
 void Buzzer::playMusic(const Note* notes, size_t length) {
@@ -123,7 +119,6 @@ void Buzzer::playMusic(const Note* notes, size_t length) {
         currentMusicNotes = notes;
         currentMusicLength = length;
         playNextNote();
-        ESP_LOGI(TAG, "Started playing music with %d notes", length);
     }
 }
 

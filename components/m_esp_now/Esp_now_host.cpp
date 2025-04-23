@@ -47,7 +47,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         ESP_LOGI(ESP_NOW, "Receive Voice_Start_Send from " MACSTR, MAC2STR(src_addr));
         uint32_t recorded_size = (data_ptr[0] << 24) | (data_ptr[1] << 16) | (data_ptr[2] << 8) | data_ptr[3];
         uint16_t packet_num = (data_ptr[4] << 8) | data_ptr[5];
-        MCodec::Instance()->recorded_size = 0;
+        // MCodec::Instance()->recorded_size = 0;
         VoicePacketManager::Instance()->total_packets = packet_num;
         VoicePacketManager::Instance()->voice_size = recorded_size;
     }
@@ -60,7 +60,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     {
         uint16_t voice_packet_id = (data_ptr[0] << 8) | data_ptr[1];
         VoicePacketManager::Instance()->receive_packet(voice_packet_id);
-        memcpy(MCodec::Instance()->record_buffer+(voice_packet_id*(MAX_EFFECTIVE_DATA_LEN-2)), data_ptr+2, size-2);
+        // memcpy(MCodec::Instance()->record_buffer+(voice_packet_id*(MAX_EFFECTIVE_DATA_LEN-2)), data_ptr+2, size-2);
     }
     else if(m_message_type == Voice_Feedback)
     {

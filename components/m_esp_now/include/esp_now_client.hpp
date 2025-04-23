@@ -7,11 +7,10 @@
 #include "global_message.h"
 #include "espnow.h"
 #include "codec.hpp"
+#include "esp_mac.h"
 
 #define ESP_NOW "ESPNOW"
-
 #define ESPNOW_SEND_MAX_TIMEOUT pdMS_TO_TICKS(2000)
-
 #define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
 //数据最大长度等于内置最大长度 - message类型
 #define MAX_EFFECTIVE_DATA_LEN ESPNOW_SEC_PACKET_MAX_SIZE - 1

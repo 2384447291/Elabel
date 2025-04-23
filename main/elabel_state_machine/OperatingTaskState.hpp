@@ -118,7 +118,7 @@ public:
             focus_message_t focus_message = pack_focus_message(2, ElabelController::Instance()->TimeCountdown, ElabelController::Instance()->ChosenTaskId, chose_todo->title);
             EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
-        ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,ElabelController::Instance()->TimeCountdown);
+        ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,(int)ElabelController::Instance()->TimeCountdown);
     }
 };
 #endif

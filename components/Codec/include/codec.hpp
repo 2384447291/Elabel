@@ -8,7 +8,7 @@
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include <sys/stat.h>
-#include "driver/i2s.h"
+#include "driver/i2s_std.h"
 #include "driver/i2c.h"
 
 #define I2C_PORT I2C_NUM_0
@@ -18,13 +18,10 @@
 #define SPEAKER_SAMPLE_RATE 16000
 #define I2S_CHANNEL_NUM 1
 
-#define RECORD_BUFFER_SIZE (128 * 1024)  // 150KB 的录音缓冲区
-
 typedef enum {
     default_speaker,
     mic,
     music,
-    spiffs,
 } Speakertype;
 
 class MCodec {
@@ -33,8 +30,6 @@ public:
         codec_dev = NULL;
         mic_task = NULL;
         speaker_task = NULL;
-        record_buffer = NULL;
-        recorded_size = 0;
     };
     void init();
     void deinit();
@@ -61,10 +56,6 @@ public:
 
     Speakertype speaker_type = default_speaker;
 
-    // 录音数据
-    uint8_t* record_buffer = NULL;  // PSRAM 中的录音缓冲区
-    size_t recorded_size = 0;       // 已录制的数据大小
-
     // 播放数据
     const uint8_t* play_data = NULL;
     size_t play_data_size = 0;
@@ -78,8 +69,8 @@ public:
         .sample_rate = SPEAKER_SAMPLE_RATE,
         .mclk_multiple = I2S_MCLK_MULTIPLE_256,
     };
-    uint8_t codec_gain = 30;
-    uint8_t codec_vol = 95;
+    uint8_t codec_gain = 25;
+    uint8_t codec_vol = 90;
     
     void open_dev(uint32_t sample_rate)
     {

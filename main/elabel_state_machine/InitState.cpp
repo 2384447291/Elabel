@@ -62,7 +62,7 @@ void InitState::Execute(ElabelController* pOwner)
     if(get_global_data()->m_is_host == 1)
     {
         //如果正在连接或者没有用户，则不进行初始化
-        if(get_wifi_status() == 1 && get_global_data()->m_usertoken!=NULL) return;
+        if(get_wifi_status() == 1 && get_global_data()->m_usertoken[0] != 0) return;
         //如果已经初始化或者需要OTA则不进行初始化
         if(is_init || is_need_ota == 1) return;
 
@@ -118,7 +118,7 @@ void InitState::Execute(ElabelController* pOwner)
         is_init = true;
 
         //初始化EspNowHost
-        EspNowHost::Instance()->init();
+        // EspNowHost::Instance()->init();
         //mqtt服务器初始化
         mqtt_client_init();
     }

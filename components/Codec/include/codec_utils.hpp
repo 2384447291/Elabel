@@ -1,7 +1,7 @@
 #ifndef _CODEC_UTILS_HPP_
 #define _CODEC_UTILS_HPP_
 
-#include "driver/i2s.h"
+#include "driver/i2s_std.h"
 #include "driver/i2c.h"
 #include "esp_codec_dev.h"
 #include "esp_codec_dev_defaults.h"
@@ -24,6 +24,8 @@
 #define I2S_DI_PIN      GPIO_NUM_8
 #define AMP_EN_PIN      GPIO_NUM_38
 
+i2s_chan_handle_t tx_handle;
+i2s_chan_handle_t rx_handle;
 
 void i2c_init(i2c_port_t port)
 {
@@ -41,35 +43,59 @@ void i2c_init(i2c_port_t port)
     ESP_ERROR_CHECK(i2c_driver_install(port, i2c_cfg.mode, 0, 0, 0));
 }
 
+    // i2s_std_config_t std_cfg = {
+    //     .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SPEAKER_SAMPLE_RATE),
+    //     .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(i2s_data_bit_width_t(I2S_BITS_PER_SAMPLE), I2S_SLOT_MODE_MONO),
+    //     .gpio_cfg = {
+    //         .mclk = I2S_MCLK_PIN,
+    //         .bclk = I2S_BCK_PIN,
+    //         .ws = I2S_WS_PIN,
+    //         .dout = I2S_DO_PIN,
+    //         .din = -1,  // 未使用
+    //         .invert_flags = {
+    //             .mclk_inv = false,
+    //             .bclk_inv = false,
+    //             .ws_inv = false,
+    //         },
+    //     },
+
 void i2s_init(i2s_port_t port)
 {
-    //默认的通道数目就是1
-    i2s_config_t i2s_config = {
-        .mode = (i2s_mode_t) (I2S_MODE_TX | I2S_MODE_RX | I2S_MODE_MASTER),
-        .sample_rate = SPEAKER_SAMPLE_RATE,
-        .bits_per_sample = (i2s_bits_per_sample_t)I2S_BITS_PER_SAMPLE,
-        .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL2 | ESP_INTR_FLAG_IRAM,
-        .dma_buf_count = 2,
-        .dma_buf_len = 512,
-        .use_apll = true,
-        .tx_desc_auto_clear = true,
+    //选择i2s外设
+    i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(port, I2S_ROLE_MASTER);
+    //初始化i2s配置
+    i2s_std_config_t std_cfg = {
+        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SPEAKER_SAMPLE_RATE),
+        .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(i2s_data_bit_width_t(I2S_BITS_PER_SAMPLE), I2S_SLOT_MODE_MONO),
+        .gpio_cfg = {
+            .mclk = I2S_MCLK_PIN,
+            .bclk = I2S_BCK_PIN,
+            .ws = I2S_WS_PIN,
+            .dout = I2S_DO_PIN,
+            .din = I2S_DI_PIN,
+            .invert_flags = {
+                .mclk_inv = false,
+                .bclk_inv = false,
+                .ws_inv = false,
+            },
+        },
     };
-    i2s_driver_install(port, &i2s_config, 0, NULL);
-    i2s_pin_config_t i2s_pin_cfg = {
-        .mck_io_num = I2S_MCLK_PIN,
-        .bck_io_num = I2S_BCK_PIN,
-        .ws_io_num = I2S_WS_PIN,
-        .data_out_num = I2S_DO_PIN,
-        .data_in_num = I2S_DI_PIN,
-    };
-    i2s_set_pin(port, &i2s_pin_cfg);
+    //创建I2S通道
+    i2s_new_channel(&chan_cfg, &tx_handle, &rx_handle);
+    //初始化I2S通道
+    i2s_channel_init_std_mode(tx_handle, &std_cfg);
+    i2s_channel_init_std_mode(rx_handle, &std_cfg);
+
+    //使能输入
+    i2s_channel_enable(tx_handle);
+
+    //使能输出
+    i2s_channel_enable(rx_handle);
 }
 
 void i2s_deinit(i2s_port_t port)
 {
-    i2s_driver_uninstall(port);
+    // i2s_driver_uninstall(port);
 } 
 
 
@@ -97,8 +123,8 @@ void esp_codec_init(esp_codec_dev_handle_t &codec_dev)
     //初始化data_if(数据口)
     audio_codec_i2s_cfg_t i2s_cfg = {
         .port = I2S_PORT,
-        .rx_handle = NULL,
-        .tx_handle = NULL,
+        .rx_handle = rx_handle,
+        .tx_handle = tx_handle,
     };
     const audio_codec_data_if_t *data_if = audio_codec_new_i2s_data(&i2s_cfg);
     assert(data_if);
