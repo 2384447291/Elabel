@@ -50,5 +50,5 @@ direct_dependencies:
 - idf
 - lvgl/lvgl
 manifest_hash: f3cd28e0ee836115ff271a9d058d59c81711468461bfa886bb6976c419fa5eea
-target: esp32s3
+target: esp32c6
 version: 2.0.0

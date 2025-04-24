@@ -14,6 +14,7 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                     INCLUDE_DIRS "global_message" "elabel_state_machine" "battery_manager" "spiffs_data/include" "." 
                     REQUIRES esp_adc
                     REQUIRES nvs_flash
+                    REQUIRES esp_driver_gpio
 
                     REQUIRES lvgl
                     REQUIRES Codec

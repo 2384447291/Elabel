@@ -22,7 +22,7 @@
 #define I2S_WS_PIN      GPIO_NUM_18
 #define I2S_DO_PIN      GPIO_NUM_17
 #define I2S_DI_PIN      GPIO_NUM_8
-#define AMP_EN_PIN      GPIO_NUM_38
+#define AMP_EN_PIN      GPIO_NUM_12
 
 i2s_chan_handle_t tx_handle;
 i2s_chan_handle_t rx_handle;

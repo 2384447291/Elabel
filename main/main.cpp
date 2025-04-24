@@ -24,6 +24,10 @@
 #include "esp_bt_main.h"
 #include "esp_bt_device.h"
 #include "esp_wifi.h"
+
+#include "esp_sleep.h"
+#include "esp_pm.h"
+#include "driver/rtc_io.h"
 #undef ESP_LOGI
 #define ESP_LOGI(tag, format, ...) 
 extern "C" void app_main(void)
@@ -37,45 +41,64 @@ extern "C" void app_main(void)
     //获取nvs信息
     get_nvs_info();
 
-    //初始化codec
-    MCodec::Instance()->init();
-    //播放音乐
-    MCodec::Instance()->play_music("open");
-
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-
     //初始化wifi
     m_wifi_init();
-    //如果是从机就不需要连接wifi和创建http线程
-    if(get_global_data()->m_is_host != 2)
-    {
-        m_wifi_connect();
-        //创建httpclient更新线程
-        http_client_init();
-    }
     
-    //按键初始化
-    ControlDriver::Instance()->init();
-
-    //创造gui线程，这里需要绑定到一个核上防止内存被破坏，这里优先绑定到核1上，如果蓝牙和wifi不用的情况下可以绑定到核0上
-    xTaskCreatePinnedToCore(guiTask, "gui", 8192, NULL, 0, NULL, 1);
-    //这里在调用完初始化后会紧跟一个刷新halfmind的函数(写在ui_init()函数里面)，默认为第一个界面
-    //等待2slvgl初始化完成
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-
     //初始化espnow
-    // EspNowClient::Instance()->init();
+    EspNowClient::Instance()->init();
 
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    esp_bluedroid_disable();
+    esp_bt_controller_disable();
+    esp_wifi_stop();
+    // //太神奇了把这个打开之后功耗从340ua降到262ua
+    // esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);   
+    //太叼了不on，off不了，这就是esp32
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+    // esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
 
-    ElabelController::Instance()->Init();//Elabel控制器初始化
-    elabelUpdateTick = 0;
+    esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL32K, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL32K, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_VDDSDIO, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_VDDSDIO, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_CPU, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_CPU, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_MODEM, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_MODEM, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_TOP, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_TOP, ESP_PD_OPTION_OFF);
+
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
+    
+
+    esp_pm_config_t pm_config = {
+            .max_freq_mhz = 80,
+            .min_freq_mhz = 10,
+            //这个表示是否要自动进入light sleep，我们都是手动的所以不用开启
+            .light_sleep_enable = false,
+    };
+    ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
+
+    vTaskDelay(4000 / portTICK_PERIOD_MS);
+
     while(1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
-        elabelUpdateTick += 10;
-        //5ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
-        //初始化的第一个状态机为init_state
-        if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();
+        // 配置定时唤醒时间（微秒）
+        ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(5000000));
+        esp_wifi_start();
+        uint8_t data = 0;
+        
+        esp_wifi_stop();
+        esp_light_sleep_start();
     }
 }

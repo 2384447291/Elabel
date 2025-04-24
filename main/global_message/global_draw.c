@@ -11,6 +11,7 @@
 #include "../../components/ui/ui.h"
 #include "lvgl_helpers.h"
 #include "ssd1680.h"
+#include "esp_timer.h"
 //--------------------------------------lvgl相关的内容-------------------------------------//
 SemaphoreHandle_t xGuiSemaphore;
 void lock_lvgl()
