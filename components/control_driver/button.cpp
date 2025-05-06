@@ -3,6 +3,8 @@
 #include "freertos/task.h"
 #include "callback.hpp"
 #include "driver/adc.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_oneshot.h"
 
 #define TAG "BUTTON"
 #define R0 2.0
@@ -10,11 +12,11 @@
 #define R2 3.0
 
 #define V_BUTTON_0 3.3
-#define V_BUTTON_1 (3.3*(R1/(R0+R1)))
-#define V_BUTTON_2 (3.3*(R2/(R0+R2)))
+#define V_BUTTON_1 (3.3*(R0/(R0+R1)))
+#define V_BUTTON_2 (3.3*(R0/(R0+R2)))
 #define ERROR_RANGE 0.1
 
-#define STATE_DURATION_MS 100
+#define STATE_DURATION_MS 40
 
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
@@ -45,14 +47,8 @@ void Button::handle() {
                 if (!isPressed) {  // 释放
                     CallbackShortPress.trigger();
                     ESP_LOGI(TAG, "%s short pressed", name);
-                    state = State::WAITING_RELEASE;
+                    state = State::IDLE;
                 }
-                else if (currentTime - pressTime >= longPressTime) {
-                    CallbackLongPress.trigger();
-                    ESP_LOGI(TAG, "%s long pressed, duration: %d ms", name, (int)(currentTime - pressTime));
-                    state = State::WAITING_RELEASE;
-                }
-                break;
             case State::WAITING_RELEASE:
                 if (!isPressed) {
                     state = State::IDLE;
@@ -60,15 +56,20 @@ void Button::handle() {
                 break;
         }
     }
+
+    if (state == State::PRESSED && currentTime - pressTime >= longPressTime) {
+        CallbackLongPress.trigger();
+        ESP_LOGI(TAG, "%s long pressed, duration: %d ms", name, (int)(currentTime - pressTime));
+        state = State::WAITING_RELEASE;
+    }
 }
 
 
 //----------------------------------------------单个IO控制三个按钮----------------------------------------------//
 void Button_pair_3::update() 
 {
-    // 单次采样
     int adc_value = adc1_get_raw(adc1_chan);
-    float voltage = adc_value * 3.3 / 4095;
+    float voltage = adc_value / 1000.0f;
 
     // 临时状态变量,默认都是0
     bool temp_button_state[3] = {false, false, false};
@@ -111,23 +112,19 @@ void Button_pair_3::update()
                     button[i]->isPressed = current_button_state[i];
                     button[i]->isrTriggered = true;
                     last_button_state[i] = current_button_state[i];
-                // ESP_LOGI(TAG, "gpio: %d, voltage: %f", pair->gpio, voltage);
                 }
             }
         }
     }
 }
 
-Button_pair_3::Button_pair_3(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button0, Button* button1, Button* button2)
+Button_pair_3::Button_pair_3(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2)
 {    
-    button[0] = button0;
-    button[1] = button1;
-    button[2] = button2;
-    gpio = gpio;
-    adc1_chan = adc1_chan;
-
-    char task_name[32];
-    snprintf(task_name, sizeof(task_name), "button_adc_gpio%d", gpio);
+    button[0] = _button0;
+    button[1] = _button1;
+    button[2] = _button2;
+    gpio = _gpio;
+    adc1_chan = _adc1_chan;
 
     gpio_config_t io_conf = {
         .pin_bit_mask = (1ULL << gpio),
@@ -138,7 +135,6 @@ Button_pair_3::Button_pair_3(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* 
     };
     gpio_config(&io_conf);
 
-    // ADC1 配置
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 }
@@ -161,12 +157,11 @@ void Button_pair_3::clear_state()
 
 void Button_pair_1::update() 
 {
-    // 单次采样
     int adc_value = adc1_get_raw(adc1_chan);
-    float voltage = adc_value * 3.3 / 4095;
+    float voltage = adc_value / 1000.0f;
 
     // 按下是高电平
-    if(voltage > 3.0f && button->isPressed == false)
+    if(voltage > 2.0f && button->isPressed == false)
     {
         button->isrTriggered = true;
         button->isPressed = true;
@@ -178,14 +173,11 @@ void Button_pair_1::update()
     }
 }
 
-Button_pair_1::Button_pair_1(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button)
+Button_pair_1::Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button)
 {    
-    this->button = button;
-    gpio = gpio;
-    adc1_chan = adc1_chan;
-
-    char task_name[32];
-    snprintf(task_name, sizeof(task_name), "button_adc_gpio%d", gpio);
+    this->button = _button;
+    gpio = _gpio;
+    adc1_chan = _adc1_chan;
 
     gpio_config_t io_conf = {
         .pin_bit_mask = (1ULL << gpio),
@@ -196,7 +188,6 @@ Button_pair_1::Button_pair_1(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* 
     };
     gpio_config(&io_conf);
 
-    // ADC1 配置
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
 }

@@ -147,18 +147,25 @@ extern "C" void app_main(void)
     //初始化电池管理
     BatteryManager::Instance()->init();
     //初始化按键
-    ControlDriver::Instance()->init();
+    // ControlDriver::Instance()->init();
     //初始化gui
     Gui_init();
+    //初始化音频
+    MCodec::Instance()->init();
+    MCodec::Instance()->play_music("ding");
     //初始化网络
-    m_wifi_init();
+    // m_wifi_init();
     //初始化espnow
     // EspNowClient::Instance()->init();
     // 等待所有组件初始化完成
-    vTaskDelay(pdMS_TO_TICKS(2000));
+
+
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    suspend_gui();
+    MCodec::Instance()->close_dev();
     
     //用来debug的接口
     while (true) {
-        vTaskDelay(pdMS_TO_TICKS(100));  // 系统可以进入 light sleep
+        vTaskDelay(pdMS_TO_TICKS(2000));  
     }
 }

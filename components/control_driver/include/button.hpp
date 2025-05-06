@@ -43,7 +43,7 @@ public:
 //-------------------------------------------Button_pair_3类定义-------------------------------------------//
 class Button_pair_3 {
 public:
-    Button_pair_3(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button0, Button* button1, Button* button2);
+    Button_pair_3(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2);
     Button* button[3];
     gpio_num_t gpio;
     adc1_channel_t adc1_chan;
@@ -63,7 +63,7 @@ public:
 //----------------------------------------------Button_pair_1类定义----------------------------------------------//
 class Button_pair_1 {
 public:
-    Button_pair_1(gpio_num_t gpio, adc1_channel_t adc1_chan, Button* button);
+    Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button);
     gpio_num_t gpio;
     adc1_channel_t adc1_chan;
     Button* button;
