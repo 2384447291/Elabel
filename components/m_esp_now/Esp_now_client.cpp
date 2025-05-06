@@ -100,11 +100,6 @@ void EspNowClient::stop_find_channel() {
 static esp_err_t Bind_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
-    // ESP_PARAM_CHECK(src_addr);
-    // ESP_PARAM_CHECK(data);
-    // ESP_PARAM_CHECK(size);
-    // ESP_PARAM_CHECK(rx_ctrl);
-
     uint8_t* data_ptr = (uint8_t*)data;
     message_type m_message_type = (message_type)(data_ptr[0]);
     //读取数据
@@ -146,42 +141,12 @@ static esp_err_t Bind_handle(uint8_t *src_addr, void *data,
 
 
 void EspNowClient::init(){
-    ESP_ERROR_CHECK( esp_now_init());    
+    ESP_ERROR_CHECK(esp_now_init());    
     is_connect_to_host = false;
     m_role = default_role;
     update_task_handle = NULL;  // 初始化任务句柄为空
     
-    espnow_config_t espnow_config =  {  
-    .pmk = {'E', 'S', 'P', '_', 'N', 'O', 'W', 0}, 
-    .forward_enable = 0,  //是否开启转发
-    .forward_switch_channel = 0,  //是否开启信道切换
-    .sec_enable = 0,  //是否开启加密
-    .reserved1 = 0,    //保留
-    .qsize = 32,  //发送任务队列的大小
-    .send_retry_num = 10,  //感觉像费案，没有任何地方用
-    .send_max_timeout = ESPNOW_SEND_MAX_TIMEOUT,  
-    //send_max_timeout只用来等待发送队列，一般wait_ticks 要 大于 send_max_timeout
-    //wait_ticks 是整个 espnow_send() 调用的预算，包括了这段时间
-    .receive_enable = { 
-        .ack           = 1,  //是否开启ack
-        .forward       = 0,  //是否开启转发
-        .group         = 0,  //是否开启组播
-        .provisoning   = 0,  //是否开启预设
-        .control_bind  = 0,  //是否开启控制绑定
-        .control_data  = 0,  //是否开启控制数据
-        .ota_status    = 0,  //是否开启ota状态
-        .ota_data      = 0, 
-        .debug_log     = 0, 
-        .debug_command = 0, 
-        .data          = 0, 
-        .sec_status    = 0, 
-        .sec           = 0, 
-        .sec_data      = 0, 
-        .reserved2     = 0, 
-        }, 
-    };
-
     ESP_ERROR_CHECK(espnow_init(&espnow_config));
-    // ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_LORA_500K));
+    ESP_ERROR_CHECK(esp_wifi_config_espnow_rate(WIFI_IF_STA, WIFI_PHY_RATE_LORA_500K));
     ESP_ERROR_CHECK(espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Bind_handle));
 }

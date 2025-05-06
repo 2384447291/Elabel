@@ -9,18 +9,17 @@ class EspNowSlave {
         uint8_t host_mac[ESP_NOW_ETH_ALEN];
         uint8_t host_channel;
         char username[100];
-        bool is_host_connected = false;
         // 上一次收到包的时间
         TickType_t last_recv_heart_time = 0;  
 
         void init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100]);
         void deinit();
+        void suspend_espnow();
+        void resume_espnow();
         static EspNowSlave* Instance() {
             static EspNowSlave instance;
             return &instance;
         }
-
-        TaskHandle_t slave_send_update_task_handle = NULL; 
 
         // 从机发送给主机的http消息
         void slave_send_espnow_http_get_todo_list();
@@ -35,11 +34,6 @@ class EspNowSlave {
 
         esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)
         {
-            if(!is_host_connected)
-            {
-                ESP_LOGI(ESP_NOW, "Slave not connected to host");
-                return ESP_FAIL;
-            }
             uint8_t packet_data[size+1];
             packet_data[0] = m_message_type;
             memcpy(&packet_data[1], data, size);

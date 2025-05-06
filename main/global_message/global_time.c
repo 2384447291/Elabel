@@ -13,52 +13,6 @@ bool is_syset_time = false;
 time_t now = 0;
 struct tm timeinfo = {0};
 uint32_t elabelUpdateTick = 0;
-//--------------------------------------SNTP时间同步函数-----------------------------------------//
-// void initialize_sntp(void)
-// {
-//     ESP_LOGI("UNIX TIME", "Initializing SNTP");
-//     esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
-//     sntp_setservername(0, "cn.pool.ntp.org");
-//     sntp_setservername(1, "210.72.145.44");		// 国家授时中心服务器 IP 地址
-//     sntp_setservername(2, "ntp.aliyun.com");   
-
-//     #ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
-//         sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
-//     #endif
-//     esp_sntp_init();
-// }
-
-// void inner_syset()
-// {
-//     initialize_sntp();
-
-//     int retry = 0;
-
-//     // 等待时间同步完成
-//     while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 200) {
-//         vTaskDelay(5000 / portTICK_PERIOD_MS);
-//         ESP_LOGE("SNTP_SYTIME", "Waiting for system time to be set... (%d/%d)", retry, 200);
-//     }
-
-//     ESP_LOGI("UNIX TIME", "System time synchronized successfully.");
-//     is_syset_time = true;
-//     vTaskDelete(NULL);
-//     // wait for time to be set
-// }
-
-// void obtain_time(void *pvParameter)
-// {
-//     inner_syset();
-// }
-
-// void SNTP_syset_time(void)
-// {
-//     xTaskCreate(&obtain_time, "obtain_time", 4096, NULL, 10, NULL);
-// }
-//--------------------------------------SNTP时间同步函数------------------------------------------//
-
-
-
 
 //--------------------------------------http时间同步函数-----------------------------------------//
 // 定义一个静态缓冲区来存储接收的数据

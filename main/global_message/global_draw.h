@@ -18,12 +18,12 @@ void release_lvgl();
 void Inituilock();
 void update_lvgl_task_list(int chose_task);
 void guiTask(void *pvParameter);
-void Change_All_language();
 void switch_screen(lv_obj_t* new_screen);
-
-void set_text_with_change_font(lv_obj_t * target_label,  const char * text, bool Is_bigger);
 void set_text_without_change_font(lv_obj_t * target_label,  const char * text);
 
+void Gui_init();
+void suspend_gui();
+void resume_gui();
 #ifdef __cplusplus
 }
 #endif

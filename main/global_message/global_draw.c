@@ -43,27 +43,34 @@ void periodic_timer_callback(void *arg) {
     lv_tick_inc(1);
 }
 
-int16_t ChooseTask_big_height = 32;
-int16_t ChooseTask_big_width = 209;
-int16_t ChooseTask_small_height = 32;
-int16_t ChooseTask_small_width = 192;
+esp_timer_handle_t periodic_timer = NULL;
 
-uint8_t get_button_size(Button_type button_type)
+void start_lvgl_tick_timer(void)
 {
-    switch(button_type)
+    if (periodic_timer == NULL) {
+        const esp_timer_create_args_t periodic_timer_args = {
+            .callback = periodic_timer_callback,
+            .arg = NULL,
+            .dispatch_method = ESP_TIMER_TASK,
+            .name = "periodic_gui",
+            .skip_unhandled_events = false
+        };
+        ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+    }
+    if(!esp_timer_is_active(periodic_timer))
     {
-        case Btn_ChooseTask_big_height:
-            return ChooseTask_big_height;
-        case Btn_ChooseTask_big_width:
-            return ChooseTask_big_width;
-        case Btn_ChooseTask_small_height:
-            return ChooseTask_small_height;
-        case Btn_ChooseTask_small_width:
-            return ChooseTask_small_width;
-        default:
-            return 0;
+        ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 1 * 1000));
     }
 }
+
+void stop_lvgl_tick_timer(void)
+{
+    if (periodic_timer != NULL && esp_timer_is_active(periodic_timer)) {
+        ESP_ERROR_CHECK(esp_timer_stop(periodic_timer));
+    }
+}
+
+//--------------------------------------lvgl主任务-------------------------------------//
 void guiTask(void *pvParameter) {
     (void) pvParameter;
     Inituilock();
@@ -125,15 +132,7 @@ void guiTask(void *pvParameter) {
 
 
     //--------------创建并启动一个定时器，用于定期调用 lv_tick_task 函数(每隔 1 毫秒触发一次),来告诉lvgl过了1ms--------------//
-    esp_timer_handle_t periodic_timer;
-    const esp_timer_create_args_t periodic_timer_args = {
-      .callback = periodic_timer_callback,
-        .arg = NULL,  // 替换 nullptr 为 NULL
-        .dispatch_method = ESP_TIMER_TASK,
-        .name = "periodic_gui",
-        .skip_unhandled_events = false};
-    ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, 1 * 1000));
+    start_lvgl_tick_timer();
     //--------------创建并启动一个定时器，用于定期调用 lv_tick_task 函数(每隔 1 毫秒触发一次),来告诉lvgl过了1ms--------------//
 
 
@@ -157,25 +156,34 @@ void guiTask(void *pvParameter) {
     #endif
     vTaskDelete(NULL);
 }
+
+
+TaskHandle_t gui_task_handle = NULL;
+
+void Gui_init()
+{
+    if(gui_task_handle == NULL)
+    {
+        xTaskCreate(guiTask, "gui", 8192, NULL, 0, &gui_task_handle);
+    }
+    else
+    {
+        ESP_LOGE("gui", "gui task already exists");
+    }
+}
+
+void suspend_gui()
+{
+    stop_lvgl_tick_timer();
+    vTaskSuspend(gui_task_handle);
+}
+
+void resume_gui()
+{
+    start_lvgl_tick_timer();
+    vTaskResume(gui_task_handle);
+}
 //--------------------------------------lvgl主任务-------------------------------------//
-
-
-
-//--------------------------------------获取语言字体-------------------------------------//
-// const lv_font_t* get_language_font(bool Is_bigger)
-// {
-//     switch(get_global_data()->m_language) {
-//         case Chinese:
-//             if(Is_bigger) return &ui_font_Chinese_28;
-//             else return &ui_font_Chinese_20;
-//         case English:
-//         default:
-//             if(Is_bigger) return &lv_font_montserrat_20;
-//             else return &lv_font_montserrat_16;
-//     }
-// }
-//--------------------------------------获取语言字体-------------------------------------//
-
 
 //--------------------------------------修改任务内容-------------------------------------//
 void lvgl_modify_task(int position, const char *task_content) 
@@ -273,19 +281,6 @@ void set_text_without_change_font(lv_obj_t * target_label,  const char * text)
     }
 }
 //--------------------------------------修改label-------------------------------------//
-
-
-//--------------------------------------更改所有语言------------------------------------//
-void Change_All_language()
-{
-    if(get_global_data()->m_language == 0)
-    {
-    }
-    else if(get_global_data()->m_language == 1)
-    {
-    }
-}
-//--------------------------------------更改所有语言------------------------------------//
 
 void switch_screen(lv_obj_t* new_screen) {
     // lv_obj_set_parent(ui_LED, new_screen);

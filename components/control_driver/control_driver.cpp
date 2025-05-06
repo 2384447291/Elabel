@@ -26,28 +26,47 @@ void ControlDriver::unregister_button_callback(Callback::CallbackFunc callback)
 
 // ControlDriver类实现
 void ControlDriver::init() {
-    // 注册按钮
-    Button::register_single_io(DEVICE_BUTTON_1, DEVICE_BUTTON_1_CHANNEL, &button1);
-    Button::register_single_io(DEVICE_BUTTON_2, DEVICE_BUTTON_2_CHANNEL, &button2);
-    Button::register_share_io_2(DEVICE_BUTTON_34, DEVICE_BUTTON_34_CHANNEL, &button4, &button3);
-    Button::register_share_io_2(DEVICE_BUTTON_56, DEVICE_BUTTON_56_CHANNEL, &button5, &button6);
-    Button::register_share_io_2(DEVICE_BUTTON_78, DEVICE_BUTTON_78_CHANNEL, &button8, &button7);
-    // 创建任务
-    xTaskCreate(controlPanelUpdateTask, "control_panel_update", 4096, nullptr, 0, nullptr);
+   start_button_check_task();
 }
 
-void ControlDriver::controlPanelUpdateTask(void* parameters) {
-    while (true) {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-        
-        // 处理按钮
-        ControlDriver::Instance()->button1.handle();
-        ControlDriver::Instance()->button2.handle();
-        ControlDriver::Instance()->button3.handle();
-        ControlDriver::Instance()->button4.handle();
-        ControlDriver::Instance()->button5.handle();    
-        ControlDriver::Instance()->button6.handle();
-        ControlDriver::Instance()->button7.handle();
-        ControlDriver::Instance()->button8.handle();
+void ControlDriver::start_button_check_task() {
+    if (button_check_task_handle == nullptr) {
+        button_pair_123.clear_state();
+        button_pair_4.clear_state();
+        button_pair_567.clear_state();
+        button_pair_8.clear_state();
+        xTaskCreate(button_check_task, "button_check_task", 4096, nullptr, 0, &button_check_task_handle);
+    }
+    else {
+        ESP_LOGE(TAG, "button_check_task already exists");
     }
 }
+
+void ControlDriver::stop_button_check_task() {
+    if (button_check_task_handle != nullptr) {
+        vTaskDelete(button_check_task_handle);
+        button_check_task_handle = nullptr;
+    }
+    else {
+        ESP_LOGE(TAG, "button_check_task not exists");
+    }
+}
+
+void ControlDriver::button_check_task(void* parameters) {
+    while (true) {
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+        ControlDriver::Instance()->button_pair_123.update();
+        ControlDriver::Instance()->button_pair_4.update();
+        ControlDriver::Instance()->button_pair_567.update();
+        ControlDriver::Instance()->button_pair_8.update();
+        for(int i = 0; i < 3; i++) {
+            ControlDriver::Instance()->button_pair_123.button[i]->handle();
+        }
+        ControlDriver::Instance()->button_pair_4.button->handle();
+        for(int i = 0; i < 3; i++) {
+            ControlDriver::Instance()->button_pair_567.button[i]->handle();
+        }
+        ControlDriver::Instance()->button_pair_8.button->handle();
+    }
+}
+

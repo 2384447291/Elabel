@@ -6,11 +6,6 @@
 static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
-    // ESP_PARAM_CHECK(src_addr);
-    // ESP_PARAM_CHECK(data);
-    // ESP_PARAM_CHECK(size);
-    // ESP_PARAM_CHECK(rx_ctrl);
-
     uint8_t* data_ptr = (uint8_t*)data;
     message_type m_message_type = (message_type)(data_ptr[0]);
     //读取数据
@@ -19,23 +14,23 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
     if(m_message_type == Bind_Control_Host2Slave)
     {
-        if(!EspNowSlave::Instance()->is_host_connected)
-        {     
-            ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message.");
-            Global_data* global_data = get_global_data();
-            global_data->m_host_channel = data_ptr[0];
-            memcpy(global_data->m_userName, &data_ptr[1], size-1);
-            memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
-            ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-                global_data->m_userName, 
-                MAC2STR(global_data->m_host_mac), 
-                global_data->m_host_channel);
-            //设置信道
-            ESP_ERROR_CHECK(esp_wifi_set_channel(global_data->m_host_channel, WIFI_SECOND_CHAN_NONE));
-            //更新nvs
-            set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
-            EspNowSlave::Instance()->is_host_connected = true;
-        }
+        // if(!EspNowSlave::Instance()->is_host_connected)
+        // {     
+        //     ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message.");
+        //     Global_data* global_data = get_global_data();
+        //     global_data->m_host_channel = data_ptr[0];
+        //     memcpy(global_data->m_userName, &data_ptr[1], size-1);
+        //     memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
+        //     ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
+        //         global_data->m_userName, 
+        //         MAC2STR(global_data->m_host_mac), 
+        //         global_data->m_host_channel);
+        //     //设置信道
+        //     ESP_ERROR_CHECK(esp_wifi_set_channel(global_data->m_host_channel, WIFI_SECOND_CHAN_NONE));
+        //     //更新nvs
+        //     set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
+        //     EspNowSlave::Instance()->is_host_connected = true;
+        // }
     }
     else if(m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
     {
@@ -98,45 +93,12 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     return ESP_OK;
 }
 
-static void esp_now_send_update(void *pvParameter)
-{
-    uint8_t channel = 0;
-    while(1)
-    {
-        vTaskDelay(pdMS_TO_TICKS(2000));
-        if(EspNowSlave::Instance()->is_host_connected)
-        {
-            if(xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(5000))
-            {
-                EspNowSlave::Instance()->is_host_connected = false;
-                ESP_LOGE(ESP_NOW, "Slave not receive heart from host, reconnect");
-            }
-        }
-        else
-        {
-            channel = channel % 13 + 1;
-            uint8_t actual_wifi_channel = 0;
-            wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
-            ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
-            ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
-            ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
-        }
-    }
-}
-
 void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100])
 {
-    if(slave_send_update_task_handle != NULL) 
-    {
-        ESP_LOGI(ESP_NOW, "Slave already init");
-        return;
-    }
-
     //初始化espnowslave参数
     memcpy(this->host_mac, host_mac, ESP_NOW_ETH_ALEN);
     this->host_channel = host_channel;
     memcpy(this->username, username, sizeof(this->username));
-    is_host_connected = false;
     last_recv_heart_time = 0;
 
     EspNowClient::Instance()->m_role = slave_role;
@@ -147,27 +109,26 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
     //添加配对host
     espnow_add_peer(host_mac, NULL);
 
-    xTaskCreate(esp_now_send_update, "esp_now_slave_send_update_task", 4096, NULL, 0, &slave_send_update_task_handle);
-
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Slave_handle);
     ESP_LOGI(ESP_NOW, "Slave init success");
 }
 
 void EspNowSlave::deinit()
 {
-    if(slave_send_update_task_handle == NULL) 
-    {
-        ESP_LOGI(ESP_NOW, "Slave not init");
-        return;
-    }
     EspNowClient::Instance()->m_role = default_role;
-    vTaskDelete(slave_send_update_task_handle);
-    slave_send_update_task_handle = NULL;
-
     espnow_del_peer(this->host_mac);
     ESP_LOGI(ESP_NOW, "Slave deinit success");
 }
 
+void EspNowSlave::suspend_espnow()
+{
+    
+}
+
+void EspNowSlave::resume_espnow()
+{
+
+}
 void EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     ESP_LOGI(ESP_NOW, "Slave send update task list request message");

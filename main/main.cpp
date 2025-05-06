@@ -45,6 +45,7 @@
 //     // //获取nvs信息
 //     // get_nvs_info();
     
+
 //     // //初始化espnow
 //     // // EspNowClient::Instance()->init();
 
@@ -124,53 +125,40 @@
 #include "esp_timer.h"
 #include "driver/gpio.h"
 
-static const char *TAG = "main";
+#include "global_message.h"
+#include "global_time.h"
+#include "global_draw.h"
+#include "global_nvs.h"
 
-// 电源管理锁（防止light sleep）
-static esp_pm_lock_handle_t s_pm_lock;
-
-static void pm_config_init(void)
-{
-    esp_pm_config_esp32c6_t pm_cfg = {
-        .max_freq_mhz = 80,
-        .min_freq_mhz = 10,
-        .light_sleep_enable = true,
-    };
-    ESP_ERROR_CHECK(esp_pm_configure(&pm_cfg));
-
-    // 创建锁，名称可自定义（最多16字节），锁住频率不降和 light sleep
-    ESP_ERROR_CHECK(esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP, 0, "no_sleep", &s_pm_lock));
-}
+#include "esp_now_client.hpp"
+#include "control_driver.hpp"
+#include "battery_manager.hpp"
 
 extern "C" void app_main(void)
 {
-    pm_config_init();
-
-    gpio_config_t io_conf = {};
-    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_20);
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    gpio_config(&io_conf);
-
+    //安装GPIO中断服务
+    gpio_install_isr_service(0);
+    //初始化nvs
+    nvs_init();
+    //删除nvs信息
+    // erase_nvs();
+    //获取nvs信息
+    get_nvs_info();
+    //初始化电池管理
+    BatteryManager::Instance()->init();
+    //初始化按键
+    ControlDriver::Instance()->init();
+    //初始化gui
+    Gui_init();
+    //初始化网络
+    m_wifi_init();
+    //初始化espnow
+    // EspNowClient::Instance()->init();
+    // 等待所有组件初始化完成
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    
+    //用来debug的接口
     while (true) {
-        // 模拟唤醒后的处理
-        ESP_LOGI(TAG, "Waking up: lock sleep and turn on GPIO");
-
-        // 锁住 light sleep
-        ESP_ERROR_CHECK(esp_pm_lock_acquire(s_pm_lock));
-
-        gpio_set_level(GPIO_NUM_20, 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));  // 保持1秒亮灯
-
-        gpio_set_level(GPIO_NUM_20, 0);
-        ESP_LOGI(TAG, "Turned off GPIO, unlock sleep");
-
-        // 解锁，允许进入 light sleep
-        ESP_ERROR_CHECK(esp_pm_lock_release(s_pm_lock));
-
-        // 休眠模拟
-        vTaskDelay(pdMS_TO_TICKS(2000));  // 系统可以进入 light sleep
+        vTaskDelay(pdMS_TO_TICKS(100));  // 系统可以进入 light sleep
     }
 }

@@ -128,11 +128,6 @@ void InitState::Execute(ElabelController* pOwner)
         //初始化EspNowSlave
         EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
 
-        while(EspNowSlave::Instance()->is_host_connected == false)
-        {
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-        }
-
         //绑定主机
         EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
 

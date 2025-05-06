@@ -179,6 +179,37 @@ class EspNowClient{
         //则会转发一次，直到forward_ttl为0，并且由于是广播所以没有ack这一说
     };
 
+    //espnow配置
+    espnow_config_t espnow_config =  {  
+    .pmk = {'E', 'S', 'P', '_', 'N', 'O', 'W', 0}, 
+    .forward_enable = 0,  //是否开启转发
+    .forward_switch_channel = 0,  //是否开启信道切换
+    .sec_enable = 0,  //是否开启加密
+    .reserved1 = 0,    //保留
+    .qsize = 32,  //发送任务队列的大小
+    .send_retry_num = 10,  //感觉像费案，没有任何地方用
+    .send_max_timeout = ESPNOW_SEND_MAX_TIMEOUT,  
+    //send_max_timeout只用来等待发送队列，一般wait_ticks 要 大于 send_max_timeout
+    //wait_ticks 是整个 espnow_send() 调用的预算，包括了这段时间
+    .receive_enable = { 
+        .ack           = 1,  //是否开启ack
+        .forward       = 0,  //是否开启转发
+        .group         = 0,  //是否开启组播
+        .provisoning   = 0,  //是否开启预设
+        .control_bind  = 0,  //是否开启控制绑定
+        .control_data  = 0,  //是否开启控制数据
+        .ota_status    = 0,  //是否开启ota状态
+        .ota_data      = 0, 
+        .debug_log     = 0, 
+        .debug_command = 0, 
+        .data          = 0, 
+        .sec_status    = 0, 
+        .sec           = 0, 
+        .sec_data      = 0, 
+        .reserved2     = 0, 
+        }, 
+    };
+
     //专门用来测试连接的接口
     espnow_frame_head_t test_send_head = {  
         .magic            = 0,  
