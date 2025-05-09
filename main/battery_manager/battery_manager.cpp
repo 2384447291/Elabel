@@ -30,11 +30,67 @@ void BatteryManager::init() {
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-
-
     gpio_config(&io_conf);
 
+    // //gpio18-23
+    // for(int i = 18; i < 24; i++) {
+    //     io_conf.pin_bit_mask = (1ULL << (gpio_num_t)i);
+    //     io_conf.mode = GPIO_MODE_INPUT;
+    //     io_conf.intr_type = GPIO_INTR_DISABLE;
+    //     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    //     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    //     gpio_config(&io_conf);
+    // }
+
+    // //gpio18-23
+    // for(int i = 10; i < 13; i++) {
+    //     io_conf.pin_bit_mask = (1ULL << (gpio_num_t)i);
+    //     io_conf.mode = GPIO_MODE_INPUT;
+    //     io_conf.intr_type = GPIO_INTR_DISABLE;
+    //     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    //     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    //     gpio_config(&io_conf);
+    // }
+
+    // //gpio18-23
+    // for(int i = 0; i < 8; i++) {
+    //     io_conf.pin_bit_mask = (1ULL << (gpio_num_t)i);
+    //     io_conf.mode = GPIO_MODE_INPUT;
+    //     io_conf.intr_type = GPIO_INTR_DISABLE;
+    //     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    //     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    //     gpio_config(&io_conf);
+    // }
+
+    // io_conf.pin_bit_mask = (1ULL << (gpio_num_t)15);
+    // io_conf.mode = GPIO_MODE_INPUT;
+    // io_conf.intr_type = GPIO_INTR_DISABLE;
+    // io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    // io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    // gpio_config(&io_conf);
+
     setPowerState(true);
+
+    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_8);
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    gpio_config(&io_conf);
+
+    gpio_set_level(GPIO_NUM_8, 0);
+    gpio_hold_en(GPIO_NUM_8);
+
+
+    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_1);
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    gpio_config(&io_conf);
+
+    gpio_set_level(GPIO_NUM_1, 0);
+    gpio_hold_en(GPIO_NUM_1);
 
     // 初始化ADC1
     adc1_config_width(ADC_WIDTH_BIT_12);
