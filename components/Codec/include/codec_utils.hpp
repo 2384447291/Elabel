@@ -50,7 +50,7 @@ void i2s_init(i2s_port_t port)
         .id = port,
         .role = I2S_ROLE_MASTER,
         .dma_desc_num = 2,
-        .dma_frame_num = 512,
+        .dma_frame_num = 1024,
         .auto_clear_after_cb = true,
         .auto_clear_before_cb = true,
         .allow_pd = true,

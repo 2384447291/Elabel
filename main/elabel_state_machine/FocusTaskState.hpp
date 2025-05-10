@@ -28,7 +28,7 @@ public:
 
     void play_focus_music()
     {
-        if(false)
+        if(focus_type == 3)
         {
             MCodec::Instance()->play_mic();
         }

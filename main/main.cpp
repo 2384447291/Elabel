@@ -41,11 +41,6 @@ extern "C" void app_main(void)
     //获取nvs信息
     get_nvs_info();
 
-    //初始化codec
-    MCodec::Instance()->init();
-    //播放音乐
-    MCodec::Instance()->play_music("open");
-
     //初始化按键
     ControlDriver::Instance()->init();
 
@@ -65,6 +60,11 @@ extern "C" void app_main(void)
     elabelUpdateTick = 0;
 
     ControlDriver::Instance()->button1.CallbackLongPress.registerCallback(play_music);
+
+    //初始化codec
+    MCodec::Instance()->init();
+    //播放音乐
+    MCodec::Instance()->play_music("open");
 
     while (true) 
     {

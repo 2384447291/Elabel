@@ -6,7 +6,8 @@
 #include "freertos/task.h"
 #include <string.h>
 #include "esp_vfs.h"
-#include "esp_spiffs.h"
+#include "esp_vfs_fat.h"
+ #include "esp_system.h"
 #include <sys/stat.h>
 #include "driver/i2s_std.h"
 #include "driver/i2c.h"
@@ -17,6 +18,13 @@
 #define MIC_SAMPLE_RATE 16000
 #define SPEAKER_SAMPLE_RATE 16000
 #define I2S_CHANNEL_NUM 1
+
+#define TAG "M_CODEC"
+#define READ_BLOCK_SIZE 1024      
+#define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
+#define RecordTime 8
+#define ShutdownTime 0.2f
+#define FILE_PATH "/fat/mic.raw"
 
 typedef enum {
     default_speaker,
@@ -55,6 +63,10 @@ public:
     TaskHandle_t mic_task = NULL;
 
     Speakertype speaker_type = default_speaker;
+
+    // FAT文件系统
+    wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
+    esp_vfs_fat_mount_config_t mount_config;  //依托vfs管理fat文件系统
 
     // 播放数据
     const uint8_t* play_data = NULL;

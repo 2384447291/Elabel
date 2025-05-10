@@ -2,13 +2,8 @@
 #include "codec.hpp"
 #include "esp_heap_caps.h" 
 #include <string.h>  
+#include <errno.h>
 #include "music.hpp"
-
-#define TAG "M_CODEC"
-#define READ_BLOCK_SIZE 1024      
-#define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
-#define RecordTime 5
-#define FILE_PATH "/spiffs/mic.raw"
 
 // 用于任务间通信的标志
 static volatile bool should_stop_recording = false;
@@ -57,7 +52,7 @@ static void mic_task_func(void* arg) {
         else ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
     }
     fclose(f);
-    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes", total_bytes);
+    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes ( %.1f seconds)", total_bytes, (float)total_bytes/BytesPerSecond);
     //关闭设备
     codec->close_dev();
     // 清除任务句柄
@@ -124,17 +119,12 @@ void MCodec::init()
     esp_codec_set_disable_when_closed(codec_dev,true);
     ESP_LOGI(TAG, "Codec initialized");
 
-    //挂载 SPIFFS 文件系统
-    esp_vfs_spiffs_conf_t conf = {
-        .base_path = "/spiffs",       
-        .partition_label = "record",  
-        .max_files = 5,  
-        .format_if_mount_failed = true
-    };
-
-    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+    //挂载 fat 文件系统
+    mount_config.max_files = 4;    //同时打开的文件数量最大值是4个
+    mount_config.format_if_mount_failed = true; //如果挂载失败,说明这段存储器没有fatfs的格式，就把这块内存区域格式化为fatfs
+    esp_err_t ret = esp_vfs_fat_spiflash_mount_rw_wl("/fat","record",&mount_config,&s_wl_handle);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "SPIFFS 文件系统挂载失败");
+        ESP_LOGE(TAG, "FAT 文件系统挂载失败");
         return;
     }
 }
@@ -145,7 +135,7 @@ void MCodec::deinit()
     stop_play();
 
     //卸载 SPIFFS 文件系统
-    esp_vfs_spiffs_unregister("record");
+    esp_vfs_fat_spiflash_unmount_rw_wl("/fat", s_wl_handle);
     
     esp_codec_dev_close(codec_dev);
     esp_codec_deinit(codec_dev);
@@ -177,7 +167,7 @@ void MCodec::start_record()
     }
 
     ESP_LOGI(TAG, "Starting recording...");
-    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 0, &mic_task);
+    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
 }
 
 void MCodec::stop_record()
@@ -193,6 +183,35 @@ void MCodec::stop_record()
     while(mic_task != NULL) {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
+
+    // 清楚电机
+    size_t half_bytes = BytesPerSecond * ShutdownTime;
+
+    // 获取原文件大小
+    struct stat st;
+    if (stat(FILE_PATH, &st) != 0) {
+        ESP_LOGE(TAG, "Failed to stat file for truncation, errno=%d", errno);
+        return;
+    }
+    size_t original_size = st.st_size;
+
+    // 计算截断后大小，防止 underflow
+    size_t new_size = (original_size > half_bytes) ? (original_size - half_bytes) : 0;
+
+    // 重新打开文件并截断
+    FILE* f = fopen(FILE_PATH, "rb+");
+    if (f) {
+        int fd = fileno(f);
+        if (ftruncate(fd, new_size) != 0) {
+            ESP_LOGE(TAG, "Failed to truncate file: errno=%d", errno);
+        } else {
+            // ESP_LOGI(TAG, "File truncated from %u to %u bytes", original_size, new_size);
+        }
+        fclose(f);
+    } else {
+        ESP_LOGE(TAG, "Failed to reopen file for truncation");
+    }
+
     ESP_LOGI(TAG, "Recording stopped");
 }
 
@@ -271,7 +290,7 @@ void MCodec::play_record(const uint8_t* data, size_t size)
 
     ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
              size, (float)size/BytesPerSecond);
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 0, &speaker_task);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
 }
 
 void MCodec::stop_play()
