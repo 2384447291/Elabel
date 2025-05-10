@@ -35,6 +35,7 @@ void ControlDriver::start_button_check_task() {
         button_pair_4.clear_state();
         button_pair_567.clear_state();
         button_pair_8.clear_state();
+        button_press_together_58.clear_state();
         xTaskCreate(button_check_task, "button_check_task", 4096, nullptr, 0, &button_check_task_handle);
     }
     else {
@@ -59,6 +60,7 @@ void ControlDriver::button_check_task(void* parameters) {
         ControlDriver::Instance()->button_pair_4.update();
         ControlDriver::Instance()->button_pair_567.update();
         ControlDriver::Instance()->button_pair_8.update();
+        ControlDriver::Instance()->button_press_together_58.update();
         for(int i = 0; i < 3; i++) {
             ControlDriver::Instance()->button_pair_123.button[i]->handle();
         }

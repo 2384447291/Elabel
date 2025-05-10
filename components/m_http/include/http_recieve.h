@@ -5,8 +5,8 @@
 #include "cJSON.h"
 #include "http.h"
 #include "global_message.h"
-// #undef ESP_LOGI
-// #define ESP_LOGI(tag, format, ...) 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
     // 解析 JSON
@@ -120,6 +120,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {
         ESP_LOGI("HTTP", "Successful get response post task is ADDTODO.\n title is %s, todo type is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1]);
     }   
+    else if (m_task_struct->task == ADD_ENTER_FOCUS)
+    {
+        ESP_LOGI("HTTP", "Successful get response post task is ADD_ENTER_FOCUS.\n title is %s, todo type is %s, falling time is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1],m_task_struct->parament[2]);
+    }
     else if (m_task_struct->task == ENTER_FOCUS)
     {
         ESP_LOGI("HTTP", "Successful get response post task is ENTER_FOCUS.\n Task%s enter focus\n",m_task_struct->parament[0]);

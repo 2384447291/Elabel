@@ -77,8 +77,8 @@ static uint8_t raw_adv_data[] = {
         /* 0x09 设备的uuid */
         0x03, 0x03, 0x11, 0x00,
         /* 0x09 设备名 */
-        // Intelligent_TAG
-        0x10, 0x09, 'R', 'e', 'm', 'i', 'n', 'd', 'e', 'r', '-'
+        // device name下第一个十六进制数 = 名称长度 + 1
+        0x10, 0x09, 'R', 'e', 'm', 'i', 'n', 'd', 'e', 'r', '_', '0', '0', '0', '0', '0', '0'
 };
 static uint8_t raw_scan_rsp_data[] = {
         /* flags */
@@ -470,6 +470,24 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                 ESP_LOGE(GATTS_TABLE_TAG, "set device name failed, error code = %x", set_dev_name_ret);
             }
     #ifdef CONFIG_SET_RAW_ADV_DATA
+            //获取设备mac
+            uint8_t dev_mac[6];
+            esp_err_t ret = esp_read_mac(dev_mac, ESP_MAC_BT);
+            if (ret != ESP_OK){
+                ESP_LOGE(GATTS_TABLE_TAG, "get mac failed, error code = %x", ret);
+            }
+            ESP_LOGI(GATTS_TABLE_TAG, "device mac: %02X:%02X:%02X:%02X:%02X:%02X", dev_mac[0], dev_mac[1], dev_mac[2], dev_mac[3], dev_mac[4], dev_mac[5]);
+            // 从dev_mac中提取后6位，转换成ASCII码
+            char mac_str[3];
+            snprintf(mac_str, sizeof(mac_str), "%02X", dev_mac[3]);
+            raw_adv_data[21] = mac_str[0];  // 5
+            raw_adv_data[22] = mac_str[1];  // f
+            snprintf(mac_str, sizeof(mac_str), "%02X", dev_mac[4]);
+            raw_adv_data[23] = mac_str[0];  // 8
+            raw_adv_data[24] = mac_str[1];  // 7
+            snprintf(mac_str, sizeof(mac_str), "%02X", dev_mac[5]);
+            raw_adv_data[25] = mac_str[0];  // b
+            raw_adv_data[26] = mac_str[1];  // e
             esp_err_t raw_adv_ret = esp_ble_gap_config_adv_data_raw(raw_adv_data, sizeof(raw_adv_data));
             if (raw_adv_ret){
                 ESP_LOGE(GATTS_TABLE_TAG, "config raw adv data failed, error code = %x ", raw_adv_ret);

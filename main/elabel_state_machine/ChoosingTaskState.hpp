@@ -22,6 +22,7 @@ public:
     bool is_jump_to_task_mode = false;
     bool is_jump_to_time_mode = false;
     bool is_jump_to_record_mode = false;
+    bool is_jump_to_info_mode = false;
 
     //刷新标记
     bool need_flash_paper = false;

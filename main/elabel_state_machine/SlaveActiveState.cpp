@@ -155,7 +155,7 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
             lock_lvgl();
             char buffer[32];
             sprintf(buffer, "score: %d", EspNowClient::Instance()->test_connecting_send_count);
-            set_text_without_change_font(ui_ConnectGuide2, buffer);
+            // set_text_without_change_font(ui_ConnectGuide2, buffer);
             release_lvgl();
             need_flash_paper = false;
         }

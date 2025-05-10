@@ -220,6 +220,26 @@ extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_NoFocusWarning;
 
+// SCREEN: ui_MessageScreen
+void ui_MessageScreen_screen_init(void);
+extern lv_obj_t * ui_MessageScreen;
+extern lv_obj_t * ui_Panel1;
+extern lv_obj_t * ui_Messageguide;
+extern lv_obj_t * ui_Messageguide2;
+extern lv_obj_t * ui_Message1;
+extern lv_obj_t * ui_Message2;
+extern lv_obj_t * ui_Message3;
+extern lv_obj_t * ui_Message4;
+extern lv_obj_t * ui_Message5;
+extern lv_obj_t * ui_scrollbar2;
+extern lv_obj_t * ui_Arc3;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_HalfmindScreen;
+extern lv_obj_t * uic_MessageGuide;
+extern lv_obj_t * uic_MessageGuide;
+extern lv_obj_t * uic_MessageFirmware;
+extern lv_obj_t * uic_MessageLanguage;
+
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
@@ -250,6 +270,10 @@ LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
+
+// FONTS
+LV_FONT_DECLARE(ui_font_Chinese24);
+LV_FONT_DECLARE(ui_font_Chinese32);
 
 // UI INIT
 void ui_init(void);

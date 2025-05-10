@@ -1,5 +1,5 @@
 #include "ChoosingTaskState.hpp"
-#include "Esp_now_client.hpp"
+// #include "Esp_now_client.hpp"
 #include "control_driver.hpp"
 #include <cmath>
 
@@ -97,7 +97,7 @@ void choose_previous_task()
 
 void jump_to_task_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
     if(get_global_data()->m_todo_list->size==0)
     {
         ESP_LOGE("ChoosingTaskState","No task no need confirm task");
@@ -110,17 +110,25 @@ void jump_to_task_mode()
 
 void jump_to_record_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
     ChoosingTaskState::Instance()->is_jump_to_record_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to record mode");
 }
 
 void jump_to_time_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
     ChoosingTaskState::Instance()->is_jump_to_time_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to time mode");
 }
+
+void jump_to_info_mode()
+{
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
+    ChoosingTaskState::Instance()->is_jump_to_info_mode = true;
+    ESP_LOGI("ChoosingTaskState","jump to info mode");
+}
+
 void ChoosingTaskState::brush_task_list()
 {
     update_lvgl_task_list(ElabelController::Instance()->CenterTaskNum);
@@ -148,6 +156,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     is_jump_to_task_mode = false;
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;
+    is_jump_to_info_mode = false;
 
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);
@@ -161,6 +170,8 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(jump_to_time_mode);
     ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(jump_to_time_mode);
     ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(jump_to_time_mode);
+
+    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.registerCallback(jump_to_info_mode);
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
@@ -192,6 +203,8 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button4.CallbackShortPress.unregisterCallback(jump_to_time_mode);
     ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(jump_to_time_mode);
     ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
+
+    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(jump_to_info_mode);
 }
 
 void ChoosingTaskState::recolor_task()

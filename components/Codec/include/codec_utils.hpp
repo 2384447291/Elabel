@@ -43,27 +43,20 @@ void i2c_init(i2c_port_t port)
     ESP_ERROR_CHECK(i2c_driver_install(port, i2c_cfg.mode, 0, 0, 0));
 }
 
-    // i2s_std_config_t std_cfg = {
-    //     .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SPEAKER_SAMPLE_RATE),
-    //     .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(i2s_data_bit_width_t(I2S_BITS_PER_SAMPLE), I2S_SLOT_MODE_MONO),
-    //     .gpio_cfg = {
-    //         .mclk = I2S_MCLK_PIN,
-    //         .bclk = I2S_BCK_PIN,
-    //         .ws = I2S_WS_PIN,
-    //         .dout = I2S_DO_PIN,
-    //         .din = -1,  // 未使用
-    //         .invert_flags = {
-    //             .mclk_inv = false,
-    //             .bclk_inv = false,
-    //             .ws_inv = false,
-    //         },
-    //     },
 
 void i2s_init(i2s_port_t port)
 {
-    //选择i2s外设
-    i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(port, I2S_ROLE_MASTER);
-    //初始化i2s配置
+    i2s_chan_config_t chan_cfg = {
+        .id = port,
+        .role = I2S_ROLE_MASTER,
+        .dma_desc_num = 2,
+        .dma_frame_num = 512,
+        .auto_clear_after_cb = true,
+        .auto_clear_before_cb = true,
+        .allow_pd = true,
+        .intr_priority = 7,
+    };
+
     i2s_std_config_t std_cfg = {
         .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(SPEAKER_SAMPLE_RATE),
         .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(i2s_data_bit_width_t(I2S_BITS_PER_SAMPLE), I2S_SLOT_MODE_MONO),
@@ -95,7 +88,6 @@ void i2s_init(i2s_port_t port)
 
 void i2s_deinit(i2s_port_t port)
 {
-    // i2s_driver_uninstall(port);
 } 
 
 

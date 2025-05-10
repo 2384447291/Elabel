@@ -23,6 +23,39 @@
 #define DEVICE_BUTTON_8 GPIO_NUM_3
 #define DEVICE_BUTTON_8_CHANNEL ADC1_CHANNEL_3
 
+class Button_Press_together{
+public:
+    Button_Press_together(Button* _button1, Button* _button2, const char* _name) : button1(_button1), button2(_button2), name(_name) {}
+    Button* button1;
+    Button* button2;
+    const char* name;
+
+    Callback Togetherlongpress{"Togetherlongpress"};
+
+    bool is_trigger = false;
+
+    void update()
+    {
+        if(button1->state == Button::State::WAITING_RELEASE && button2->state == Button::State::WAITING_RELEASE)
+        {
+            if(is_trigger == false)
+            {
+                Togetherlongpress.trigger();
+                ESP_LOGI("Button", "%s triggered", name);
+                is_trigger = true;
+            }
+        }
+        else
+        {
+            is_trigger = false;
+        }
+    }
+    void clear_state() 
+    {
+        is_trigger = false;
+    }
+};
+
 //----------------------------------------------ControlDriver类定义----------------------------------------------//
 class ControlDriver {
 public:
@@ -46,6 +79,8 @@ public:
     Button_pair_1 button_pair_4{DEVICE_BUTTON_4, DEVICE_BUTTON_4_CHANNEL, &button4};
     Button_pair_3 button_pair_567{DEVICE_BUTTON_567, DEVICE_BUTTON_567_CHANNEL, &button5, &button6, &button7};
     Button_pair_1 button_pair_8{DEVICE_BUTTON_8, DEVICE_BUTTON_8_CHANNEL, &button8};
+
+    Button_Press_together button_press_together_58{&button5, &button8, "button_press_together_58"};
 
     void register_all_button_callback(Callback::CallbackFunc callback);
     void unregister_button_callback(Callback::CallbackFunc callback);

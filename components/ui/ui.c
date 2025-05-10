@@ -222,6 +222,27 @@ lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_NoFocusWarning;
 
+
+// SCREEN: ui_MessageScreen
+void ui_MessageScreen_screen_init(void);
+lv_obj_t * ui_MessageScreen;
+lv_obj_t * ui_Panel1;
+lv_obj_t * ui_Messageguide;
+lv_obj_t * ui_Messageguide2;
+lv_obj_t * ui_Message1;
+lv_obj_t * ui_Message2;
+lv_obj_t * ui_Message3;
+lv_obj_t * ui_Message4;
+lv_obj_t * ui_Message5;
+lv_obj_t * ui_scrollbar2;
+lv_obj_t * ui_Arc3;
+// CUSTOM VARIABLES
+lv_obj_t * uic_HalfmindScreen;
+lv_obj_t * uic_MessageGuide;
+lv_obj_t * uic_MessageGuide;
+lv_obj_t * uic_MessageFirmware;
+lv_obj_t * uic_MessageLanguage;
+
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
@@ -258,6 +279,7 @@ void ui_init(void)
     ui_HostActiveScreen_screen_init();
     ui_SlaveActiveScreen_screen_init();
     ui_FocusScreen_screen_init();
+    ui_MessageScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HalfmindScreen);
 }

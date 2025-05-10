@@ -18,7 +18,9 @@ void HTTP_syset_time(void);
 
 long long get_unix_time(void);
 
-char* get_time_str(void);
+void get_unix_time_str(char* str_time, size_t size);
+
+void Log_time(void);
 #ifdef __cplusplus
 }
 #endif

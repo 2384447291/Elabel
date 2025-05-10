@@ -8,6 +8,7 @@ screens/ui_ShutdownScreen.c
 screens/ui_HostActiveScreen.c
 screens/ui_SlaveActiveScreen.c
 screens/ui_FocusScreen.c
+screens/ui_MessageScreen.c
 ui.c
 components/ui_comp_hook.c
 ui_helpers.c
@@ -36,3 +37,5 @@ images/ui_img_accept_y_png.c
 images/ui_img_warning_amber_png.c
 images/ui_img_player_png.c
 images/ui_img_accept_n_png.c
+fonts/ui_font_Chinese24.c
+fonts/ui_font_Chinese32.c

@@ -32,12 +32,16 @@ char* taskToString(http_task_t task) {
             return "Delete Todo";
         case ADDTODO:
             return "Add Todo";
+        case ADD_ENTER_FOCUS:
+            return "Add Enter Focus";
         case FINDLATESTVERSION:
             return "Find Latest Version";
         case FINDTODOLIST:
             return "Find Todo List";
         case BINDUSER:
             return "Bind User";
+        case FINDUSR:
+            return "Find User";
         default:
             return "Unknown Task";
     }
@@ -509,6 +513,30 @@ void http_add_to_do(char *title, char*todoType, bool need_stuck)
     char *params[] = {title, todoType};  // 示例参数
     int param_count = 2;
     http_task_struct *m_task = create_http_task_struct(ADDTODO,params,param_count,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to create http_task_struct!");
+        return;
+    }
+    if(need_stuck){
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    }
+}
+
+void http_add_enter_focus(char *title, char*todoType, int fallingTime, bool need_stuck)
+{
+    char fallingTime_str[20];           
+    sprintf(fallingTime_str, "%d", fallingTime);
+    char *params[] = {title, todoType, fallingTime_str};  // 示例参数
+    int param_count = 3;
+    http_task_struct *m_task = create_http_task_struct(ADD_ENTER_FOCUS,params,param_count,need_stuck);
     if (m_task == NULL) 
     {
         ESP_LOGE(HTTP_TAG, "Failed to create http_task_struct!");

@@ -1,8 +1,8 @@
 #include "HostActiveState.hpp"
 #include "network.h"
 #include "http.h"
-#include "esp_now_host.hpp"
-#include "Esp_now_client.hpp"
+// #include "esp_now_host.hpp"
+// #include "Esp_now_client.hpp"
 #include "global_message.h"
 
 void change_button_choice()
@@ -34,8 +34,8 @@ void HostActiveState::Init(ElabelController* pOwner)
 
 void HostActiveState::Enter(ElabelController* pOwner)
 {
-    //停止寻找频道
-    EspNowClient::Instance()->stop_find_channel();
+    // 停止寻找频道
+    // EspNowClient::Instance()->stop_find_channel();
     enter_waiting_wifi();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(change_button_choice);
@@ -56,9 +56,9 @@ void HostActiveState::Execute(ElabelController* pOwner)
     else if(host_active_process == Hostactive_connecting_wifi_process)
     {
         if(get_wifi_status() == 0x02) enter_success_connect_wifi();
-        if(elabelUpdateTick%1000 == 0)
+        if(elabelUpdateTick%5000 == 0)
         {
-            reconnect_count_down--;
+            reconnect_count_down-=5;
             lock_lvgl();
             char time_str[40];
             sprintf(time_str, "Timeout in %d secs", reconnect_count_down);

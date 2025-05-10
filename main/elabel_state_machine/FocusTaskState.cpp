@@ -4,9 +4,9 @@
 #include "http.h"
 #include "ssd1680.h"
 #include "codec.hpp"
-#include "Esp_now_client.hpp"
-#include "Esp_now_host.hpp"
-#include "Esp_now_slave.hpp"
+// #include "Esp_now_client.hpp"
+// #include "Esp_now_host.hpp"
+// #include "Esp_now_slave.hpp"
 
 void outfocus()
 {
@@ -20,8 +20,8 @@ void outfocus()
     }
     else if(get_global_data()->m_is_host == 2)
     {
-        focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
-        EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
+        // focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
+        // EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
     }
 }
 
@@ -67,8 +67,8 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     //如果当前是主机，通知所有从机
     if(get_global_data()->m_is_host == 1)
     {
-        focus_message_t focus_message = pack_focus_message(focus_type, pOwner->TimeCountdown, get_global_data()->m_focus_state->focus_task_id, todo->title);
-        EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
+        // focus_message_t focus_message = pack_focus_message(focus_type, pOwner->TimeCountdown, get_global_data()->m_focus_state->focus_task_id, todo->title);
+        // EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
     }
 
     //更新屏幕

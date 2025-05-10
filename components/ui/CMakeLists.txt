@@ -8,6 +8,7 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     screens/ui_HostActiveScreen.c
     screens/ui_SlaveActiveScreen.c
     screens/ui_FocusScreen.c
+    screens/ui_MessageScreen.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
@@ -32,8 +33,10 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_retry_n_png.c
     images/ui_img_retry_y_png.c
     images/ui_img_hostactive_png.c
-    images/ui_img_accept_n_png.c
     images/ui_img_accept_y_png.c
     images/ui_img_warning_amber_png.c
     images/ui_img_player_png.c
+    images/ui_img_accept_n_png.c
+    fonts/ui_font_Chinese24.c
+    fonts/ui_font_Chinese32.c
     REQUIRES lvgl)

@@ -20,7 +20,7 @@ char *response_buffer = NULL;
 int response_buffer_len = 0;
 bool send_error = false;
 
-#define URL "http://mshopact.vivo.com.cn/tool/config"
+#define URL "http://120.77.1.151:8080/userApi/common/getTimeStamp"
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     switch (evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -47,28 +47,33 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
             cJSON *json = cJSON_Parse(response_buffer);
             if (json) 
             {
-                cJSON *data = cJSON_GetObjectItem(json, "data");
-                if (data) 
+                cJSON *code = cJSON_GetObjectItem(json, "code");
+                if (code && code->valueint == 200) 
                 {
-                    //校准时间
-                    long long nowTime = (long long)cJSON_GetObjectItem(data, "nowTime")->valuedouble;
-                    struct timeval tv;
-                    
-                    // 将毫秒时间戳转换为秒和微秒
-                    tv.tv_sec = nowTime / 1000;          // 秒
-                    tv.tv_usec = (nowTime % 1000) * 1000; // 微秒
+                    cJSON *data = cJSON_GetObjectItem(json, "data");
+                    if (data && data->valuedouble > 0) 
+                    {
+                        long long nowTime = (long long)data->valuedouble;
+                        ESP_LOGI("HTTP_SYTIME", "nowTime: %lld", nowTime);
+                        struct timeval tv;
+                        
+                        // 将毫秒时间戳转换为秒和微秒
+                        tv.tv_sec = nowTime / 1000;          // 秒
+                        tv.tv_usec = (nowTime % 1000) * 1000; // 微秒
 
-                    // 设置系统时间
-                    if (settimeofday(&tv, NULL) < 0) {
-                        perror("settimeofday");
+                        // 设置系统时间
+                        if (settimeofday(&tv, NULL) < 0) {
+                            perror("settimeofday");
+                        }
+                        // Set timezone to China Standard Time
+                        setenv("TZ", "CST-8", 1);
+                        tzset();
+                        time(&now);
+                        localtime_r(&now, &timeinfo);
+                        is_syset_time = true;
                     }
-                    // Set timezone to China Standard Time
-                    setenv("TZ", "CST-8", 1);
-                    tzset();
-                    time(&now);
-	                localtime_r(&now, &timeinfo);
-                    is_syset_time = true;
                 }
+                cJSON_Delete(json);
             }
             // 这里可以对完整的响应数据进行处理
             free(response_buffer); // 释放内存
@@ -100,14 +105,13 @@ void HTTP_syset_time(void)
     esp_err_t err = esp_http_client_perform(sys_time_client);
 
     if (err == ESP_OK) {
-        ESP_LOGI("HTTP_SYTIME", "HTTPS Status = %d, content_length = %d",
-                 esp_http_client_get_status_code(sys_time_client),
-                 esp_http_client_get_content_length(sys_time_client));
+        // ESP_LOGI("HTTP_SYTIME", "HTTPS Status = %d, content_length = %d",
+        //          esp_http_client_get_status_code(sys_time_client),
+        //          esp_http_client_get_content_length(sys_time_client));
     } else {
         ESP_LOGE("HTTP_SYTIME", "HTTP GET request failed: %s", esp_err_to_name(err));
     }
 
-    // Cleanup
     esp_http_client_cleanup(sys_time_client); 
 
     while(!is_syset_time)
@@ -115,6 +119,7 @@ void HTTP_syset_time(void)
         vTaskDelay(100 / portTICK_PERIOD_MS);
         if(send_error) HTTP_syset_time();
     }
+    Log_time();
 }
 //--------------------------------------http时间同步函数-----------------------------------------//
 
@@ -123,10 +128,9 @@ void HTTP_syset_time(void)
 //-----------------------------------------时间戳获取-------------------------------------------//
 long long get_unix_time(void)
 {
-    while(!is_syset_time) 
-    {
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-        ESP_LOGE("UNIX TIME","Waiting Systime set\n");
+    if(!is_syset_time){
+        ESP_LOGE("UNIX TIME","Systime not set");
+        return 0;
     }
     // 获取当前 Unix 时间戳
     struct timeval now;
@@ -146,13 +150,17 @@ long long get_unix_time(void)
     return timestamp_in_ms;
 }
 
-char* get_time_str(void)
+void get_unix_time_str(char* str_time, size_t size)
 {
-    HTTP_syset_time();
+    long long timestamp_in_ms = get_unix_time();
+    snprintf(str_time, size, "%lld", timestamp_in_ms);
+}
+
+void Log_time(void)
+{
 	// 打印现在时间
-	static char strftime_buf[64];
+	char strftime_buf[64];
 	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGI("UNIX TIME", "Current time: %s", strftime_buf);
-    return strftime_buf;
+	ESP_LOGW("UNIX TIME", "Current time: %s", strftime_buf);
 }
 //-----------------------------------------时间戳获取-------------------------------------------//

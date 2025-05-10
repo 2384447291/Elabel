@@ -224,7 +224,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_TaskName, 0);
     lv_obj_set_y(ui_TaskName, -37);
     lv_obj_set_align(ui_TaskName, LV_ALIGN_CENTER);
-    lv_obj_set_style_text_font(ui_TaskName, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_TaskName, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label3 = lv_label_create(ui_TaskName);
     lv_obj_set_width(ui_Label3, LV_SIZE_CONTENT);   /// 1
@@ -232,7 +232,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_Label3, -1);
     lv_obj_set_y(ui_Label3, 0);
     lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
-    lv_obj_set_style_text_font(ui_Label3, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label3, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TaskOperatetTime = lv_label_create(ui_TaskOperate);
     lv_obj_set_width(ui_TaskOperatetTime, LV_SIZE_CONTENT);   /// 1

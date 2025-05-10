@@ -23,6 +23,7 @@
 #include "SlaveActiveState.hpp"
 #include "OperatingRecorderState.hpp"
 #include "OperatingTimerState.hpp"
+#include "InfoState.hpp"
 ElabelController::ElabelController() : m_elabelFsm(this){}
 //初始化状态是init_state
 
@@ -137,11 +138,11 @@ void ElabelFsm::HandleInput()
                 {
                     ChangeState(ChoosingTaskState::Instance());
                 }
-                //如果当前是主机，则向从机发送out_focus的消息
-                if(get_global_data()->m_is_host == 1)
-                {
-                    EspNowHost::Instance()->Mqtt_out_focus();
-                }
+                // //如果当前是主机，则向从机发送out_focus的消息
+                // if(get_global_data()->m_is_host == 1)
+                // {
+                //     EspNowHost::Instance()->Mqtt_out_focus();
+                // }
                 get_global_data()->m_focus_state->is_focus = 0;
                 get_global_data()->m_focus_state->focus_task_id = 0;
             }
@@ -157,10 +158,10 @@ void ElabelFsm::HandleInput()
             {
                 ESP_LOGI("ElabelFsm","tasklist update");
                 //如果当前是主机，还要向从机广播
-                if(get_global_data()->m_is_host == 1)
-                {
-                    EspNowHost::Instance()->Mqtt_update_task_list();
-                }
+                // if(get_global_data()->m_is_host == 1)
+                // {
+                //     EspNowHost::Instance()->Mqtt_update_task_list();
+                // }
                 //如果当前是选择task界面则刷新，
                 //其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
                 if(GetCurrentState()==ChoosingTaskState::Instance())
@@ -192,6 +193,10 @@ void ElabelFsm::HandleInput()
             {
                 ChangeState(OperatingTimeState::Instance());
             }
+            else if(ChoosingTaskState::Instance()->is_jump_to_info_mode)
+            {
+                ChangeState(InfoState::Instance());
+            }
         }
         else if(GetCurrentState()==OperatingRecorderState::Instance())
         {
@@ -219,6 +224,13 @@ void ElabelFsm::HandleInput()
             else if(OperatingTimeState::Instance()->need_jump_to_record)
             {
                 ChangeState(OperatingRecorderState::Instance());
+            }
+        }
+        else if(GetCurrentState()==InfoState::Instance())
+        {
+            if(InfoState::Instance()->need_out_state)
+            {
+                ChangeState(ChoosingTaskState::Instance());
             }
         }
         //-------------------------------正常逻辑流程--------------------------------//

@@ -3,7 +3,6 @@
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
-#include "Esp_now_slave.hpp"
 #include "http.h"
 
 #define CONFIRM_TIMER_TIME 15
@@ -102,31 +101,13 @@ public:
         time_process = finish_time_process;
         if(get_global_data()->m_is_host == 1)
         {
-            http_add_to_do((char*)"Pure Time Task",(char*)"1",true);
-            bool is_add_task = false;
-            int todo_id = 0;
-            do
-            {
-                vTaskDelay(1000 / portTICK_PERIOD_MS);
-                for(int i = 0; i < get_global_data()->m_todo_list->size; i++)
-                {
-                    if(get_global_data()->m_todo_list->items[i].taskType == 1)
-                    {
-                        is_add_task = true;
-                        todo_id = get_global_data()->m_todo_list->items[i].id;
-                    }
-                }
-            } while (!is_add_task && get_task_list_state() == newest);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            char sstr[12];
-            sprintf(sstr, "%d", todo_id);
-            http_in_focus(sstr,ElabelController::Instance()->TimeCountdown,false);
+            http_add_enter_focus((char*)"Pure Time Task",(char*)"1",ElabelController::Instance()->TimeCountdown,true);
         }
         else if(get_global_data()->m_is_host == 2)
         {
-            char title[20] = "Pure Time Task";
-            focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, title);
-            EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
+            // char title[20] = "Pure Time Task";
+            // focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, title);
+            // EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
     }
 };

@@ -66,8 +66,8 @@ void InitState::Execute(ElabelController* pOwner)
         //如果已经初始化或者需要OTA则不进行初始化
         if(is_init || is_need_ota == 1) return;
 
-        //等待1swifi连接两秒稳定
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        //等待2swifi连接两秒稳定
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
         //时间同步(堵塞等待)
         HTTP_syset_time();
         //获取挂墙时间
@@ -125,14 +125,14 @@ void InitState::Execute(ElabelController* pOwner)
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        //初始化EspNowSlave
-        EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+        // //初始化EspNowSlave
+        // EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
 
-        //绑定主机
-        EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+        // //绑定主机
+        // EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
 
-        //获取任务列表
-        EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
+        // //获取任务列表
+        // EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
 
         is_init = true;
     }

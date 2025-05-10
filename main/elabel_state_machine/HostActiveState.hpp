@@ -3,7 +3,8 @@
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
-#include "esp_now_host.hpp"
+#include "network.h"
+// #include "esp_now_host.hpp"
 #include "http.h"
 #define RECONNECT_COUNT_DOWN 30
 
@@ -90,8 +91,8 @@ public:
         lock_lvgl();
         set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
         release_lvgl();
-        //等待500ms连接稳定和token接收
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        //等待2000ms连接稳定和token接收
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
         http_find_usr(true);
         http_bind_user(true);
         //保存user的激活记录

@@ -6,8 +6,8 @@
 #include "global_message.h"
 #include "global_time.h"
 #include "http.h"
-// #undef ESP_LOGI
-// #define ESP_LOGI(tag, format, ...) 
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 //BOUNDARY 是一个分隔符，用于区分 multipart/form-data 请求中不同部分的边界。
 //在发送多个字段时，每个字段都用这个边界来分开。它通常是一个唯一的字符串，以确保各部分不会混淆。
 
@@ -55,6 +55,40 @@ void http_send(http_task_struct* m_task_struct)
         // 释放 JSON 对象
         cJSON_Delete(root);
     }
+    else if(m_task_struct->task==ADD_ENTER_FOCUS)
+    {
+        esp_http_client_set_method(client,HTTP_METHOD_POST);
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/addEnterFocus");
+        esp_http_client_set_header(client,"Content-Type","application/json");
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
+        // 构造 JSON 数据
+        cJSON *root = cJSON_CreateObject();
+        cJSON_AddStringToObject(root, "title",    m_task_struct->parament[
+            
+            0]);
+        cJSON_AddStringToObject(root, "taskType", m_task_struct->parament[1]);
+        cJSON_AddStringToObject(root, "fallTiming", m_task_struct->parament[2]);
+        char str_time[20];
+        get_unix_time_str(str_time,20);
+        cJSON_AddStringToObject(root, "startTime", str_time);
+
+        // 将 JSON 数据转换为字符串
+        const char *post_data = cJSON_Print(root);
+
+        // 将 JSON 数据设置为 HTTP 请求体
+        esp_http_client_set_post_field(client, post_data, strlen(post_data));
+        // 发送请求
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+            //         esp_http_client_get_status_code(client),
+            //         esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        }
+        // 释放 JSON 对象
+        cJSON_Delete(root);
+    }
     else if(m_task_struct->task==ENTER_FOCUS)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
@@ -72,12 +106,15 @@ void http_send(http_task_struct* m_task_struct)
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"id\"\r\n\r\n"
             "%s\r\n"
+
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"focus\"\r\n\r\n"
             "%s\r\n"
+
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"startTime\"\r\n\r\n"
             "%lld\r\n"
+
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"fallTiming\"\r\n\r\n"
             "%s\r\n"

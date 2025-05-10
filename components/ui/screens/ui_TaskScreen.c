@@ -61,7 +61,7 @@ void ui_TaskScreen_screen_init(void)
     lv_label_set_text(ui_chooseTaskF, "fuck");
     lv_obj_set_style_text_color(ui_chooseTaskF, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskF, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTaskF, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTaskF, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask1 = lv_label_create(ui_chooseTaskF);
     lv_obj_set_width(ui_chooseTask1, LV_SIZE_CONTENT);   /// 1
@@ -72,7 +72,7 @@ void ui_TaskScreen_screen_init(void)
     lv_label_set_text(ui_chooseTask1, "fuck");
     lv_obj_set_style_text_color(ui_chooseTask1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTask1, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTask1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button2 = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_Button2, 209);
@@ -92,10 +92,10 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_chooseTaskS, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_chooseTaskS, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_chooseTaskS, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTaskS, "Todo 3");
+    lv_label_set_text(ui_chooseTaskS, "我和你");
     lv_obj_set_style_text_color(ui_chooseTaskS, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskS, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTaskS, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTaskS, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask2 = lv_label_create(ui_chooseTaskS);
     lv_obj_set_width(ui_chooseTask2, LV_SIZE_CONTENT);   /// 1
@@ -103,10 +103,10 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_x(ui_chooseTask2, -1);
     lv_obj_set_y(ui_chooseTask2, 0);
     lv_obj_set_align(ui_chooseTask2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTask2, "Todo 3");
+    lv_label_set_text(ui_chooseTask2, "我和你");
     lv_obj_set_style_text_color(ui_chooseTask2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTask2, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTask2, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button3 = lv_btn_create(ui_TaskContainer);
     lv_obj_set_width(ui_Button3, 192);
@@ -128,10 +128,10 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_chooseTaskT, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_chooseTaskT, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_chooseTaskT, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTaskT, "Todo 3");
+    lv_label_set_text(ui_chooseTaskT, "123");
     lv_obj_set_style_text_color(ui_chooseTaskT, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskT, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTaskT, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTaskT, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask11 = lv_label_create(ui_chooseTaskT);
     lv_obj_set_width(ui_chooseTask11, LV_SIZE_CONTENT);   /// 1
@@ -139,10 +139,10 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_x(ui_chooseTask11, -1);
     lv_obj_set_y(ui_chooseTask11, 0);
     lv_obj_set_align(ui_chooseTask11, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTask11, "Todo 3");
+    lv_label_set_text(ui_chooseTask11, "123");
     lv_obj_set_style_text_color(ui_chooseTask11, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_chooseTask11, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_chooseTask11, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_scrollbar = lv_obj_create(ui_HaveTaskContainer);
     lv_obj_set_width(ui_scrollbar, 32);

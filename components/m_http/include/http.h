@@ -11,6 +11,7 @@
 
 typedef enum {
     NO_TASK,
+    ADD_ENTER_FOCUS,
     ENTER_FOCUS,
     OUT_FOCUS,
     DELETTODO,
@@ -33,7 +34,7 @@ typedef enum {
 typedef struct {
     uint64_t unique_id;
     http_task_t task;
-    char *parament[MAX_PARA];//不搞二维数组了纯恶心自己，算了选择定长，享受美好人生。
+    char *parament[MAX_PARA];
     bool need_stuck;
 }http_task_struct;
 //--------------------------------------TaskQueue--------------------------------------//
@@ -63,6 +64,8 @@ void http_client_init(void);
 void http_get_latest_version(bool need_stuck);
 
 void http_add_to_do(char *title, char*todoType, bool need_stuck);
+
+void http_add_enter_focus(char *title, char*todoType, int fallingTime, bool need_stuck);
 
 void http_get_todo_list(bool need_stuck);
 

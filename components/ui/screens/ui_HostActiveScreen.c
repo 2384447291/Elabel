@@ -18,7 +18,6 @@ void ui_HostActiveScreen_screen_init(void)
     ui_ConnectingWIFI = lv_obj_create(ui_HostActiveScreen);
     lv_obj_set_width(ui_ConnectingWIFI, 250);
     lv_obj_set_height(ui_ConnectingWIFI, 122);
-    lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ConnectingWIFI, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_ConnectingWIFI, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -64,6 +63,7 @@ void ui_HostActiveScreen_screen_init(void)
     lv_obj_set_width(ui_DisconnectWIFI, 250);
     lv_obj_set_height(ui_DisconnectWIFI, 122);
     lv_obj_set_align(ui_DisconnectWIFI, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_DisconnectWIFI, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_DisconnectWIFI, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
