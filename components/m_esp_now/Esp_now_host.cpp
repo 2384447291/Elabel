@@ -3,7 +3,6 @@
 #include "global_time.h"
 #include "codec.hpp"
 #include "http.h"
-#include "VoicePacketManager.hpp"
 
 static esp_err_t Host_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
@@ -13,6 +12,18 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     //读取数据
     data_ptr++;
     size--;
+    //------------------------------------------------睡眠请求------------------------------------------------//
+    if(m_message_type == Slave2Host_Sleep_Request_Http)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Sleep_Request_Http from " MACSTR, MAC2STR(src_addr));
+        EspNowHost::Instance()->Bind_slave_mac.set_sleep(src_addr, true);
+    }   
+    else if(m_message_type == Slave2Host_Wakeup_Request_Http)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Wakeup_Request_Http from " MACSTR, MAC2STR(src_addr));
+        EspNowHost::Instance()->Bind_slave_mac.set_sleep(src_addr, false);
+    }
+    //------------------------------------------------睡眠请求------------------------------------------------//
 
     //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
     if(m_message_type == Test_Start_Request_Slave2Host)
@@ -29,7 +40,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         temp_data[1] = (EspNowClient::Instance()->test_connecting_send_count >> 8) & 0xFF;
         esp_err_t ret;
         do{
-            ret = EspNowHost::Instance()->send_message(temp_data, 2, Test_Feedback_Host2Slave,src_addr);
+            ret = EspNowHost::Instance()->send_message_ack(temp_data, 2, Test_Feedback_Host2Slave,src_addr);
         }while(ret!=ESP_OK);
         espnow_del_peer(src_addr);
         ESP_LOGI(ESP_NOW, "Receive Test_Stop_Request_Slave2Host from " MACSTR" , send count: %d", MAC2STR(src_addr),EspNowClient::Instance()->test_connecting_send_count);
@@ -41,50 +52,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
 
 
-    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
-    if(m_message_type == Voice_Start_Send)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Start_Send from " MACSTR, MAC2STR(src_addr));
-        uint32_t recorded_size = (data_ptr[0] << 24) | (data_ptr[1] << 16) | (data_ptr[2] << 8) | data_ptr[3];
-        uint16_t packet_num = (data_ptr[4] << 8) | data_ptr[5];
-        // MCodec::Instance()->recorded_size = 0;
-        VoicePacketManager::Instance()->total_packets = packet_num;
-        VoicePacketManager::Instance()->voice_size = recorded_size;
-    }
-    else if(m_message_type == Voice_Stop_Send)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Stop_Send from " MACSTR, MAC2STR(src_addr));
-        VoicePacketManager::Instance()->send_voice_feedback(src_addr);
-    }
-    else if(m_message_type == Voice_Message)
-    {
-        uint16_t voice_packet_id = (data_ptr[0] << 8) | data_ptr[1];
-        VoicePacketManager::Instance()->receive_packet(voice_packet_id);
-        // memcpy(MCodec::Instance()->record_buffer+(voice_packet_id*(MAX_EFFECTIVE_DATA_LEN-2)), data_ptr+2, size-2);
-    }
-    else if(m_message_type == Voice_Feedback)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Feedback from " MACSTR, MAC2STR(src_addr));
-        if(VoicePacketManager::Instance()->voice_packet_status == voice_packet_status_feedback)
-        {
-            uint8_t missing_packets_size = data_ptr[0] << 8 | data_ptr[1];
-            if(missing_packets_size == 0)
-            {
-                VoicePacketManager::Instance()->need_send_mac.removeByMac(src_addr);
-            }
-            else
-            {
-                for(int i = 0; i < missing_packets_size; i++)
-                {
-                    uint16_t missing_packet_id = data_ptr[2+i*2] << 8 | data_ptr[3+i*2];
-                    VoicePacketManager::Instance()->receive_packet(missing_packet_id);
-                }
-            }
-            VoicePacketManager::Instance()->voice_packet_status = voice_packet_judge_process;
-        }
-    }
-    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
-
+    //------------------------------------------------解决从机需求------------------------------------------------//
     if(m_message_type == Slave2Host_Bind_Request_Http)
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Bind_Request_Http from " MACSTR, MAC2STR(src_addr));
@@ -105,32 +73,17 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Out_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
         EspNowHost::Instance()->http_response_out_focus(data_ptr, size);
     }
+    //------------------------------------------------解决从机需求------------------------------------------------//
+
+
     return ESP_OK;
 }
 
 
-// 只是用来发送心跳信息
-static void esp_now_send_update(void *pvParameter)
-{
-    while (1)
-    {
-        vTaskDelay(pdMS_TO_TICKS(HEART_BEAT_TIME_MSECS));
-        if(!EspNowHost::Instance()->is_sending_message)
-        {
-            EspNowHost::Instance()->send_bind_heartbeat();
-        }
-    }
-}
 
 void EspNowHost::init()
 {
-    if(host_send_update_task_handle != NULL) 
-    {
-        ESP_LOGI(ESP_NOW, "Host already init");
-        return;
-    }
-
-    //这些数据是从nvs中来的更新从机列表
+    //从nvs中来的更新从机列表
     Bind_slave_mac.clear();
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
@@ -144,24 +97,17 @@ void EspNowHost::init()
     //添加配对设备广播设置0xFF通道
     espnow_add_peer(ESPNOW_ADDR_BROADCAST, NULL);
 
-    xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 0, &host_send_update_task_handle);
-
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Host_handle);
     ESP_LOGI(ESP_NOW, "Host init success");
 }
 
 void EspNowHost::deinit()
 {
-    if(host_send_update_task_handle == NULL) 
-    {
-        ESP_LOGI(ESP_NOW, "Host not init");
-        return;
-    }
+
     EspNowClient::Instance()->m_role = default_role;
-    vTaskDelete(host_send_update_task_handle);
-    host_send_update_task_handle = NULL;
-    
+
     espnow_del_peer(ESPNOW_ADDR_BROADCAST);
+    
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
         espnow_del_peer(get_global_data()->m_slave_mac[i]);
@@ -176,24 +122,7 @@ void EspNowHost::http_response_enter_focus(uint8_t* data, size_t size)
     focus_message_t focus_message = data_to_focus_message(data);
     if(focus_message.focus_type == 1)
     {
-        http_add_to_do((char*)"Pure Time Task",(char*)"1",true);
-        bool is_add_task = false;
-        int todo_id = 0;
-        do
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            for(int i = 0; i < get_global_data()->m_todo_list->size; i++)
-            {
-                if(get_global_data()->m_todo_list->items[i].taskType == 1)
-                {
-                    is_add_task = true;
-                    todo_id = get_global_data()->m_todo_list->items[i].id;
-                }
-            }
-        } while (!is_add_task);
-        char sstr[12];
-        sprintf(sstr, "%d", todo_id);
-        http_in_focus(sstr,focus_message.focus_time,false);
+        http_add_enter_focus((char*)"Pure Time Task",(char*)"1",focus_message.focus_time,false);
     }
     else if(focus_message.focus_type == 2)
     {
@@ -203,24 +132,7 @@ void EspNowHost::http_response_enter_focus(uint8_t* data, size_t size)
     }
     else if(focus_message.focus_type == 3)
     {
-        http_add_to_do((char*)"Record Task",(char*)"3",true);
-        bool is_add_task = false;
-        int todo_id = 0;
-        do
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            for(int i = 0; i < get_global_data()->m_todo_list->size; i++)
-            {
-                if(get_global_data()->m_todo_list->items[i].taskType == 3)
-                {
-                    is_add_task = true;
-                    todo_id = get_global_data()->m_todo_list->items[i].id;
-                }
-            }
-        } while (!is_add_task);
-        char sstr[12];
-        sprintf(sstr, "%d", todo_id);
-        http_in_focus(sstr,focus_message.focus_time,false);
+        http_add_enter_focus((char*)"Record Task",(char*)"3",focus_message.focus_time,false);
     }
 }
 
@@ -241,7 +153,8 @@ void EspNowHost::Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
     
     // 发送所有数据包
     int current_task_index = 0;
-    while(current_task_index < list->size) {
+    while(current_task_index < list->size) 
+    {
         // 计算当前包可以包含的任务数量
         size_t current_packet_len = 2;  // 头部2字节（任务总数和清除标志）
         int tasks_in_packet = 0;
@@ -287,16 +200,29 @@ void EspNowHost::Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
         {
             for(int i = 0; i < Bind_slave_mac.count; i++)
             {
-                ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to " MACSTR, MAC2STR(Bind_slave_mac.bytes[i]));
-                send_message(current_packet, offset, Host2Slave_UpdateTaskList_Control_Mqtt, Bind_slave_mac.bytes[i]);
+                // 如果从机处于睡眠状态，则不发送数据包
+                if(Bind_slave_mac.slaves[i].is_sleep)
+                {
+                    ESP_LOGI(ESP_NOW, "Slave " MACSTR " is sleep, skip", MAC2STR(Bind_slave_mac.slaves[i].mac));
+                    continue;
+                }
+                ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to " MACSTR, MAC2STR(Bind_slave_mac.slaves[i].mac));
+                send_message_ack(current_packet, offset, Host2Slave_UpdateTaskList_Control_Mqtt, Bind_slave_mac.slaves[i].mac);
             }
         }
         else
         {
-            ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
-            send_message(current_packet, offset, Host2Slave_UpdateTaskList_Control_Mqtt, slave_mac);
+            if(Bind_slave_mac.is_sleep(slave_mac))
+            {
+                ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to no ack" MACSTR, MAC2STR(slave_mac));
+                send_message_no_ack(current_packet, offset, Host2Slave_UpdateTaskList_Control_Mqtt, slave_mac);
+            }
+            else
+            {
+                ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
+                send_message_ack(current_packet, offset, Host2Slave_UpdateTaskList_Control_Mqtt, slave_mac);
+            }
         }
-
         current_task_index += tasks_in_packet;
     }
 }
@@ -310,7 +236,12 @@ void EspNowHost::Mqtt_enter_focus(focus_message_t focus_message)
     // 添加remind_slave到队列
     for(int i = 0; i < Bind_slave_mac.count; i++)
     {
-        send_message(temp_data, temp_data_len, Host2Slave_Enter_Focus_Control_Mqtt, Bind_slave_mac.bytes[i]);
+        if(Bind_slave_mac.slaves[i].is_sleep)
+        {
+            ESP_LOGI(ESP_NOW, "Slave " MACSTR " is sleep, skip", MAC2STR(Bind_slave_mac.slaves[i].mac));
+            continue;
+        }
+        send_message_ack(temp_data, temp_data_len, Host2Slave_Enter_Focus_Control_Mqtt, Bind_slave_mac.slaves[i].mac);
     }
 }
 
@@ -321,7 +252,7 @@ void EspNowHost::Mqtt_out_focus()
     // 添加remind_slave到队列
     for(int i = 0; i < Bind_slave_mac.count; i++)
     {
-        send_message(&temp_data, 1, Host2Slave_Out_Focus_Control_Mqtt, Bind_slave_mac.bytes[i]);
+        send_message_ack(&temp_data, 1, Host2Slave_Out_Focus_Control_Mqtt, Bind_slave_mac.slaves[i].mac);
     }
 }
 

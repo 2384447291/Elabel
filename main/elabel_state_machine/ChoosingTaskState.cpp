@@ -7,8 +7,14 @@ void choose_next_task()
 {
     if(get_global_data()->m_todo_list->size==0)
     {
+        uint8_t temp_guide_page = ChoosingTaskState::Instance()->guide_page;
+        temp_guide_page ++;
+        if(temp_guide_page > 3)
+        {
+            temp_guide_page = 0;
+        }
+        ChoosingTaskState::Instance()->guide_page = temp_guide_page;
         ESP_LOGE("ChoosingTaskState","No task no need choose next task");
-        return;
     }
     else if(get_global_data()->m_todo_list->size==1)
     {
@@ -53,8 +59,14 @@ void choose_previous_task()
 {
     if(get_global_data()->m_todo_list->size==0)
     {
+        uint8_t temp_guide_page = ChoosingTaskState::Instance()->guide_page;
+        temp_guide_page --;
+        if(temp_guide_page < 0)
+        {
+            temp_guide_page = 3;
+        }
+        ChoosingTaskState::Instance()->guide_page = temp_guide_page;
         ESP_LOGE("ChoosingTaskState","No task no need choose next task");
-        return;
     }
     else if(get_global_data()->m_todo_list->size==1)
     {
@@ -131,10 +143,12 @@ void jump_to_info_mode()
 
 void ChoosingTaskState::brush_task_list()
 {
-    update_lvgl_task_list(ElabelController::Instance()->CenterTaskNum);
+    update_lvgl_task_list(ElabelController::Instance()->CenterTaskNum, guide_page);
     ElabelController::Instance()->TaskLength = get_global_data()->m_todo_list->size;
     ESP_LOGI("ChoosingTaskState","brush_task_list");
 }
+
+
 
 void ChoosingTaskState::Init(ElabelController* pOwner)
 {
@@ -157,6 +171,8 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;
     is_jump_to_info_mode = false;
+
+    guide_page = 0;
 
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);

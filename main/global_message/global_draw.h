@@ -16,7 +16,7 @@ uint8_t get_button_size(Button_type button_type);
 void lock_lvgl();
 void release_lvgl();
 void Inituilock();
-void update_lvgl_task_list(int chose_task);
+void update_lvgl_task_list(int chose_task, uint8_t guide_page);
 void guiTask(void *pvParameter);
 void switch_screen(lv_obj_t* new_screen);
 void set_text_without_change_font(lv_obj_t * target_label,  const char * text);

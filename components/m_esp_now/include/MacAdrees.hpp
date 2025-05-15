@@ -6,20 +6,24 @@
 #include <cstring>
 #include "esp_now_client.hpp"
 #define MAX_SLAVE_NUM 6
+struct slave_info{
+    uint8_t mac[ESP_NOW_ETH_ALEN];
+    bool is_sleep;
+};
 
 class MacAddress {
 public:
-    uint8_t bytes[ESP_NOW_ETH_ALEN][MAX_SLAVE_NUM];
+    slave_info slaves[MAX_SLAVE_NUM];
     size_t count;  // 当前存储的 MAC 地址数量
 
     MacAddress() : count(0) {
-        memset(bytes, 0, ESP_NOW_ETH_ALEN * MAX_SLAVE_NUM);
+        memset(slaves, 0, sizeof(slaves));
     }
 
     // 检查 MAC 地址是否已存在
     bool exists(const uint8_t mac[ESP_NOW_ETH_ALEN]) const {
         for (size_t i = 0; i < count; i++) {
-            if (memcmp(bytes[i], mac, ESP_NOW_ETH_ALEN) == 0) {
+            if (memcmp(slaves[i].mac, mac, ESP_NOW_ETH_ALEN) == 0) {
                 return true;
             }
         }
@@ -38,7 +42,8 @@ public:
             return false;  // MAC 地址已存在
         }
         
-        memcpy(bytes[count], mac, ESP_NOW_ETH_ALEN);
+        memcpy(slaves[count].mac, mac, ESP_NOW_ETH_ALEN);
+        slaves[count].is_sleep = false;
         count++;
         return true;
     }
@@ -46,15 +51,16 @@ public:
     // 通过 MAC 地址删除
     bool removeByMac(const uint8_t mac[ESP_NOW_ETH_ALEN]) {
         for (size_t i = 0; i < count; i++) {
-            if (memcmp(bytes[i], mac, ESP_NOW_ETH_ALEN) == 0) {
+            if (memcmp(slaves[i].mac, mac, ESP_NOW_ETH_ALEN) == 0) {
                 // 将后面的地址前移
                 for (size_t j = i; j < count - 1; j++) {
-                    memcpy(bytes[j], bytes[j + 1], ESP_NOW_ETH_ALEN);
+                    memcpy(slaves[j].mac, slaves[j + 1].mac, ESP_NOW_ETH_ALEN);
+                    slaves[j].is_sleep = slaves[j + 1].is_sleep;
                 }
                 // 清零最后一个位置
-                memset(bytes[count - 1], 0, ESP_NOW_ETH_ALEN);
+                memset(slaves[count - 1].mac, 0, ESP_NOW_ETH_ALEN);
+                slaves[count - 1].is_sleep = false;
                 count--;
-                // ESP_LOGI(ESP_NOW, "Removed slave " MACSTR ". Current count: %d", MAC2STR(mac), count);
                 return true;
             }
         }
@@ -64,26 +70,42 @@ public:
 
     // 清空所有 MAC 地址
     void clear() {
-        memset(bytes, 0, ESP_NOW_ETH_ALEN * MAX_SLAVE_NUM);
+        memset(slaves, 0, sizeof(slaves));
         count = 0;
     }
 
     void print() {
         ESP_LOGI(ESP_NOW, "MAC addresses: %d", count);
         for (size_t i = 0; i < count; i++) {
-            ESP_LOGI(ESP_NOW, "MAC address %d: " MACSTR, i, MAC2STR(bytes[i]));
+            ESP_LOGI(ESP_NOW, "MAC address %d: " MACSTR, i, MAC2STR(slaves[i].mac));
         }
     }
     // 重载赋值运算符
     MacAddress& operator=(const MacAddress& other) {
         if (this != &other) {
             // 复制MAC地址数组
-            memcpy(bytes, other.bytes, ESP_NOW_ETH_ALEN * MAX_SLAVE_NUM);
+            memcpy(slaves, other.slaves, sizeof(slaves));
             // 复制计数
             count = other.count;
-            // ESP_LOGI(ESP_NOW, "Copied %d MAC addresses", count);
         }
         return *this;
+    }
+
+    void set_sleep(const uint8_t mac[ESP_NOW_ETH_ALEN], bool is_sleep) {
+        for (size_t i = 0; i < count; i++) {
+            if (memcmp(slaves[i].mac, mac, ESP_NOW_ETH_ALEN) == 0) {
+                slaves[i].is_sleep = is_sleep;
+            }
+        }
+    }
+
+    bool is_sleep(const uint8_t mac[ESP_NOW_ETH_ALEN]) {
+        for (size_t i = 0; i < count; i++) {
+            if (memcmp(slaves[i].mac, mac, ESP_NOW_ETH_ALEN) == 0) {
+                return slaves[i].is_sleep;
+            }
+        }
+        return true;
     }
 };
 

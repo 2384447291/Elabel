@@ -210,7 +210,7 @@ void lvgl_modify_task(int position, const char *task_content)
 
 //--------------------------------------更新任务列表-------------------------------------//
 //chose_task: 从0开始表示第一个task在中间
-void update_lvgl_task_list(int center_task)
+void update_lvgl_task_list(int center_task, uint8_t guide_page)
 {
     int task_num = get_global_data()->m_todo_list->size;
     if(task_num > 0)
@@ -245,6 +245,35 @@ void update_lvgl_task_list(int center_task)
     {
         //如果没有事件，则显示no task enjoy life
         _ui_flag_modify(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        if(guide_page == 0)
+        {   
+            lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if(guide_page == 1)
+        {
+            lv_obj_add_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
+
+        }
+        else if(guide_page == 2)
+        {   
+            lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
+        }
+        else if(guide_page == 3)
+        {
+            lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
+        }
         _ui_flag_modify(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }

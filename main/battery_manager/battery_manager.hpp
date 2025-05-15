@@ -11,10 +11,9 @@
 #define ESP_LOGI(tag, format, ...) 
 
 // IO定义
-#define DEV_POWER_CTRL        GPIO_NUM_7 
+#define DEV_POWER_CTRL        GPIO_NUM_5
 #define BATTERY_ADC_CHAN      ADC1_CHANNEL_6  // GPIO6 对应 ADC1_CH6
 #define ADC_SAMPLES    64               // 采样次数
-#define LOWLEST_VOLTAGE 3.00
 
 class BatteryManager {
 public:
@@ -38,8 +37,6 @@ public:
 
     // 电源管理锁（防止light sleep）
     esp_pm_lock_handle_t s_pm_lock;
-
- 
 };
 
 #endif

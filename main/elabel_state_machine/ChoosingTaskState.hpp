@@ -19,6 +19,8 @@ public:
     void recolor_task();
     void update_progress_bar();
 
+    uint8_t guide_page = 0;
+
     bool is_jump_to_task_mode = false;
     bool is_jump_to_time_mode = false;
     bool is_jump_to_record_mode = false;

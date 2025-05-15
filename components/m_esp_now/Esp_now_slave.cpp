@@ -2,7 +2,6 @@
 #include "esp_now_slave.hpp"
 #include "global_nvs.h"
 #include "codec.hpp"
-#include "VoicePacketManager.hpp"
 static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
@@ -12,27 +11,7 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     data_ptr++;
     size--;
     EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
-    if(m_message_type == Bind_Control_Host2Slave)
-    {
-        // if(!EspNowSlave::Instance()->is_host_connected)
-        // {     
-        //     ESP_LOGI(ESP_NOW, "Receive Bind_Control_Host2Slave message.");
-        //     Global_data* global_data = get_global_data();
-        //     global_data->m_host_channel = data_ptr[0];
-        //     memcpy(global_data->m_userName, &data_ptr[1], size-1);
-        //     memcpy(global_data->m_host_mac, (uint8_t*)(src_addr), ESP_NOW_ETH_ALEN);
-        //     ESP_LOGI(ESP_NOW, "Host Reconnect, Host User name: %s, Host Mac: " MACSTR ", Host Channel: %d", 
-        //         global_data->m_userName, 
-        //         MAC2STR(global_data->m_host_mac), 
-        //         global_data->m_host_channel);
-        //     //设置信道
-        //     ESP_ERROR_CHECK(esp_wifi_set_channel(global_data->m_host_channel, WIFI_SECOND_CHAN_NONE));
-        //     //更新nvs
-        //     set_nvs_info_set_host_message(global_data->m_host_mac, global_data->m_host_channel, global_data->m_userName);
-        //     EspNowSlave::Instance()->is_host_connected = true;
-        // }
-    }
-    else if(m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
+    if(m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
     {
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(data_ptr, size);
@@ -47,49 +26,6 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
     }
-    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
-    if(m_message_type == Voice_Start_Send)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Start_Send from " MACSTR, MAC2STR(src_addr));
-        uint32_t recorded_size = (data_ptr[0] << 24) | (data_ptr[1] << 16) | (data_ptr[2] << 8) | data_ptr[3];
-        uint16_t packet_num = (data_ptr[4] << 8) | data_ptr[5];
-        // MCodec::Instance()->recorded_size = 0;
-        VoicePacketManager::Instance()->total_packets = packet_num;
-        VoicePacketManager::Instance()->voice_size = recorded_size;
-    }
-    else if(m_message_type == Voice_Stop_Send)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Stop_Send from " MACSTR, MAC2STR(src_addr));
-        VoicePacketManager::Instance()->send_voice_feedback(src_addr);
-    }
-    else if(m_message_type == Voice_Message)
-    {
-        uint16_t voice_packet_id = (data_ptr[0] << 8) | data_ptr[1];
-        VoicePacketManager::Instance()->receive_packet(voice_packet_id);
-        // memcpy(MCodec::Instance()->record_buffer+(voice_packet_id*(MAX_EFFECTIVE_DATA_LEN-2)), data_ptr+2, size-2);
-    }
-    else if(m_message_type == Voice_Feedback)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Voice_Feedback from " MACSTR, MAC2STR(src_addr));
-        if(VoicePacketManager::Instance()->voice_packet_status == voice_packet_status_feedback)
-        {
-            uint8_t missing_packets_size = data_ptr[0] << 8 | data_ptr[1];
-            if(missing_packets_size == 0)
-            {
-                VoicePacketManager::Instance()->need_send_mac.removeByMac(src_addr);
-            }
-            else
-            {
-                for(int i = 0; i < missing_packets_size; i++)
-                {
-                    uint16_t missing_packet_id = data_ptr[2+i*2] << 8 | data_ptr[3+i*2];
-                    VoicePacketManager::Instance()->receive_packet(missing_packet_id);
-                }
-            }
-            VoicePacketManager::Instance()->voice_packet_status = voice_packet_judge_process;
-        }
-    }
-    //------------------------------------------------专门用来处理音频收发的接口------------------------------------------------//
     return ESP_OK;
 }
 
@@ -129,13 +65,26 @@ void EspNowSlave::resume_espnow()
 {
 
 }
+void EspNowSlave::slave_send_espnow_http_sleep_request()
+{
+    ESP_LOGI(ESP_NOW, "Slave send sleep request message");
+    uint8_t temp_data = 0;
+    send_message(&temp_data, 1, Slave2Host_Sleep_Request_Http);
+}
+
+void EspNowSlave::slave_send_espnow_http_wakeup_request()
+{
+    ESP_LOGI(ESP_NOW, "Slave send wakeup request message");
+    uint8_t temp_data = 0;
+    send_message(&temp_data, 1, Slave2Host_Wakeup_Request_Http);
+}
+
 void EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     ESP_LOGI(ESP_NOW, "Slave send update task list request message");
     uint8_t temp_data = 0;
     send_message(&temp_data, 1, Slave2Host_UpdateTaskList_Request_Http);
 }
-
 void EspNowSlave::slave_send_espnow_http_bind_host_request()
 {
     ESP_LOGI(ESP_NOW, "Slave send bind host request message");
@@ -230,7 +179,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
         char title[20] = "Pure Time Task";;
         todo.title = title;
     }
-    else if(focus_message.focus_type == 2 || focus_message.focus_type == 0)
+    else if(focus_message.focus_type == 2)
     {
         todo.title = focus_message.task_name;
     }
@@ -239,9 +188,9 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
         char title[20] = "Record Task";
         todo.title = title;
     }
+    //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
     clean_todo_list(get_global_data()->m_todo_list);
     add_or_update_todo_item(get_global_data()->m_todo_list, todo);
-    //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
     set_task_list_state(firmware_need_update);
 }
 

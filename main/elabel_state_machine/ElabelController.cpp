@@ -138,18 +138,12 @@ void ElabelFsm::HandleInput()
                 {
                     ChangeState(ChoosingTaskState::Instance());
                 }
-                // //如果当前是主机，则向从机发送out_focus的消息
-                // if(get_global_data()->m_is_host == 1)
-                // {
-                //     EspNowHost::Instance()->Mqtt_out_focus();
-                // }
                 get_global_data()->m_focus_state->is_focus = 0;
                 get_global_data()->m_focus_state->focus_task_id = 0;
             }
             //如果收到进入focus的信息
             else if(get_global_data()->m_focus_state->is_focus == 1)
             {
-                //因为enterfocus需要的信息太多了所以放到了FocusState的Enter函数中
                 ESP_LOGI("ElabelFsm","enter focus");
                 ChangeState(FocusTaskState::Instance());
             }
@@ -157,13 +151,6 @@ void ElabelFsm::HandleInput()
             else if(get_global_data()->m_focus_state->is_focus == 0)
             {
                 ESP_LOGI("ElabelFsm","tasklist update");
-                //如果当前是主机，还要向从机广播
-                // if(get_global_data()->m_is_host == 1)
-                // {
-                //     EspNowHost::Instance()->Mqtt_update_task_list();
-                // }
-                //如果当前是选择task界面则刷新，
-                //其他界面则暂时不刷新，反正到选择界面的时候还是会调用一个brush_task_list
                 if(GetCurrentState()==ChoosingTaskState::Instance())
                 {
                     lock_lvgl();
@@ -175,6 +162,8 @@ void ElabelFsm::HandleInput()
                     ChoosingTaskState::Instance()->update_progress_bar();
                     release_lvgl();
                 }
+                get_global_data()->m_focus_state->is_focus = 0;
+                get_global_data()->m_focus_state->focus_task_id = 0;
             }
             set_task_list_state(newest);
         }
