@@ -104,11 +104,8 @@ void HTTP_syset_time(void)
 
     esp_err_t err = esp_http_client_perform(sys_time_client);
 
-    if (err == ESP_OK) {
-        // ESP_LOGI("HTTP_SYTIME", "HTTPS Status = %d, content_length = %d",
-        //          esp_http_client_get_status_code(sys_time_client),
-        //          esp_http_client_get_content_length(sys_time_client));
-    } else {
+    if(err != ESP_OK) 
+    {
         ESP_LOGE("HTTP_SYTIME", "HTTP GET request failed: %s", esp_err_to_name(err));
     }
 

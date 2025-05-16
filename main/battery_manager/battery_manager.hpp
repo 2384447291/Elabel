@@ -28,6 +28,9 @@ public:
     // 获取电池电量
     float getBatteryLevel();
 
+    // 获取电池电量
+    int getBatteryLevelInt();
+
     // 控制电池开关
     void setPowerState(bool enable);
 

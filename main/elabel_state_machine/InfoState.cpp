@@ -89,5 +89,3 @@ void InfoState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button7.CallbackLongPress.unregisterCallback(next_info);
 }
 
-
-

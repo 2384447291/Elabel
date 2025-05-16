@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include "driver/i2s_std.h"
 #include "driver/i2c.h"
+#include "global_message.h"
 
 #define I2C_PORT I2C_NUM_0
 #define I2S_PORT I2S_NUM_0 
@@ -82,7 +83,7 @@ public:
         .mclk_multiple = I2S_MCLK_MULTIPLE_256,
     };
     uint8_t codec_gain = 25;
-    uint8_t codec_vol = 90;
+    uint8_t codec_vol = get_global_data()->m_device_info.sound_volume;
     
     void open_dev(uint32_t sample_rate)
     {

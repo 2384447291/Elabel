@@ -245,6 +245,7 @@ void update_lvgl_task_list(int center_task, uint8_t guide_page)
     {
         //如果没有事件，则显示no task enjoy life
         _ui_flag_modify(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         if(guide_page == 0)
         {   
             lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
@@ -262,19 +263,18 @@ void update_lvgl_task_list(int center_task, uint8_t guide_page)
         }
         else if(guide_page == 2)
         {   
-            lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
-        }
-        else if(guide_page == 3)
-        {
-            lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
         }
-        _ui_flag_modify(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        else if(guide_page == 3)
+        {
+            lv_obj_add_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_NotaskTip2, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_NotaskTip3, LV_OBJ_FLAG_HIDDEN);
+        }
     }
 }
 //--------------------------------------更新任务列表-------------------------------------//

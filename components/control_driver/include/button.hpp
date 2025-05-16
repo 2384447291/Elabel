@@ -40,6 +40,19 @@ public:
 //----------------------------------------------Button类定义----------------------------------------------//
 
 
+//----------------------------------------------Button_pair_1类定义----------------------------------------------//
+class Button_pair_1 {
+public:
+    Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button);
+    gpio_num_t gpio;
+    adc1_channel_t adc1_chan;
+    Button* button;
+    void update();
+    void clear_state();
+};
+//----------------------------------------------Button_pair_1类定义----------------------------------------------//
+
+
 //-------------------------------------------Button_pair_3类定义-------------------------------------------//
 class Button_pair_3 {
 public:
@@ -60,17 +73,24 @@ public:
 //-------------------------------------------Button_pair_3类定义-------------------------------------------//
 
 
-//----------------------------------------------Button_pair_1类定义----------------------------------------------//
-class Button_pair_1 {
+//-------------------------------------------Button_pair_4类定义-------------------------------------------//
+class Button_pair_4 {
 public:
-    Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button);
+    Button_pair_4(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2, Button* _button3);
+    Button* button[4];
     gpio_num_t gpio;
     adc1_channel_t adc1_chan;
-    Button* button;
+    // 当前状态
+    bool current_button_state[4] = {false, false, false, false};
+    // 上一次状态
+    bool last_button_state[4] = {false, false, false, false};
+    // 状态持续时间
+    uint32_t state_start_time = 0;
+
     void update();
     void clear_state();
 };
-//----------------------------------------------Button_pair_1类定义----------------------------------------------//
+//-------------------------------------------Button_pair_4类定义-------------------------------------------//
 
 #endif
 

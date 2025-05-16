@@ -38,10 +38,18 @@ char* taskToString(http_task_t task) {
             return "Find Latest Version";
         case FINDTODOLIST:
             return "Find Todo List";
-        case BINDUSER:
-            return "Bind User";
-        case FINDUSR:
+        case BINDDEVICE:
+            return "Bind Device";
+        case UNBINDDEVICE:
+            return "Unbind Device";
+        case FINDUSER:
             return "Find User";
+        case FINDDEVICE:
+            return "Find Device";
+        case SAVESETTING:
+            return "Save Setting";
+        case SAVEPOWER:
+            return "Save Power";
         default:
             return "Unknown Task";
     }
@@ -297,7 +305,6 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
             if (response_buffer != NULL) 
             {
-                ESP_LOGI(HTTP_TAG, "Full response: %s", response_buffer);
                 parse_json_response(response_buffer,m_dealing_task,&m_http_state);
                 // 这里可以对完整的响应数据进行处理
                 free(response_buffer); // 释放内存
@@ -644,30 +651,9 @@ void http_get_latest_version(bool need_stuck)
     }
 }
 
-void http_bind_user(bool need_stuck)
-{
-    http_task_struct *m_task = create_http_task_struct(BINDUSER, NULL, 0 ,need_stuck);
-    if (m_task == NULL) 
-    {
-        ESP_LOGE(HTTP_TAG, "Failed to bind user!");
-        return;
-    }
-    if(need_stuck)
-    {
-        enqueue_front(&m_taskqueue,m_task);
-        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
-        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
-        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
-        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
-    }
-    else{
-        enqueue(&m_taskqueue,m_task);
-    }    
-}
-
 void http_find_usr(bool need_stuck)
 {
-    http_task_struct *m_task = create_http_task_struct(FINDUSR, NULL, 0 ,need_stuck);
+    http_task_struct *m_task = create_http_task_struct(FINDUSER, NULL, 0 ,need_stuck);
     if (m_task == NULL) 
     {
         ESP_LOGE(HTTP_TAG, "Failed to find user!");
@@ -684,4 +670,124 @@ void http_find_usr(bool need_stuck)
     else{
         enqueue(&m_taskqueue,m_task);
     }    
+}
+
+void http_find_device(bool need_stuck)
+{
+    http_task_struct *m_task = create_http_task_struct(FINDDEVICE, NULL, 0 ,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to find device!");
+        return;
+    }
+    if(need_stuck)
+    {
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    }    
+}
+
+void http_bind_device(bool need_stuck, uint8_t mac[6])
+{
+    char mac_str[20];           
+    sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    char *params[] = {mac_str};  // 示例参数
+    int param_count = 1;
+    http_task_struct *m_task = create_http_task_struct(BINDDEVICE,params,param_count,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to bind device!");
+        return;
+    }
+    if(need_stuck)
+    {
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    }    
+}
+
+void http_unbind_device(bool need_stuck, uint8_t mac[6])
+{
+    char mac_str[20];           
+    sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    char *params[] = {mac_str};  // 示例参数
+    int param_count = 1;
+    http_task_struct *m_task = create_http_task_struct(UNBINDDEVICE,params,param_count,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to unbind device!");
+        return;
+    }
+    if(need_stuck){
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    } 
+}
+
+void http_save_setting(bool need_stuck, char *setting, uint8_t mac[6])
+{
+    char mac_str[20];           
+    sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    char *params[] = {mac_str, setting};  // 示例参数
+    int param_count = 2;
+    http_task_struct *m_task = create_http_task_struct(SAVESETTING,params,param_count,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to save setting!");
+        return;
+    }
+    if(need_stuck){
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    } 
+}
+
+void http_save_power(bool need_stuck, int32_t power, uint8_t mac[6])
+{
+    char mac_str[20];           
+    sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    char power_str[20];           
+    sprintf(power_str, "%ld", power);
+    char *params[] = {mac_str, power_str};  // 示例参数
+    int param_count = 2;
+    http_task_struct *m_task = create_http_task_struct(SAVEPOWER,params,param_count,need_stuck);
+    if (m_task == NULL) 
+    {
+        ESP_LOGE(HTTP_TAG, "Failed to save power!");
+        return;
+    }
+    if(need_stuck){
+        enqueue_front(&m_taskqueue,m_task);
+        //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
+        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
+        while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
+    }
+    else{
+        enqueue(&m_taskqueue,m_task);
+    } 
 }

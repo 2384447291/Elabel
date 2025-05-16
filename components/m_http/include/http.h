@@ -18,8 +18,12 @@ typedef enum {
     ADDTODO,
     FINDLATESTVERSION,
     FINDTODOLIST,
-    BINDUSER,
-    FINDUSR,
+    FINDUSER,
+    BINDDEVICE,
+    FINDDEVICE,
+    UNBINDDEVICE,
+    SAVESETTING,
+    SAVEPOWER,
 } http_task_t;
 
 char* taskToString(http_task_t task);
@@ -75,10 +79,17 @@ void http_out_focus(char *id,bool need_stuck);
 
 void http_delet_todo(char *id,bool need_stuck);
 
-void http_bind_user(bool need_stuck);
+void http_bind_device(bool need_stuck, uint8_t mac[6]);
+
+void http_unbind_device(bool need_stuck, uint8_t mac[6]);
+
+void http_find_device(bool need_stuck);
 
 void http_find_usr(bool need_stuck);
 
+void http_save_setting(bool need_stuck, char *setting, uint8_t mac[6]);
+
+void http_save_power(bool need_stuck, int32_t power, uint8_t mac[6]);
 #ifdef __cplusplus
 }
 #endif

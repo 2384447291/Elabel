@@ -107,8 +107,6 @@ void confirm_slave_active_button_choice()
         get_global_data()->m_is_host = 2;
         //更新nvs
         set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
-        
-        SlaveActiveState::Instance()->need_forward = true;
     }
     //如果是在确定激活者的状态
     else if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
@@ -137,7 +135,6 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
 
     button_slave_active_confirm_left = false;
     need_back = false;
-    need_forward = false;
     need_flash_paper = false;
     enter_connect_host();
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_slave_active_button_choice);

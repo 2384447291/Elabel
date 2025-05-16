@@ -46,8 +46,6 @@ void InitState::Init(ElabelController* pOwner)
 
 void InitState::Enter(ElabelController* pOwner)
 {
-    //连接wifi
-    if(get_global_data()->m_is_host == 1) m_wifi_connect();
     is_init = false;
     is_need_ota = 0;
     lock_lvgl();
@@ -61,17 +59,35 @@ void InitState::Execute(ElabelController* pOwner)
     //主机的初始化流程
     if(get_global_data()->m_is_host == 1)
     {
-        //如果正在连接或者没有用户，则不进行初始化
-        if(get_wifi_status() == 1 && get_global_data()->m_usertoken[0] != 0) return;
-        //如果已经初始化或者需要OTA则不进行初始化
-        if(is_init || is_need_ota == 1) return;
+        //如果用户没有激活，则不进行初始化
+        if(strlen(get_global_data()->m_usertoken) == 0)
+        {
+            //如果用户没有激活，则不进行初始化
+            return;
+        }
 
-        //等待2swifi连接两秒稳定
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        //如果wifi没有连接，则不进行初始化
+        if(get_wifi_status() != 2)
+        {
+            return;
+        }
+
+        //如果已经初始化或者需要OTA则不进行初始化
+        if(is_init || is_need_ota == 1) 
+        {
+            ESP_LOGI(STATEMACHINE, "Already initialized or need OTA, not init");
+            return;
+        }
+
+        //等待1swifi连接两秒稳定
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         //时间同步(堵塞等待)
         HTTP_syset_time();
         //获取挂墙时间
         get_unix_time();
+
+        //等待1shttp连接稳定
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
 
         //获取最新版本固件
         http_get_latest_version(true);
@@ -107,20 +123,27 @@ void InitState::Execute(ElabelController* pOwner)
         {
             ESP_LOGI("OTA", "No need OTA, newest version");
         }
+
         //如果需要OTA则不进行初始化
         if(is_need_ota == 1) return;
 
         //刷新一下focus状态
         get_global_data()->m_focus_state->is_focus = 0;
         get_global_data()->m_focus_state->focus_task_id = 0;
-        http_bind_user(true);
+
+        //获取任务列表  
         http_get_todo_list(true);
-        is_init = true;
+
+        //获取设备设置项
+        http_find_device(true);
+
+        //mqtt服务器初始化
+        mqtt_client_init();
 
         //初始化EspNowHost
         // EspNowHost::Instance()->init();
-        //mqtt服务器初始化
-        mqtt_client_init();
+
+        is_init = true;
     }
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)

@@ -51,6 +51,12 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
 
 void EspNowSlave::deinit()
 {
+    if(EspNowClient::Instance()->m_role == default_role)
+    {
+        ESP_LOGE(ESP_NOW, "EspNowSlave deinit failed, role is default");
+        return;
+    }
+
     EspNowClient::Instance()->m_role = default_role;
     espnow_del_peer(this->host_mac);
     ESP_LOGI(ESP_NOW, "Slave deinit success");

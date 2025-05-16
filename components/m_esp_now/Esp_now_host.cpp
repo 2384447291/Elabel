@@ -87,8 +87,8 @@ void EspNowHost::init()
     Bind_slave_mac.clear();
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
-        Bind_slave_mac.insert(get_global_data()->m_slave_mac[i]);
-        espnow_add_peer(get_global_data()->m_slave_mac[i], NULL);
+        Bind_slave_mac.insert(get_global_data()->m_slave_info[i].mac);
+        espnow_add_peer(get_global_data()->m_slave_info[i].mac, NULL);
     }
 
     EspNowClient::Instance()->m_role = host_role;
@@ -103,6 +103,11 @@ void EspNowHost::init()
 
 void EspNowHost::deinit()
 {
+    if(EspNowClient::Instance()->m_role == default_role)
+    {
+        ESP_LOGE(ESP_NOW, "EspNowHost deinit failed, role is default");
+        return;
+    }
 
     EspNowClient::Instance()->m_role = default_role;
 
@@ -110,7 +115,7 @@ void EspNowHost::deinit()
     
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
-        espnow_del_peer(get_global_data()->m_slave_mac[i]);
+        espnow_del_peer(get_global_data()->m_slave_info[i].mac);
     }
 
     ESP_LOGI(ESP_NOW, "Host deinit success");

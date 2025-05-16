@@ -6,8 +6,8 @@
 #include "global_message.h"
 #include "global_time.h"
 #include "http.h"
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 //BOUNDARY 是一个分隔符，用于区分 multipart/form-data 请求中不同部分的边界。
 //在发送多个字段时，每个字段都用这个边界来分开。它通常是一个唯一的字符串，以确保各部分不会混淆。
 
@@ -266,11 +266,78 @@ void http_send(http_task_struct* m_task_struct)
             ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
         }
     }
-    else if(m_task_struct->task==BINDUSER)
+    else if(m_task_struct->task==FINDUSER)
+    {
+        generate_boundary(m_boundary, sizeof(m_boundary));
+        esp_http_client_set_method(client,HTTP_METHOD_POST);
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/moveUser/getUserInfo");
+        // 设置 Content-Type
+        char content_type[100]; // 确保大小足够
+        snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
+        esp_http_client_set_header(client, "Content-Type", content_type);
+        // 设置 userToken
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
+        // 构造请求体
+        char body[256];
+        // 发送请求体
+        esp_http_client_set_post_field(client, body, strlen(body));
+        // 发送请求
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+            //         esp_http_client_get_status_code(client),
+            //         esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        }
+    }
+    else if(m_task_struct->task==BINDDEVICE)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
         esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/bindDevice");
+        char name[25];
+        sprintf(name, "Reminder-%s", m_task_struct->parament[0]);
+        // 设置 Content-Type
+        char content_type[200]; // 确保大小足够
+        snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
+        esp_http_client_set_header(client, "Content-Type", content_type);
+        // 设置 userToken
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
+        // 构造请求体
+        char body[512];
+        snprintf(body, sizeof(body),
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"userOpenId\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"name\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s--\r\n",
+            m_boundary, get_global_data()->m_usertoken, m_boundary, m_task_struct->parament[0], m_boundary, name, m_boundary);
+        // 发送请求体
+        esp_http_client_set_post_field(client, body, strlen(body));
+        // 发送请求
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+            //         esp_http_client_get_status_code(client),
+            //         esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        }
+    }
+    else if(m_task_struct->task==UNBINDDEVICE)
+    {
+        generate_boundary(m_boundary, sizeof(m_boundary));
+        esp_http_client_set_method(client,HTTP_METHOD_POST);
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/unbindDevice");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -287,7 +354,7 @@ void http_send(http_task_struct* m_task_struct)
             "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
             "%s\r\n"
             "--%s--\r\n",
-            m_boundary, get_global_data()->m_usertoken, m_boundary, get_global_data()->m_mac_str, m_boundary);
+            m_boundary, get_global_data()->m_usertoken, m_boundary, m_task_struct->parament[0], m_boundary);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
@@ -300,11 +367,11 @@ void http_send(http_task_struct* m_task_struct)
             ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
         }
     }
-    else if(m_task_struct->task==FINDUSR)
+    else if(m_task_struct->task==FINDDEVICE)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/moveUser/getUserInfo");
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/list");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -313,6 +380,83 @@ void http_send(http_task_struct* m_task_struct)
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
         char body[256];
+        // 发送请求体
+        esp_http_client_set_post_field(client, body, strlen(body));
+        // 发送请求
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+            //         esp_http_client_get_status_code(client),
+            //         esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        }
+    }
+    else if(m_task_struct->task==SAVESETTING)
+    {
+        generate_boundary(m_boundary, sizeof(m_boundary));
+        esp_http_client_set_method(client,HTTP_METHOD_POST);
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/saveSetting");
+        // 设置 Content-Type
+        char content_type[100]; // 确保大小足够
+        snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
+        esp_http_client_set_header(client, "Content-Type", content_type);
+        // 设置 userToken
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
+        // 构造请求体
+        char body[512];
+        snprintf(body, sizeof(body),
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"userOpenId\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"setting\"\r\n\r\n"
+            "%s\r\n"
+
+            "--%s--\r\n",
+            m_boundary, get_global_data()->m_usertoken, m_boundary, m_task_struct->parament[0], m_boundary, m_task_struct->parament[1], m_boundary);
+        // 发送请求体
+        esp_http_client_set_post_field(client, body, strlen(body));
+        // 发送请求
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+            //         esp_http_client_get_status_code(client),
+            //         esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+        }
+    }
+    else if(m_task_struct->task==SAVEPOWER)
+    {
+        generate_boundary(m_boundary, sizeof(m_boundary));
+        esp_http_client_set_method(client,HTTP_METHOD_POST);
+        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/savePower");
+        // 设置 Content-Type
+        char content_type[100]; // 确保大小足够
+        snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
+        esp_http_client_set_header(client, "Content-Type", content_type);
+        // 设置 userToken
+        esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
+        // 构造请求体
+        char body[512];
+        snprintf(body, sizeof(body),
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"userOpenId\"\r\n\r\n"
+            "%s\r\n"
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"sn\"\r\n\r\n"
+            "%s\r\n"
+            "--%s\r\n"
+            "Content-Disposition: form-data; name=\"power\"\r\n\r\n"
+            "%s\r\n"
+            "--%s--\r\n",
+            m_boundary, get_global_data()->m_usertoken, m_boundary, m_task_struct->parament[0], m_boundary, m_task_struct->parament[1], m_boundary);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求

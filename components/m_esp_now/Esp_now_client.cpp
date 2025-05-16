@@ -61,6 +61,12 @@ focus_message_t data_to_focus_message(uint8_t* data)
 void espnow_update_task(void* parameters)
 {
     uint8_t channel = 0;
+    uint8_t actual_wifi_channel = 0;        
+    wifi_country_t wifi_country;
+    esp_wifi_get_country(&wifi_country);
+    wifi_country.cc[2] = '\0';
+    ESP_LOGI(ESP_NOW, "country: %s, channel: %d, channel num : %d",
+                wifi_country.cc, wifi_country.schan, wifi_country.nchan);
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(2000));
@@ -70,11 +76,10 @@ void espnow_update_task(void* parameters)
         // 只有在未连接到主机时才进行信道切换
         if (!EspNowClient::Instance()->is_connect_to_host)
         {
-            channel = channel % 13 + 1;
-            uint8_t actual_wifi_channel = 0;
+            channel = channel % wifi_country.nchan + 1;
             wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
-            ESP_ERROR_CHECK(esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE));
-            ESP_ERROR_CHECK(esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel));
+            esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+            esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
             ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
         }
     }
@@ -82,6 +87,8 @@ void espnow_update_task(void* parameters)
 
 void EspNowClient::start_find_channel() {
     if (update_task_handle == NULL) {
+
+        
         xTaskCreate(espnow_update_task, "espnow_update_task", 4096, NULL, 0, &update_task_handle);
         ESP_LOGI(ESP_NOW, "Started channel finding task");
     }

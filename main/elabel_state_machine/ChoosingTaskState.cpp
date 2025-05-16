@@ -158,7 +158,7 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
     //只有在每次进入choosetask的时候或者退出focus的时候需要重置时间
-    ElabelController::Instance()->TimeCountdown = TimeCountdownOffset;
+    ElabelController::Instance()->TimeCountdown = (get_global_data()->m_device_info.default_counter_time*60);
     lock_lvgl();
     //加载界面
     switch_screen(ui_TaskScreen);

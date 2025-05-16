@@ -104,13 +104,13 @@ void get_nvs_info(void)
             get_global_data()->m_slave_num = slave_mac[0];
             for(int i = 0; i < get_global_data()->m_slave_num; i++)
             {
-                memcpy(get_global_data()->m_slave_mac[i], &slave_mac[i*6+1], 6);
+                memcpy(get_global_data()->m_slave_info[i].mac, &slave_mac[i*6+1], 6);
             }
 
             ESP_LOGI(NVS_TAG,"Device is host, history found slave_num is %d.", get_global_data()->m_slave_num);
             for(int i = 0; i < get_global_data()->m_slave_num; i++)
             {
-                ESP_LOGI(NVS_TAG,"Slave %d mac is " MACSTR, i, MAC2STR(get_global_data()->m_slave_mac[i]));
+                ESP_LOGI(NVS_TAG,"Slave %d mac is " MACSTR, i, MAC2STR(get_global_data()->m_slave_info[i].mac));
             }
         }
     }

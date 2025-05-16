@@ -38,6 +38,7 @@ void move_to_next_page()
 
 void move_to_previous_page()
 {
+    
     ActiveState::Instance()->m_active_page = (ActiveState::Instance()->m_active_page - 1 + 3) % 3;
     change_guide_page(ActiveState::Instance()->m_active_page);
 }
@@ -54,7 +55,8 @@ void ActiveState::Enter(ElabelController* pOwner)
     //将两个连接指标置为false
     set_is_connect_to_host(false);
     set_is_connect_to_phone(false);
-
+    
+    //反初始化espnow
     EspNowHost::Instance()->deinit();
     EspNowSlave::Instance()->deinit();
 
