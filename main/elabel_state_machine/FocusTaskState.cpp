@@ -166,7 +166,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
     //当时间小于0，每10s响一次
     else if(inner_time_countdown_ms < 0)
     {
-        if((-inner_time_countdown_ms) % 10000 == 0)
+        if((-inner_time_countdown_ms) % (get_global_data()->m_device_info.overtime_alert_time*1000) == 0)
         {
             play_focus_music();
             ESP_LOGI(STATEMACHINE,"play super long beep:%d",inner_time_countdown_ms);
@@ -183,7 +183,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
 void FocusTaskState::Exit(ElabelController* pOwner)
 {
     //只有在每次进入choosetask的时候或者推出focus的时候需要重置时间
-    pOwner->TimeCountdown = TimeCountdownOffset;
+    pOwner->TimeCountdown = (get_global_data()->m_device_info.default_counter_time*60);
     //出focus的时候还要重置选择的是第几个taskNumNum
     pOwner->ChosenTaskNum = 0;
     pOwner->CenterTaskNum = 0;

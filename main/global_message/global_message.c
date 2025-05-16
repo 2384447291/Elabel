@@ -151,8 +151,6 @@ Global_data* get_global_data() {
         instance = (Global_data*)malloc(sizeof(Global_data));
         if (instance != NULL) 
         {
-            instance->m_is_read_guidance = false;
-
             instance->m_language = English;       
 
             instance->m_is_host = 0;
@@ -167,6 +165,13 @@ Global_data* get_global_data() {
 
             memset(instance->m_mac_uint,0, sizeof(instance->m_mac_uint));
             memset(instance->m_mac_str, 0, sizeof(instance->m_mac_str));
+            
+            instance->m_device_info.default_counter_time = 5;
+            instance->m_device_info.overtime_alert_time = 10;
+            instance->m_device_info.is_idel_clock_time = 1;
+            instance->m_device_info.sound_volume = 80;
+            instance->m_device_info.power = 0;
+            instance->m_device_info.sleep_time = 0;
 
             memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
             memset(instance->m_version, 0, sizeof(instance->m_version));
@@ -179,10 +184,10 @@ Global_data* get_global_data() {
             memset(instance->m_wifi_password, 0, sizeof(instance->m_wifi_password));            
             memset(instance->m_wifi_ssid, 0, sizeof(instance->m_wifi_ssid));
 
-            //如果是从机保存的主机mac
             memset(instance->m_host_mac,0, sizeof(instance->m_host_mac));
             instance->m_host_channel = 0;
-            memset(instance->m_slave_mac,0, sizeof(instance->m_slave_mac)); 
+
+            memset(instance->m_slave_info,0, sizeof(instance->m_slave_info)); 
             instance->m_slave_num = 0;
         }
     }

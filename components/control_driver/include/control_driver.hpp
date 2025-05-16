@@ -12,10 +12,8 @@
 #include "button.hpp"
 
 // 按键定义
-#define DEVICE_BUTTON_123 GPIO_NUM_5
-#define DEVICE_BUTTON_123_CHANNEL ADC1_CHANNEL_5
-#define DEVICE_BUTTON_4 GPIO_NUM_4
-#define DEVICE_BUTTON_4_CHANNEL ADC1_CHANNEL_4
+#define DEVICE_BUTTON_1234 GPIO_NUM_4
+#define DEVICE_BUTTON_123_CHANNEL ADC1_CHANNEL_4
 
 #define DEVICE_BUTTON_567 GPIO_NUM_2
 #define DEVICE_BUTTON_567_CHANNEL ADC1_CHANNEL_2
@@ -75,12 +73,12 @@ public:
     Button button7{"Button_7", 1000};
     Button button8{"Button_8", 1000};
 
-    Button_pair_3 button_pair_123{DEVICE_BUTTON_123, DEVICE_BUTTON_123_CHANNEL, &button1, &button2, &button3};
-    Button_pair_1 button_pair_4{DEVICE_BUTTON_4, DEVICE_BUTTON_4_CHANNEL, &button4};
+    Button_pair_4 button_pair_1234{DEVICE_BUTTON_1234, DEVICE_BUTTON_123_CHANNEL, &button1, &button2, &button3, &button4};
     Button_pair_3 button_pair_567{DEVICE_BUTTON_567, DEVICE_BUTTON_567_CHANNEL, &button5, &button6, &button7};
     Button_pair_1 button_pair_8{DEVICE_BUTTON_8, DEVICE_BUTTON_8_CHANNEL, &button8};
 
     Button_Press_together button_press_together_58{&button5, &button8, "button_press_together_58"};
+    Button_Press_together button_press_together_15{&button1, &button5, "button_press_together_15"};
 
     void register_all_button_callback(Callback::CallbackFunc callback);
     void unregister_button_callback(Callback::CallbackFunc callback);

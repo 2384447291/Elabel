@@ -37,7 +37,6 @@ public:
 
     bool button_slave_active_confirm_left = false;
     bool need_back = false;
-    bool need_forward = false;
     bool need_flash_paper = false;
 
     void start_test_connecting_task();

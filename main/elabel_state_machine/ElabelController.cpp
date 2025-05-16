@@ -23,6 +23,7 @@
 #include "SlaveActiveState.hpp"
 #include "OperatingRecorderState.hpp"
 #include "OperatingTimerState.hpp"
+#include "NoWifiState.hpp"
 #include "InfoState.hpp"
 ElabelController::ElabelController() : m_elabelFsm(this){}
 //初始化状态是init_state
@@ -41,24 +42,33 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
-    //当没有在任何激活状态下，并且没有激活码，则进入激活状态
-    if(GetCurrentState()!=ActiveState::Instance() && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=SlaveActiveState::Instance())
+    //如果没有激活
+    if(get_global_data()->m_is_host == 0)
     {
-        //如果没有激活，则进入激活状态
-        if(get_global_data()->m_is_host == 0)
+        //如果当前状态不是激活状态，则进入激活状态
+        if(GetCurrentState()!=ActiveState::Instance() && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=SlaveActiveState::Instance())
         {
             ChangeState(ActiveState::Instance());
         }
-        //如果激活过了，则判断wifi状态，如果是主机且wifi断开连接了，则进入主机激活模式
-        else
+    }
+
+    //如果是主机且没有网络，则进入断网状态
+    if(get_wifi_status() == 0 && get_global_data()->m_is_host == 1)
+    {
+        m_wifi_connect();
+        ChangeState(NoWifiState::Instance());
+    }
+
+    //如果是断网状态，则进入初始化状态
+    if(GetCurrentState()==NoWifiState::Instance())
+    {
+        if(NoWifiState::Instance()->need_forward)
         {
-            if(get_wifi_status() == 0 && get_global_data()->m_is_host == 1)
-            {
-                ESP_LOGI("ElabelFsm","wifi disconnect, reconnect wifi");
-                start_blue_activate();
-                ChangeState(HostActiveState::Instance());
-                m_wifi_connect();
-            }
+            ChangeState(InitState::Instance());
+        }
+        else if(NoWifiState::Instance()->need_back)
+        {
+            ChangeState(ActiveState::Instance());
         }
     }
 
@@ -78,22 +88,14 @@ void ElabelFsm::HandleInput()
     }
     else if(GetCurrentState()==HostActiveState::Instance())
     {
-        if(HostActiveState::Instance()->need_forward)
-        {
-            ChangeState(InitState::Instance());
-        }
-        else if(HostActiveState::Instance()->need_back)
+        if(HostActiveState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }
     }
     else if(GetCurrentState()==SlaveActiveState::Instance())
     {
-        if(SlaveActiveState::Instance()->need_forward)
-        {
-            ChangeState(InitState::Instance());
-        }
-        else if(SlaveActiveState::Instance()->need_back)
+        if(SlaveActiveState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }

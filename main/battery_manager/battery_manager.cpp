@@ -76,3 +76,15 @@ float BatteryManager::getBatteryLevel() {
     batteryLevel = actual_voltage;
     return actual_voltage;
 }
+
+int BatteryManager::getBatteryLevelInt() {
+    float battery_level = getBatteryLevel();
+    if(battery_level < 1.0f)
+    {
+        return -1;
+    }
+    else
+    {
+        return 80;
+    }
+}

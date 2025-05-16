@@ -51,6 +51,20 @@ typedef struct {
     int size;         // 当前数组中的元素数量
 } TodoList;
 
+typedef struct {
+    int power;//-1表示正在充电，0-100表示电量
+    bool is_idel_clock_time;
+    uint8_t default_counter_time;
+    uint8_t overtime_alert_time;
+    uint8_t sound_volume;
+    uint8_t sleep_time;
+} device_info;
+
+typedef struct {
+    uint8_t mac[6];
+    device_info setting;
+} slave_device_info;
+
 #ifdef __cplusplus
 extern "C" 
 {
@@ -81,8 +95,6 @@ void clean_todo_list(TodoList *list);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
-    //taskscreen处有唯一显示的guidance
-    bool m_is_read_guidance;
     //语言
     language m_language;
     //主机还是从机 0 是没有设定 1 是主机 2 是从机
@@ -98,6 +110,9 @@ typedef struct
     // 1 个结束字符 '\0'：1 字符
     uint8_t m_mac_uint[6];
     char m_mac_str[18];
+
+    //当前设备的状态
+    device_info m_device_info;
 
     //查询的最新版本号
     char m_newest_firmware_url[100];
@@ -115,8 +130,9 @@ typedef struct
     uint8_t m_host_mac[6];
     uint8_t m_host_channel;
     //如果是主机保存的从机mac
-    uint8_t m_slave_mac[MAX_SLAVE_NUM][6];
+    slave_device_info m_slave_info[MAX_SLAVE_NUM];
     uint8_t m_slave_num;
+    
 } Global_data;
 
 #ifdef __cplusplus

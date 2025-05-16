@@ -1,14 +1,16 @@
-#ifndef HTTP_RECIEVE_H
-#define HTTP_RECIEVE_H
+#ifndef HTTP_RECIEIVE_H
+#define HTTP_RECIEIVE_H
 #include <stdio.h>
 #include <stdlib.h>
 #include "cJSON.h"
 #include "http.h"
 #include "global_message.h"
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
+#include "esp_mac.h"
+// #undef ESP_LOGI
+// #define ESP_LOGI(tag, format, ...) 
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
+    // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
     // 解析 JSON
     cJSON *json = cJSON_Parse(response);
     if (json == NULL) {
@@ -58,6 +60,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
 
             char *updateTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "updateTime"));
             if (updateTime_str != NULL) {
+
                 todo.updateTime = strtoll(updateTime_str, NULL, 10);
             }
 
@@ -102,19 +105,97 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             ESP_LOGI("HTTP", "This version is newest");
         }
         else{
-            cJSON *nested_data = cJSON_GetObjectItem(data, "data");
-            if (nested_data != NULL) {
-                const char *version = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "version"));
-                const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "deviceModel"));
-                const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "firmwareUrl"));
-                const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(nested_data, "createTime"));
-                memcpy(get_global_data()->m_version, version, strlen(version));
-                memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
-                memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
-                memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
+            cJSON *setting = cJSON_GetObjectItem(data, "data");
+            if (setting != NULL) {
+                
             }
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION\n");        
+    }
+    else if (m_task_struct->task == FINDUSER)
+    {
+        // 获取嵌套的 data 对象
+        cJSON *data = cJSON_GetObjectItem(json, "data");
+        if (data != NULL) 
+        {
+            const char *userName = cJSON_GetStringValue(cJSON_GetObjectItem(data, "userName"));
+            memcpy(get_global_data()->m_userName, userName, strlen(userName));
+        }
+        ESP_LOGI("HTTP", "Successful get response post task is FINDUSER.\n ");
+    } 
+    else if (m_task_struct->task == FINDDEVICE)
+    {
+        // 获取嵌套的 data 对象
+        cJSON *data = cJSON_GetObjectItem(json, "data");
+        if (data != NULL) 
+        {
+            int array_size = cJSON_GetArraySize(data);
+            for(int i = 0; i < array_size; i++)
+            {
+                cJSON *item = cJSON_GetArrayItem(data, i);
+                // 获取 setting 对象
+                const char *setting_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "setting"));
+                uint8_t mac[6];
+                device_info setting_info;
+                if (setting_str != NULL) {
+                    char temp[4] = {0};  // 临时缓冲区
+                    // 解析 default_counter (005)
+                    snprintf(temp, sizeof(temp), "%.3s", setting_str);
+                    setting_info.default_counter_time = atoi(temp);
+
+                    // 解析 overtime_freq (010)
+                    snprintf(temp, sizeof(temp), "%.3s", setting_str + 3);
+                    setting_info.overtime_alert_time = atoi(temp);
+
+                    // 解析 idle_clock (1)
+                    snprintf(temp, sizeof(temp), "%.1s", setting_str + 6);
+                    setting_info.is_idel_clock_time = atoi(temp);
+
+                    // 解析 volume (80)
+                    snprintf(temp, sizeof(temp), "%.2s", setting_str + 7);
+                    setting_info.sound_volume = atoi(temp);
+                }
+                
+                // 获取并转换 sn 为 MAC 地址
+                const char *sn_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "sn"));
+                if (sn_str != NULL) {
+                    // 将字符串形式的 MAC 地址转换为字节数组
+
+                    sscanf(sn_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+                           &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+                    
+                    // 打印 MAC 地址用于调试
+                    ESP_LOGI("HTTP", "Device MAC: %02X:%02X:%02X:%02X:%02X:%02X",
+                            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                }
+
+                // 检测是否位主机
+                if(memcmp(get_global_data()->m_mac_uint, mac, 6) == 0)
+                {
+                    get_global_data()->m_device_info.default_counter_time = setting_info.default_counter_time;
+                    get_global_data()->m_device_info.overtime_alert_time = setting_info.overtime_alert_time;
+                    get_global_data()->m_device_info.is_idel_clock_time = setting_info.is_idel_clock_time;
+                    get_global_data()->m_device_info.sound_volume = setting_info.sound_volume;
+                    ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d", MAC2STR(mac), get_global_data()->m_device_info.default_counter_time, get_global_data()->m_device_info.overtime_alert_time, get_global_data()->m_device_info.is_idel_clock_time, get_global_data()->m_device_info.sound_volume);
+                }
+                //查找是否位从机数据
+                else
+                {
+                    for(int i = 0; i < get_global_data()->m_slave_num; i++)
+                    {
+                        if(memcmp(get_global_data()->m_slave_info[i].mac, mac, 6) == 0)
+                        {
+                            get_global_data()->m_slave_info[i].setting.default_counter_time = setting_info.default_counter_time;
+                            get_global_data()->m_slave_info[i].setting.overtime_alert_time = setting_info.overtime_alert_time;
+                            get_global_data()->m_slave_info[i].setting.is_idel_clock_time = setting_info.is_idel_clock_time;
+                            get_global_data()->m_slave_info[i].setting.sound_volume = setting_info.sound_volume;
+                            ESP_LOGI("HTTP", "Save setting to slave " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d", MAC2STR(mac), get_global_data()->m_slave_info[i].setting.default_counter_time, get_global_data()->m_slave_info[i].setting.overtime_alert_time, get_global_data()->m_slave_info[i].setting.is_idel_clock_time, get_global_data()->m_slave_info[i].setting.sound_volume);
+                        }
+                    }
+                }
+            }
+        }
+        ESP_LOGI("HTTP", "Successful get response post task is FINDDEVICE.\n ");
     }
     else if (m_task_struct->task == ADDTODO)
     {
@@ -136,23 +217,23 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {
         ESP_LOGI("HTTP", "Successful get response post task is DELETTODO.\n Task%s is deleted\n",m_task_struct->parament[0]);
     }  
-    else if (m_task_struct->task == BINDUSER)
+    else if (m_task_struct->task == BINDDEVICE)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is BINDUSER.\n ");
-    } 
-    else if (m_task_struct->task == FINDUSR)
-    {
-        // 获取嵌套的 data 对象
-        cJSON *data = cJSON_GetObjectItem(json, "data");
-        if (data != NULL) 
-        {
-            const char *userName = cJSON_GetStringValue(cJSON_GetObjectItem(data, "userName"));
-            memcpy(get_global_data()->m_userName, userName, strlen(userName));
-        }
-        ESP_LOGI("HTTP", "Successful get response post task is FINDUSR.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is BINDDEVICE.\n ");
     } 
 
-
+    else if (m_task_struct->task == UNBINDDEVICE)
+    {
+        ESP_LOGI("HTTP", "Successful get response post task is UNBINDDEVICE.\n ");
+    }
+    else if (m_task_struct->task == SAVESETTING)
+    {
+        ESP_LOGI("HTTP", "Successful get response post task is SAVESETTING.\n ");
+    }
+    else if (m_task_struct->task == SAVEPOWER)
+    {
+        ESP_LOGI("HTTP", "Successful get response post task is SAVEPOWER.\n ");
+    }
     // 释放 JSON 对象
     cJSON_Delete(json);
     if(m_task_struct->need_stuck)
