@@ -141,24 +141,24 @@ void InitState::Execute(ElabelController* pOwner)
         mqtt_client_init();
 
         //初始化EspNowHost
-        // EspNowHost::Instance()->init();
+        EspNowHost::Instance()->init();
 
         is_init = true;
     }
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        // //初始化EspNowSlave
-        // EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+        //从机只需要初始化espnow
 
-        // //绑定主机
-        // EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+        //初始化EspNowSlave
+        EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
 
-        // //获取任务列表
-        // EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
+        //获取任务列表
+        EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
 
         is_init = true;
     }
+    
 }
 
 void InitState::Exit(ElabelController* pOwner)

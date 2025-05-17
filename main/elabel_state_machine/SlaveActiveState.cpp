@@ -3,6 +3,7 @@
 #include "network.h"
 #include "control_driver.hpp"
 #include "esp_random.h"
+#include "global_message.h"
 
 TaskHandle_t test_connecting_task_handle = NULL;
 bool need_stop_test_connecting = false;
@@ -100,13 +101,7 @@ void confirm_slave_active_button_choice()
     //如果是在测试连接状态
     if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_test_connect_process)
     {
-        SlaveActiveState::Instance()->slave_active_process = Slaveactive_success_connect_process;
-        EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        //保存激活信息
-        get_global_data()->m_is_host = 2;
-        //更新nvs
-        set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
+        SlaveActiveState::Instance()->slave_active_process = Slaveactive_bind_host_process;
     }
     //如果是在确定激活者的状态
     else if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
@@ -132,7 +127,13 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
     stop_blue_activate();
     //停止寻找信道
     EspNowClient::Instance()->stop_find_channel();
-
+    //稳妥起见,再设置一次wifi_channel，怕停止信道后被操作了
+    uint8_t actual_wifi_channel = 0;
+    wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+    esp_wifi_set_channel(get_global_data()->m_host_channel, WIFI_SECOND_CHAN_NONE);
+    esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
+    ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
+    
     button_slave_active_confirm_left = false;
     need_back = false;
     need_flash_paper = false;
@@ -152,7 +153,7 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
             lock_lvgl();
             char buffer[32];
             sprintf(buffer, "score: %d", EspNowClient::Instance()->test_connecting_send_count);
-            // set_text_without_change_font(ui_ConnectGuide2, buffer);
+            set_text_without_change_font(ui_ConnectGuide2, buffer);
             release_lvgl();
             need_flash_paper = false;
         }
@@ -178,6 +179,20 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
             release_lvgl();
             need_flash_paper = false;
         }
+    }
+    else if(slave_active_process == Slaveactive_bind_host_process)
+    {
+        do{
+            ret = EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+        }while(ret!=ESP_OK);
+        
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        //保存激活信息
+        get_global_data()->m_is_host = 2;
+        //更新nvs
+        set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
+        SlaveActiveState::Instance()->slave_active_process = Slaveactive_success_connect_process;
+        esp_restart();
     }
 }   
 

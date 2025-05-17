@@ -152,7 +152,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     setting_info.is_idel_clock_time = atoi(temp);
 
                     // 解析 volume (80)
-                    snprintf(temp, sizeof(temp), "%.2s", setting_str + 7);
+                    snprintf(temp, sizeof(temp), "%.3s", setting_str + 7);
                     setting_info.sound_volume = atoi(temp);
                 }
                 

@@ -71,49 +71,90 @@ void EspNowSlave::resume_espnow()
 {
 
 }
-void EspNowSlave::slave_send_espnow_http_sleep_request()
+esp_err_t EspNowSlave::slave_send_espnow_http_sleep_request()
 {
-    ESP_LOGI(ESP_NOW, "Slave send sleep request message");
     uint8_t temp_data = 0;
-    send_message(&temp_data, 1, Slave2Host_Sleep_Request_Http);
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Sleep_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send sleep request message failed");
+    }
+    return ret;
 }
 
-void EspNowSlave::slave_send_espnow_http_wakeup_request()
+esp_err_t EspNowSlave::slave_send_espnow_http_wakeup_request()
 {
-    ESP_LOGI(ESP_NOW, "Slave send wakeup request message");
     uint8_t temp_data = 0;
-    send_message(&temp_data, 1, Slave2Host_Wakeup_Request_Http);
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Wakeup_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send wakeup request message failed");
+    }
+    return ret;
 }
 
-void EspNowSlave::slave_send_espnow_http_get_todo_list()
+esp_err_t EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     ESP_LOGI(ESP_NOW, "Slave send update task list request message");
     uint8_t temp_data = 0;
-    send_message(&temp_data, 1, Slave2Host_UpdateTaskList_Request_Http);
-}
-void EspNowSlave::slave_send_espnow_http_bind_host_request()
-{
-    ESP_LOGI(ESP_NOW, "Slave send bind host request message");
-    uint8_t temp_data = 0;
-    send_message(&temp_data, 1, Slave2Host_Bind_Request_Http);
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_UpdateTaskList_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send update task list request message failed");
+    }
+    return ret;
 }
 
-void EspNowSlave::slave_send_espnow_http_enter_focus_task(focus_message_t focus_message)
+esp_err_t EspNowSlave::slave_send_espnow_http_get_device_info()
+{
+    ESP_LOGI(ESP_NOW, "Slave send get device info request message");
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_UpdateTaskList_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send get device info request message failed");
+    }
+    return ret;
+}
+
+
+esp_err_t EspNowSlave::slave_send_espnow_http_bind_host_request()
+{
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Bind_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send bind host request message failed");
+    }
+    return ret;
+}
+
+esp_err_t EspNowSlave::slave_send_espnow_http_enter_focus_task(focus_message_t focus_message)
 {
     ESP_LOGI(ESP_NOW, "Slave send enter focus task request message");
     uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
     size_t temp_data_len = 0;
     focus_message_to_data(focus_message, temp_data, temp_data_len);
-    send_message(temp_data, temp_data_len, Slave2Host_Enter_Focus_Request_Http);
+    esp_err_t ret = send_message(temp_data, temp_data_len, Slave2Host_Enter_Focus_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send enter focus task request message failed");
+    }
+    return ret;
 }
 
-void EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t focus_message)
+esp_err_t EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t focus_message)
 {
     ESP_LOGI(ESP_NOW, "Slave send out focus task request message");
     uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
     size_t temp_data_len = 0;
     focus_message_to_data(focus_message, temp_data, temp_data_len);
-    send_message(temp_data, temp_data_len, Slave2Host_Out_Focus_Request_Http);
+    esp_err_t ret = send_message(temp_data, temp_data_len, Slave2Host_Out_Focus_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send out focus task request message failed");
+    }
+    return ret;
 }
 
 

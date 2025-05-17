@@ -19,14 +19,19 @@ enum message_type
 {
     default_message_type = 0, 
 
+    // 主机发送给从机的绑定消息
+    Host2Slave_Bind_Control_Http,
+    Slave2Host_Bind_Request_Http,
+
     // 测试请求消息
     Test_Start_Request_Slave2Host,
     Test_Stop_Request_Slave2Host,
     Test_Feedback_Host2Slave,
 
     // 从机发送给主机的http消息
-    Slave2Host_Bind_Request_Http,
+
     Slave2Host_UpdateTaskList_Request_Http,
+    Slave2Host_Get_Device_Info_Request_Http,
     Slave2Host_Enter_Focus_Request_Http,
     Slave2Host_Out_Focus_Request_Http,
     Slave2Host_Sleep_Request_Http,
@@ -34,6 +39,7 @@ enum message_type
     
     // 主机发送给从机的mqtt 消息
     Host2Slave_Bind_Control_Mqtt,
+    Host2Slave_Device_Info_Control_Mqtt,
     Host2Slave_UpdateTaskList_Control_Mqtt,
     Host2Slave_Enter_Focus_Control_Mqtt,
     Host2Slave_Out_Focus_Control_Mqtt,
@@ -140,7 +146,7 @@ class EspNowClient{
         .broadcast               = false,                
         .group                 = false,
         .ack                   = true,
-        .retransmit_count        = 25,   
+        .retransmit_count        = 10,   
         .forward_ttl           = 0,                  
         .forward_rssi          = 0,
     };
@@ -214,16 +220,6 @@ class EspNowClient{
         memcpy(&packet_data[1], data, size);
         esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
                     size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
-        return ret;
-    }
-
-    esp_err_t send_message_no_ack(uint8_t* data, size_t size, message_type m_message_type, const espnow_addr_t dest_addr)
-    {
-        uint8_t packet_data[size+1];
-        packet_data[0] = m_message_type;
-        memcpy(&packet_data[1], data, size);
-        esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
-                    size+1, &EspNowClient::Instance()->test_send_head, ESPNOW_SEND_MAX_TIMEOUT);
         return ret;
     }
 };

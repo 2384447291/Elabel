@@ -12,6 +12,9 @@
 #include "lvgl_helpers.h"
 #include "ssd1680.h"
 #include "esp_timer.h"
+
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) 
 //--------------------------------------lvgl相关的内容-------------------------------------//
 SemaphoreHandle_t xGuiSemaphore;
 void lock_lvgl()

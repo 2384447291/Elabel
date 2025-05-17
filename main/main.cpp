@@ -17,6 +17,8 @@
 #include "network.h"
 
 #include "ElabelController.hpp"
+#include "esp_now_host.hpp"
+#include "esp_now_slave.hpp"
 
 void reset_elabel()
 {
@@ -41,8 +43,6 @@ extern "C" void app_main(void)
     gpio_install_isr_service(0);
     //初始化nvs
     nvs_init();
-    //删除nvs信息
-    // erase_nvs();
     //获取nvs信息
     get_nvs_info();
 
@@ -65,6 +65,9 @@ extern "C" void app_main(void)
     MCodec::Instance()->init();
     //播放音乐
     MCodec::Instance()->play_music("open");
+
+    //初始化espnow
+    EspNowClient::Instance()->init();
 
     //注册按键回调
     ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(reset_elabel);

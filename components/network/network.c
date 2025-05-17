@@ -311,7 +311,7 @@ static void wifi_init_sta(void)
         /* 防止在省电模式，wifi质量不好 在wifi，蓝牙共同作用的时候不能设置这个，一定要允许wifi省电，需要在关闭蓝牙后，再次设为WIFI_PS_NONE*/ 
         ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
         //设置wifi协议为LR
-        // ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
+        ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_MODE_STA, WIFI_PROTOCOL_11B|WIFI_PROTOCOL_11G|WIFI_PROTOCOL_11N|WIFI_PROTOCOL_LR));
     }
     else if(get_global_data()->m_is_host ==  2)
     {

@@ -11,6 +11,7 @@ typedef enum
     default_Slaveactive_process,
     Slaveactive_waiting_connect_process,
     Slaveactive_test_connect_process,
+    Slaveactive_bind_host_process,
     Slaveactive_success_connect_process,
 } Slave_Active_process;
 

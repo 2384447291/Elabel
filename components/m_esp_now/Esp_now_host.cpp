@@ -30,7 +30,6 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     {
         ESP_LOGI(ESP_NOW, "Receive Test_Start_Request_Slave2Host from " MACSTR, MAC2STR(src_addr));
         EspNowClient::Instance()->test_connecting_send_count = 0;
-
         espnow_add_peer(src_addr, NULL);
     }
     else if(m_message_type == Test_Stop_Request_Slave2Host)
@@ -56,7 +55,15 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     if(m_message_type == Slave2Host_Bind_Request_Http)
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Bind_Request_Http from " MACSTR, MAC2STR(src_addr));
+        //添加从机到主机列表
         EspNowHost::Instance()->Add_new_slave(src_addr);
+        //告知后端
+        http_bind_device(true,src_addr);
+    }
+    else if(m_message_type == Slave2Host_Get_Device_Info_Request_Http)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Device_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
+        EspNowHost::Instance()->Mqtt_get_device_info(src_addr);
     }
     else if(m_message_type == Slave2Host_UpdateTaskList_Request_Http)
     {
@@ -79,6 +86,18 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     return ESP_OK;
 }
 
+void esp_now_send_update(void *pvParameter)
+{
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(HEART_BEAT_TIME_MSECS));
+        if(!EspNowHost::Instance()->is_sending_message)
+        {
+            EspNowHost::Instance()->send_bind_heartbeat();
+        }
+    }
+}
+
 
 
 void EspNowHost::init()
@@ -92,12 +111,14 @@ void EspNowHost::init()
     }
 
     EspNowClient::Instance()->m_role = host_role;
-    //停止搜索设备
+    //停止搜索设备,保险起见
     EspNowClient::Instance()->stop_find_channel();
     //添加配对设备广播设置0xFF通道
     espnow_add_peer(ESPNOW_ADDR_BROADCAST, NULL);
 
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Host_handle);
+
+    xTaskCreate(esp_now_send_update, "esp_now_host_send_update_task", 4096, NULL, 0, &host_send_update_task_handle);
     ESP_LOGI(ESP_NOW, "Host init success");
 }
 
@@ -110,6 +131,10 @@ void EspNowHost::deinit()
     }
 
     EspNowClient::Instance()->m_role = default_role;
+
+    // 删除发送心跳绑定包的任务
+    vTaskDelete(host_send_update_task_handle);
+    host_send_update_task_handle = NULL;
 
     espnow_del_peer(ESPNOW_ADDR_BROADCAST);
     
@@ -230,6 +255,25 @@ void EspNowHost::Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
         }
         current_task_index += tasks_in_packet;
     }
+}
+
+void EspNowHost::Mqtt_get_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+{
+    uint8_t temp_data[4];
+    for(int i = 0; i < get_global_data()->m_slave_num; i++)
+    {
+        if(Same_mac(get_global_data()->m_slave_info[i].mac, slave_mac))
+        {
+            temp_data[0] = get_global_data()->m_slave_info[i].setting.default_counter_time;
+            temp_data[1] = get_global_data()->m_slave_info[i].setting.overtime_alert_time;
+            temp_data[2] = get_global_data()->m_slave_info[i].setting.is_idel_clock_time;
+            temp_data[3] = get_global_data()->m_slave_info[i].setting.sound_volume;
+            send_message_ack(temp_data, 4, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
+            ESP_LOGI(ESP_NOW, "Send Host2Slave_Device_Info_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
+            return;
+        }
+    }
+    ESP_LOGE(ESP_NOW, "Slave " MACSTR " not found", MAC2STR(slave_mac));
 }
 
 void EspNowHost::Mqtt_enter_focus(focus_message_t focus_message)

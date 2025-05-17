@@ -48,6 +48,8 @@ void ElabelFsm::HandleInput()
         //如果当前状态不是激活状态，则进入激活状态
         if(GetCurrentState()!=ActiveState::Instance() && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=SlaveActiveState::Instance())
         {
+            // 等待2秒，确保init刷新出来了
+            vTaskDelay(pdMS_TO_TICKS(2000));
             ChangeState(ActiveState::Instance());
         }
     }
@@ -55,6 +57,8 @@ void ElabelFsm::HandleInput()
     //如果是主机且没有网络，则进入断网状态
     if(get_wifi_status() == 0 && get_global_data()->m_is_host == 1)
     {
+        // 等待2秒，确保init刷新出来了
+        vTaskDelay(pdMS_TO_TICKS(2000));
         m_wifi_connect();
         ChangeState(NoWifiState::Instance());
     }
