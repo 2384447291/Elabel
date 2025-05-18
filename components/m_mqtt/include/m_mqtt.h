@@ -14,6 +14,7 @@ typedef enum {
     Enter_focus,
     Out_focus,
     Tasklist_change,
+    Device_info_change,
 } Mqtt_order;
 
 typedef struct {

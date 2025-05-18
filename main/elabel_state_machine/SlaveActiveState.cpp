@@ -80,7 +80,11 @@ void SlaveActiveState::stop_test_connecting_task()
 {
     if(test_connecting_task_handle != NULL)
     {
-        //删除主机为peer
+        //等待测试历程运行一个循环再删除
+        while(SlaveActiveState::Instance()->test_connect_process != test_waiting_ack_process)
+        {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+        }
         espnow_del_peer(get_global_data()->m_host_mac);
         need_stop_test_connecting = true;
     }
@@ -182,8 +186,11 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
     }
     else if(slave_active_process == Slaveactive_bind_host_process)
     {
+        stop_test_connecting_task();
+        espnow_add_peer(get_global_data()->m_host_mac, NULL);
+        uint8_t temp_data = 0;
         do{
-            ret = EspNowSlave::Instance()->slave_send_espnow_http_bind_host_request();
+            ret = EspNowClient::Instance()->send_message(&temp_data, 1, Slave2Host_Bind_Request_Http, get_global_data()->m_host_mac);
         }while(ret!=ESP_OK);
         
         vTaskDelay(1000 / portTICK_PERIOD_MS);

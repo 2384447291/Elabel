@@ -4,9 +4,7 @@
 #include "http.h"
 #include "ssd1680.h"
 #include "codec.hpp"
-// #include "Esp_now_client.hpp"
-// #include "Esp_now_host.hpp"
-// #include "Esp_now_slave.hpp"
+#include "Esp_now_slave.hpp"
 
 void outfocus()
 {
@@ -20,8 +18,8 @@ void outfocus()
     }
     else if(get_global_data()->m_is_host == 2)
     {
-        // focus_message_t focus_message = pack_focus_message(FocusTaskState::Instance()->focus_type, 0, get_global_data()->m_focus_state->focus_task_id, (char*)"");
-        // EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
+        focus_message_t focus_message = pack_focus_message(0, 0, 0,get_global_data()->m_focus_state->focus_task_id, (char*)"");
+        EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
     }
 }
 
@@ -39,37 +37,16 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     need_flash_paper = false;
 
     //获取如何进入的focus状态
-    TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-    focus_type = todo->taskType;
+    TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+    focus_type = chose_todo->taskType;
     ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d", focus_type);
 
-    ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(outfocus);
-
-    //获取是哪个任务进入了focus，这个状态只能由服务器获取
-    TodoItem* chose_todo;   
-    chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-
-    //如果当前是主机，则需要更新时间,来保证时间轴同步
-    if(get_global_data()->m_is_host == 1)
-    {
-        if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
-        else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
-    }
-    //如果当前是从机，则不需要拿时间戳
-    else if(get_global_data()->m_is_host == 2)
-    {
-        pOwner->TimeCountdown = chose_todo->fallTiming;
-    }
+    //计算时间,来保证时间轴同步
+    if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
+    else pOwner->TimeCountdown = chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000;
 
     inner_time_countdown_ms = pOwner->TimeCountdown*1000;
     inner_time_countdown_s = pOwner->TimeCountdown;
-
-    //如果当前是主机，通知所有从机
-    if(get_global_data()->m_is_host == 1)
-    {
-        // focus_message_t focus_message = pack_focus_message(focus_type, pOwner->TimeCountdown, get_global_data()->m_focus_state->focus_task_id, todo->title);
-        // EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
-    }
 
     //更新屏幕
     lock_lvgl();
@@ -120,6 +97,8 @@ void FocusTaskState::Enter(ElabelController* pOwner)
         set_text_without_change_font(ui_RecordFocusTime, timestr);
     }
     release_lvgl();
+
+    ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(outfocus);
 }
 
 void FocusTaskState::Execute(ElabelController* pOwner)

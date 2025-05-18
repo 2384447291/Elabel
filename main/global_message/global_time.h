@@ -16,6 +16,8 @@ extern "C" {
 
 void HTTP_syset_time(void);
 
+void EspNow_syset_time(long long nowTime);
+
 long long get_unix_time(void);
 
 void get_unix_time_str(char* str_time, size_t size);

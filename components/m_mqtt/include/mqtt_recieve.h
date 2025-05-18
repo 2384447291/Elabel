@@ -97,6 +97,10 @@ bool mqttMessage_parse(char *data, MqttMessage_recieve *mqtt_msg)
         {
             mqtt_msg->order = Tasklist_change;
         }
+        else if(strcmp(mqtt_msg->dataType, "device") == 0)
+        {
+            mqtt_msg->order = Device_info_change;
+        }
         else
         {
             ESP_LOGE(MQTT_RECIEVE_TAG, "dataType can not figure ----,%s",mqtt_msg->dataType);
@@ -141,6 +145,7 @@ static void solve_message(char *response)
         }
         // {"did":0,"isReply":0,"msgId":2,"method":"sync","msg":{"dataType":"focus","changType":"out"}} from service/to/client/a5132039097449269aa1bb502f6c2158
         // {"did":19,"isReply":1,"msgId":1,"method":"outFocus","msg":{"sn":"E8:06:90:97:FE:58"}} from service/to/firmware/E8:06:90:97:FE:58
+        // {"did":0,"isReply":0,"msgId":2,"method":"sync","msg":{"dataType":"device","changType":"update"}}
         //我会收到两个outfocus只处理一个不需要回复的那一个
         if(Mqtt_msg.order == Out_focus && Mqtt_msg.isReply == 0)
         {
@@ -171,6 +176,11 @@ static void solve_message(char *response)
             HTTP_syset_time();
             http_get_todo_list(false);
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Tasklist_change.\n");
+        }
+        else if(Mqtt_msg.order == Device_info_change)
+        {
+            ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Device_info_change.\n");
+            http_find_device(false);
         }
     }
 }

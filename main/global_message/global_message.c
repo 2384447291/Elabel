@@ -1,6 +1,43 @@
 #include "global_message.h"
 #include "esp_log.h"
 #include "freertos/semphr.h"
+
+//--------------------------------------Slave_info 对应的结构体--------------------------------------//
+
+bool mac_address_exists(const uint8_t mac[6]) {
+    for (size_t i = 0; i < get_global_data()->m_slave_num; ++i) {
+        if (memcmp(get_global_data()->m_slave_info[i].mac, mac, 6) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool insert_slave(uint8_t slave_mac[6])
+{
+    if (get_global_data()->m_slave_num >= MAX_SLAVE_NUM) {
+        ESP_LOGW("slave_info", "Cannot add more slaves, reached maximum limit of %d", MAX_SLAVE_NUM);
+        return false;
+    }
+
+    if (mac_address_exists(slave_mac)) {
+        ESP_LOGW("slave_info", "MAC "MACSTR" address already exists", MAC2STR(slave_mac));
+        return false;
+    }
+
+    memcpy(get_global_data()->m_slave_info[get_global_data()->m_slave_num].mac, slave_mac, 6);
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].is_sleep = false;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.default_counter_time = 5;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.overtime_alert_time = 10;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.is_idel_clock_time = 1;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sound_volume = 80;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.power = 0;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sleep_time = 10;
+    get_global_data()->m_slave_num++;
+    ESP_LOGI("slave_info", "Add new slave, its mac is "MACSTR" ", MAC2STR(slave_mac));
+    return true;
+}
+//--------------------------------------Slave_info 对应的结构体--------------------------------------//
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 task_list_state m_task_list_state = newest;
 

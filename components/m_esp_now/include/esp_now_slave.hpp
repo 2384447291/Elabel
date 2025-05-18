@@ -24,7 +24,7 @@ class EspNowSlave {
         // 从机发送给主机的http消息
         esp_err_t slave_send_espnow_http_get_todo_list();
         esp_err_t slave_send_espnow_http_get_device_info();
-        esp_err_t slave_send_espnow_http_bind_host_request();
+        esp_err_t slave_send_espnow_http_get_time();
         esp_err_t slave_send_espnow_http_enter_focus_task(focus_message_t focus_message);
         esp_err_t slave_send_espnow_http_out_focus_task(focus_message_t focus_message);
         esp_err_t slave_send_espnow_http_sleep_request();
@@ -32,8 +32,11 @@ class EspNowSlave {
 
         // 从机收到主机需要怎么反应
         void slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size);
+        void slave_respense_espnow_mqtt_get_device_info(uint8_t* data, size_t size);
+        void slave_respense_espnow_mqtt_get_time(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_out_focus();
+        void slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size);
 
         // 必须收到ack，重发2s
         esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)

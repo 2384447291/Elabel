@@ -14,6 +14,13 @@ time_t now = 0;
 struct tm timeinfo = {0};
 uint32_t elabelUpdateTick = 0;
 
+void set_region(void)
+{
+    // Set timezone to China Standard Time
+    setenv("TZ", "CST-8", 1);
+    tzset();
+}
+
 //--------------------------------------http时间同步函数-----------------------------------------//
 // 定义一个静态缓冲区来存储接收的数据
 char *response_buffer = NULL;
@@ -65,9 +72,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
                         if (settimeofday(&tv, NULL) < 0) {
                             perror("settimeofday");
                         }
-                        // Set timezone to China Standard Time
-                        setenv("TZ", "CST-8", 1);
-                        tzset();
+                        set_region();
                         time(&now);
                         localtime_r(&now, &timeinfo);
                         is_syset_time = true;
@@ -117,6 +122,24 @@ void HTTP_syset_time(void)
         if(send_error) HTTP_syset_time();
     }
     Log_time();
+}
+
+void EspNow_syset_time(long long nowTime)
+{
+    ESP_LOGI("HTTP_SYTIME", "nowTime: %lld", nowTime);
+    struct timeval tv;
+    
+    // 将毫秒时间戳转换为秒和微秒
+    tv.tv_sec = nowTime / 1000;          // 秒
+    tv.tv_usec = (nowTime % 1000) * 1000; // 微秒
+
+    // 设置系统时间
+    if (settimeofday(&tv, NULL) < 0) {
+        perror("settimeofday");
+    }
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    is_syset_time = true;
 }
 //--------------------------------------http时间同步函数-----------------------------------------//
 

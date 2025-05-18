@@ -4,7 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "codec.hpp"
-// #include "Esp_now_slave.hpp"
+#include "Esp_now_slave.hpp"
 #include "http.h"
 #define RECORD_TIME 5
 #define CONFIRM_VOICE_TIME 15
@@ -173,9 +173,9 @@ public:
         }
         else if(get_global_data()->m_is_host == 2)
         {
-            // char title[20] = "Record Task";
-            // focus_message_t focus_message = pack_focus_message(3, ElabelController::Instance()->TimeCountdown, 0, title);
-            // EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
+            //主机只需要focus的时间和类型还有id
+            focus_message_t focus_message = pack_focus_message(3, ElabelController::Instance()->TimeCountdown, 0, 0, "");
+            EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
     }
 };

@@ -6,12 +6,10 @@
 #include "MacAdrees.hpp"
 #include "espnow.h"
 
-#define HEART_BEAT_TIME_MSECS 2000
+#define HEART_BEAT_TIME_MSECS 1000
 
 class EspNowHost {
     public:
-        //绑定的从机的数目和地址
-        MacAddress Bind_slave_mac;
         bool is_sending_message = false;
         void init();
         void deinit();
@@ -23,9 +21,11 @@ class EspNowHost {
         TaskHandle_t host_send_update_task_handle = NULL;
 
         //收到http的相应发送的mqtt更新任务列表
-        void Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);
         void Mqtt_get_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
+        void Mqtt_get_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
+        void Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         //mqtt更新任务列表
+        void Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);
         void Mqtt_enter_focus(focus_message_t focus_message);
         void Mqtt_out_focus();
 
@@ -85,15 +85,16 @@ class EspNowHost {
         // 添加新的从机到Bind_slave_mac，并存到nvs中
         void Add_new_slave(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
         {
-            if(Bind_slave_mac.insert(slave_mac))
+            //添加到global_data，如果添加成功则添加到nvs
+            if(insert_slave(slave_mac))
             {
                 // 存储从机mac到nvs
-                uint8_t data[Bind_slave_mac.count * 6];
-                for(int i = 0; i < Bind_slave_mac.count; i++)
+                uint8_t data[get_global_data()->m_slave_num * 6];
+                for(int i = 0; i < get_global_data()->m_slave_num; i++)
                 {
-                    memcpy(&data[i * 6], Bind_slave_mac.slaves[i].mac, 6);
+                    memcpy(&data[i * 6], get_global_data()->m_slave_info[i].mac, 6);
                 }
-                set_nvs_info_set_slave_mac(Bind_slave_mac.count, data);
+                set_nvs_info_set_slave_mac(get_global_data()->m_slave_num, data);
                 ESP_LOGI(ESP_NOW, "Added new slave " MACSTR " to Bind_slave_mac", MAC2STR(slave_mac));
                 espnow_add_peer(slave_mac, NULL);
             }

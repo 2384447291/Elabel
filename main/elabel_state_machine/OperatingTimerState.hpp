@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "http.h"
+#include "Esp_now_slave.hpp"
 
 #define CONFIRM_TIMER_TIME 15
 #define RECONFIRM_TIMER_TIME 3
@@ -105,9 +106,9 @@ public:
         }
         else if(get_global_data()->m_is_host == 2)
         {
-            // char title[20] = "Pure Time Task";
-            // focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, title);
-            // EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
+            //主机只需要focus的时间和类型还有id
+            focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, 0, "");
+            EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
     }
 };

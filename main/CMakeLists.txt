@@ -12,9 +12,11 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                         "elabel_state_machine/SlaveActiveState.cpp"
                         "elabel_state_machine/InfoState.cpp"
                         "elabel_state_machine/NoWifiState.cpp"
+                        "elabel_state_machine/NoHostState.cpp"
                         "battery_manager/battery_manager.cpp"
                     INCLUDE_DIRS "global_message" "elabel_state_machine" "battery_manager" "spiffs_data/include" "." 
                     REQUIRES esp_adc
+                    REQUIRES esp_wifi
                     REQUIRES nvs_flash
                     REQUIRES esp_driver_gpio
 

@@ -199,23 +199,23 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     }
     else if (m_task_struct->task == ADDTODO)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ADDTODO.\n title is %s, todo type is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1]);
+        ESP_LOGI("HTTP", "Successful get response post task is ADDTODO title is %s, todo type is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1]);
     }   
     else if (m_task_struct->task == ADD_ENTER_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ADD_ENTER_FOCUS.\n title is %s, todo type is %s, falling time is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1],m_task_struct->parament[2]);
+        ESP_LOGI("HTTP", "Successful get response post task is ADD_ENTER_FOCUS title is %s, todo type is %s, falling time is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1],m_task_struct->parament[2]);
     }
     else if (m_task_struct->task == ENTER_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ENTER_FOCUS.\n Task%s enter focus\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is ENTER_FOCUS Task %s enter focus\n",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == OUT_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is OUT_FOCUS.\n Task%s out focus\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is OUT_FOCUS Task %s out focus\n",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == DELETTODO)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is DELETTODO.\n Task%s is deleted\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is DELETTODO Task %s is deleted\n",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == BINDDEVICE)
     {

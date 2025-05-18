@@ -24,6 +24,7 @@
 #include "OperatingRecorderState.hpp"
 #include "OperatingTimerState.hpp"
 #include "NoWifiState.hpp"
+#include "NoHostState.hpp"
 #include "InfoState.hpp"
 ElabelController::ElabelController() : m_elabelFsm(this){}
 //初始化状态是init_state
@@ -55,12 +56,24 @@ void ElabelFsm::HandleInput()
     }
 
     //如果是主机且没有网络，则进入断网状态
-    if(get_wifi_status() == 0 && get_global_data()->m_is_host == 1)
+    if(get_global_data()->m_is_host == 1)
     {
-        // 等待2秒，确保init刷新出来了
-        vTaskDelay(pdMS_TO_TICKS(2000));
-        m_wifi_connect();
-        ChangeState(NoWifiState::Instance());
+        if(get_wifi_status() == 0 )
+        {
+            // 等待2秒，确保init刷新出来了,再进入连接模式，开机保护
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            ChangeState(NoWifiState::Instance());
+        }
+    }
+    
+    //如果是从机且长时间没有收到主机消息，则进入断网状态
+    if(get_global_data()->m_is_host == 2)
+    {
+        // 如果长时间没有收到主机消息，则进入断网状态
+        if(xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
+        {
+            ChangeState(NoWifiState::Instance());
+        }
     }
 
     //如果是断网状态，则进入初始化状态
@@ -76,6 +89,18 @@ void ElabelFsm::HandleInput()
         }
     }
 
+    //如果是host，则进入连接模式
+    if(GetCurrentState()==NoHostState::Instance())
+    {
+        if(NoHostState::Instance()->need_forward)
+        {
+            ChangeState(InitState::Instance());
+        }
+        else if(NoHostState::Instance()->need_back)
+        {
+            ChangeState(ActiveState::Instance());
+        }
+    }
 
     //-------------------------------整个激活--------------------------------//
     //如果没有被激活，则进入激活状态
@@ -140,6 +165,11 @@ void ElabelFsm::HandleInput()
             if(get_global_data()->m_focus_state->is_focus == 2)
             {
                 ESP_LOGI("ElabelFsm","exit focus");
+                //如果当前是主机，则转发
+                if(get_global_data()->m_is_host == 1)
+                {
+                    EspNowHost::Instance()->Mqtt_out_focus();
+                }
                 if(GetCurrentState()==FocusTaskState::Instance())
                 {
                     ChangeState(ChoosingTaskState::Instance());
@@ -151,12 +181,24 @@ void ElabelFsm::HandleInput()
             else if(get_global_data()->m_focus_state->is_focus == 1)
             {
                 ESP_LOGI("ElabelFsm","enter focus");
+                //如果当前是主机，则转发
+                if(get_global_data()->m_is_host == 1)
+                {
+                    TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+                    focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
+                    EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
+                }
                 ChangeState(FocusTaskState::Instance());
             }
             //如果只是单纯的更新列表
             else if(get_global_data()->m_focus_state->is_focus == 0)
             {
                 ESP_LOGI("ElabelFsm","tasklist update");
+                //如果当前是主机，则转发
+                if(get_global_data()->m_is_host == 1)
+                {
+                    EspNowHost::Instance()->Mqtt_update_task_list();
+                }
                 if(GetCurrentState()==ChoosingTaskState::Instance())
                 {
                     lock_lvgl();

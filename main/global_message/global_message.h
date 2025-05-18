@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_mac.h"
+
 #define MAX_SLAVE_NUM 6
 #define FIRMWARE_VERSION "3.0.3"
 #define TASK_RUNNING_BIT   (1 << 0)
@@ -63,6 +65,7 @@ typedef struct {
 typedef struct {
     uint8_t mac[6];
     device_info setting;
+    bool is_sleep;
 } slave_device_info;
 
 #ifdef __cplusplus
@@ -88,6 +91,9 @@ void add_or_update_todo_item(TodoList *list, TodoItem item);
 
 //清除 TodoList
 void clean_todo_list(TodoList *list);
+
+
+bool insert_slave(uint8_t slave_mac[6]);
 #ifdef __cplusplus
 }
 #endif

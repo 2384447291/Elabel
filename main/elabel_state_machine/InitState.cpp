@@ -156,9 +156,14 @@ void InitState::Execute(ElabelController* pOwner)
         //获取任务列表
         EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
 
+        //获取设备设置项
+        EspNowSlave::Instance()->slave_send_espnow_http_get_device_info();
+
+        //获取挂墙时间
+        EspNowSlave::Instance()->slave_send_espnow_http_get_time();
+
         is_init = true;
     }
-    
 }
 
 void InitState::Exit(ElabelController* pOwner)

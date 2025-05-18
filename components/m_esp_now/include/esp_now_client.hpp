@@ -10,6 +10,7 @@
 #include "esp_mac.h"
 
 #define ESP_NOW "ESPNOW"
+#define SCAN_CHANNEL_TIME_INTERVAL 2000
 #define ESPNOW_SEND_MAX_TIMEOUT pdMS_TO_TICKS(2000)
 #define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
 //数据最大长度等于内置最大长度 - message类型
@@ -32,6 +33,7 @@ enum message_type
 
     Slave2Host_UpdateTaskList_Request_Http,
     Slave2Host_Get_Device_Info_Request_Http,
+    Slave2Host_Get_Time_Request_Http,
     Slave2Host_Enter_Focus_Request_Http,
     Slave2Host_Out_Focus_Request_Http,
     Slave2Host_Sleep_Request_Http,
@@ -40,7 +42,9 @@ enum message_type
     // 主机发送给从机的mqtt 消息
     Host2Slave_Bind_Control_Mqtt,
     Host2Slave_Device_Info_Control_Mqtt,
+    Host2Slave_Get_Time_Control_Mqtt,
     Host2Slave_UpdateTaskList_Control_Mqtt,
+    Host2Slave_Send_Task_List_Control_Mqtt,
     Host2Slave_Enter_Focus_Control_Mqtt,
     Host2Slave_Out_Focus_Control_Mqtt,
 
@@ -51,15 +55,15 @@ enum message_type
 //定义focus任务的结构体
 typedef struct {
     uint8_t focus_type; //0表示默认，1表示纯时间任务，2表示任务，3表示录音任务
-    uint16_t focus_time;
+    int fallTiming;
     int focus_id;
-
+    long long enter_focus_time;
     //对于task类型，需要记录task的名字
     uint8_t task_name_len;
     char task_name[100];
 } focus_message_t;
 
-focus_message_t pack_focus_message(uint8_t focus_type, uint16_t focus_time, int focus_id, char* task_name);
+focus_message_t pack_focus_message(uint8_t _focus_type, int _fallTiming, long long _enter_focus_time, int _focus_id, char* _task_name);
 void focus_message_to_data(focus_message_t focus_message, uint8_t* data, size_t &data_len);
 focus_message_t data_to_focus_message(uint8_t* data);
 
