@@ -150,6 +150,7 @@ esp_err_t EspNowSlave::slave_send_espnow_http_wakeup_request()
     return ret;
 }
 
+//这个函数会触发主动刷新firmware_need_update
 esp_err_t EspNowSlave::slave_send_espnow_http_get_todo_list()
 {
     uint8_t temp_data = 0;
@@ -233,7 +234,7 @@ esp_err_t EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t foc
 void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size)
 {
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
-    bool clear_flag = data[ESP_NOW_ETH_ALEN + 1];  // 获取清除标志
+    bool clear_flag = data[1];  // 获取清除标志
 
     // 如果是第一个包且需要清除之前的数据
     if(clear_flag) {
@@ -241,7 +242,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_
     }
 
     // 从数据包中解析任务，注意偏移量需要加上MAC地址的长度 
-    size_t offset = ESP_NOW_ETH_ALEN + 2; // MAC地址(6字节) + 头部(2字节)
+    size_t offset = 2; // MAC地址(6字节) + 头部(2字节)
     while(offset < size) 
     {
         // 读取任务长度

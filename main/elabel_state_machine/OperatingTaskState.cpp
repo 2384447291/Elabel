@@ -80,6 +80,9 @@ void OperatingTaskState::Init(ElabelController* pOwner)
 
 void OperatingTaskState::Enter(ElabelController* pOwner)
 {
+    // 进入focus的时候，重置卡死时间
+    pOwner->stuck_time = 0;
+
     ESP_LOGI(STATEMACHINE,"Enter OperatingTaskState.\n");
     task_process = Task_confirm_process;
     button_choose_task_confirm_left = true;
@@ -109,7 +112,15 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
 {
    //保证推出后不会有其他问题
     if(need_out_state) return;
-    if(task_process == Task_confirm_process)
+    if(task_process == finish_task_process)
+    {
+        if(elabelUpdateTick % 100 == 0)
+        {
+            ElabelController::Instance()->stuck_time+=100;
+        }
+        return;
+    }
+    else if(task_process == Task_confirm_process)
     {
         if(need_flash_paper)
         {

@@ -32,8 +32,6 @@ class ElabelController
         void Update();
         void Init();
 
-        bool lock_running = false;
-
         //所选择的task的id(一定要以id来传递，不要用number来传递，id是唯一的)
         uint16_t ChosenTaskId = 0;
         //任务倒计时的实际时间
@@ -45,10 +43,13 @@ class ElabelController
         //当前task_length的长度
         uint16_t TaskLength = 0;
 
-        //本地用来记录focus的变量
-        TodoItem focustodo = {0};
-        //是否用本地信息进入focus
-        bool manual_focus = false;
+        // //本地用来记录focus的变量
+        // TodoItem focustodo = {0};
+        // //是否用本地信息进入focus
+        // bool manual_focus = false;
+
+        //防止卡死的标签
+        int32_t stuck_time = 0;
 
         static ElabelController* Instance()
         {

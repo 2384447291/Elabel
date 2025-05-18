@@ -202,6 +202,16 @@ void EspNowHost::Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     
     // 发送所有数据包
     int current_task_index = 0;
+    if(list->size == 0)
+    {
+        uint8_t temp_data[2];
+        //表示有0个任务
+        temp_data[0] = 0;
+        //表示要清除
+        temp_data[1] = 1;
+        send_message_ack(temp_data, 2, Host2Slave_Send_Task_List_Control_Mqtt, slave_mac);
+        return;
+    }
     while(current_task_index < list->size) 
     {
         // 计算当前包可以包含的任务数量
@@ -225,11 +235,11 @@ void EspNowHost::Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
         
         // 填充当前包的数据
         uint8_t current_packet[MAX_EFFECTIVE_DATA_LEN];
-        current_packet[ESP_NOW_ETH_ALEN] = list->size;  // 任务总数
-        current_packet[ESP_NOW_ETH_ALEN + 1] = (current_task_index == 0) ? true : false;  // 第一个包清除之前的数据，其他包不清除
+        current_packet[0] = list->size;  // 任务总数
+        current_packet[1] = (current_task_index == 0) ? true : false;  // 第一个包清除之前的数据，其他包不清除
 
         // 填充任务数据
-        size_t offset = 2 + ESP_NOW_ETH_ALEN;  // 当前写入位置（头部2字节 + 目标mac地址）
+        size_t offset = 2;  // 当前写入位置（头部2字节 + 目标mac地址）
         for(int i = 0; i < tasks_in_packet; i++) {
             size_t title_len = strlen(list->items[current_task_index + i].title);
             current_packet[offset++] = title_len;  // 写入当前任务的长度

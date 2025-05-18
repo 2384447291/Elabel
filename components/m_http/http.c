@@ -493,7 +493,7 @@ void http_client_init(void)
 
     m_dealing_task = create_http_task_struct(NO_TASK, NULL, 0 ,false);
 }
-
+//这个函数会触发主动刷新firmware_need_update
 void http_get_todo_list(bool need_stuck)
 {
     set_task_list_state(updating_from_server);

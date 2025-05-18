@@ -30,6 +30,9 @@ void FocusTaskState::Init(ElabelController* pOwner)
 
 void FocusTaskState::Enter(ElabelController* pOwner)
 {
+    // 进入focus的时候，重置卡死时间
+    pOwner->stuck_time = 0;
+
     inner_time_countdown_ms = 0;
     inner_time_countdown_s = 0;
     need_out_focus = false;
@@ -38,16 +41,17 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     need_flash_paper = false;
     
     TodoItem* chose_todo;
-    if(pOwner->manual_focus)
-    {
-        chose_todo = &pOwner->focustodo;
-        pOwner->manual_focus = false;
-        ESP_LOGI(STATEMACHINE,"Manual enter FocusTaskState");
-    }
-    else
-    {
-        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-    }
+    // if(pOwner->manual_focus)
+    // {
+    //     chose_todo = &pOwner->focustodo;
+    //     pOwner->manual_focus = false;
+    //     ESP_LOGI(STATEMACHINE,"Manual enter FocusTaskState");
+    // }
+    // else
+    // {
+    //     chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+    // }
+    chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
     focus_type = chose_todo->taskType;
     focus_task_id = chose_todo->id;
     ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %d", focus_type, focus_task_id);
@@ -114,7 +118,15 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
 void FocusTaskState::Execute(ElabelController* pOwner)
 {
-    if(need_out_focus) return;
+    if(need_out_focus) 
+    {
+        if(elabelUpdateTick % 100 == 0)
+        {
+            ElabelController::Instance()->stuck_time+=100;
+        }
+        return;
+    }
+    
     if(elabelUpdateTick % 1000 == 0)
     {
         inner_time_countdown_s--;

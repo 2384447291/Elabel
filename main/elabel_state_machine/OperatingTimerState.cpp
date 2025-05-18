@@ -83,6 +83,9 @@ void OperatingTimeState::Init(ElabelController* pOwner)
 
 void OperatingTimeState::Enter(ElabelController* pOwner)
 {
+    // 进入focus的时候，重置卡死时间
+    pOwner->stuck_time = 0;
+
     ESP_LOGI(STATEMACHINE,"Enter OperatingTimeState.\n");
     time_process = Time_confirm_process;
     button_choose_time_confirm_left = true;
@@ -94,6 +97,7 @@ void OperatingTimeState::Enter(ElabelController* pOwner)
     need_enter_focus = false;
     
     enter_screen_confirm_time();
+
     ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(Time_minus_5);
     ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(Time_plus_5);
     ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(Time_minus_1);
@@ -115,7 +119,15 @@ void OperatingTimeState::Execute(ElabelController* pOwner)
 {
    //保证推出后不会有其他问题
     if(need_out_state || need_jump_to_record) return;
-    if(time_process == Time_confirm_process)
+    if(time_process == finish_time_process)
+    {
+        if(elabelUpdateTick % 100 == 0)
+        {
+            ElabelController::Instance()->stuck_time+=100;
+        }
+        return;
+    }
+    else if(time_process == Time_confirm_process)
     {
         if(need_flash_paper)
         {

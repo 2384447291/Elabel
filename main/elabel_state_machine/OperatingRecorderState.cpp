@@ -90,6 +90,9 @@ void OperatingRecorderState::Init(ElabelController* pOwner)
 
 void OperatingRecorderState::Enter(ElabelController* pOwner)
 {
+    // 进入focus的时候，重置卡死时间
+    pOwner->stuck_time = 0;
+
     ESP_LOGI(STATEMACHINE,"Enter OperatingRecorderState.\n");
     record_process = Record_voice_process;
     button_choose_record_confirm_left = true;
@@ -99,8 +102,9 @@ void OperatingRecorderState::Enter(ElabelController* pOwner)
     need_flash_paper = false;
     need_out_state = false;
     need_enter_focus = false;
-    //进入record_voice
+
     enter_screen_record_voice();
+    
     ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(Time_minus_5);
     ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(Time_plus_5);
     ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(Time_minus_1);
@@ -123,7 +127,15 @@ void OperatingRecorderState::Execute(ElabelController* pOwner)
 {
     //保证退出后不会有其他问题
     if(need_out_state) return;
-    if(record_process == Record_voice_process)
+    if(record_process == finish_record_process)
+    {
+        if(elabelUpdateTick % 100 == 0)
+        {
+            ElabelController::Instance()->stuck_time+=100;
+        }
+        return;
+    }
+    else if(record_process == Record_voice_process)
     {
         if(elabelUpdateTick%1000 == 0)
         {
