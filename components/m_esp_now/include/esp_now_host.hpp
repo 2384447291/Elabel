@@ -40,8 +40,13 @@ class EspNowHost {
             uint8_t packet_data[size+1];
             packet_data[0] = m_message_type;
             memcpy(&packet_data[1], data, size);
-            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
-                      size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            esp_err_t ret = ESP_FAIL;
+            uint8_t count = 0;
+            do{
+                ret = espnow_send(ESPNOW_DATA_TYPE_DATA, dest_addr, packet_data,
+                        size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+                count++;
+            }while(ret != ESP_OK && count < HOST_ASK_SLAVE_TIME);
             is_sending_message = false;
             return ret;
         }

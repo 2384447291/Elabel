@@ -44,19 +44,25 @@ void NoHostState::Execute(ElabelController* pOwner)
 {
     if(no_host_process == No_host_connecting_host_process)
     {
-        if(EspNowClient::Instance()->is_connect_to_host) enter_success_connect_host();
-        if(elabelUpdateTick%5000 == 0)
+        if(EspNowClient::Instance()->is_connect_to_host) 
         {
-            reconnect_count_down-=5;
-            lock_lvgl();
-            char time_str[40];
-            sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
-            set_text_without_change_font(ui_HostActiveAutoTime, time_str);
-            release_lvgl();
+            enter_success_connect_host();
         }
-        if(reconnect_count_down == 0)
+        else
         {
-            enter_disconnect_host();
+            if(elabelUpdateTick%5000 == 0)
+            {
+                reconnect_count_down-=5;
+                lock_lvgl();
+                char time_str[40];
+                sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+                set_text_without_change_font(ui_HostActiveAutoTime, time_str);
+                release_lvgl();
+            }
+            if(reconnect_count_down == 0)
+            {
+                enter_disconnect_host();
+            }
         }
     }
     else if(no_host_process == No_host_disconnecting_host_process)
@@ -76,6 +82,7 @@ void NoHostState::Execute(ElabelController* pOwner)
                 lv_obj_add_state(ui_HostActiveRetry, LV_STATE_PRESSED );
             }
             release_lvgl();           
+            need_flash_paper = false;
         }
     }
 }

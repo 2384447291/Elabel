@@ -148,8 +148,6 @@ void InitState::Execute(ElabelController* pOwner)
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        //从机只需要初始化espnow
-
         //初始化EspNowSlave
         EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
 

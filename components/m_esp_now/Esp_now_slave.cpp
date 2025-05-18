@@ -72,6 +72,8 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
 
 void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100])
 {
+    //更新EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
+    EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
     if(EspNowClient::Instance()->m_role == slave_role)
     {
         ESP_LOGE(ESP_NOW, "EspNowSlave already init, role is slave");

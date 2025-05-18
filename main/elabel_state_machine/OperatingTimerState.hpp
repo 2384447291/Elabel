@@ -39,6 +39,7 @@ public:
     uint8_t time_reconfirm_countdown = RECONFIRM_TIMER_TIME;
     bool need_flash_paper = false;
     bool need_out_state = false;
+    bool need_enter_focus = false;
     bool need_jump_to_record = false;
 
     void enter_screen_confirm_time()
@@ -110,6 +111,13 @@ public:
             focus_message_t focus_message = pack_focus_message(1, ElabelController::Instance()->TimeCountdown, 0, 0, "");
             EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
+        need_enter_focus = true;
+        ElabelController::Instance()->manual_focus = true;
+        if(ElabelController::Instance()->focustodo.title!=NULL) free(ElabelController::Instance()->focustodo.title);
+        cleantodoItem(&(ElabelController::Instance()->focustodo));
+        ElabelController::Instance()->focustodo.taskType = 1;
+        ElabelController::Instance()->focustodo.startTime = get_unix_time();
+        ElabelController::Instance()->focustodo.fallTiming = ElabelController::Instance()->TimeCountdown;
     }
 };
 #endif

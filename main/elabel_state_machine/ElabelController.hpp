@@ -35,15 +35,20 @@ class ElabelController
         bool lock_running = false;
 
         //所选择的task的id(一定要以id来传递，不要用number来传递，id是唯一的)
-        uint16_t ChosenTaskId;
+        uint16_t ChosenTaskId = 0;
         //任务倒计时的实际时间
         uint32_t TimeCountdown = (get_global_data()->m_device_info.default_counter_time*60);
         //所选择的task在当前列表中的位置
-        uint16_t ChosenTaskNum;
+        uint16_t ChosenTaskNum = 0;
         //处在中心的task在列表中的位置
-        uint16_t CenterTaskNum;
+        uint16_t CenterTaskNum = 0;
         //当前task_length的长度
-        uint16_t TaskLength;
+        uint16_t TaskLength = 0;
+
+        //本地用来记录focus的变量
+        TodoItem focustodo = {0};
+        //是否用本地信息进入focus
+        bool manual_focus = false;
 
         static ElabelController* Instance()
         {

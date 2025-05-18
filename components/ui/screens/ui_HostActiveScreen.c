@@ -56,7 +56,7 @@ void ui_HostActiveScreen_screen_init(void)
     lv_obj_set_x(ui_HostActiveAutoTime, 0);
     lv_obj_set_y(ui_HostActiveAutoTime, 30);
     lv_obj_set_align(ui_HostActiveAutoTime, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_HostActiveAutoTime, "Timeout in 15 secs");
+    lv_label_set_text(ui_HostActiveAutoTime, "Timeout in 30 secs");
     lv_obj_set_style_text_font(ui_HostActiveAutoTime, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_DisconnectWIFI = lv_obj_create(ui_HostActiveScreen);

@@ -39,6 +39,7 @@ public:
         EspNowClient::Instance()->start_find_channel();
         no_host_process = No_host_connecting_host_process;
         lock_lvgl();
+        switch_screen(ui_HostActiveScreen);
         set_text_without_change_font(ui_HostActiveGuide1, "Connect to HOST");
 
         char mac_str[18];
@@ -47,7 +48,7 @@ public:
                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         
         set_text_without_change_font(ui_WIFIname, mac_str);
-        set_text_without_change_font(ui_Disconnectwifiname, "Timeout in 30 secs");
+        set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
         reconnect_count_down = RECONNECT_COUNT_DOWN;
         release_lvgl();
     }

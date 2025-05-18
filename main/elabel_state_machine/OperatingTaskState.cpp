@@ -87,6 +87,8 @@ void OperatingTaskState::Enter(ElabelController* pOwner)
     task_reconfirm_countdown = RECONFIRM_TASK_TIME;
     need_flash_paper = false;
     need_out_state = false;
+    need_enter_focus = false;
+    
     enter_screen_confirm_task();
     ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(Time_minus_5);
     ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(Time_plus_5);

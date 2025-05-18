@@ -17,7 +17,10 @@ public:
     int inner_time_countdown_ms = 0;
     int inner_time_countdown_s = 0;
     bool need_out_focus = false;
+    //当前focus的类型
     uint8_t focus_type = 0;
+    //当前focus的task_id
+    uint8_t focus_task_id = 0;
     bool need_flash_paper = false;
 
     static FocusTaskState* Instance()

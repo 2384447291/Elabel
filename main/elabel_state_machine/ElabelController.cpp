@@ -26,28 +26,37 @@
 #include "NoWifiState.hpp"
 #include "NoHostState.hpp"
 #include "InfoState.hpp"
-ElabelController::ElabelController() : m_elabelFsm(this){}
-//初始化状态是init_state
+ElabelController::ElabelController() : m_elabelFsm(this) {}
+// 初始化状态是init_state
 
 void ElabelController::Init()
 {
     m_elabelFsm.Init();
+    lock_running = false;
+    ChosenTaskId = 0;
+    TimeCountdown = (get_global_data()->m_device_info.default_counter_time * 60);
+    ChosenTaskNum = 0;
+    CenterTaskNum = 0;
+    TaskLength = 0;
+    cleantodoItem(&focustodo);
+    manual_focus = false;
 }
 
 void ElabelController::Update()
 {
-    if(lock_running) return;
+    if (lock_running)
+        return;
     m_elabelFsm.HandleInput();
     m_elabelFsm.Update();
 }
 
 void ElabelFsm::HandleInput()
 {
-    //如果没有激活
-    if(get_global_data()->m_is_host == 0)
+    // 如果没有激活
+    if (get_global_data()->m_is_host == 0)
     {
-        //如果当前状态不是激活状态，则进入激活状态
-        if(GetCurrentState()!=ActiveState::Instance() && GetCurrentState()!=HostActiveState::Instance() && GetCurrentState()!=SlaveActiveState::Instance())
+        // 如果当前状态不是激活状态，则进入激活状态
+        if (GetCurrentState() != ActiveState::Instance() && GetCurrentState() != HostActiveState::Instance() && GetCurrentState() != SlaveActiveState::Instance())
         {
             // 等待2秒，确保init刷新出来了
             vTaskDelay(pdMS_TO_TICKS(2000));
@@ -55,158 +64,176 @@ void ElabelFsm::HandleInput()
         }
     }
 
-    //如果是主机且没有网络，则进入断网状态
-    if(get_global_data()->m_is_host == 1)
+    // 如果是主机且没有网络，则进入断网状态
+    if (get_global_data()->m_is_host == 1)
     {
-        if(get_wifi_status() == 0 )
+        if (get_wifi_status() == 0)
         {
             // 等待2秒，确保init刷新出来了,再进入连接模式，开机保护
             vTaskDelay(pdMS_TO_TICKS(2000));
             ChangeState(NoWifiState::Instance());
         }
     }
-    
-    //如果是从机且长时间没有收到主机消息，则进入断网状态
-    if(get_global_data()->m_is_host == 2)
+
+    // 如果是从机且长时间没有收到主机消息，则进入断网状态
+    if (get_global_data()->m_is_host == 2)
     {
         // 如果长时间没有收到主机消息，则进入断网状态
-        if(xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
+        if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
         {
-            ChangeState(NoWifiState::Instance());
+            ChangeState(NoHostState::Instance());
         }
     }
 
-    //如果是断网状态，则进入初始化状态
-    if(GetCurrentState()==NoWifiState::Instance())
+    // 如果是断网状态，则进入初始化状态
+    if (GetCurrentState() == NoWifiState::Instance())
     {
-        if(NoWifiState::Instance()->need_forward)
+        if (NoWifiState::Instance()->need_forward)
         {
             ChangeState(InitState::Instance());
         }
-        else if(NoWifiState::Instance()->need_back)
+        else if (NoWifiState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }
     }
 
-    //如果是host，则进入连接模式
-    if(GetCurrentState()==NoHostState::Instance())
+    // 如果是host，则进入连接模式
+    if (GetCurrentState() == NoHostState::Instance())
     {
-        if(NoHostState::Instance()->need_forward)
+        if (NoHostState::Instance()->need_forward)
         {
             ChangeState(InitState::Instance());
         }
-        else if(NoHostState::Instance()->need_back)
+        else if (NoHostState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }
     }
 
     //-------------------------------整个激活--------------------------------//
-    //如果没有被激活，则进入激活状态
-    if(GetCurrentState()==ActiveState::Instance())
+    // 如果没有被激活，则进入激活状态
+    if (GetCurrentState() == ActiveState::Instance())
     {
-        if(Is_connect_to_phone())
+        if (Is_connect_to_phone())
         {
             ChangeState(HostActiveState::Instance());
         }
-        else if(Is_connect_to_host())
+        else if (Is_connect_to_host())
         {
             ChangeState(SlaveActiveState::Instance());
         }
     }
-    else if(GetCurrentState()==HostActiveState::Instance())
+    else if (GetCurrentState() == HostActiveState::Instance())
     {
-        if(HostActiveState::Instance()->need_back)
+        if (HostActiveState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }
     }
-    else if(GetCurrentState()==SlaveActiveState::Instance())
+    else if (GetCurrentState() == SlaveActiveState::Instance())
     {
-        if(SlaveActiveState::Instance()->need_back)
+        if (SlaveActiveState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
         }
     }
     //-------------------------------整个激活流程--------------------------------//
 
-
     //-------------------------------初始化流程--------------------------------//
-    else if(GetCurrentState()==InitState::Instance())
+    else if (GetCurrentState() == InitState::Instance())
     {
-        if(InitState::Instance()->is_need_ota == 1)
+        if (InitState::Instance()->is_need_ota == 1)
         {
             ChangeState(OTAState::Instance());
         }
         else
         {
-            //唯一能出去的接口
-            if(InitState::Instance()->is_init)
+            // 唯一能出去的接口
+            if (InitState::Instance()->is_init)
             {
-                if(get_global_data()->m_focus_state->is_focus == 1) 
+                if (get_global_data()->m_focus_state->is_focus == 1)
                 {
                     ChangeState(FocusTaskState::Instance());
                 }
-                else ChangeState(ChoosingTaskState::Instance());
+                else
+                    ChangeState(ChoosingTaskState::Instance());
             }
         }
     }
     //-------------------------------初始化流程--------------------------------//
 
-
     //-------------------------------正常逻辑流程--------------------------------//
     else
     {
-        //外部有数据更新打断
-        if(get_task_list_state() == firmware_need_update)
+        // 外部有数据更新打断
+        if (get_task_list_state() == firmware_need_update)
         {
-            //如果收到了退出focus的信息
-            if(get_global_data()->m_focus_state->is_focus == 2)
+            // 如果收到了退出focus的信息
+            if (get_global_data()->m_focus_state->is_focus == 2)
             {
-                ESP_LOGI("ElabelFsm","exit focus");
-                //如果当前是主机，则转发
-                if(get_global_data()->m_is_host == 1)
+                ESP_LOGI("ElabelFsm", "exit focus");
+                // 如果当前是主机，则转发
+                if (get_global_data()->m_is_host == 1)
                 {
                     EspNowHost::Instance()->Mqtt_out_focus();
                 }
-                if(GetCurrentState()==FocusTaskState::Instance())
+                
+                if (GetCurrentState() == FocusTaskState::Instance())
                 {
                     ChangeState(ChoosingTaskState::Instance());
                 }
-                get_global_data()->m_focus_state->is_focus = 0;
-                get_global_data()->m_focus_state->focus_task_id = 0;
-            }
-            //如果收到进入focus的信息
-            else if(get_global_data()->m_focus_state->is_focus == 1)
-            {
-                ESP_LOGI("ElabelFsm","enter focus");
-                //如果当前是主机，则转发
-                if(get_global_data()->m_is_host == 1)
+                else if(GetCurrentState() == ChoosingTaskState::Instance())
                 {
-                    TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+                    lock_lvgl();
+                    // 刷新任务列表
+                    ChoosingTaskState::Instance()->brush_task_list();
+                    // 刷新任务列表
+                    ChoosingTaskState::Instance()->recolor_task();
+                    // 刷新任务列表
+                    ChoosingTaskState::Instance()->update_progress_bar();
+                    release_lvgl();
+                }
+            }
+            // 如果收到进入focus的信息
+            else if (get_global_data()->m_focus_state->is_focus == 1)
+            {
+                ESP_LOGI("ElabelFsm", "enter focus");
+                // 如果当前是主机，则转发
+                if (get_global_data()->m_is_host == 1)
+                {
+                    TodoItem *todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
                     focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
                     EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
                 }
-                ChangeState(FocusTaskState::Instance());
+                ElabelController::Instance()->manual_focus = false;
+                if (GetCurrentState() == FocusTaskState::Instance())
+                {
+                    FocusTaskState::Instance()->Exit(m_pOwner);
+                    FocusTaskState::Instance()->Enter(m_pOwner);
+                }
+                else
+                {
+                    ChangeState(FocusTaskState::Instance());
+                }
             }
-            //如果只是单纯的更新列表
-            else if(get_global_data()->m_focus_state->is_focus == 0)
+            // 如果只是单纯的更新列表
+            else if (get_global_data()->m_focus_state->is_focus == 0)
             {
-                ESP_LOGI("ElabelFsm","tasklist update");
-                //如果当前是主机，则转发
-                if(get_global_data()->m_is_host == 1)
+                ESP_LOGI("ElabelFsm", "tasklist update");
+                // 如果当前是主机，则转发
+                if (get_global_data()->m_is_host == 1)
                 {
                     EspNowHost::Instance()->Mqtt_update_task_list();
                 }
-                if(GetCurrentState()==ChoosingTaskState::Instance())
+                if (GetCurrentState() == ChoosingTaskState::Instance())
                 {
                     lock_lvgl();
-                    //刷新任务列表
+                    // 刷新任务列表
                     ChoosingTaskState::Instance()->brush_task_list();
-                    //刷新任务列表
+                    // 刷新任务列表
                     ChoosingTaskState::Instance()->recolor_task();
-                    //刷新任务列表
+                    // 刷新任务列表
                     ChoosingTaskState::Instance()->update_progress_bar();
                     release_lvgl();
                 }
@@ -216,56 +243,75 @@ void ElabelFsm::HandleInput()
             set_task_list_state(newest);
         }
 
-        if(GetCurrentState()==ChoosingTaskState::Instance())
+        if (GetCurrentState() == ChoosingTaskState::Instance())
         {
-            if(ChoosingTaskState::Instance()->is_jump_to_record_mode)
+            if (ChoosingTaskState::Instance()->is_jump_to_record_mode)
             {
                 ChangeState(OperatingRecorderState::Instance());
             }
-            else if(ChoosingTaskState::Instance()->is_jump_to_task_mode)
+            else if (ChoosingTaskState::Instance()->is_jump_to_task_mode)
             {
                 ChangeState(OperatingTaskState::Instance());
             }
-            else if(ChoosingTaskState::Instance()->is_jump_to_time_mode)
+            else if (ChoosingTaskState::Instance()->is_jump_to_time_mode)
             {
                 ChangeState(OperatingTimeState::Instance());
             }
-            else if(ChoosingTaskState::Instance()->is_jump_to_info_mode)
+            else if (ChoosingTaskState::Instance()->is_jump_to_info_mode)
             {
                 ChangeState(InfoState::Instance());
             }
         }
-        else if(GetCurrentState()==OperatingRecorderState::Instance())
+        else if (GetCurrentState() == OperatingRecorderState::Instance())
         {
-            //怎么过去怎么回来
-            if(OperatingRecorderState::Instance()->need_out_state)
+            // 怎么过去怎么回来
+            if (OperatingRecorderState::Instance()->need_out_state)
             {
                 ChangeState(ElabelController::Instance()->m_elabelFsm.GetPreviousState());
             }
+            else if (OperatingRecorderState::Instance()->need_enter_focus)
+            {
+                ChangeState(FocusTaskState::Instance());
+            }
         }
-        else if(GetCurrentState()==OperatingTaskState::Instance())
+        else if (GetCurrentState() == OperatingTaskState::Instance())
         {
-            //怎么过去怎么回来
-            if(OperatingTaskState::Instance()->need_out_state)
+            // 怎么过去怎么回来
+            if (OperatingTaskState::Instance()->need_out_state)
             {
                 ChangeState(ElabelController::Instance()->m_elabelFsm.GetPreviousState());
             }
-        }
-        else if(GetCurrentState()==OperatingTimeState::Instance())
-        {
-            if(OperatingTimeState::Instance()->need_out_state)
+            else if (OperatingTaskState::Instance()->need_enter_focus)
             {
-                //这里不会上一个界面，直接回choose
+                ChangeState(FocusTaskState::Instance());
+            }
+        }
+        else if (GetCurrentState() == OperatingTimeState::Instance())
+        {
+            if (OperatingTimeState::Instance()->need_out_state)
+            {
+                // 这里不会上一个界面，直接回choose
                 ChangeState(ChoosingTaskState::Instance());
             }
-            else if(OperatingTimeState::Instance()->need_jump_to_record)
+            else if (OperatingTimeState::Instance()->need_jump_to_record)
             {
                 ChangeState(OperatingRecorderState::Instance());
             }
+            else if (OperatingTimeState::Instance()->need_enter_focus)
+            {
+                ChangeState(FocusTaskState::Instance());
+            }
         }
-        else if(GetCurrentState()==InfoState::Instance())
+        else if (GetCurrentState() == FocusTaskState::Instance())
         {
-            if(InfoState::Instance()->need_out_state)
+            if (FocusTaskState::Instance()->need_out_focus)
+            {
+                ChangeState(ChoosingTaskState::Instance());
+            }
+        }
+        else if (GetCurrentState() == InfoState::Instance())
+        {
+            if (InfoState::Instance()->need_out_state)
             {
                 ChangeState(ChoosingTaskState::Instance());
             }
@@ -276,11 +322,5 @@ void ElabelFsm::HandleInput()
 
 void ElabelFsm::Init()
 {
-    ChoosingTaskState::Instance()->Init(m_pOwner);
-    OperatingTaskState::Instance()->Init(m_pOwner);
-    FocusTaskState::Instance()->Init(m_pOwner);
-    OperatingTaskState::Instance()->Init(m_pOwner);
-    InitState::Instance()->Init(m_pOwner);
-    OTAState::Instance()->Init(m_pOwner);
     SetCurrentState(InitState::Instance());
 }

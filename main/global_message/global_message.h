@@ -80,6 +80,9 @@ void set_task_list_state(task_list_state _task_list_state);
 //TodoItem初始化
 void cleantodoItem(TodoItem* _todoitem);
 
+// 拷贝 TodoItem
+void copy_write_todo_item(TodoItem* src, TodoItem* dst);
+
 // 根据 ID 查找 TodoItem
 TodoItem* find_todo_by_id(TodoList *list, int id);
 
@@ -91,7 +94,6 @@ void add_or_update_todo_item(TodoList *list, TodoItem item);
 
 //清除 TodoList
 void clean_todo_list(TodoList *list);
-
 
 bool insert_slave(uint8_t slave_mac[6]);
 #ifdef __cplusplus

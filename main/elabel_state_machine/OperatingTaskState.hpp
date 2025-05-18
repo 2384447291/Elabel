@@ -37,8 +37,10 @@ public:
     bool button_choose_task_confirm_left = false;
     uint8_t task_confirm_countdown = CONFIRM_TASK_TIME;
     uint8_t task_reconfirm_countdown = RECONFIRM_TASK_TIME;
+
     bool need_flash_paper = false;
     bool need_out_state = false;
+    bool need_enter_focus = false;
 
     void enter_screen_confirm_task()
     {
@@ -120,6 +122,14 @@ public:
             EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
         ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,(int)ElabelController::Instance()->TimeCountdown);
+        need_enter_focus = true;
+        ElabelController::Instance()->manual_focus = true;
+        if(ElabelController::Instance()->focustodo.title!=NULL) free(ElabelController::Instance()->focustodo.title);
+        cleantodoItem(&(ElabelController::Instance()->focustodo));
+        ElabelController::Instance()->focustodo.taskType = 2;
+        ElabelController::Instance()->focustodo.title = strdup(chose_todo->title);
+        ElabelController::Instance()->focustodo.startTime = get_unix_time();
+        ElabelController::Instance()->focustodo.fallTiming = ElabelController::Instance()->TimeCountdown;
     }
 };
 #endif

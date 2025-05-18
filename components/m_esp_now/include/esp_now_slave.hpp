@@ -38,14 +38,19 @@ class EspNowSlave {
         void slave_respense_espnow_mqtt_get_out_focus();
         void slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size);
 
-        // 必须收到ack，重发2s
+        // 必须收到ack，爆发1s共10次，尝试4次
         esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)
         {
             uint8_t packet_data[size+1];
             packet_data[0] = m_message_type;
             memcpy(&packet_data[1], data, size);
-            esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, host_mac, packet_data,
-                      size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+            esp_err_t ret = ESP_FAIL;
+            uint8_t count = 0;
+            do{
+                ret = espnow_send(ESPNOW_DATA_TYPE_DATA, host_mac, packet_data,
+                        size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+                count++;
+            }while(ret != ESP_OK && count < SLAVE_ASK_HOST_TIME);
             return ret;
         }
 };

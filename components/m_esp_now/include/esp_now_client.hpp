@@ -15,6 +15,8 @@
 #define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
 //数据最大长度等于内置最大长度 - message类型
 #define MAX_EFFECTIVE_DATA_LEN ESPNOW_SEC_PACKET_MAX_SIZE - 1
+#define SLAVE_ASK_HOST_TIME 5
+#define HOST_ASK_SLAVE_TIME 2
 
 enum message_type
 {

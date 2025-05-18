@@ -34,12 +34,23 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     inner_time_countdown_s = 0;
     need_out_focus = false;
     focus_type = 0;
+    focus_task_id = 0;
     need_flash_paper = false;
-
-    //获取如何进入的focus状态
-    TodoItem* chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+    
+    TodoItem* chose_todo;
+    if(pOwner->manual_focus)
+    {
+        chose_todo = &pOwner->focustodo;
+        pOwner->manual_focus = false;
+        ESP_LOGI(STATEMACHINE,"Manual enter FocusTaskState");
+    }
+    else
+    {
+        chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+    }
     focus_type = chose_todo->taskType;
-    ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d", focus_type);
+    focus_task_id = chose_todo->id;
+    ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %d", focus_type, focus_task_id);
 
     //计算时间,来保证时间轴同步
     if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
