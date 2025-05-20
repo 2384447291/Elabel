@@ -148,11 +148,9 @@ extern "C" void app_main(void)
 
 
         //-----------------------关机等待5s--------------------------------//
-        ESP_ERROR_CHECK(esp_wifi_stop());// 关闭wifi
-        // suspend_gui();
         BatteryManager::Instance()->setPowerState(false);
         gpio_hold_en(DEV_POWER_CTRL); 
-        ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(5 * 1000000ULL));  
+        // ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(5 * 1000000ULL));  
         esp_light_sleep_start();     
         //-----------------------关机等待5s--------------------------------//
     }
