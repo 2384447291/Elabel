@@ -24,7 +24,7 @@
 #define READ_BLOCK_SIZE 1024      
 #define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 #define RecordTime 8
-#define ShutdownTime 0.2f
+#define ShutdownTime 0.4f
 #define FILE_PATH "/fat/mic.raw"
 
 typedef enum {
@@ -85,12 +85,21 @@ public:
     uint8_t codec_gain = 25;
     uint8_t codec_vol = get_global_data()->m_device_info.sound_volume;
     
-    void open_dev(uint32_t sample_rate)
+    void open_speaker_dev(uint32_t sample_rate)
     {
         fs.sample_rate = sample_rate;
         esp_codec_dev_open(codec_dev, &fs);
+        esp_codec_dev_set_in_gain(codec_dev, 0);
         esp_codec_dev_set_out_vol(codec_dev, codec_vol);
+        
+    }
+
+    void open_mic_dev(uint32_t sample_rate)
+    {
+        fs.sample_rate = sample_rate;
+        esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_in_gain(codec_dev, codec_gain);
+        esp_codec_dev_set_out_vol(codec_dev, 0);
     }
     void close_dev()
     {

@@ -167,7 +167,7 @@ void Gui_init()
 {
     if(gui_task_handle == NULL)
     {
-        xTaskCreate(guiTask, "gui", 8192, NULL, 0, &gui_task_handle);
+        xTaskCreate(guiTask, "gui", 10240 , NULL, 0, &gui_task_handle);
     }
     else
     {

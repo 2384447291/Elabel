@@ -109,7 +109,7 @@ void choose_previous_task()
 
 void jump_to_task_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
     if(get_global_data()->m_todo_list->size==0)
     {
         ESP_LOGE("ChoosingTaskState","No task no need confirm task");
@@ -122,23 +122,35 @@ void jump_to_task_mode()
 
 void jump_to_record_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
     ChoosingTaskState::Instance()->is_jump_to_record_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to record mode");
 }
 
 void jump_to_time_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
     ChoosingTaskState::Instance()->is_jump_to_time_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to time mode");
 }
 
 void jump_to_info_mode()
 {
-    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode) return;
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
     ChoosingTaskState::Instance()->is_jump_to_info_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to info mode");
+}
+
+void jump_to_sleep_mode()
+{
+    if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
+    ChoosingTaskState::Instance()->is_jump_to_sleep_mode = true;
+    ESP_LOGI("ChoosingTaskState","jump to sleep mode");
+}
+
+void reload_sleep_count()
+{
+    ChoosingTaskState::Instance()->sleep_count = SLEEP_COUTDOWN;
 }
 
 void ChoosingTaskState::brush_task_list()
@@ -171,6 +183,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;
     is_jump_to_info_mode = false;
+    is_jump_to_info_mode = false;
 
     guide_page = 0;
 
@@ -188,10 +201,28 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(jump_to_time_mode);
 
     ControlDriver::Instance()->button_press_together_58.Togetherlongpress.registerCallback(jump_to_info_mode);
+
+    //给所有按键增加打断
+    ControlDriver::Instance()->register_all_button_callback(reload_sleep_count);
 }
 
 void ChoosingTaskState::Execute(ElabelController* pOwner)
 {
+    if(get_global_data()->m_is_host == 2)
+    {
+        if(!is_jump_to_sleep_mode)
+        {
+            if(elabelUpdateTick % 1000 == 0)
+            {
+                sleep_count-=1000;
+            }
+            if(sleep_count == 0)
+            {
+                jump_to_sleep_mode();
+            }
+        }
+    }
+
     //这里的刷新只会刷新位置
     if(need_flash_paper)
     {
@@ -221,6 +252,9 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
 
     ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(jump_to_info_mode);
+
+    //取消所有按键的打断
+    ControlDriver::Instance()->unregister_button_callback(reload_sleep_count);
 }
 
 void ChoosingTaskState::recolor_task()

@@ -76,7 +76,14 @@ public:
 
     void enter_success_connect_host()
     {
+        //停止寻找信道
         EspNowClient::Instance()->stop_find_channel();
+        //稳妥起见,再设置一次wifi_channel，怕停止信道后被操作了
+        uint8_t actual_wifi_channel = 0;
+        wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+        esp_wifi_set_channel(get_global_data()->m_host_channel, WIFI_SECOND_CHAN_NONE);
+        esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
+        ESP_LOGI(ESP_NOW, "Get Host, set espnow channel to %d", actual_wifi_channel);
         no_host_process = No_host_success_connect_host_process;
         lock_lvgl();
         set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");

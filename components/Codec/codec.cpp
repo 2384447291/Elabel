@@ -24,13 +24,7 @@ static void mic_task_func(void* arg) {
         return;
     }
 
-    MCodec::Instance()->play_music("ding");
-    while(MCodec::Instance()->speaker_task!=NULL)
-    {
-        ESP_LOGI(TAG,"Recording Guidance playing");
-        vTaskDelay(50 / portTICK_PERIOD_MS);
-    }
-    MCodec::Instance()->open_dev(MIC_SAMPLE_RATE);
+    MCodec::Instance()->open_mic_dev(MIC_SAMPLE_RATE);
     ESP_LOGI(TAG, "Mic task started");
 
     // 重置录音大小
@@ -167,7 +161,7 @@ void MCodec::start_record()
     }
 
     ESP_LOGI(TAG, "Starting recording...");
-    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
+    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 10, &mic_task);
 }
 
 void MCodec::stop_record()
@@ -228,8 +222,8 @@ void MCodec::play_mic()
     fseek(play_file, 0, SEEK_SET);
     ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
              size, (float)size/BytesPerSecond);
-    open_dev(MIC_SAMPLE_RATE);
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+    open_speaker_dev(MIC_SAMPLE_RATE);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 10, &speaker_task);
 }
 
 
@@ -271,18 +265,14 @@ void MCodec::play_record(const uint8_t* data, size_t size)
         return;
     }
 
-    if(speaker_task != NULL) {
-        ESP_LOGW(TAG, "Speaker task already exists, stopping previous playback");
-        return;
-    }
     // 任务结束自动关闭设备
     if(speaker_type == music)
     {
-        open_dev(SPEAKER_SAMPLE_RATE);
+        open_speaker_dev(SPEAKER_SAMPLE_RATE);
     }
     else
     {
-        open_dev(MIC_SAMPLE_RATE);
+        open_speaker_dev(MIC_SAMPLE_RATE);
     }
     // 保存播放数据的指针和大小
     play_data = data;
@@ -290,7 +280,7 @@ void MCodec::play_record(const uint8_t* data, size_t size)
 
     ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)", 
              size, (float)size/BytesPerSecond);
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 10, &speaker_task);
 }
 
 void MCodec::stop_play()

@@ -24,9 +24,9 @@ void ui_MessageScreen_screen_init(void)
     ui_Messageguide = lv_label_create(ui_Panel1);
     lv_obj_set_width(ui_Messageguide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Messageguide, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Messageguide, -65);
+    lv_obj_set_x(ui_Messageguide, 10);
     lv_obj_set_y(ui_Messageguide, -48);
-    lv_obj_set_align(ui_Messageguide, LV_ALIGN_CENTER);
+    lv_obj_set_align(ui_Messageguide, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Messageguide, "Device Info");
 
     ui_Messageguide2 = lv_label_create(ui_Messageguide);
@@ -34,7 +34,7 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_set_height(ui_Messageguide2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Messageguide2, -1);
     lv_obj_set_y(ui_Messageguide2, 0);
-    lv_obj_set_align(ui_Messageguide2, LV_ALIGN_CENTER);
+    lv_obj_set_align(ui_Messageguide2, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Messageguide2, "Device Info");
 
     ui_Message1 = lv_label_create(ui_Panel1);
@@ -97,7 +97,7 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_set_y(ui_Arc3, 0);
     lv_obj_set_align(ui_Arc3, LV_ALIGN_CENTER);
     lv_arc_set_value(ui_Arc3, 50);
-    lv_arc_set_bg_angles(ui_Arc3, 0, 36);
+    lv_arc_set_bg_angles(ui_Arc3, 0, 32);
     lv_arc_set_rotation(ui_Arc3, 342);
     lv_obj_set_style_bg_color(ui_Arc3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Arc3, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

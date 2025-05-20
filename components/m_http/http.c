@@ -696,7 +696,7 @@ void http_find_device(bool need_stuck)
 void http_bind_device(bool need_stuck, uint8_t mac[6])
 {
     char mac_str[20];           
-    sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    sprintf(mac_str, "%02X%02X%02X", mac[3], mac[4], mac[5]);
     char *params[] = {mac_str};  // 示例参数
     int param_count = 1;
     http_task_struct *m_task = create_http_task_struct(BINDDEVICE,params,param_count,need_stuck);

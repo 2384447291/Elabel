@@ -72,6 +72,14 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
     }
+    else if(act_scr == ui_SleepScreen) //只能快刷
+    {
+        force_full_update = false;
+        elabel_screen = SLEEP_SCREEN;
+        isBaseMapFresh = false;
+        elabel_update_mode = FAST_UPDATE;
+        ESP_LOGI(TAG,"ui_SleepScreen Flush called.");
+    }
     else if(act_scr == ui_MessageScreen) //只能快刷
     {
         force_full_update = false;

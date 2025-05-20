@@ -226,6 +226,7 @@ Global_data* get_global_data() {
 
             memset(instance->m_slave_info,0, sizeof(instance->m_slave_info)); 
             instance->m_slave_num = 0;
+            instance->need_update_device_info = false;
         }
     }
     return instance;

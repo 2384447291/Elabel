@@ -136,7 +136,7 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
     wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
     esp_wifi_set_channel(get_global_data()->m_host_channel, WIFI_SECOND_CHAN_NONE);
     esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
-    ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
+    ESP_LOGI(ESP_NOW, "Get Host, set espnow channel to %d", actual_wifi_channel);
     
     button_slave_active_confirm_left = false;
     need_back = false;

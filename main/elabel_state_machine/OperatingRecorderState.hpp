@@ -50,6 +50,18 @@ public:
         ESP_LOGI("OperatingRecorderState", "enter_screen_record_voice");
         record_process = Record_voice_process;
         record_voice_countdown = RECORD_TIME;
+
+        MCodec::Instance()->stop_play();
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+        MCodec::Instance()->play_music("ding");
+        while(MCodec::Instance()->speaker_task!=NULL)
+        {
+            ESP_LOGI(TAG,"Recording Guidance playing");
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        
         MCodec::Instance()->start_record();
 
         lock_lvgl();
@@ -88,6 +100,7 @@ public:
         ESP_LOGI("OperatingRecorderState", "enter_screen_confirm_voice");
         record_process = Record_time_process;
         need_flash_paper = true;
+        MCodec::Instance()->stop_play();
         MCodec::Instance()->stop_record();
         confirm_voice_countdown = CONFIRM_VOICE_TIME;
         button_choose_record_confirm_left = false;

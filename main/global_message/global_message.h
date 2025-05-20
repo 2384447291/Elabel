@@ -10,8 +10,7 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.3"
-#define TASK_RUNNING_BIT   (1 << 0)
+#define FIRMWARE_VERSION "3.0.5"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，未专注2
@@ -140,6 +139,7 @@ typedef struct
     //如果是主机保存的从机mac
     slave_device_info m_slave_info[MAX_SLAVE_NUM];
     uint8_t m_slave_num;
+    bool need_update_device_info;
     
 } Global_data;
 

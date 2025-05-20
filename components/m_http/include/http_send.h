@@ -297,7 +297,7 @@ void http_send(http_task_struct* m_task_struct)
         esp_http_client_set_method(client,HTTP_METHOD_POST);
         esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/bindDevice");
         char name[25];
-        sprintf(name, "Reminder-%s", m_task_struct->parament[0]);
+        sprintf(name, "Reminder_%s", m_task_struct->parament[0]);
         // 设置 Content-Type
         char content_type[200]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);

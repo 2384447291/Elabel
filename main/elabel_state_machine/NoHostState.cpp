@@ -81,6 +81,14 @@ void NoHostState::Execute(ElabelController* pOwner)
                 lv_obj_clear_state(ui_HostActiveCancel, LV_STATE_PRESSED );
                 lv_obj_add_state(ui_HostActiveRetry, LV_STATE_PRESSED );
             }
+            //上面的更改不会触发刷新
+            char mac_str[18];
+            uint8_t* mac = get_global_data()->m_host_mac;
+            snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
+                    mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            
+            set_text_without_change_font(ui_Disconnectwifiname, mac_str);
+
             release_lvgl();           
             need_flash_paper = false;
         }

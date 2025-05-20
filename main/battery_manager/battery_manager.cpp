@@ -33,7 +33,6 @@ void BatteryManager::init() {
     gpio_config(&io_conf);
 
     setPowerState(true);
-    gpio_hold_en(DEV_POWER_CTRL);
 
     // 初始化ADC1
     adc1_config_width(ADC_WIDTH_BIT_12);
@@ -54,7 +53,10 @@ void BatteryManager::init() {
 
 
 void BatteryManager::setPowerState(bool enable) {
+    //保持电源关闭
+    gpio_hold_dis(DEV_POWER_CTRL);
     gpio_set_level(DEV_POWER_CTRL, enable ? 1 : 0);
+    gpio_hold_en(DEV_POWER_CTRL);
     powerEnabled = enable;
     ESP_LOGE(TAG, "Battery power state: %s", enable ? "ON" : "OFF");
 }

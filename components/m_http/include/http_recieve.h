@@ -194,6 +194,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     }
                 }
             }
+            get_global_data()->need_update_device_info = true;
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDDEVICE.\n ");
     }

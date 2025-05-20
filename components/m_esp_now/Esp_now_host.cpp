@@ -65,12 +65,12 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     else if(m_message_type == Slave2Host_Get_Time_Request_Http)
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Time_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->Mqtt_get_time(src_addr);
+        EspNowHost::Instance()->Mqtt_send_time(src_addr);
     }
     else if(m_message_type == Slave2Host_Get_Device_Info_Request_Http)
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Device_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->Mqtt_get_device_info(src_addr);
+        EspNowHost::Instance()->Mqtt_send_device_info(src_addr);
     }
     else if(m_message_type == Slave2Host_UpdateTaskList_Request_Http)
     {
@@ -259,9 +259,10 @@ void EspNowHost::Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     }
 }   
 
-void EspNowHost::Mqtt_get_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
 {
     uint8_t temp_data[4];
+    //如果该地址属于该机器，则发送设备信息
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
         if(Same_mac(get_global_data()->m_slave_info[i].mac, slave_mac))
@@ -277,7 +278,7 @@ void EspNowHost::Mqtt_get_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     ESP_LOGE(ESP_NOW, "Slave " MACSTR " not found", MAC2STR(slave_mac));
 }
 
-void EspNowHost::Mqtt_get_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+void EspNowHost::Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
 {
     uint8_t temp_data[8];
     long long time = get_unix_time();

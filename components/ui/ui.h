@@ -240,6 +240,15 @@ extern lv_obj_t * uic_MessageGuide;
 extern lv_obj_t * uic_MessageFirmware;
 extern lv_obj_t * uic_MessageLanguage;
 
+// SCREEN: ui_SleepScreen
+void ui_SleepScreen_screen_init(void);
+extern lv_obj_t * ui_SleepScreen;
+extern lv_obj_t * ui_Panel3;
+extern lv_obj_t * ui_SleepCLock;
+extern lv_obj_t * ui_SleepCLock1;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_ActiveScreen;
+
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;

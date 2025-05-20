@@ -26,6 +26,11 @@
 #include "NoWifiState.hpp"
 #include "NoHostState.hpp"
 #include "InfoState.hpp"
+#include "SleepState.hpp"
+
+#define STUCK_TIME 6000
+#define STUCK_RELOAD_TIME -4000
+
 ElabelController::ElabelController() : m_elabelFsm(this) {}
 // 初始化状态是init_state
 
@@ -49,6 +54,20 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
+    if(get_global_data()->m_is_host == 2)
+    {    
+        //如果在睡眠模式直接返回
+        if(GetCurrentState() == SleepState::Instance())
+        {
+            if(SleepState::Instance()->need_out_state)
+            {
+                ChangeState(InitState::Instance());
+            }
+            return;
+        }
+    }
+
+    
     // 如果没有激活
     if (get_global_data()->m_is_host == 0)
     {
@@ -62,7 +81,7 @@ void ElabelFsm::HandleInput()
     }
 
     // 如果卡死了6s，则重新更新，两个函数都会触发firmware_need_update
-    if(m_pOwner->stuck_time > 6000)
+    if(m_pOwner->stuck_time > STUCK_TIME)
     {
         ESP_LOGE("ElabelFsm", "stuck need refresh");
         if(get_global_data()->m_is_host == 1)
@@ -75,10 +94,32 @@ void ElabelFsm::HandleInput()
             //获取任务列表  
             EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
         }
-        m_pOwner->stuck_time = -4000;
+        m_pOwner->stuck_time = STUCK_RELOAD_TIME;
     }
 
-    // 如果是主机且没有网络，则进入断网状态
+    if(get_global_data()->need_update_device_info)
+    {
+        if(get_global_data()->m_is_host == 1)
+        {
+            for(int i = 0; i < get_global_data()->m_slave_num; i++)
+            {
+                if(get_global_data()->m_slave_info[i].is_sleep)
+                {
+                    ESP_LOGI("ElabelFsm", "skip sleep slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
+                    continue;
+                }
+                else
+                {
+                    ESP_LOGI("ElabelFsm", "send device info to slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
+                    EspNowHost::Instance()->Mqtt_send_device_info(get_global_data()->m_slave_info[i].mac);
+                }
+            }
+        }
+
+        get_global_data()->need_update_device_info = false;
+    }
+
+    // ----------------如果是主机且没有网络，则进入断网状态 ----------------//
     if (get_global_data()->m_is_host == 1)
     {
         if (get_wifi_status() == 0)
@@ -88,17 +129,7 @@ void ElabelFsm::HandleInput()
             ChangeState(NoWifiState::Instance());
         }
     }
-
-    // 如果是从机且长时间没有收到主机消息，则进入断网状态
-    if (get_global_data()->m_is_host == 2)
-    {
-        // 如果长时间没有收到主机消息，则进入断网状态
-        if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
-        {
-            ChangeState(NoHostState::Instance());
-        }
-    }
-
+    
     // 如果是断网状态，则进入初始化状态
     if (GetCurrentState() == NoWifiState::Instance())
     {
@@ -109,6 +140,19 @@ void ElabelFsm::HandleInput()
         else if (NoWifiState::Instance()->need_back)
         {
             ChangeState(ActiveState::Instance());
+        }
+    }
+    // ----------------如果是主机且没有网络，则进入断网状态 ----------------//
+
+
+
+    // ----------------如果是从机且长时间没有收到主机消息，则进入断网状态 ----------------//
+    if (get_global_data()->m_is_host == 2)
+    {
+        // 如果长时间没有收到主机消息，则进入断网状态
+        if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
+        {
+            ChangeState(NoHostState::Instance());
         }
     }
 
@@ -124,8 +168,11 @@ void ElabelFsm::HandleInput()
             ChangeState(ActiveState::Instance());
         }
     }
+     // ----------------如果是从机且长时间没有收到主机消息，则进入断网状态 ----------------//
 
-    //-------------------------------整个激活--------------------------------//
+
+
+    //-------------------------------整个激活流程--------------------------------//
     // 如果没有被激活，则进入激活状态
     if (GetCurrentState() == ActiveState::Instance())
     {
@@ -154,6 +201,8 @@ void ElabelFsm::HandleInput()
     }
     //-------------------------------整个激活流程--------------------------------//
 
+
+
     //-------------------------------初始化流程--------------------------------//
     else if (GetCurrentState() == InitState::Instance())
     {
@@ -171,11 +220,15 @@ void ElabelFsm::HandleInput()
                     ChangeState(FocusTaskState::Instance());
                 }
                 else
+                {
                     ChangeState(ChoosingTaskState::Instance());
+                }
             }
         }
     }
     //-------------------------------初始化流程--------------------------------//
+
+
 
     //-------------------------------正常逻辑流程--------------------------------//
     else
@@ -277,6 +330,10 @@ void ElabelFsm::HandleInput()
             else if (ChoosingTaskState::Instance()->is_jump_to_info_mode)
             {
                 ChangeState(InfoState::Instance());
+            }
+            else if (ChoosingTaskState::Instance()->is_jump_to_sleep_mode)
+            {
+                ChangeState(SleepState::Instance());
             }
         }
         else if (GetCurrentState() == OperatingRecorderState::Instance())

@@ -16,6 +16,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_HaveTaskContainer, 250);
     lv_obj_set_height(ui_HaveTaskContainer, 122);
     lv_obj_set_align(ui_HaveTaskContainer, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_HaveTaskContainer,
                       LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
@@ -193,7 +194,6 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_NoTaskContainer, 250);
     lv_obj_set_height(ui_NoTaskContainer, 122);
     lv_obj_set_align(ui_NoTaskContainer, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoTaskContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_NoTaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_NoTaskContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -206,7 +206,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_Notask, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Notask, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Notask, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Notask, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_add_flag(ui_Notask, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Notask, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_NotaskTip1 = lv_img_create(ui_NoTaskContainer);
@@ -214,7 +214,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_NotaskTip1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NotaskTip1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_NotaskTip1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NotaskTip1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_add_flag(ui_NotaskTip1, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_NotaskTip1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_NotaskTip2 = lv_img_create(ui_NoTaskContainer);
