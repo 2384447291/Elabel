@@ -56,11 +56,21 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     {
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Time_Control_Mqtt message unique id.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_time(data_ptr, size);
+        if(EspNowSlave::Instance()->sleep_sync_flag == 0)
+        {
+            EspNowSlave::Instance()->sleep_sync_flag = 2;
+            printf("get sleep sync response Time sync ");
+        }
     }
     else if(m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
     {
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
+        if(EspNowSlave::Instance()->sleep_sync_flag == 0)
+        {
+            EspNowSlave::Instance()->sleep_sync_flag = 2;
+            printf("get sleep sync response Time sync ");
+        }
     }
     else if(m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
     {
@@ -181,6 +191,23 @@ esp_err_t EspNowSlave::slave_send_espnow_http_get_device_info()
     return ret;
 }
 
+
+esp_err_t EspNowSlave::slave_send_espnow_http_synchronous_request()
+{
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Synchronous_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send synchronous request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send synchronous request message success");
+    }
+    return ret;
+}
+
+
 esp_err_t EspNowSlave::slave_send_espnow_http_get_time()
 {
     uint8_t temp_data = 0;
@@ -229,7 +256,6 @@ esp_err_t EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t foc
     }
     return ret;
 }
-
 
 void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size)
 {

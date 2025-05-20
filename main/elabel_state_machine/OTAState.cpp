@@ -8,7 +8,6 @@ void OTAState::Init(ElabelController* pOwner)
 
 void OTAState::Enter(ElabelController* pOwner)
 {
-    is_ota_fail = false;
     process = 0;
     lock_lvgl();
     set_text_without_change_font(ui_VersionnNmber, get_global_data()->m_version);
@@ -39,7 +38,7 @@ void OTAState::Execute(ElabelController* pOwner)
         release_lvgl();
         //等2s把字刷出来
         vTaskDelay(2000 / portTICK_PERIOD_MS);
-        is_ota_fail = true;
+        esp_restart();
     }
     else if(get_ota_status() == ota_ing)
     {

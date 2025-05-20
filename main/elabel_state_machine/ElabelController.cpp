@@ -284,6 +284,7 @@ void ElabelFsm::HandleInput()
                 {
                     TodoItem *todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
                     focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
+                    //不给地址就是全体转发，告诉所有从机要enterfocus了
                     EspNowHost::Instance()->Mqtt_enter_focus(focus_message);
                 }
             }
@@ -308,6 +309,7 @@ void ElabelFsm::HandleInput()
                 // 如果当前是主机，则转发，这段代码要放在下面要不会阻碍刷新
                 if (get_global_data()->m_is_host == 1)
                 {
+                    //不给地址就是全体转发，告诉所有从机找主机要数据
                     EspNowHost::Instance()->Mqtt_update_task_list();
                 }
             }

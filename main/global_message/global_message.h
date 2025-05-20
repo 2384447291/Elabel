@@ -95,6 +95,10 @@ void add_or_update_todo_item(TodoList *list, TodoItem item);
 void clean_todo_list(TodoList *list);
 
 bool insert_slave(uint8_t slave_mac[6]);
+
+bool delete_slave(uint8_t slave_mac[6]);
+
+uint8_t set_sleep(uint8_t slave_mac[6], bool is_sleep);
 #ifdef __cplusplus
 }
 #endif

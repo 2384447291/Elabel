@@ -37,6 +37,56 @@ bool insert_slave(uint8_t slave_mac[6])
     ESP_LOGI("slave_info", "Add new slave, its mac is "MACSTR" ", MAC2STR(slave_mac));
     return true;
 }
+
+bool delete_slave(uint8_t slave_mac[6])
+{
+    if (!mac_address_exists(slave_mac)) {
+        ESP_LOGW("slave_info", "MAC "MACSTR" address does not exist", MAC2STR(slave_mac));
+        return false;
+    }
+
+    // 找到要删除的从设备的索引
+    size_t delete_index = 0;
+    for (size_t i = 0; i < get_global_data()->m_slave_num; ++i) {
+        if (memcmp(get_global_data()->m_slave_info[i].mac, slave_mac, 6) == 0) {
+            delete_index = i;
+            break;
+        }
+    }
+
+    // 将后面的元素向前移动
+    for (size_t i = delete_index; i < get_global_data()->m_slave_num - 1; ++i) {
+        memcpy(&get_global_data()->m_slave_info[i], &get_global_data()->m_slave_info[i + 1], sizeof(slave_device_info));
+    }
+
+    // 减少从设备数量
+    get_global_data()->m_slave_num--;
+    ESP_LOGI("slave_info", "Delete slave with MAC "MACSTR"", MAC2STR(slave_mac));
+    return true;
+}
+
+//0表示没有找到，1表示不需要更新，2表示更新了
+uint8_t set_sleep(uint8_t slave_mac[6], bool is_sleep)
+{
+    if (!mac_address_exists(slave_mac)) {
+        ESP_LOGW("slave_info", "MAC "MACSTR" address does not exist", MAC2STR(slave_mac));
+        return 0;
+    }
+
+    // 找到对应的从设备并设置睡眠状态
+    for (size_t i = 0; i < get_global_data()->m_slave_num; ++i) {
+        if (memcmp(get_global_data()->m_slave_info[i].mac, slave_mac, 6) == 0) {
+            if(is_sleep == get_global_data()->m_slave_info[i].is_sleep)
+            {
+                return 1;
+            }
+            get_global_data()->m_slave_info[i].is_sleep = is_sleep;
+            ESP_LOGI("slave_info", "Set slave "MACSTR" sleep state to %d", MAC2STR(slave_mac), is_sleep);
+            return 2;
+        }
+    }
+    return 0;
+}
 //--------------------------------------Slave_info 对应的结构体--------------------------------------//
 //--------------------------------------TODOLIST 对应的结构体--------------------------------------//
 task_list_state m_task_list_state = newest;

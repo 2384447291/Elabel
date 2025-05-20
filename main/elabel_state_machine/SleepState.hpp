@@ -9,6 +9,7 @@
 #include "control_driver.hpp"
 #include "esp_timer.h"
 #include "driver/uart.h"
+#include "esp_now_slave.hpp"
 
 #define WAKEUP_INTERVAL_SEC 10
 
@@ -20,22 +21,14 @@ public:
     virtual void Enter(ElabelController* pOwner);
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
-
     bool need_out_state = false;
-
+    char show_clock_time[6];
+    int64_t start_sleep_time = 0;
+    
     static SleepState* Instance()
     {
         static SleepState instance;
         return &instance;
-    }
-
-    void prepare_sleep()
-    {
-        lock_lvgl();
-        switch_screen(ui_SleepScreen);
-        release_lvgl();
-        //等待4s页面刷新
-        vTaskDelay(pdMS_TO_TICKS(4000));
     }
 
     void enter_sleep()
@@ -72,7 +65,28 @@ public:
 
 
     void get_message()
-    {
+    {   
+        EspNowSlave::Instance()->sleep_sync_flag = false;
+        esp_err_t ret = EspNowSlave::Instance()->slave_send_espnow_http_synchronous_request();
+
+        if(ret == ESP_OK)
+        {
+            
+        }
+        else
+        {
+            
+        }
+
+        char clock_time[6];
+        get_clock_time(clock_time);
+        if(strcmp(clock_time, show_clock_time) != 0)
+        {
+            lock_lvgl();
+            set_text_without_change_font(ui_SleepCLock, clock_time);
+            memcpy(show_clock_time, clock_time, 6);
+            release_lvgl();
+        }
         enter_sleep();
     }
 

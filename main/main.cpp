@@ -26,18 +26,6 @@ void reset_elabel()
     esp_restart();
 }
 
-void play_music()
-{
-    MCodec::Instance()->play_music("open");
-}
-
-void play_ding()
-{
-    MCodec::Instance()->play_music("ding");
-}
-
-
-
 extern "C" void app_main(void)
 {
     //初始化电池管理
@@ -83,8 +71,6 @@ extern "C" void app_main(void)
 
     //注册按键回调
     ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(reset_elabel);
-    ControlDriver::Instance()->button1.CallbackLongPress.registerCallback(play_music);
-    ControlDriver::Instance()->button2.CallbackLongPress.registerCallback(play_ding);
 
     while (true) 
     {

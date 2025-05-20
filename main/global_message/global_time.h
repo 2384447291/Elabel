@@ -22,6 +22,8 @@ long long get_unix_time(void);
 
 void get_unix_time_str(char* str_time, size_t size);
 
+void get_clock_time(char* str_time);
+
 void Log_time(void);
 #ifdef __cplusplus
 }

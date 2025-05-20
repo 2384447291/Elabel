@@ -176,6 +176,22 @@ void get_unix_time_str(char* str_time, size_t size)
     snprintf(str_time, size, "%lld", timestamp_in_ms);
 }
 
+void get_clock_time(char* str_time)
+{
+    if(!is_syset_time){
+        ESP_LOGE("CLOCK TIME","Systime not set");
+        strcpy(str_time, "00:00");
+        return;
+    }
+
+    // 获取当前时间
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    
+    // 格式化时间为 HH:MM
+    strftime(str_time, 6, "%H:%M", &timeinfo);
+}
+
 void Log_time(void)
 {
 	// 打印现在时间

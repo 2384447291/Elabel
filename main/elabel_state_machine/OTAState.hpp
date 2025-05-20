@@ -13,7 +13,6 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-    bool is_ota_fail = false;
     uint8_t process = 0;
 
     static OTAState* Instance()

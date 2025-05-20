@@ -87,6 +87,7 @@ static void speaker_task_func(void* arg) {
             ESP_LOGE(TAG, "播放失败: %d", ret);
             break;
         }
+        
 
         total_played += bytes_to_play;
     }
