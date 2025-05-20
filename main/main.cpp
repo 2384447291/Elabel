@@ -100,37 +100,34 @@ extern "C" void app_main(void)
     gpio_install_isr_service(0);
     //初始化nvs
     nvs_init();
-    //删除nvs信息
-    // erase_nvs();
-    //获取nvs信息
     get_nvs_info();
     // //初始化电池管理
     BatteryManager::Instance()->init();
-    // //初始化按键
-    // // ControlDriver::Instance()->init();
     //初始化gui
     Gui_init();
     // //初始化音频
     MCodec::Instance()->init();
     MCodec::Instance()->play_music("ding");
-    // //初始化网络
-    // // m_wifi_init();
-    // //初始化espnow
-    // // EspNowClient::Instance()->init();
-    // // 等待所有组件初始化完成
 
-    vTaskDelay(pdMS_TO_TICKS(8000));
-    suspend_gui();
-    BatteryManager::Instance()->setPowerState(false);
-    gpio_hold_en(DEV_POWER_CTRL);
-    // MCodec::Instance()->close_dev();
+    ESP_ERROR_CHECK(esp_netif_init()); // 初始化底层 TCP/IP 协议栈。
+    esp_event_loop_create_default();  // 创建默认事件循环，用于接收处理wifi相关事件
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT(); // 使用默认参数配置wifi
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg)); // 将配置丢进去，初始化wifi
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA)); // 设置wifi模式为station模式
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));// 设置wifi存储位置（存在ram里意味着。断电不保存）
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));// 设置当前 WiFi 省电类型（这里为不省电）
+    ESP_ERROR_CHECK(esp_wifi_start());// 开启wifi
+
+    vTaskDelay(pdMS_TO_TICKS(4000));
+
     bool is_shutdown = false;
     //用来debug的接口
     while (true) {
-        vTaskDelay(pdMS_TO_TICKS(5000));
-
+        //-----------------------开机并工作5s--------------------------------//
         ESP_ERROR_CHECK(esp_pm_lock_acquire(BatteryManager::Instance()->s_pm_lock));
-        resume_gui(); 
+        ESP_LOGI(TAG, "开机并工作5s");
+        ESP_ERROR_CHECK(esp_wifi_start());
+        // resume_gui(); 
         gpio_hold_dis(DEV_POWER_CTRL);
         BatteryManager::Instance()->setPowerState(true);
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -147,10 +144,16 @@ extern "C" void app_main(void)
         MCodec::Instance()->play_music("ding");
         vTaskDelay(pdMS_TO_TICKS(5000));
         ESP_ERROR_CHECK(esp_pm_lock_release(BatteryManager::Instance()->s_pm_lock));
+        //-----------------------开机并工作5s--------------------------------//
 
-        suspend_gui();
+
+        //-----------------------关机等待5s--------------------------------//
+        ESP_ERROR_CHECK(esp_wifi_stop());// 关闭wifi
+        // suspend_gui();
         BatteryManager::Instance()->setPowerState(false);
-        gpio_hold_en(DEV_POWER_CTRL);        
+        gpio_hold_en(DEV_POWER_CTRL); 
+        ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(5 * 1000000ULL));  
+        esp_light_sleep_start();     
+        //-----------------------关机等待5s--------------------------------//
     }
 }
-
