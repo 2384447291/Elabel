@@ -20,12 +20,6 @@
 #include "esp_now_host.hpp"
 #include "esp_now_slave.hpp"
 
-void reset_elabel()
-{
-    erase_nvs();
-    esp_restart();
-}
-
 extern "C" void app_main(void)
 {
     //初始化电池管理

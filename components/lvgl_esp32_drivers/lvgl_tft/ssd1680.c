@@ -119,7 +119,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         }
         ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
     }
-    else if(act_scr == ui_SlaveActiveScreen || force_full_update)
+    else if(act_scr == ui_SlaveActiveScreen)
     {
         if(elabel_screen != SLAVEACTIVE_SCREEN || force_full_update)
         {
@@ -132,7 +132,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         {
             elabel_update_mode = PARTIAL_UPDATE;
         }
-        ESP_LOGI(TAG,"ui_HostActiveScreen Flush called.");        
+        ESP_LOGI(TAG,"ui_SlaveActiveScreen Flush called.");        
     }
     else if(act_scr == ui_OTAScreen)
     {

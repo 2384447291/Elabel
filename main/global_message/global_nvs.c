@@ -251,3 +251,9 @@ void set_nvs_info_set_slave_mac(uint8_t slave_num, uint8_t* value)
     // 写入NVS
     set_nvs_info_uint8_t_array("slave_mac", data, data_size);
 }
+
+void reset_elabel()
+{
+    erase_nvs();
+    esp_restart();
+}

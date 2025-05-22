@@ -12,13 +12,13 @@ dependencies:
   espressif/esp-now:
     component_hash: 56f902e978ec0b70528ad30a45265b56bf2b91653d13e0badc78159f39f41ece
     dependencies:
-    - name: idf
-      require: private
-      version: '>=4.4'
     - name: espressif/cmake_utilities
       registry_url: https://components.espressif.com
       require: private
       version: 0.*
+    - name: idf
+      require: private
+      version: '>=4.4'
     source:
       registry_url: https://components.espressif.com/
       type: service

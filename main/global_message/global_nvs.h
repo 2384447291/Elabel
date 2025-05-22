@@ -30,6 +30,8 @@ void set_nvs_info_uint8_t_array(const char *tag, uint8_t* value, int length);
 void set_nvs_info_set_slave_mac(uint8_t slave_num, uint8_t* value);
 
 void set_nvs_info_set_host_message(uint8_t host_mac[6], uint8_t host_channel, char username[100]);
+
+void reset_elabel();
 #ifdef __cplusplus
 }
 #endif

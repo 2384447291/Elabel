@@ -9,7 +9,6 @@
 typedef enum
 {
     default_No_wifi_process,
-    No_wifi_waiting_wifi_process,
     No_wifi_connecting_wifi_process,
     No_wifi_disconnecting_wifi_process,
     No_wifi_success_connect_wifi_process,
@@ -33,41 +32,30 @@ public:
     bool need_flash_paper = false;
     uint8_t reconnect_count_down = RECONNECT_COUNT_DOWN;
 
-    void enter_waiting_wifi()
-    {
-        need_forward = false;
-        need_back = false;
-        no_wifi_process = No_wifi_waiting_wifi_process;
-        reconnect_count_down = RECONNECT_COUNT_DOWN;
-
-        lock_lvgl();
-        switch_screen(ui_HostActiveScreen);
-
-        lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
-
-        lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
-        lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
-
-        set_text_without_change_font(ui_WIFIname, "Waiting...");
-        set_text_without_change_font(ui_Disconnectwifiname, "Waiting...");
-        set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
-
-        release_lvgl();
-    }
-
     void enter_connect_wifi()
     {
+        m_wifi_disconnect();
+        m_wifi_connect();
+        need_forward = false;
+        need_back = false;
+        need_flash_paper = false;
+
+        reconnect_count_down = RECONNECT_COUNT_DOWN;
         no_wifi_process = No_wifi_connecting_wifi_process;
         lock_lvgl();
+        lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
+        switch_screen(ui_HostActiveScreen);
         set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
-        set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-        reconnect_count_down = RECONNECT_COUNT_DOWN;
+        char time_str[40];
+        sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+        set_text_without_change_font(ui_HostActiveAutoTime, time_str);
         release_lvgl();
     }
 
     void enter_disconnect_wifi()
     {
+        need_forward = false;
         no_wifi_process = No_wifi_disconnecting_wifi_process;
         //禁止重新连接的断连
         m_wifi_disconnect();

@@ -6,11 +6,9 @@
 #include "http.h"
 #include "global_message.h"
 #include "esp_mac.h"
-// #undef ESP_LOGI
-// #define ESP_LOGI(tag, format, ...) 
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
-    ESP_LOGI(HTTP_TAG, "Full response: %s", response);
+    // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
     // 解析 JSON
     cJSON *json = cJSON_Parse(response);
     if (json == NULL) {
@@ -101,17 +99,21 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {   
        // 获取嵌套的 data 对象
         cJSON *data = cJSON_GetObjectItem(json, "data");
-        if (data != NULL) {
+        if (data != NULL && !cJSON_IsNull(data)) {
             const char *version = cJSON_GetStringValue(cJSON_GetObjectItem(data, "version"));
             const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(data, "deviceModel"));
             const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(data, "firmwareUrl"));
             const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(data, "createTime"));
-            memcpy(get_global_data()->m_version, version, strlen(version));
-            memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
-            memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
-            memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-        }
-        ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION\n");          
+            if (version) memcpy(get_global_data()->m_version, version, strlen(version));
+            if (deviceModel) memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
+            if (newest_firmware_url) memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
+            if (createTime) memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
+            ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION\n");   
+        } 
+        else 
+        {
+            ESP_LOGI("HTTP", "Newest firmware no need update");
+        }       
     }
     else if (m_task_struct->task == FINDUSER)
     {

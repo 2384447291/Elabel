@@ -23,7 +23,7 @@ void no_wifi_confirm_button_choice()
     //如果是retry重新进入这个状态机
     else
     {
-        NoWifiState::Instance()->enter_waiting_wifi();
+        NoWifiState::Instance()->enter_connect_wifi();
     }
 }
 
@@ -33,8 +33,7 @@ void NoWifiState::Init(ElabelController* pOwner)
 
 void NoWifiState::Enter(ElabelController* pOwner)
 {
-    m_wifi_connect();
-    enter_waiting_wifi();
+    enter_connect_wifi();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(no_wifi_change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(no_wifi_change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(no_wifi_confirm_button_choice);
@@ -44,14 +43,7 @@ void NoWifiState::Enter(ElabelController* pOwner)
 
 void NoWifiState::Execute(ElabelController* pOwner)
 {
-    if(no_wifi_process == No_wifi_waiting_wifi_process)
-    {
-        if(get_wifi_status() == 0x01)
-        {
-            enter_connect_wifi();
-        }
-    }
-    else if(no_wifi_process == No_wifi_connecting_wifi_process)
+    if(no_wifi_process == No_wifi_connecting_wifi_process)
     {
         if(get_wifi_status() == 0x02) enter_success_connect_wifi();
         if(elabelUpdateTick%5000 == 0)

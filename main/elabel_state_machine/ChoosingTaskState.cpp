@@ -260,7 +260,7 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
 void ChoosingTaskState::recolor_task()
 {
     uint8_t child_count = lv_obj_get_child_cnt(ui_TaskContainer);
-        uint8_t chosen_task_button_index = ElabelController::Instance()->ChosenTaskNum - ElabelController::Instance()->CenterTaskNum + 1;
+    uint8_t chosen_task_button_index = ElabelController::Instance()->ChosenTaskNum - ElabelController::Instance()->CenterTaskNum + 1;
     for(int i = 0; i<child_count; i++)
     {
         lv_obj_t *child = lv_obj_get_child(ui_TaskContainer, i);

@@ -750,7 +750,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   0,
-                  0
+                  1
                 ],
                 "InheritedType": 7
               },
@@ -2201,11 +2201,11 @@
                               },
                               {
                                 "nid": 60,
-                                "flags": 51,
+                                "flags": 17,
                                 "strtype": "OBJECT/Size",
                                 "intarray": [
-                                  1,
-                                  1
+                                  200,
+                                  32
                                 ],
                                 "InheritedType": 7
                               },
@@ -2253,13 +2253,13 @@
                               {
                                 "nid": 1020,
                                 "strtype": "LABEL/Long_mode",
-                                "strval": "WRAP",
+                                "strval": "DOT",
                                 "InheritedType": 3
                               },
                               {
                                 "nid": 1030,
                                 "strtype": "LABEL/Text",
-                                "strval": "fuck",
+                                "strval": "fuckas",
                                 "InheritedType": 10
                               },
                               {
@@ -2286,6 +2286,12 @@
                                           255
                                         ],
                                         "InheritedType": 7
+                                      },
+                                      {
+                                        "nid": 10430,
+                                        "strtype": "_style/Text_Align",
+                                        "strval": "CENTER",
+                                        "InheritedType": 3
                                       },
                                       {
                                         "nid": 10450,
@@ -2351,18 +2357,18 @@
                             "flags": 17,
                             "strtype": "OBJECT/Position",
                             "intarray": [
-                              0,
-                              0
+                              4,
+                              3
                             ],
                             "InheritedType": 7
                           },
                           {
                             "nid": 60,
-                            "flags": 51,
+                            "flags": 17,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              0,
-                              0
+                              200,
+                              32
                             ],
                             "InheritedType": 7
                           },
@@ -2410,13 +2416,13 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "WRAP",
+                            "strval": "DOT",
                             "InheritedType": 3
                           },
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "fuck",
+                            "strval": "fuckas",
                             "InheritedType": 10
                           },
                           {
@@ -2443,6 +2449,12 @@
                                       255
                                     ],
                                     "InheritedType": 7
+                                  },
+                                  {
+                                    "nid": 10430,
+                                    "strtype": "_style/Text_Align",
+                                    "strval": "CENTER",
+                                    "InheritedType": 3
                                   },
                                   {
                                     "nid": 10450,
@@ -2510,7 +2522,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          192,
+                          200,
                           32
                         ],
                         "InheritedType": 7
@@ -2669,11 +2681,11 @@
                               },
                               {
                                 "nid": 60,
-                                "flags": 51,
+                                "flags": 17,
                                 "strtype": "OBJECT/Size",
                                 "intarray": [
-                                  1,
-                                  1
+                                  212,
+                                  32
                                 ],
                                 "InheritedType": 7
                               },
@@ -2721,13 +2733,13 @@
                               {
                                 "nid": 1020,
                                 "strtype": "LABEL/Long_mode",
-                                "strval": "WRAP",
+                                "strval": "DOT",
                                 "InheritedType": 3
                               },
                               {
                                 "nid": 1030,
                                 "strtype": "LABEL/Text",
-                                "strval": "我和你",
+                                "strval": "我和你心连心同住地球村",
                                 "InheritedType": 10
                               },
                               {
@@ -2754,6 +2766,12 @@
                                           255
                                         ],
                                         "InheritedType": 7
+                                      },
+                                      {
+                                        "nid": 10430,
+                                        "strtype": "_style/Text_Align",
+                                        "strval": "CENTER",
+                                        "InheritedType": 3
                                       },
                                       {
                                         "nid": 10450,
@@ -2820,18 +2838,18 @@
                             "flags": 17,
                             "strtype": "OBJECT/Position",
                             "intarray": [
-                              0,
-                              0
+                              5,
+                              3
                             ],
                             "InheritedType": 7
                           },
                           {
                             "nid": 60,
-                            "flags": 51,
+                            "flags": 17,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              1,
-                              1
+                              212,
+                              32
                             ],
                             "InheritedType": 7
                           },
@@ -2879,13 +2897,13 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "WRAP",
+                            "strval": "DOT",
                             "InheritedType": 3
                           },
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "我和你",
+                            "strval": "我和你心连心同住地球村",
                             "InheritedType": 10
                           },
                           {
@@ -2912,6 +2930,12 @@
                                       255
                                     ],
                                     "InheritedType": 7
+                                  },
+                                  {
+                                    "nid": 10430,
+                                    "strtype": "_style/Text_Align",
+                                    "strval": "CENTER",
+                                    "InheritedType": 3
                                   },
                                   {
                                     "nid": 10450,
@@ -2979,7 +3003,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          209,
+                          212,
                           32
                         ],
                         "InheritedType": 7
@@ -3138,11 +3162,11 @@
                               },
                               {
                                 "nid": 60,
-                                "flags": 51,
+                                "flags": 17,
                                 "strtype": "OBJECT/Size",
                                 "intarray": [
-                                  1,
-                                  1
+                                  200,
+                                  32
                                 ],
                                 "InheritedType": 7
                               },
@@ -3190,13 +3214,13 @@
                               {
                                 "nid": 1020,
                                 "strtype": "LABEL/Long_mode",
-                                "strval": "WRAP",
+                                "strval": "DOT",
                                 "InheritedType": 3
                               },
                               {
                                 "nid": 1030,
                                 "strtype": "LABEL/Text",
-                                "strval": "123",
+                                "strval": "123123123123123123",
                                 "InheritedType": 10
                               },
                               {
@@ -3223,6 +3247,12 @@
                                           255
                                         ],
                                         "InheritedType": 7
+                                      },
+                                      {
+                                        "nid": 10430,
+                                        "strtype": "_style/Text_Align",
+                                        "strval": "CENTER",
+                                        "InheritedType": 3
                                       },
                                       {
                                         "nid": 10450,
@@ -3288,18 +3318,18 @@
                             "flags": 17,
                             "strtype": "OBJECT/Position",
                             "intarray": [
-                              0,
-                              0
+                              4,
+                              3
                             ],
                             "InheritedType": 7
                           },
                           {
                             "nid": 60,
-                            "flags": 51,
+                            "flags": 17,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              1,
-                              1
+                              200,
+                              32
                             ],
                             "InheritedType": 7
                           },
@@ -3347,13 +3377,13 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "WRAP",
+                            "strval": "DOT",
                             "InheritedType": 3
                           },
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "123",
+                            "strval": "123123123123123123",
                             "InheritedType": 10
                           },
                           {
@@ -3380,6 +3410,12 @@
                                       255
                                     ],
                                     "InheritedType": 7
+                                  },
+                                  {
+                                    "nid": 10430,
+                                    "strtype": "_style/Text_Align",
+                                    "strval": "CENTER",
+                                    "InheritedType": 3
                                   },
                                   {
                                     "nid": 10450,
@@ -3447,7 +3483,7 @@
                         "flags": 17,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          192,
+                          200,
                           32
                         ],
                         "InheritedType": 7
@@ -3549,8 +3585,7 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "BUTTON",
-                    "tree_closed": true
+                    "saved_objtypeKey": "BUTTON"
                   }
                 ],
                 "dont_export": false,
@@ -4240,7 +4275,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   0,
-                  0
+                  1
                 ],
                 "InheritedType": 7
               },
@@ -4265,12 +4300,6 @@
                 "flags": 1048576,
                 "strtype": "OBJECT/Flags",
                 "InheritedType": 1
-              },
-              {
-                "nid": 100,
-                "strtype": "OBJECT/Hidden",
-                "strval": "True",
-                "InheritedType": 2
               },
               {
                 "nid": 110,
@@ -4379,8 +4408,7 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER",
-            "tree_closed": true
+            "saved_objtypeKey": "CONTAINER"
           },
           {
             "guid": "GUID31840181-958647S46768477",
@@ -5050,6 +5078,12 @@
                 "InheritedType": 1
               },
               {
+                "nid": 100,
+                "strtype": "OBJECT/Hidden",
+                "strval": "True",
+                "InheritedType": 2
+              },
+              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -5132,7 +5166,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           }
         ],
         "isPage": true,
@@ -8211,11 +8246,11 @@
                           },
                           {
                             "nid": 60,
-                            "flags": 51,
+                            "flags": 17,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              1,
-                              1
+                              200,
+                              32
                             ],
                             "InheritedType": 7
                           },
@@ -8263,7 +8298,7 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "WRAP",
+                            "strval": "DOT",
                             "InheritedType": 3
                           },
                           {
@@ -8286,6 +8321,12 @@
                                 "strtype": "_style/StyleState",
                                 "strval": "DEFAULT",
                                 "childs": [
+                                  {
+                                    "nid": 10430,
+                                    "strtype": "_style/Text_Align",
+                                    "strval": "CENTER",
+                                    "InheritedType": 3
+                                  },
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
@@ -8349,11 +8390,11 @@
                       },
                       {
                         "nid": 60,
-                        "flags": 51,
+                        "flags": 17,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          1,
-                          1
+                          200,
+                          32
                         ],
                         "InheritedType": 7
                       },
@@ -8401,7 +8442,7 @@
                       {
                         "nid": 1020,
                         "strtype": "LABEL/Long_mode",
-                        "strval": "WRAP",
+                        "strval": "DOT",
                         "InheritedType": 3
                       },
                       {
@@ -8424,6 +8465,12 @@
                             "strtype": "_style/StyleState",
                             "strval": "DEFAULT",
                             "childs": [
+                              {
+                                "nid": 10430,
+                                "strtype": "_style/Text_Align",
+                                "strval": "CENTER",
+                                "InheritedType": 3
+                              },
                               {
                                 "nid": 10450,
                                 "strtype": "_style/Text_Font",
@@ -14524,11 +14571,11 @@
                           },
                           {
                             "nid": 60,
-                            "flags": 51,
+                            "flags": 17,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              0,
-                              0
+                              180,
+                              32
                             ],
                             "InheritedType": 7
                           },
@@ -14576,7 +14623,7 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "WRAP",
+                            "strval": "DOT",
                             "InheritedType": 3
                           },
                           {
@@ -14609,6 +14656,12 @@
                                       255
                                     ],
                                     "InheritedType": 7
+                                  },
+                                  {
+                                    "nid": 10430,
+                                    "strtype": "_style/Text_Align",
+                                    "strval": "CENTER",
+                                    "InheritedType": 3
                                   },
                                   {
                                     "nid": 10450,
@@ -14681,11 +14734,11 @@
                       },
                       {
                         "nid": 60,
-                        "flags": 51,
+                        "flags": 17,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          0,
-                          0
+                          180,
+                          32
                         ],
                         "InheritedType": 7
                       },
@@ -14733,7 +14786,7 @@
                       {
                         "nid": 1020,
                         "strtype": "LABEL/Long_mode",
-                        "strval": "WRAP",
+                        "strval": "DOT",
                         "InheritedType": 3
                       },
                       {
@@ -14766,6 +14819,12 @@
                                   255
                                 ],
                                 "InheritedType": 7
+                              },
+                              {
+                                "nid": 10430,
+                                "strtype": "_style/Text_Align",
+                                "strval": "CENTER",
+                                "InheritedType": 3
                               },
                               {
                                 "nid": 10450,
@@ -15893,6 +15952,12 @@
                 "InheritedType": 1
               },
               {
+                "nid": 100,
+                "strtype": "OBJECT/Hidden",
+                "strval": "True",
+                "InheritedType": 2
+              },
+              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -15939,7 +16004,8 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER"
+            "saved_objtypeKey": "CONTAINER",
+            "tree_closed": true
           },
           {
             "guid": "GUID5191471-525739S20963478",
@@ -18930,7 +18996,22 @@
                       },
                       {
                         "part": "lv.PART.MAIN",
-                        "childs": [],
+                        "childs": [
+                          {
+                            "nid": 10000,
+                            "strtype": "_style/StyleState",
+                            "strval": "DEFAULT",
+                            "childs": [
+                              {
+                                "nid": 10450,
+                                "strtype": "_style/Text_Font",
+                                "strval": "montserrat_12",
+                                "InheritedType": 3
+                              }
+                            ],
+                            "InheritedType": 1
+                          }
+                        ],
                         "nid": 1050,
                         "strtype": "LABEL/Style_main",
                         "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -18986,8 +19067,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      15,
-                      -48
+                      20,
+                      -42
                     ],
                     "InheritedType": 7
                   },
@@ -19062,7 +19143,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -19111,8 +19207,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      0,
-                      -25
+                      16,
+                      -26
                     ],
                     "InheritedType": 7
                   },
@@ -19187,7 +19283,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -19237,7 +19348,7 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      0,
+                      12,
                       -10
                     ],
                     "InheritedType": 7
@@ -19313,7 +19424,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -19370,8 +19496,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      0,
-                      5
+                      12,
+                      6
                     ],
                     "InheritedType": 7
                   },
@@ -19446,7 +19572,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -19503,8 +19644,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      0,
-                      20
+                      16,
+                      22
                     ],
                     "InheritedType": 7
                   },
@@ -19579,7 +19720,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -19628,8 +19784,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      0,
-                      35
+                      20,
+                      38
                     ],
                     "InheritedType": 7
                   },
@@ -19704,7 +19860,22 @@
                   },
                   {
                     "part": "lv.PART.MAIN",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10450,
+                            "strtype": "_style/Text_Font",
+                            "strval": "montserrat_12",
+                            "InheritedType": 3
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1050,
                     "strtype": "LABEL/Style_main",
                     "strval": "lv.PART.MAIN, Text, Rectangle, Pad, Transform",
@@ -20199,7 +20370,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   0,
-                  0
+                  1
                 ],
                 "InheritedType": 7
               },
@@ -20998,7 +21169,7 @@
     "uiExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\components\\ui",
     "projectExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\Squareline UI",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 157,
+    "backup_cnt": 168,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

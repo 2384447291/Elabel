@@ -31,7 +31,6 @@ void NoHostState::Init(ElabelController* pOwner)
 
 void NoHostState::Enter(ElabelController* pOwner)
 {
-    EspNowClient::Instance()->is_connect_to_host = false;
     enter_connect_host();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(no_host_change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(no_host_change_button_choice);

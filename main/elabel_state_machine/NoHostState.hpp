@@ -36,6 +36,7 @@ public:
 
     void enter_connect_host()
     {
+        EspNowClient::Instance()->is_connect_to_host = false;
         EspNowClient::Instance()->start_find_channel();
         no_host_process = No_host_connecting_host_process;
         lock_lvgl();

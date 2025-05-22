@@ -24,7 +24,7 @@
 #define READ_BLOCK_SIZE 1024      
 #define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 #define RecordTime 8
-#define ShutdownTime 0.4f
+#define ShutdownTime 0.6f
 #define FILE_PATH "/fat/mic.raw"
 
 typedef enum {

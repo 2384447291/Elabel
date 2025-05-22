@@ -42,8 +42,6 @@ void ElabelController::Init()
     ChosenTaskNum = 0;
     CenterTaskNum = 0;
     TaskLength = 0;
-    // cleantodoItem(&focustodo);
-    // manual_focus = false;
 }
 
 void ElabelController::Update()
@@ -54,9 +52,9 @@ void ElabelController::Update()
 
 void ElabelFsm::HandleInput()
 {
+    //如果在睡眠模式直接返回
     if(get_global_data()->m_is_host == 2)
     {    
-        //如果在睡眠模式直接返回
         if(GetCurrentState() == SleepState::Instance())
         {
             if(SleepState::Instance()->need_out_state)
@@ -64,19 +62,6 @@ void ElabelFsm::HandleInput()
                 ChangeState(InitState::Instance());
             }
             return;
-        }
-    }
-
-    
-    // 如果没有激活
-    if (get_global_data()->m_is_host == 0)
-    {
-        // 如果当前状态不是激活状态，则进入激活状态
-        if (GetCurrentState() != ActiveState::Instance() && GetCurrentState() != HostActiveState::Instance() && GetCurrentState() != SlaveActiveState::Instance())
-        {
-            // 等待2秒，确保init刷新出来了
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            ChangeState(ActiveState::Instance());
         }
     }
 
@@ -119,14 +104,31 @@ void ElabelFsm::HandleInput()
         get_global_data()->need_update_device_info = false;
     }
 
+
+    
+    // 如果没有激活
+    if (get_global_data()->m_is_host == 0)
+    {
+        // 如果当前状态不是激活状态，则进入激活状态
+        if (GetCurrentState() != ActiveState::Instance() && GetCurrentState() != HostActiveState::Instance() && GetCurrentState() != SlaveActiveState::Instance())
+        {
+            // 等待2秒，确保init刷新出来了
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            ChangeState(ActiveState::Instance());
+        }
+    }
+
     // ----------------如果是主机且没有网络，则进入断网状态 ----------------//
     if (get_global_data()->m_is_host == 1)
     {
-        if (get_wifi_status() == 0)
+        if(GetCurrentState() != NoWifiState::Instance())
         {
-            // 等待2秒，确保init刷新出来了,再进入连接模式，开机保护
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            ChangeState(NoWifiState::Instance());
+            if (get_wifi_status() == 0)
+            {
+                // 等待2秒，确保init刷新出来了,再进入连接模式，开机保护
+                vTaskDelay(pdMS_TO_TICKS(2000));
+                ChangeState(NoWifiState::Instance());
+            }
         }
     }
     
@@ -139,8 +141,9 @@ void ElabelFsm::HandleInput()
         }
         else if (NoWifiState::Instance()->need_back)
         {
-            ChangeState(ActiveState::Instance());
+            reset_elabel();
         }
+        return;
     }
     // ----------------如果是主机且没有网络，则进入断网状态 ----------------//
 
@@ -149,10 +152,13 @@ void ElabelFsm::HandleInput()
     // ----------------如果是从机且长时间没有收到主机消息，则进入断网状态 ----------------//
     if (get_global_data()->m_is_host == 2)
     {
-        // 如果长时间没有收到主机消息，则进入断网状态
-        if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
+        if(GetCurrentState() != NoHostState::Instance())
         {
-            ChangeState(NoHostState::Instance());
+            // 如果长时间没有收到主机消息，则进入断网状态
+            if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
+            {
+                ChangeState(NoHostState::Instance());
+            }
         }
     }
 
@@ -165,8 +171,9 @@ void ElabelFsm::HandleInput()
         }
         else if (NoHostState::Instance()->need_back)
         {
-            ChangeState(ActiveState::Instance());
+            reset_elabel();
         }
+        return;
     }
      // ----------------如果是从机且长时间没有收到主机消息，则进入断网状态 ----------------//
 

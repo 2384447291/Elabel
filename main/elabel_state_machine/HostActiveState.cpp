@@ -86,7 +86,8 @@ void HostActiveState::Execute(ElabelController* pOwner)
                 lv_obj_add_state(ui_HostActiveRetry, LV_STATE_PRESSED );
             }
             set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
-            release_lvgl();           
+            release_lvgl();     
+            need_flash_paper = false;
         }
     }
 }

@@ -52,7 +52,7 @@ public:
         set_text_without_change_font(ui_Message2, "Model:R01A");
 
         char stringFirmware[40] = "Firmware:";
-        strcat(stringFirmware, get_global_data()->m_version);
+        strcat(stringFirmware, FIRMWARE_VERSION);
         set_text_without_change_font(ui_Message3, stringFirmware);
 
         set_text_without_change_font(ui_Message4, "Language:English");

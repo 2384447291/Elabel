@@ -15,8 +15,9 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_remove_style_all(ui_HaveTaskContainer);
     lv_obj_set_width(ui_HaveTaskContainer, 250);
     lv_obj_set_height(ui_HaveTaskContainer, 122);
+    lv_obj_set_x(ui_HaveTaskContainer, 0);
+    lv_obj_set_y(ui_HaveTaskContainer, 1);
     lv_obj_set_align(ui_HaveTaskContainer, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_HaveTaskContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_HaveTaskContainer,
                       LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
@@ -42,7 +43,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_pad_column(ui_TaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button1 = lv_btn_create(ui_TaskContainer);
-    lv_obj_set_width(ui_Button1, 192);
+    lv_obj_set_width(ui_Button1, 200);
     lv_obj_set_height(ui_Button1, 32);
     lv_obj_set_x(ui_Button1, 0);
     lv_obj_set_y(ui_Button1, -40);
@@ -58,25 +59,33 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_outline_pad(ui_Button1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTaskF = lv_label_create(ui_Button1);
+    lv_obj_set_width(ui_chooseTaskF, 200);
+    lv_obj_set_height(ui_chooseTaskF, 32);
+    lv_obj_set_x(ui_chooseTaskF, 4);
+    lv_obj_set_y(ui_chooseTaskF, 3);
     lv_obj_set_align(ui_chooseTaskF, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTaskF, "fuck");
+    lv_label_set_long_mode(ui_chooseTaskF, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTaskF, "fuckas");
     lv_obj_set_style_text_color(ui_chooseTaskF, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskF, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTaskF, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTaskF, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask1 = lv_label_create(ui_chooseTaskF);
-    lv_obj_set_width(ui_chooseTask1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_chooseTask1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_chooseTask1, 200);
+    lv_obj_set_height(ui_chooseTask1, 32);
     lv_obj_set_x(ui_chooseTask1, -1);
     lv_obj_set_y(ui_chooseTask1, 0);
     lv_obj_set_align(ui_chooseTask1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTask1, "fuck");
+    lv_label_set_long_mode(ui_chooseTask1, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTask1, "fuckas");
     lv_obj_set_style_text_color(ui_chooseTask1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTask1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTask1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button2 = lv_btn_create(ui_TaskContainer);
-    lv_obj_set_width(ui_Button2, 209);
+    lv_obj_set_width(ui_Button2, 212);
     lv_obj_set_height(ui_Button2, 32);
     lv_obj_set_align(ui_Button2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
@@ -90,27 +99,33 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_outline_pad(ui_Button2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTaskS = lv_label_create(ui_Button2);
-    lv_obj_set_width(ui_chooseTaskS, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_chooseTaskS, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_chooseTaskS, 212);
+    lv_obj_set_height(ui_chooseTaskS, 32);
+    lv_obj_set_x(ui_chooseTaskS, 5);
+    lv_obj_set_y(ui_chooseTaskS, 3);
     lv_obj_set_align(ui_chooseTaskS, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTaskS, "我和你");
+    lv_label_set_long_mode(ui_chooseTaskS, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTaskS, "我和你心连心同住地球村");
     lv_obj_set_style_text_color(ui_chooseTaskS, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskS, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTaskS, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTaskS, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask2 = lv_label_create(ui_chooseTaskS);
-    lv_obj_set_width(ui_chooseTask2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_chooseTask2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_chooseTask2, 212);
+    lv_obj_set_height(ui_chooseTask2, 32);
     lv_obj_set_x(ui_chooseTask2, -1);
     lv_obj_set_y(ui_chooseTask2, 0);
     lv_obj_set_align(ui_chooseTask2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTask2, "我和你");
+    lv_label_set_long_mode(ui_chooseTask2, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTask2, "我和你心连心同住地球村");
     lv_obj_set_style_text_color(ui_chooseTask2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTask2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTask2, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button3 = lv_btn_create(ui_TaskContainer);
-    lv_obj_set_width(ui_Button3, 192);
+    lv_obj_set_width(ui_Button3, 200);
     lv_obj_set_height(ui_Button3, 32);
     lv_obj_set_x(ui_Button3, 0);
     lv_obj_set_y(ui_Button3, 40);
@@ -126,23 +141,29 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_outline_pad(ui_Button3, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTaskT = lv_label_create(ui_Button3);
-    lv_obj_set_width(ui_chooseTaskT, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_chooseTaskT, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_chooseTaskT, 200);
+    lv_obj_set_height(ui_chooseTaskT, 32);
+    lv_obj_set_x(ui_chooseTaskT, 4);
+    lv_obj_set_y(ui_chooseTaskT, 3);
     lv_obj_set_align(ui_chooseTaskT, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTaskT, "123");
+    lv_label_set_long_mode(ui_chooseTaskT, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTaskT, "123123123123123123");
     lv_obj_set_style_text_color(ui_chooseTaskT, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskT, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTaskT, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTaskT, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_chooseTask11 = lv_label_create(ui_chooseTaskT);
-    lv_obj_set_width(ui_chooseTask11, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_chooseTask11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_width(ui_chooseTask11, 200);
+    lv_obj_set_height(ui_chooseTask11, 32);
     lv_obj_set_x(ui_chooseTask11, -1);
     lv_obj_set_y(ui_chooseTask11, 0);
     lv_obj_set_align(ui_chooseTask11, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_chooseTask11, "123");
+    lv_label_set_long_mode(ui_chooseTask11, LV_LABEL_LONG_DOT);
+    lv_label_set_text(ui_chooseTask11, "123123123123123123");
     lv_obj_set_style_text_color(ui_chooseTask11, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_chooseTask11, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_chooseTask11, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_scrollbar = lv_obj_create(ui_HaveTaskContainer);
@@ -194,6 +215,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_width(ui_NoTaskContainer, 250);
     lv_obj_set_height(ui_NoTaskContainer, 122);
     lv_obj_set_align(ui_NoTaskContainer, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_NoTaskContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoTaskContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_NoTaskContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_NoTaskContainer, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);

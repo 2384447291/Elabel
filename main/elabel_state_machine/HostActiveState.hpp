@@ -85,6 +85,9 @@ public:
 
     void enter_success_connect_wifi()
     {
+        //这里就要停止蓝牙激活，要不然会没有内存的
+        stop_blue_activate();
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         host_active_process = Hostactive_success_connect_wifi_process;
         lock_lvgl();
         set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
