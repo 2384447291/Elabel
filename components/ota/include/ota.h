@@ -26,6 +26,8 @@ void set_ota_status(ota_state _ota_state);
 
 void start_ota(void);
 
+float get_ota_progress(void);
+
 #ifdef __cplusplus
 }
 #endif

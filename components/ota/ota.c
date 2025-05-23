@@ -1,7 +1,7 @@
 #include "ota.h"
 #include "global_message.h"
 #define TAG "OTA"
-/* Event handler for catching system events */
+
 static void event_handler(void* arg, esp_event_base_t event_base,
                           int32_t event_id, void* event_data)
 {
@@ -53,8 +53,6 @@ void set_ota_status(ota_state _ota_state)
 static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
 {
     esp_err_t err = ESP_OK;
-    /* Uncomment to add custom headers to HTTP request */
-    // err = esp_http_client_set_header(http_client, "Custom-Header", "Value");
     return err;
 }
 
@@ -99,6 +97,9 @@ static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
     return ESP_OK;
 }
 
+int image_size;
+int current_size;
+
 void simple_ota_example_task(void *pvParameter)
 {
     ESP_ERROR_CHECK(esp_event_handler_register(ESP_HTTPS_OTA_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
@@ -109,10 +110,8 @@ void simple_ota_example_task(void *pvParameter)
         // .url = get_global_data()->m_newest_firmware_url,
         .url = "http://ota-e-tag.oss-cn-shenzhen.aliyuncs.com/main.bin",
         .keep_alive_enable = true,
-        .buffer_size   = 16 * 1024,
+        .buffer_size   = 4 * 1024,
     };
-
-    ESP_LOGI(TAG, "Starting OTA from %s", http_config.url);
 
     esp_https_ota_config_t ota_config = {
         .http_config = &http_config,
@@ -130,6 +129,9 @@ void simple_ota_example_task(void *pvParameter)
         vTaskDelete(NULL);
     }
 
+    image_size = esp_https_ota_get_image_size(https_ota_handle);
+    ESP_LOGI(TAG, "Starting OTA from %s, size is: %d", http_config.url, image_size);
+
     esp_app_desc_t app_desc;
     err = esp_https_ota_get_img_desc(https_ota_handle, &app_desc);
     if (err != ESP_OK) {
@@ -141,28 +143,37 @@ void simple_ota_example_task(void *pvParameter)
         ESP_LOGE(TAG, "image header verification failed");
         goto ota_end;
     }
-
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     while (1) {
         err = esp_https_ota_perform(https_ota_handle);
+        vTaskDelay(20 / portTICK_PERIOD_MS);
         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS) {
             break;
         }
         // esp_https_ota_perform returns after every read operation which gives user the ability to
         // monitor the status of OTA upgrade by calling esp_https_ota_get_image_len_read, which gives length of image
         // data read so far.
-        ESP_LOGI(TAG, "Image bytes read: %d", esp_https_ota_get_image_len_read(https_ota_handle));
+        current_size = esp_https_ota_get_image_len_read(https_ota_handle);
+        if((int)get_ota_progress() % 10 == 0)
+        {
+            ESP_LOGI(TAG, "OTA progress: %f", get_ota_progress());
+        }
     }
-
-    if (esp_https_ota_is_complete_data_received(https_ota_handle) != true) {
-        // the OTA image was not completely received and user can customise the response to this situation.
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    if (esp_https_ota_is_complete_data_received(https_ota_handle) != true) 
+    {
         ESP_LOGE(TAG, "Complete data was not received.");
-    } else {
+    } 
+    else 
+    {
+        //从这里进去esp_https_ota_finish-->esp_ota_end-->esp_image_verify-->process_segments-->process_segment-->process_segment_data-->bootloader_common_check_efuse_blk_validity
         ota_finish_err = esp_https_ota_finish(https_ota_handle);
-        if ((err == ESP_OK) && (ota_finish_err == ESP_OK)) {
-            ESP_LOGI(TAG, "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            esp_restart();
-        } else {
+        if ((err == ESP_OK) && (ota_finish_err == ESP_OK)) 
+        {
+            set_ota_status(ota_success);
+        } 
+        else 
+        {
             if (ota_finish_err == ESP_ERR_OTA_VALIDATE_FAILED) {
                 ESP_LOGE(TAG, "Image validation failed, image is corrupted");
             }
@@ -174,6 +185,7 @@ void simple_ota_example_task(void *pvParameter)
 ota_end:
     esp_https_ota_abort(https_ota_handle);
     ESP_LOGE(TAG, "ESP_HTTPS_OTA upgrade failed");
+    set_ota_status(ota_fail);
     vTaskDelete(NULL);
 }
 
@@ -181,4 +193,9 @@ void start_ota(void)
 {
     m_ota_state = ota_ing;
     xTaskCreate(&simple_ota_example_task, "ota_task", 8192*2, NULL, 10, NULL);
+}
+
+float get_ota_progress(void)
+{
+    return current_size * 100 / image_size;
 }

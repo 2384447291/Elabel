@@ -44,4 +44,7 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
 
 
 
+
+
+
 lv_theme_t * theme = lv_theme_mono_init(dispp,false, LV_FONT_DEFAULT);
