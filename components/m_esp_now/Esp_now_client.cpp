@@ -178,7 +178,6 @@ static esp_err_t Bind_handle(uint8_t *src_addr, void *data,
 
 void EspNowClient::init()
 {
-    ESP_ERROR_CHECK(esp_now_init());
     is_connect_to_host = false;
     m_role = default_role;
     update_task_handle = NULL; // 初始化任务句柄为空

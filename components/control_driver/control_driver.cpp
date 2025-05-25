@@ -36,7 +36,7 @@ void ControlDriver::start_button_check_task() {
         button_pair_8.clear_state();
         button_press_together_58.clear_state();
         button_press_together_15.clear_state();
-        xTaskCreate(button_check_task, "button_check_task", 4096, nullptr, 0, &button_check_task_handle);
+        xTaskCreate(button_check_task, "button_check_task", 4096, nullptr, 5, &button_check_task_handle);
     }
     else {
         ESP_LOGE(TAG, "button_check_task already exists");

@@ -11,11 +11,10 @@ class EspNowSlave {
         char username[100];
         // 上一次收到包的时间
         TickType_t last_recv_heart_time = 0;  
-        uint8_t sleep_sync_flag = 0;//0表示需要同步，1表示focus同步，2表示时间同步
+        uint8_t sleep_sync_flag = 3;//0表示需要同步，1表示focus同步，2表示时间同步, 3表示无需同步
 
         void init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100]);
         void deinit();
-        void suspend_espnow();
         void resume_espnow();
         static EspNowSlave* Instance() {
             static EspNowSlave instance;

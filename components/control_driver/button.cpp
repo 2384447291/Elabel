@@ -13,9 +13,9 @@
 #define R3 3.0
 
 #define V_BUTTON_0 3.3
-#define V_BUTTON_1 (3.3*(R0/(R0+R1)))
-#define V_BUTTON_2 (3.3*(R0/(R0+R2)))
-#define V_BUTTON_3 (3.3*(R0/(R0+R3)))
+#define V_BUTTON_1 (3.3*(R0/(R0+R1)))  //1.65
+#define V_BUTTON_2 (3.3*(R0/(R0+R2)))  //2.2
+#define V_BUTTON_3 (3.3*(R0/(R0+R3)))  //1.32
 #define ERROR_RANGE 0.1
 
 #define STATE_DURATION_MS 40
@@ -77,14 +77,17 @@ void Button_pair_3::update()
     bool temp_button_state[3] = {false, false, false};
     // 判断当前状态
     if (voltage > V_BUTTON_0 - ERROR_RANGE && voltage < V_BUTTON_0 + ERROR_RANGE) {  // 都未按下
+        // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = true;
         temp_button_state[1] = false;
         temp_button_state[2] = false;
     } else if (voltage > V_BUTTON_1 - ERROR_RANGE && voltage < V_BUTTON_1 + ERROR_RANGE) {  // 按下按键1
+        // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = false;
         temp_button_state[1] = true;
         temp_button_state[2] = false;
     } else if (voltage > V_BUTTON_2 - ERROR_RANGE && voltage < V_BUTTON_2 + ERROR_RANGE) {  // 按下按键2
+        // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = false;
         temp_button_state[1] = false;
         temp_button_state[2] = true;
@@ -161,17 +164,33 @@ void Button_pair_1::update()
 {
     int adc_value = adc1_get_raw(adc1_chan);
     float voltage = adc_value / 1000.0f;
+    bool temp_button_state = false;
 
-    // 按下是高电平
-    if(voltage > 2.0f && button->isPressed == false)
+    // 判断当前状态
+    if(voltage > 3.0f)
     {
-        button->isrTriggered = true;
-        button->isPressed = true;
+        temp_button_state = true;
     }
-    else if(voltage < 1.0f && button->isPressed == true)
+    
+    // 检查状态是否发生变化
+    if (temp_button_state != button->isPressed) 
     {
-        button->isrTriggered = true;
-        button->isPressed = false;
+        // 状态发生变化，重置计时器
+        state_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        button->isPressed = temp_button_state;
+    } 
+    else 
+    {
+        // 状态未变化，检查持续时间
+        uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        if (current_time - state_start_time >= STATE_DURATION_MS) 
+        {
+            // 持续时间达到阈值，触发状态变化
+            if (button->isPressed != button->isrTriggered) 
+            {
+                button->isrTriggered = true;
+            }
+        }
     }
 }
 
@@ -213,7 +232,7 @@ void Button_pair_4::update()
     // 临时状态变量,默认都是0
     bool temp_button_state[4] = {false, false, false, false};
     // 判断当前状态
-    if (voltage > V_BUTTON_0 - ERROR_RANGE && voltage < V_BUTTON_0 + ERROR_RANGE) {  // 都未按下
+    if (voltage > V_BUTTON_0 - ERROR_RANGE && voltage < V_BUTTON_0 + ERROR_RANGE) {  // 按下按键0
         temp_button_state[0] = true;
         temp_button_state[1] = false;
         temp_button_state[2] = false;

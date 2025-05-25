@@ -151,6 +151,9 @@ void InitState::Execute(ElabelController* pOwner)
         //初始化EspNowSlave
         EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
 
+        //激活
+        EspNowSlave::Instance()->slave_send_espnow_http_wakeup_request();
+        
         //获取任务列表
         EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
 

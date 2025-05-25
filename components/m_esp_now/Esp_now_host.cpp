@@ -122,12 +122,12 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         {
             TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
             focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
-            EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr);
+            EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr, false);
         }
         //如果没有则发送时间戳同步
         else
         {
-            EspNowHost::Instance()->Mqtt_send_time(src_addr);
+            EspNowHost::Instance()->Mqtt_send_time(src_addr, false);
         }
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Synchronous_Request_Http from " MACSTR, MAC2STR(src_addr));
     }
@@ -166,6 +166,7 @@ void EspNowHost::init()
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
         espnow_add_peer(get_global_data()->m_slave_info[i].mac, NULL);
+        set_sleep(get_global_data()->m_slave_info[i].mac, true);
     }
 
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Host_handle);
@@ -311,7 +312,7 @@ void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
     ESP_LOGE(ESP_NOW, "Slave " MACSTR " not found", MAC2STR(slave_mac));
 }
 
-void EspNowHost::Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+void EspNowHost::Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN], bool need_ack)
 {
     uint8_t temp_data[8];
     long long time = get_unix_time();
@@ -323,11 +324,18 @@ void EspNowHost::Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     temp_data[5] = (time >> 16) & 0xFF;
     temp_data[6] = (time >> 8) & 0xFF;
     temp_data[7] = time & 0xFF;
-    send_message_ack(temp_data, 8, Host2Slave_Get_Time_Control_Mqtt, slave_mac);
+    if(need_ack)
+    {
+        send_message_ack(temp_data, 8, Host2Slave_Get_Time_Control_Mqtt, slave_mac);
+    }
+    else
+    {
+        send_message_no_ack(temp_data, 8, Host2Slave_Get_Time_Control_Mqtt, slave_mac);
+    }
     ESP_LOGI(ESP_NOW, "Send Host2Slave_Get_Time_Control_Mqtt to " MACSTR " , time: %lld", MAC2STR(slave_mac), time);
 }
 
-void EspNowHost::Mqtt_enter_focus(focus_message_t focus_message, const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+void EspNowHost::Mqtt_enter_focus(focus_message_t focus_message, const uint8_t slave_mac[ESP_NOW_ETH_ALEN], bool need_ack)
 {
     uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
     size_t temp_data_len = 0;
@@ -349,7 +357,14 @@ void EspNowHost::Mqtt_enter_focus(focus_message_t focus_message, const uint8_t s
     else
     {
         ESP_LOGI(ESP_NOW, "Send Host2Slave_Enter_Focus_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
-        send_message_ack(temp_data, temp_data_len, Host2Slave_Enter_Focus_Control_Mqtt, slave_mac);
+        if(need_ack)
+        {
+            send_message_ack(temp_data, temp_data_len, Host2Slave_Enter_Focus_Control_Mqtt, slave_mac);
+        }
+        else
+        {
+            send_message_no_ack(temp_data, temp_data_len, Host2Slave_Enter_Focus_Control_Mqtt, slave_mac);
+        }
     }
 }
 

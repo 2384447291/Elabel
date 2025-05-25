@@ -137,6 +137,9 @@ void EspNow_syset_time(long long nowTime)
     if (settimeofday(&tv, NULL) < 0) {
         perror("settimeofday");
     }
+    
+    set_region();
+    
     time(&now);
     localtime_r(&now, &timeinfo);
     is_syset_time = true;
@@ -183,11 +186,6 @@ void get_clock_time(char* str_time)
         strcpy(str_time, "00:00");
         return;
     }
-
-    // 获取当前时间
-    time(&now);
-    localtime_r(&now, &timeinfo);
-    
     // 格式化时间为 HH:MM
     strftime(str_time, 6, "%H:%M", &timeinfo);
 }

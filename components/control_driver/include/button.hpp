@@ -49,6 +49,7 @@ public:
     Button* button;
     void update();
     void clear_state();
+    uint32_t state_start_time = 0;
 };
 //----------------------------------------------Button_pair_1类定义----------------------------------------------//
 

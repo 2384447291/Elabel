@@ -59,7 +59,7 @@ void choose_previous_task()
 {
     if(get_global_data()->m_todo_list->size==0)
     {
-        uint8_t temp_guide_page = ChoosingTaskState::Instance()->guide_page;
+        int temp_guide_page = ChoosingTaskState::Instance()->guide_page;
         temp_guide_page --;
         if(temp_guide_page < 0)
         {

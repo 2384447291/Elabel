@@ -3,7 +3,6 @@
 
 #include "esp_now_client.hpp"
 #include "global_nvs.h"
-#include "MacAdrees.hpp"
 #include "espnow.h"
 
 #define HEART_BEAT_TIME_MSECS 1000
@@ -22,11 +21,11 @@ class EspNowHost {
 
         //单独发送请求
         void Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
-        void Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
+        void Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN], bool need_ack = true);
         void Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         //群体同步请求
         void Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);
-        void Mqtt_enter_focus(focus_message_t focus_message, const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);
+        void Mqtt_enter_focus(focus_message_t focus_message, const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST, bool need_ack = true);
         void Mqtt_out_focus();
 
         //http的响应函数

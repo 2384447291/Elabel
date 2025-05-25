@@ -68,7 +68,7 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
-            EspNowSlave::Instance()->sleep_sync_flag = 2;
+            EspNowSlave::Instance()->sleep_sync_flag = 1;
             printf("get sleep sync response Time sync ");
         }
     }
@@ -120,14 +120,13 @@ void EspNowSlave::deinit()
     ESP_LOGI(ESP_NOW, "Slave deinit success");
 }
 
-void EspNowSlave::suspend_espnow()
-{
-    
-}
-
 void EspNowSlave::resume_espnow()
 {
+    ESP_ERROR_CHECK(esp_wifi_set_channel(this->host_channel, WIFI_SECOND_CHAN_NONE));
+    //添加配对host
+    espnow_add_peer(host_mac, NULL);
 
+    espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Slave_handle);
 }
 
 esp_err_t EspNowSlave::slave_send_espnow_http_sleep_request()
