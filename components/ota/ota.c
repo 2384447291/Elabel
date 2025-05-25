@@ -107,8 +107,8 @@ void simple_ota_example_task(void *pvParameter)
     esp_err_t ota_finish_err = ESP_OK;
     
     esp_http_client_config_t http_config = {
-        // .url = get_global_data()->m_newest_firmware_url,
-        .url = "http://ota-e-tag.oss-cn-shenzhen.aliyuncs.com/main.bin",
+        .url = get_global_data()->m_newest_firmware_url,
+        // .url = "http://ota-e-tag.oss-cn-shenzhen.aliyuncs.com/main.bin",
         .keep_alive_enable = true,
         .buffer_size   = 4 * 1024,
     };

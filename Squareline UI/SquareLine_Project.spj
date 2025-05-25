@@ -5997,7 +5997,8 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "PANEL"
+                    "saved_objtypeKey": "PANEL",
+                    "tree_closed": true
                   },
                   {
                     "guid": "GUID47120970-659694S894477",
@@ -8487,7 +8488,8 @@
                         "InheritedType": 11
                       }
                     ],
-                    "saved_objtypeKey": "LABEL"
+                    "saved_objtypeKey": "LABEL",
+                    "tree_closed": true
                   },
                   {
                     "guid": "GUID21263617-525718S4012478",
@@ -10391,7 +10393,8 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "BAR"
+                "saved_objtypeKey": "BAR",
+                "tree_closed": true
               }
             ],
             "dont_export": false,
@@ -14975,8 +14978,7 @@
                     "InheritedType": 11
                   }
                 ],
-                "saved_objtypeKey": "PANEL",
-                "tree_closed": true
+                "saved_objtypeKey": "PANEL"
               },
               {
                 "guid": "GUID22360500-853583S34390454",
@@ -15952,12 +15954,6 @@
                 "InheritedType": 1
               },
               {
-                "nid": 100,
-                "strtype": "OBJECT/Hidden",
-                "strval": "True",
-                "InheritedType": 2
-              },
-              {
                 "nid": 110,
                 "strtype": "OBJECT/Clickable",
                 "strval": "False",
@@ -16004,8 +16000,7 @@
                 "InheritedType": 11
               }
             ],
-            "saved_objtypeKey": "CONTAINER",
-            "tree_closed": true
+            "saved_objtypeKey": "CONTAINER"
           },
           {
             "guid": "GUID5191471-525739S20963478",
@@ -21169,7 +21164,7 @@
     "uiExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\components\\ui",
     "projectExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\Squareline UI",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 170,
+    "backup_cnt": 171,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

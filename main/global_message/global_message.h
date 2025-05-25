@@ -10,7 +10,7 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.8"
+#define FIRMWARE_VERSION "3.0.6"
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，未专注2
