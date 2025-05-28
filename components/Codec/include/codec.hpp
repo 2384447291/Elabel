@@ -25,7 +25,13 @@
 #define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 #define RecordTime 8
 #define ShutdownTime 0.6f
+#define BeforeRecordTime 0.1f
 #define FILE_PATH "/fat/mic.raw"
+#define TEMP_PATH "/fat/temp.raw"
+
+void play_button_sound();
+void play_start_task_sound();
+void play_finish_task_sound();
 
 typedef enum {
     default_speaker,
@@ -46,7 +52,7 @@ public:
     void start_record();
     void stop_record();
     
-    void play_record(const uint8_t* data, size_t size);
+    void play_record(const uint8_t* data = NULL, size_t size = 0);
     void play_music(const char* filename);
     void play_mic();
     void stop_play();
@@ -91,7 +97,6 @@ public:
         esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_in_gain(codec_dev, 0);
         esp_codec_dev_set_out_vol(codec_dev, codec_vol);
-        
     }
 
     void open_mic_dev(uint32_t sample_rate)

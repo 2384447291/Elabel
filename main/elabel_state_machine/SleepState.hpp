@@ -12,8 +12,9 @@
 #include "esp_now_slave.hpp"
 #include "esp_now_client.hpp"
 #include "esp_now_slave.hpp"
+#include <vector>
 
-#define WAKEUP_INTERVAL_SEC 10
+#define WAKEUP_INTERVAL_SEC 15
 #define ESPNOW_WAITING_TIME 100
 
 class SleepState : public State<ElabelController>
@@ -27,11 +28,20 @@ public:
     bool need_out_state = false;
     char show_clock_time[6];
     int64_t start_sleep_time = 0;
-    
+
     static SleepState* Instance()
     {
         static SleepState instance;
         return &instance;
+    }
+
+    void start_sleep()
+    {
+        need_out_state = false;
+        while(!need_out_state)
+        {
+            enter_sleep();
+        }
     }
 
     void enter_sleep()
@@ -41,7 +51,6 @@ public:
         ESP_ERROR_CHECK(esp_wifi_stop());
         //关闭外设电源
         BatteryManager::Instance()->setPowerState(false);
-
         ESP_ERROR_CHECK(esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL));
         //不设置唤醒源，light-sleep-enter没有用
         uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_567) | (1ULL << DEVICE_BUTTON_8);
@@ -72,13 +81,18 @@ public:
     {   
         ESP_ERROR_CHECK(esp_wifi_start());
         EspNowSlave::Instance()->resume_espnow();
+        //防止数据丢失
+        if(EspNowSlave::Instance()->sleep_sync_flag == 1)
+        {
+            need_out_state = true;
+        }
         EspNowSlave::Instance()->sleep_sync_flag = 0;
         esp_err_t ret = EspNowSlave::Instance()->slave_send_espnow_http_synchronous_request();
 
         if(ret == ESP_OK)
         {
             int64_t start_time = esp_timer_get_time();
-            while(EspNowSlave::Instance()->sleep_sync_flag != 0 && (esp_timer_get_time() - start_time) < ESPNOW_WAITING_TIME * 1000)
+            while(EspNowSlave::Instance()->sleep_sync_flag != 0 && (esp_timer_get_time() - start_time) < ESPNOW_WAITING_TIME * 1000ULL)
             {
                 if(EspNowSlave::Instance()->sleep_sync_flag == 1)
                 {
@@ -91,24 +105,19 @@ public:
                 }
             }
         }   
-        //如果需要退出休眠模式，则不要进休眠
-        if(!need_out_state)
+        
+        char clock_time[6];
+        get_clock_time(clock_time);
+        if(strcmp(clock_time, show_clock_time) != 0)
         {
-            char clock_time[6];
-            get_clock_time(clock_time);
-            if(strcmp(clock_time, show_clock_time) != 0)
-            {
-                BatteryManager::Instance()->setPowerState(true);
-                vTaskDelay(pdMS_TO_TICKS(500));
-                lock_lvgl();
-                set_text_without_change_font(ui_SleepCLock, clock_time);
-                memcpy(show_clock_time, clock_time, 6);
-                release_lvgl();
-                vTaskDelay(pdMS_TO_TICKS(2500));
-            }
-            enter_sleep();
+            BatteryManager::Instance()->setPowerState(true);
+            vTaskDelay(pdMS_TO_TICKS(500));
+            lock_lvgl();
+            set_text_without_change_font(ui_SleepCLock, clock_time);
+            memcpy(show_clock_time, clock_time, 6);
+            release_lvgl();
+            vTaskDelay(pdMS_TO_TICKS(2500));
         }
-
     }
 
     void out_sleep()

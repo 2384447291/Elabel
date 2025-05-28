@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "global_message.h"
 #include "global_time.h"
+#include "cJSON.h"
 #include "http.h"
 // #undef ESP_LOGI
 // #define ESP_LOGI(tag, format, ...) 
@@ -24,9 +25,10 @@ void generate_boundary(char *boundary, size_t size) {
     boundary[size - 1] = '\0';
 }
 
-void http_send(http_task_struct* m_task_struct)
+esp_err_t http_send(http_task_struct* m_task_struct)
 {
     esp_http_client_handle_t client = *get_client();
+    esp_err_t err = ESP_FAIL;
     if(m_task_struct->task==ADDTODO)
     {
         esp_http_client_set_method(client,HTTP_METHOD_POST);
@@ -44,14 +46,7 @@ void http_send(http_task_struct* m_task_struct)
         // 将 JSON 数据设置为 HTTP 请求体
         esp_http_client_set_post_field(client, post_data, strlen(post_data));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
         // 释放 JSON 对象
         cJSON_Delete(root);
     }
@@ -78,14 +73,7 @@ void http_send(http_task_struct* m_task_struct)
         // 将 JSON 数据设置为 HTTP 请求体
         esp_http_client_set_post_field(client, post_data, strlen(post_data));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
         // 释放 JSON 对象
         cJSON_Delete(root);
     }
@@ -123,14 +111,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==OUT_FOCUS)
     {
@@ -157,14 +138,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==DELETTODO)
     {
@@ -188,14 +162,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==FINDTODOLIST)
     { 
@@ -226,14 +193,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==FINDLATESTVERSION)
     {
@@ -257,14 +217,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==FINDUSER)
     {
@@ -282,14 +235,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==BINDDEVICE)
     {
@@ -324,14 +270,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==UNBINDDEVICE)
     {
@@ -358,14 +297,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==FINDDEVICE)
     {
@@ -383,14 +315,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==SAVESETTING)
     {
@@ -423,14 +348,7 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
     else if(m_task_struct->task==SAVEPOWER)
     {
@@ -460,14 +378,14 @@ void http_send(http_task_struct* m_task_struct)
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK) {
-            // ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
-            //         esp_http_client_get_status_code(client),
-            //         esp_http_client_get_content_length(client));
-        } else {
-            ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-        }
+        err = esp_http_client_perform(client);
     }
+
+    if (err != ESP_OK) 
+    {
+        ESP_LOGE(HTTP_TAG, "HTTP POST request failed");
+    }
+
+    return err;
 }
 #endif

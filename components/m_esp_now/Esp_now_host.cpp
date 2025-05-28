@@ -31,8 +31,9 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     }
     //------------------------------------------------睡眠请求------------------------------------------------//
 
-    //------------------------------------------------所有的非睡眠非睡眠同步请求都可视为唤醒------------------------------------------------//
-    if(m_message_type != Slave2Host_Sleep_Request_Http && m_message_type != Slave2Host_Wakeup_Request_Http && m_message_type!= Slave2Host_Synchronous_Request_Http)
+    //------------------------------------------------所有的非睡眠非睡眠同步请求和测试请求都可视为唤醒------------------------------------------------//
+    if(m_message_type != Slave2Host_Sleep_Request_Http && m_message_type != Slave2Host_Wakeup_Request_Http && m_message_type!= Slave2Host_Synchronous_Request_Http 
+    && m_message_type != Test_Start_Request_Slave2Host && m_message_type != Test_Stop_Request_Slave2Host && m_message_type != default_message_type)
     {
         if(set_sleep(src_addr, false) == 2)
         {

@@ -194,7 +194,7 @@ esp_err_t EspNowSlave::slave_send_espnow_http_get_device_info()
 esp_err_t EspNowSlave::slave_send_espnow_http_synchronous_request()
 {
     uint8_t temp_data = 0;
-    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Synchronous_Request_Http);
+    esp_err_t ret = send_message_once(&temp_data, 1, Slave2Host_Synchronous_Request_Http);
     if(ret != ESP_OK)
     {
         ESP_LOGE(ESP_NOW, "Slave send synchronous request message failed");

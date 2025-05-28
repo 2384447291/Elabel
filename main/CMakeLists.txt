@@ -1,4 +1,4 @@
-idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "global_message/global_time.c"  "global_message/global_draw.c" "global_message/global_nvs.c" 
+idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "global_message/global_time.c"  "global_message/global_draw.c" "global_message/global_nvs.c" "global_message/global_tool.c"
                         "elabel_state_machine/ElabelController.cpp"
                         "elabel_state_machine/ChoosingTaskState.cpp"
                         "elabel_state_machine/OperatingTaskState.cpp"

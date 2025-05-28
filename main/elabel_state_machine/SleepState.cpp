@@ -23,7 +23,7 @@ void SleepState::Enter(ElabelController* pOwner)
     //等待2s页面刷新
     vTaskDelay(pdMS_TO_TICKS(2000));
     start_sleep_time = esp_timer_get_time();
-    enter_sleep();
+    start_sleep();
 }
 void SleepState::Execute(ElabelController* pOwner)
 {
@@ -33,6 +33,7 @@ void SleepState::Execute(ElabelController* pOwner)
 void SleepState::Exit(ElabelController* pOwner)
 {
     BatteryManager::Instance()->setPowerState(true);
+    ESP_ERROR_CHECK(esp_wifi_start());
     EspNowSlave::Instance()->resume_espnow();
     vTaskDelay(pdMS_TO_TICKS(500));
 }

@@ -15,7 +15,7 @@
 #define V_BUTTON_0 3.3
 #define V_BUTTON_1 (3.3*(R0/(R0+R1)))  //1.65
 #define V_BUTTON_2 (3.3*(R0/(R0+R2)))  //2.2
-#define V_BUTTON_3 (3.3*(R0/(R0+R3)))  //1.32
+#define V_BUTTON_3 (3.3*(R0/(R0+R3)))  //2.87
 #define ERROR_RANGE 0.1
 
 #define STATE_DURATION_MS 40

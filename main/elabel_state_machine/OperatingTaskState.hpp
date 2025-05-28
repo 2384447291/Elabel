@@ -122,14 +122,6 @@ public:
             EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
         ESP_LOGI("OperatingState","enter focus title: %s, time: %d",chose_todo->title,(int)ElabelController::Instance()->TimeCountdown);
-        // need_enter_focus = true;
-        // ElabelController::Instance()->manual_focus = true;
-        // if(ElabelController::Instance()->focustodo.title!=NULL) free(ElabelController::Instance()->focustodo.title);
-        // cleantodoItem(&(ElabelController::Instance()->focustodo));
-        // ElabelController::Instance()->focustodo.taskType = 2;
-        // ElabelController::Instance()->focustodo.title = strdup(chose_todo->title);
-        // ElabelController::Instance()->focustodo.startTime = get_unix_time();
-        // ElabelController::Instance()->focustodo.fallTiming = ElabelController::Instance()->TimeCountdown;
     }
 };
 #endif

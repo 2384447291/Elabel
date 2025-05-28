@@ -14,12 +14,29 @@ esp_http_client_handle_t* get_client(void)
 {
     return &client;
 }
+http_state* get_m_http_state(void)
+{
+    return &m_http_state;
+}
+
+bool need_deal_with_music = false;
+
+void set_need_deal_with_music(bool need_deal)
+{
+    need_deal_with_music = need_deal;
+}
+
+bool get_need_deal_with_music(void)
+{
+    return need_deal_with_music;
+}
 
 SemaphoreHandle_t Task_list_Mutex;
 uint64_t id = 0;
 //--------------------------------------http中控使用的参数--------------------------------------//
 
 //--------------------------------------TaskQueue--------------------------------------//
+// 所有的字符串字面量（比如 "No Task"、"Enter Focus" 等）在编译链接阶段就被放到可执行文件的只读数据段（.rodata）里，程序启动后就映射到内存中，只分配一次。函数每次返回的只是指向这块静态内存的指针，不会再申请新的内存。
 char* taskToString(http_task_t task) {
     switch(task) {
         case NO_TASK:
@@ -279,7 +296,6 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             ESP_LOGE(HTTP_TAG, "HTTP_EVENT_REDIRECT");
             break;
         case HTTP_EVENT_ERROR:
-            m_http_state = send_fail;
             ESP_LOGE(HTTP_TAG, "Get_butongbuyang_HTTP_EVENT_ERROR");
             break;
         case HTTP_EVENT_ON_CONNECTED:
@@ -291,8 +307,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
         case HTTP_EVENT_ON_HEADER:
             break;
         case HTTP_EVENT_ON_DATA:
-            m_http_state = send_recieving;
-            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
             response_buffer = realloc(response_buffer, response_buffer_len + evt->data_len + 1);
             if (response_buffer == NULL) {
                 ESP_LOGE(HTTP_TAG, "Failed to allocate memory for response buffer");
@@ -302,7 +317,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             response_buffer_len += evt->data_len;
             break;
         case HTTP_EVENT_ON_FINISH:
-            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
+            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
             if (response_buffer != NULL) 
             {
                 parse_json_response(response_buffer,m_dealing_task,&m_http_state);
@@ -313,7 +328,6 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             }
             break;
         case HTTP_EVENT_DISCONNECTED:
-            m_http_state = send_fail;
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_DISCONNECTED");
             break;
     }
@@ -333,8 +347,7 @@ void http_client_sendMsg(http_task_struct* task)
     }
 
     while (retry_count < MAX_RETRY_COUNT) {
-        http_send(task);  // http_send是void类型，不需要检查返回值
-        if (m_http_state != send_fail) {
+        if (http_send(task) == ESP_OK) {
             return;  // 发送成功
         }
         
@@ -349,7 +362,7 @@ void http_client_sendMsg(http_task_struct* task)
             const esp_http_client_config_t config = {
                 .url = "http://120.77.1.151",
                 .event_handler = http_client_event_handler,
-                .timeout_ms = 10000,
+                .timeout_ms = 4000,
                 .buffer_size = 1024,
                 .buffer_size_tx = 1024,
                 .transport_type = HTTP_TRANSPORT_UNKNOWN,
@@ -370,14 +383,14 @@ void http_client_sendMsg(http_task_struct* task)
 
 void http_client_update(void *Parameters )
 {
-    int64_t send_processing_start_time = 0;
     while(1)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS); 
-        // ESP_LOGI(HTTP_TAG, "m_http_state is %d",m_http_state);
         if(m_http_state == send_waiting)
         { 
             bool need_send = false;
+            //如果正在加载音乐，则不发送其他请求
+            if(need_deal_with_music) return;
             if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
             {
                 if(!isEmpty(&m_taskqueue))   
@@ -396,45 +409,25 @@ void http_client_update(void *Parameters )
                 ESP_LOGI(HTTP_TAG, "Start send task %s.",taskToString(m_dealing_task->task));
                 m_http_state = send_processing;
                 http_client_sendMsg(m_dealing_task);
-                send_processing_start_time = esp_timer_get_time();
             }
-        } 
-        else if (m_http_state == send_processing)
-        {
-            int64_t current_time = esp_timer_get_time();
-            // 检查是否已经持续超过 4 秒
-            if ((current_time - send_processing_start_time) > 4000000) // 1000ms = 1000000微秒
-            {
-                ESP_LOGE(HTTP_TAG, "No response, resend %d.",m_dealing_task->task);
-                http_client_sendMsg(m_dealing_task);
-                send_processing_start_time = esp_timer_get_time();      // 超时则将状态置为 send_fail
-            }
-        }        
+        }     
         else if(m_http_state == send_fail)
         {
-            ESP_LOGE(HTTP_TAG, "Send Fail, resend %d.",m_dealing_task->task);
-            //删除并重新初始化
-            esp_http_client_cleanup(*get_client());
-            const esp_http_client_config_t config = {
-                .url = "http://120.77.1.151",
-                .event_handler = http_client_event_handler,
-                .timeout_ms = 10000,                    // 10秒超时
-                .buffer_size = 1024,                    // 接收缓冲区大小
-                .buffer_size_tx = 1024,                 // 发送缓冲区大小
-                .transport_type = HTTP_TRANSPORT_UNKNOWN,
-                .skip_cert_common_name_check = true,    // 跳过证书检查
-                .crt_bundle_attach = NULL,              // 不使用证书包
-                .disable_auto_redirect = true,          // 禁用自动重定向
-                .max_redirection_count = 0,             // 最大重定向次数
-                .max_authorization_retries = 3,         // 最大授权重试次数
-            };
-            client = esp_http_client_init(&config);
-
-            //有点夸张了在下一个函数跑的同时这个表就被置成finish了，
-            //所以置标的操作要放到前面，放到后面的话，会把置好的finish标刷回去
-            m_http_state = send_processing; 
-            http_client_sendMsg(m_dealing_task);
-            send_processing_start_time = esp_timer_get_time();    
+            ESP_LOGE(HTTP_TAG, "Send Fail. %s.\n",taskToString(m_dealing_task->task));   
+            m_http_state = send_waiting;
+            if(m_dealing_task->need_stuck)
+            {
+                m_dealing_task->need_stuck = false;
+            }
+        }
+        else if(m_http_state == send_success)
+        {
+            ESP_LOGI(HTTP_TAG, "Send Success. %s.\n",taskToString(m_dealing_task->task));  
+            if(m_dealing_task->need_stuck)
+            {
+                m_dealing_task->need_stuck = false;
+            }
+            m_http_state = send_waiting;
         }
 
         //处理task_list的更新
@@ -468,7 +461,7 @@ void http_client_init(void)
     const esp_http_client_config_t config = {
         .url = "http://120.77.1.151",
         .event_handler = http_client_event_handler,
-        .timeout_ms = 10000,                    // 10秒超时
+        .timeout_ms = 4000,                     // 4秒超时
         .buffer_size = 1024,                    // 接收缓冲区大小
         .buffer_size_tx = 1024,                 // 发送缓冲区大小
         .transport_type = HTTP_TRANSPORT_UNKNOWN,

@@ -31,7 +31,7 @@ char* taskToString(http_task_t task);
 typedef enum {
     send_waiting,
     send_processing,
-    send_recieving,
+    send_success,
     send_fail,
 } http_state;
 
@@ -54,6 +54,9 @@ bool enqueue(TaskQueue *q, http_task_struct *task);
 bool enqueue_front(TaskQueue *q, http_task_struct *task);
 bool dequeue(TaskQueue* q, http_task_struct* dealing_task);
 esp_http_client_handle_t* get_client(void);
+http_state* get_m_http_state(void);
+bool get_need_deal_with_music(void);
+void set_need_deal_with_music(bool need_deal);
 http_task_struct *create_http_task_struct(http_task_t task_type, char *params[], int param_count, bool need_stuck);
 void initQueue(TaskQueue *q);
 void printTaskList(TaskQueue *q);

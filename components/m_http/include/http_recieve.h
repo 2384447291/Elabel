@@ -12,6 +12,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     // 解析 JSON
     cJSON *json = cJSON_Parse(response);
     if (json == NULL) {
+        // 释放 JSON 对象
+        cJSON_Delete(json);
+        *m_http_state = send_fail;
+        ESP_LOGE(HTTP_TAG, "Full response: %s", response);
         ESP_LOGE("HTTP","JSON parse error!\n");
         return;
     }
@@ -31,7 +35,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         // ESP_LOGI("HTTP", "Code: %d", code->valueint);
         if(code->valueint != 200)
         {
+            // 释放 JSON 对象
+            cJSON_Delete(json);
             *m_http_state = send_fail;
+            ESP_LOGE(HTTP_TAG, "Full response: %s", response);
             return;
         }
     }
@@ -93,7 +100,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             Global_data* _global_data = get_global_data();
             add_or_update_todo_item(_global_data->m_todo_list, todo);
         }
-        ESP_LOGI("HTTP", "Successful get response post task is FINDTODOLIST\n");
+        ESP_LOGI("HTTP", "Successful get response post task is FINDTODOLIST");
     }
     else if(m_task_struct->task == FINDLATESTVERSION)
     {   
@@ -108,7 +115,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             if (deviceModel) memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
             if (newest_firmware_url) memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
             if (createTime) memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-            ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION\n");   
+            ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION");   
         } 
         else 
         {
@@ -124,7 +131,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             const char *userName = cJSON_GetStringValue(cJSON_GetObjectItem(data, "userName"));
             memcpy(get_global_data()->m_userName, userName, strlen(userName));
         }
-        ESP_LOGI("HTTP", "Successful get response post task is FINDUSER.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is FINDUSER ");
     } 
     else if (m_task_struct->task == FINDDEVICE)
     {
@@ -199,51 +206,47 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             }
             get_global_data()->need_update_device_info = true;
         }
-        ESP_LOGI("HTTP", "Successful get response post task is FINDDEVICE.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is FINDDEVICE ");
     }
     else if (m_task_struct->task == ADDTODO)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ADDTODO title is %s, todo type is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1]);
+        ESP_LOGI("HTTP", "Successful get response post task is ADDTODO title is %s, todo type is %s",m_task_struct->parament[0],m_task_struct->parament[1]);
     }   
     else if (m_task_struct->task == ADD_ENTER_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ADD_ENTER_FOCUS title is %s, todo type is %s, falling time is %s.\n",m_task_struct->parament[0],m_task_struct->parament[1],m_task_struct->parament[2]);
+        ESP_LOGI("HTTP", "Successful get response post task is ADD_ENTER_FOCUS title is %s, todo type is %s, falling time is %s",m_task_struct->parament[0],m_task_struct->parament[1],m_task_struct->parament[2]);
     }
     else if (m_task_struct->task == ENTER_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is ENTER_FOCUS Task %s enter focus\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is ENTER_FOCUS Task %s enter focus",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == OUT_FOCUS)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is OUT_FOCUS Task %s out focus\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is OUT_FOCUS Task %s out focus",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == DELETTODO)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is DELETTODO Task %s is deleted\n",m_task_struct->parament[0]);
+        ESP_LOGI("HTTP", "Successful get response post task is DELETTODO Task %s is deleted",m_task_struct->parament[0]);
     }  
     else if (m_task_struct->task == BINDDEVICE)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is BINDDEVICE.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is BINDDEVICE ");
     } 
 
     else if (m_task_struct->task == UNBINDDEVICE)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is UNBINDDEVICE.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is UNBINDDEVICE ");
     }
     else if (m_task_struct->task == SAVESETTING)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is SAVESETTING.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is SAVESETTING ");
     }
     else if (m_task_struct->task == SAVEPOWER)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is SAVEPOWER.\n ");
+        ESP_LOGI("HTTP", "Successful get response post task is SAVEPOWER ");
     }
     // 释放 JSON 对象
     cJSON_Delete(json);
-    if(m_task_struct->need_stuck)
-    {
-        m_task_struct->need_stuck = false;
-    }
-    *m_http_state = send_waiting;
+    *m_http_state = send_success;
 }
 #endif

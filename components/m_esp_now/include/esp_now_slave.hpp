@@ -54,6 +54,22 @@ class EspNowSlave {
             }while(ret != ESP_OK && count < SLAVE_ASK_HOST_TIME);
             return ret;
         }
+
+        // 必须收到ack，爆发1s共10次，尝试1次
+        esp_err_t send_message_once(uint8_t* data, size_t size, message_type m_message_type)
+        {
+            uint8_t packet_data[size+1];
+            packet_data[0] = m_message_type;
+            memcpy(&packet_data[1], data, size);
+            esp_err_t ret = ESP_FAIL;
+            uint8_t count = 0;
+            do{
+                ret = espnow_send(ESPNOW_DATA_TYPE_DATA, host_mac, packet_data,
+                        size+1, &EspNowClient::Instance()->target_send_head, ESPNOW_SEND_MAX_TIMEOUT);
+                count++;
+            }while(ret != ESP_OK && count < 1);
+            return ret;
+        }
 };
 
 #endif
