@@ -111,7 +111,7 @@ void EspNowSlave::deinit()
 {
     if(EspNowClient::Instance()->m_role == default_role)
     {
-        ESP_LOGE(ESP_NOW, "EspNowSlave deinit failed, role is default");
+        // ESP_LOGE(ESP_NOW, "EspNowSlave deinit failed, role is default");
         return;
     }
 
@@ -376,5 +376,3 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
     //重新拉一下http_todo_list，也会有个firmware_need_update是为了刷新task
     slave_send_espnow_http_get_todo_list();
 }
-
-

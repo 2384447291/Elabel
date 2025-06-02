@@ -19,6 +19,20 @@
 #include "ElabelController.hpp"
 #include "esp_now_host.hpp"
 #include "esp_now_slave.hpp"
+void fuck_start_record()
+{
+    MCodec::Instance()->start_record();
+}
+
+void fuck_stop_record()
+{
+    MCodec::Instance()->stop_record();
+}
+
+void fuck_play_mic()
+{
+    MCodec::Instance()->play_mic();
+}
 
 extern "C" void app_main(void)
 {
@@ -56,10 +70,9 @@ extern "C" void app_main(void)
     elabelUpdateTick = 0;
 
     //初始化codec
+    printf("after init wifi : free_heap_size = %ld\n", esp_get_free_heap_size());
     MCodec::Instance()->init();
-    //播放音乐
-    // MCodec::Instance()->play_music("open");
-
+    printf("after init codec : free_heap_size = %ld\n", esp_get_free_heap_size());
     //初始化espnow
     EspNowClient::Instance()->init();
 
@@ -70,7 +83,6 @@ extern "C" void app_main(void)
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(play_button_sound);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(play_start_task_sound);
     ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(play_finish_task_sound);
-
     while (true) 
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);

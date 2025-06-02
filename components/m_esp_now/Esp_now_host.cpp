@@ -180,7 +180,7 @@ void EspNowHost::deinit()
 {
     if(EspNowClient::Instance()->m_role == default_role)
     {
-        ESP_LOGE(ESP_NOW, "EspNowHost deinit failed, role is default");
+        // ESP_LOGE(ESP_NOW, "EspNowHost deinit failed, role is default");
         return;
     }
 
