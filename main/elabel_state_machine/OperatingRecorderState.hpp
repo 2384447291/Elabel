@@ -51,19 +51,6 @@ public:
         record_process = Record_voice_process;
         record_voice_countdown = RECORD_TIME;
 
-        MCodec::Instance()->stop_play();
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-
-        MCodec::Instance()->play_music("record");
-        while(MCodec::Instance()->speaker_task!=NULL)
-        {
-            ESP_LOGI(TAG,"Recording Guidance playing");
-            vTaskDelay(50 / portTICK_PERIOD_MS);
-        }
-        vTaskDelay(100 / portTICK_PERIOD_MS);
-        
-        MCodec::Instance()->start_record();
-
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
         lv_obj_clear_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);
@@ -93,6 +80,15 @@ public:
         set_text_without_change_font(ui_RecordOperateMiddleText, time_str);
 
         release_lvgl();
+
+        MCodec::Instance()->stop_play();
+        MCodec::Instance()->play_music("record");
+        while(MCodec::Instance()->speaker_task!=NULL)
+        {
+            ESP_LOGI(TAG,"Recording Guidance playing");
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+        }
+        MCodec::Instance()->start_record();
     }
 
     void enter_screen_confirm_voice()

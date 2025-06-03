@@ -8,6 +8,7 @@
 // 用于任务间通信的标志
 static volatile bool should_stop_recording = false;
 static volatile bool should_stop_playing = false;
+uint8_t buffer[READ_BLOCK_SIZE];
 
 void play_button_sound()
 {
@@ -27,13 +28,98 @@ void play_finish_task_sound()
     MCodec::Instance()->play_music("finishtask");
 }
 
+void resize_file()
+{
+    // 清除点击
+    size_t half_bytes = BytesPerSecond * ShutdownTime;
+
+    // 获取原文件大小
+    struct stat st;
+    if (stat(FILE_PATH, &st) != 0)
+    {
+        ESP_LOGE(TAG, "Failed to stat file for truncation, errno=%d", errno);
+        return;
+    }
+    size_t original_size = st.st_size;
+
+    // 计算截断后大小，防止 underflow
+    size_t new_size = (original_size > half_bytes) ? (original_size - half_bytes) : 0;
+
+    // 重新打开文件并截断
+    FILE *f = fopen(FILE_PATH, "rb+");
+    if (f)
+    {
+        int fd = fileno(f);
+        if (ftruncate(fd, new_size) != 0)
+        {
+            ESP_LOGE(TAG, "Failed to truncate file: errno=%d", errno);
+        }
+        else
+        {
+            // ESP_LOGI(TAG, "File truncated from %u to %u bytes", original_size, new_size);
+        }
+        fclose(f);
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Failed to reopen file for truncation");
+    }
+
+}
+
+//限制幅度0---20
+void amplify_db(float db_gain) {
+    if(db_gain < 0) db_gain = 0;
+    if(db_gain > 20) db_gain = 20;
+    FILE *f = fopen(FILE_PATH, "rb+");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for amplification");
+        return;
+    }
+
+    // 计算放大倍数
+    float gain = powf(10.0f, db_gain / 20.0f);
+
+    // 分配一个 uint8_t 缓冲区，用于分块读取
+    uint8_t buffer[READ_BLOCK_SIZE];
+    size_t bytes_read;
+
+    // 从文件开头开始
+    fseek(f, 0, SEEK_SET);
+
+    while ((bytes_read = fread(buffer, 1, READ_BLOCK_SIZE, f)) > 0) {
+        // 读取了 bytes_read 字节，按 16-bit 样本处理
+        // 一定要确保 bytes_read 是偶数（READ_BLOCK_SIZE 本身是偶数，最后一块若不足则小于它，但文件本身应保证总字节数是偶数）
+        size_t sample_count = bytes_read / sizeof(int16_t);
+        int16_t *samples = (int16_t *)buffer;
+
+        for (size_t i = 0; i < sample_count; ++i) {
+            float amplified = samples[i] * gain;
+            // 限幅到 int16_t 范围
+            if (amplified > 32767.0f) {
+                amplified = 32767.0f;
+            } else if (amplified < -32768.0f) {
+                amplified = -32768.0f;
+            }
+            samples[i] = (int16_t)amplified;
+        }
+
+        // 写回：先把文件指针移回这一块起始位置
+        fseek(f, -((long)bytes_read), SEEK_CUR);
+        fwrite(buffer, 1, bytes_read, f);
+
+        // 写完后，文件指针已经移到这一块末尾，继续循环即可
+    }
+
+    ESP_LOGI(TAG, "Amplification done with gain = %.2f dB", db_gain);
+    fclose(f);
+}
+
 // 录音任务函数
 static void mic_task_func(void *arg)
 {
     MCodec *codec = MCodec::Instance();
-
-    uint8_t buffer[READ_BLOCK_SIZE];
-    size_t total_bytes = 0;
+    size_t total_bytes_write = 0;
     size_t max_bytes = RecordTime * BytesPerSecond;
 
     // 打开文件
@@ -52,25 +138,21 @@ static void mic_task_func(void *arg)
 
     while (!should_stop_recording)
     {
-        // 使用esp_codec_dev_read直接从codec读取数据
-        esp_err_t ret = esp_codec_dev_read(codec->codec_dev, buffer, READ_BLOCK_SIZE);
-        if (ret == ESP_OK)
+        memset(buffer, 0, READ_BLOCK_SIZE);
+        // 使用esp_codec_dev_read直接从codec读取数据小丑这个读成功了就是返回0，不反悔大小
+        esp_codec_dev_read(codec->codec_dev, buffer, READ_BLOCK_SIZE);
+        // 复制数据到录音缓冲区
+        fwrite(buffer, 1, READ_BLOCK_SIZE, f);
+        
+        total_bytes_write += READ_BLOCK_SIZE;
+        // 检查是否达到缓冲区限制
+        if (total_bytes_write  >= max_bytes)
         {
-            // 检查是否达到缓冲区限制
-            if (total_bytes + READ_BLOCK_SIZE >= max_bytes)
-            {
-                should_stop_recording = true;
-                break;
-            }
-            // 复制数据到录音缓冲区
-            fwrite(buffer, 1, READ_BLOCK_SIZE, f);
-            total_bytes += READ_BLOCK_SIZE;
+            should_stop_recording = true;
         }
-        else
-            ESP_LOGE(TAG, "Failed to read from codec, err=%d", ret);
     }
     fclose(f);
-    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes ( %.1f seconds)", total_bytes, (float)total_bytes / BytesPerSecond);
+    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes ( %.1f seconds)", total_bytes_write, (float)total_bytes_write / BytesPerSecond);
     // 关闭设备
     codec->close_dev();
     // 清除任务句柄
@@ -85,7 +167,6 @@ static void speaker_task_func(void *arg)
     MCodec *codec = MCodec::Instance();
     should_stop_playing = false;
 
-    uint8_t buffer[READ_BLOCK_SIZE];
     size_t total_played = 0;
 
     // 如果是文件播放，直接 fseek 跳过开头
@@ -101,7 +182,7 @@ static void speaker_task_func(void *arg)
     while (!should_stop_playing)
     {
         size_t bytes_to_play = 0;
-
+        memset(buffer, 0, READ_BLOCK_SIZE);
         // 根据播放模式获取要播放的数据
         if (codec->speaker_type == mic)
         {
@@ -155,15 +236,23 @@ void MCodec::init()
     esp_codec_set_disable_when_closed(codec_dev, true);
     ESP_LOGI(TAG, "Codec initialized");
 
-    // 挂载 fat 文件系统
-    mount_config.max_files = 4;                 // 同时打开的文件数量最大值是4个
-    mount_config.format_if_mount_failed = true; // 如果挂载失败,说明这段存储器没有fatfs的格式，就把这块内存区域格式化为fatfs
-    esp_err_t ret = esp_vfs_fat_spiflash_mount_rw_wl("/fat", "record", &mount_config, &s_wl_handle);
-    if (ret != ESP_OK)
+    const esp_vfs_fat_mount_config_t mount_config = {
+            .format_if_mount_failed = true,
+            .max_files = 4,
+            .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,
+            .use_one_fat = false,
+    };
+    esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl("/fat", "record", &mount_config, &s_wl_handle);
+
+    if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "FAT 文件系统挂载失败");
         return;
     }
+
+    uint64_t bytes_total, bytes_free;
+    esp_vfs_fat_info("/fat", &bytes_total, &bytes_free);
+    ESP_LOGI(TAG, "FAT FS: %" PRIu64 " kB total, %" PRIu64 " kB free", bytes_total / 1024, bytes_free / 1024);
 }
 
 void MCodec::deinit()
@@ -222,41 +311,10 @@ void MCodec::stop_record()
     {
         vTaskDelay(pdMS_TO_TICKS(100));
     }
+    resize_file();
 
-    // 清楚点击
-    size_t half_bytes = BytesPerSecond * ShutdownTime;
-
-    // 获取原文件大小
-    struct stat st;
-    if (stat(FILE_PATH, &st) != 0)
-    {
-        ESP_LOGE(TAG, "Failed to stat file for truncation, errno=%d", errno);
-        return;
-    }
-    size_t original_size = st.st_size;
-
-    // 计算截断后大小，防止 underflow
-    size_t new_size = (original_size > half_bytes) ? (original_size - half_bytes) : 0;
-
-    // 重新打开文件并截断
-    FILE *f = fopen(FILE_PATH, "rb+");
-    if (f)
-    {
-        int fd = fileno(f);
-        if (ftruncate(fd, new_size) != 0)
-        {
-            ESP_LOGE(TAG, "Failed to truncate file: errno=%d", errno);
-        }
-        else
-        {
-            // ESP_LOGI(TAG, "File truncated from %u to %u bytes", original_size, new_size);
-        }
-        fclose(f);
-    }
-    else
-    {
-        ESP_LOGE(TAG, "Failed to reopen file for truncation");
-    }
+    //和codec_vol 映射（0-20）（0-100）
+    amplify_db((float_t)codec_vol/5);
 
     ESP_LOGI(TAG, "Recording stopped");
 }

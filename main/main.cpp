@@ -57,19 +57,12 @@ extern "C" void app_main(void)
 
     //初始化codec
     MCodec::Instance()->init();
-    //播放音乐
-    // MCodec::Instance()->play_music("open");
 
     //初始化espnow
     EspNowClient::Instance()->init();
 
     //注册按键回调
     ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(reset_elabel);
-
-    ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(play_button_sound);
-    ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(play_button_sound);
-    ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(play_start_task_sound);
-    ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(play_finish_task_sound);
 
     while (true) 
     {

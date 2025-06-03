@@ -9,6 +9,7 @@
 #include "esp_vfs_fat.h"
  #include "esp_system.h"
 #include <sys/stat.h>
+#include <math.h>
 #include "driver/i2s_std.h"
 #include "driver/i2c.h"
 #include "global_message.h"
@@ -27,7 +28,6 @@
 #define ShutdownTime 0.6f
 #define BeforeRecordTime 0.1f
 #define FILE_PATH "/fat/mic.raw"
-#define TEMP_PATH "/fat/temp.raw"
 
 void play_button_sound();
 void play_start_task_sound();
@@ -59,6 +59,7 @@ public:
     
     void set_volume(uint8_t volume);
     void set_mic_gain(float gain);
+    
 
     static MCodec* Instance() {
         static MCodec instance;
@@ -73,7 +74,6 @@ public:
 
     // FAT文件系统
     wl_handle_t s_wl_handle = WL_INVALID_HANDLE;
-    esp_vfs_fat_mount_config_t mount_config;  //依托vfs管理fat文件系统
 
     // 播放数据
     const uint8_t* play_data = NULL;
