@@ -35,14 +35,26 @@ lv_obj_t * ui_Panel7;
 lv_obj_t * ui_NewFirmware;
 lv_obj_t * ui_NewFirmware2;
 lv_obj_t * ui_VersionChange;
+lv_obj_t * ui_OTAWaitingGuide;
+lv_obj_t * ui_scrollbar3;
+lv_obj_t * ui_Arc4;
+lv_obj_t * ui_VersionDescribtion;
 lv_obj_t * ui_OTAButton;
 lv_obj_t * ui_OTAButtonCancel;
 lv_obj_t * ui_OTAButtonStart;
+lv_obj_t * ui_RetryCheckVersionButton;
+lv_obj_t * ui_RetryCheckVersionButtonCancel;
+lv_obj_t * ui_RetryCheckVersionButtonRetry;
 // CUSTOM VARIABLES
 lv_obj_t * uic_NewFirmware;
 lv_obj_t * uic_NewFirmware2;
 lv_obj_t * uic_VersionChange;
+lv_obj_t * uic_OTAWaitingGuide;
+lv_obj_t * uic_VersionChange;
 lv_obj_t * uic_OTAButtonStart;
+lv_obj_t * uic_RetryCheckVersionButton;
+lv_obj_t * uic_HostActiveCancel;
+lv_obj_t * uic_RetryCheckVersionButtonRetry;
 
 
 // SCREEN: ui_TaskScreen
@@ -226,22 +238,26 @@ lv_obj_t * uic_NoFocusWarning;
 // SCREEN: ui_MessageScreen
 void ui_MessageScreen_screen_init(void);
 lv_obj_t * ui_MessageScreen;
-lv_obj_t * ui_Panel1;
+lv_obj_t * ui_Container1;
 lv_obj_t * ui_Messageguide;
 lv_obj_t * ui_Messageguide2;
+lv_obj_t * ui_scrollbar2;
+lv_obj_t * ui_Arc3;
 lv_obj_t * ui_Message1;
 lv_obj_t * ui_Message2;
 lv_obj_t * ui_Message3;
 lv_obj_t * ui_Message4;
+lv_obj_t * ui_OTA;
+lv_obj_t * ui_Reboot;
 lv_obj_t * ui_Message5;
-lv_obj_t * ui_scrollbar2;
-lv_obj_t * ui_Arc3;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
 lv_obj_t * uic_MessageGuide;
 lv_obj_t * uic_MessageGuide;
 lv_obj_t * uic_MessageFirmware;
 lv_obj_t * uic_MessageLanguage;
+lv_obj_t * uic_HostActiveCancel;
+lv_obj_t * uic_HostActiveCancel;
 
 
 // SCREEN: ui_SleepScreen

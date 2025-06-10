@@ -25,6 +25,7 @@
 #include "OperatingTimerState.hpp"
 #include "NoWifiState.hpp"
 #include "NoHostState.hpp"
+#include "OtaPrepareState.hpp"
 #include "InfoState.hpp"
 #include "SleepState.hpp"
 
@@ -125,8 +126,8 @@ void ElabelFsm::HandleInput()
         {
             if (get_wifi_status() == 0)
             {
-                // 等待2秒，确保init刷新出来了,再进入连接模式，开机保护
-                vTaskDelay(pdMS_TO_TICKS(2000));
+                // 等待3秒，确保halfmind刷新出来了,再进入连接模式，开机保护
+                vTaskDelay(pdMS_TO_TICKS(3000));
                 ChangeState(NoWifiState::Instance());
             }
         }
@@ -213,9 +214,9 @@ void ElabelFsm::HandleInput()
     //-------------------------------初始化流程--------------------------------//
     else if (GetCurrentState() == InitState::Instance())
     {
-        if (InitState::Instance()->is_need_ota == 1)
+        if (InitState::Instance()->need_enter_ota)
         {
-            ChangeState(OTAState::Instance());
+            ChangeState(OtaPrepareState::Instance());
         }
         else
         {
@@ -235,7 +236,27 @@ void ElabelFsm::HandleInput()
     }
     //-------------------------------初始化流程--------------------------------//
 
-
+    //-------------------------------OTA流程--------------------------------//
+    else if (GetCurrentState() == OtaPrepareState::Instance())
+    {
+        if (OtaPrepareState::Instance()->need_enter_ota)
+        {
+            ChangeState(OTAState::Instance());
+        }
+        else if (OtaPrepareState::Instance()->need_out_ota_prepare)
+        {
+            //如果此时还没有完成初始化则回初始化
+            if(!InitState::Instance()->is_init)
+            {
+                ChangeState(InitState::Instance());
+            }
+            else
+            {
+                esp_restart();
+            }
+        }
+    }
+    //-------------------------------OTA流程--------------------------------//
 
     //-------------------------------正常逻辑流程--------------------------------//
     else
@@ -375,9 +396,13 @@ void ElabelFsm::HandleInput()
         }
         else if (GetCurrentState() == InfoState::Instance())
         {
-            if (InfoState::Instance()->need_out_state)
+            if (InfoState::Instance()->need_back_choose_task)
             {
                 ChangeState(ChoosingTaskState::Instance());
+            }
+            else if (InfoState::Instance()->need_forward_ota)
+            {
+                ChangeState(OtaPrepareState::Instance());
             }
         }
         //-------------------------------正常逻辑流程--------------------------------//

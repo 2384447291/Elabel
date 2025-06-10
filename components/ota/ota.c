@@ -1,6 +1,8 @@
 #include "ota.h"
 #include "global_message.h"
-#define TAG "OTA"
+#include "global_tool.h"
+#define TAG "OTA"   
+#define OTA_BUFFER_SIZE 4 * 1024
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                           int32_t event_id, void* event_data)
@@ -109,7 +111,7 @@ void simple_ota_example_task(void *pvParameter)
     esp_http_client_config_t http_config = {
         .url = get_global_data()->m_newest_firmware_url,
         .keep_alive_enable = true,
-        .buffer_size   = 4 * 1024,
+        .buffer_size   = OTA_BUFFER_SIZE,
     };
 
     esp_https_ota_config_t ota_config = {
@@ -146,15 +148,10 @@ void simple_ota_example_task(void *pvParameter)
         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS) {
             break;
         }
-        // esp_https_ota_perform returns after every read operation which gives user the ability to
-        // monitor the status of OTA upgrade by calling esp_https_ota_get_image_len_read, which gives length of image
-        // data read so far.
         current_size = esp_https_ota_get_image_len_read(https_ota_handle);
-        if((int)get_ota_progress() % 10 == 0)
-        {
-            ESP_LOGI(TAG, "OTA progress: %f", get_ota_progress());
-        }
+        progress_update(current_size - OTA_BUFFER_SIZE, current_size, image_size);
     }
+    
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true) 
     {
         ESP_LOGE(TAG, "Complete data was not received.");
@@ -191,7 +188,7 @@ ota_end:
 void start_ota(void)
 {
     m_ota_state = ota_ing;
-    xTaskCreate(&simple_ota_example_task, "ota_task", 8192*2, NULL, 10, NULL);
+    xTaskCreate(&simple_ota_example_task, "ota_task", 8192, NULL, 10, NULL);
 }
 
 float get_ota_progress(void)

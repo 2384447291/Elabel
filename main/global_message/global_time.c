@@ -195,6 +195,23 @@ void Log_time(void)
 	// 打印现在时间
 	char strftime_buf[64];
 	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGW("UNIX TIME", "Current time: %s", strftime_buf);
+	ESP_LOGI("UNIX TIME", "Current time: %s", strftime_buf);
+}
+
+void get_open_time(char* str_time)
+{
+    // 1. 获取微秒级计时（从开机算起）
+    int64_t us = esp_timer_get_time();    // 单位：μs
+    int64_t secs = us / 1000000;          // 换算成秒（向下取整）
+
+    // 2. 计算天、小时、分钟
+    int days    = secs / 86400;                 // 86400 = 24 * 3600
+    int hours   = (secs % 86400) / 3600;        // 3600 秒 = 1 小时
+    int minutes = (secs % 3600) / 60;           // 60 秒 = 1 分钟
+
+    // 3. 格式化写入到 str_time 中
+    //    格式为："<days>D <hours>H <minutes>M"，例如："3D 2H 12M"
+    //    假设 str_time 已经分配了足够大的空间（>= 20 字节）。
+    sprintf(str_time, "%dD %dH %dM", days, hours, minutes);
 }
 //-----------------------------------------时间戳获取-------------------------------------------//

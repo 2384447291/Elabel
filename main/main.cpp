@@ -45,6 +45,7 @@ extern "C" void app_main(void)
 
     //初始化wifi
     m_wifi_init();
+    //因为和后面的初始化强相关所以提前初始化
     if(get_global_data()->m_is_host)
     {
         //初始化http客户端
@@ -64,10 +65,12 @@ extern "C" void app_main(void)
     //注册按键回调
     ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(reset_elabel);
 
+    ControlDriver::Instance()->register_all_button_callback(play_button_sound);
+
     while (true) 
     {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-        elabelUpdateTick += 10;
+        vTaskDelay(20 / portTICK_PERIOD_MS);
+        elabelUpdateTick += 20;
         //5ms更新一次,这个函数在初始化后会阻塞,出初始化后elabelUpdateTick会再次置零
         //初始化的第一个状态机为init_state
         if(elabelUpdateTick%20==0) ElabelController::Instance()->Update();

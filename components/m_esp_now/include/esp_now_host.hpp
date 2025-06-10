@@ -23,12 +23,13 @@ class EspNowHost {
         void Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         void Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN], bool need_ack = true);
         void Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
+        void Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         //群体同步请求
         void Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);
         void Mqtt_enter_focus(focus_message_t focus_message, const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST, bool need_ack = true);
         void Mqtt_out_focus();
 
-        //http的响应函数
+        //对从机http请求的响应，不需要回复
         void http_response_enter_focus(uint8_t* data, size_t size);
         void http_response_out_focus(uint8_t* data, size_t size);
 

@@ -220,21 +220,23 @@ void ui_OperatingScreen_screen_init(void)
 
     ui_TaskName = lv_label_create(ui_TaskOperate);
     lv_obj_set_width(ui_TaskName, 200);
-    lv_obj_set_height(ui_TaskName, 32);
+    lv_obj_set_height(ui_TaskName, 40);
     lv_obj_set_x(ui_TaskName, 0);
-    lv_obj_set_y(ui_TaskName, -37);
+    lv_obj_set_y(ui_TaskName, -30);
     lv_obj_set_align(ui_TaskName, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_TaskName, LV_LABEL_LONG_DOT);
+    lv_label_set_long_mode(ui_TaskName, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_TaskName, " asdasdasdasdasdasdasd");
     lv_obj_set_style_text_align(ui_TaskName, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_TaskName, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label3 = lv_label_create(ui_TaskName);
     lv_obj_set_width(ui_Label3, 200);
-    lv_obj_set_height(ui_Label3, 32);
+    lv_obj_set_height(ui_Label3, 40);
     lv_obj_set_x(ui_Label3, -1);
     lv_obj_set_y(ui_Label3, 0);
     lv_obj_set_align(ui_Label3, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_Label3, LV_LABEL_LONG_DOT);
+    lv_label_set_long_mode(ui_Label3, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_Label3, " asdasdasdasdasdasdasd");
     lv_obj_set_style_text_align(ui_Label3, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label3, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 

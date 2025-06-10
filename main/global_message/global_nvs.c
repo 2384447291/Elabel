@@ -42,29 +42,6 @@ void get_nvs_info(void)
     if(username_err != ESP_OK) ESP_LOGE(NVS_TAG,"No username found. \n");
     else ESP_LOGI(NVS_TAG,"history username found : %s. \n", get_global_data()->m_userName);
 
-    //--------------------------从nvs中获取language--------------------------------//   
-    len = 20;      
-    char language_str[len];
-    esp_err_t language_err = nvs_get_str(wificfg_nvs_handler,"language",language_str,&len) ;
-    if(language_err != ESP_OK) ESP_LOGE(NVS_TAG,"No language found. \n");
-    else 
-    {
-        ESP_LOGI(NVS_TAG,"history language found : %s. \n", language_str);
-        //如果language_str为"0"，则设置为English，否则设置为Chinese
-        if(strcmp(language_str,"0") == 0)
-        {
-        get_global_data()->m_language = English;
-        }
-        else if(strcmp(language_str,"1") == 0)
-        {
-            get_global_data()->m_language = Chinese;
-        }
-        else
-        {
-            get_global_data()->m_language = English;
-        }
-    }
-
     //--------------------------从nvs中获取is_host--------------------------------//
     len = 20;     
     char is_host_str[len];

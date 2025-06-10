@@ -167,17 +167,17 @@ void Button_pair_1::update()
     bool temp_button_state = false;
 
     // 判断当前状态
-    if(voltage > 3.0f)
+    if(voltage > 1.5f)
     {
         temp_button_state = true;
     }
     
     // 检查状态是否发生变化
-    if (temp_button_state != button->isPressed) 
+    if (temp_button_state != current_button_state) 
     {
         // 状态发生变化，重置计时器
         state_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-        button->isPressed = temp_button_state;
+        current_button_state = temp_button_state;
     } 
     else 
     {
@@ -186,9 +186,11 @@ void Button_pair_1::update()
         if (current_time - state_start_time >= STATE_DURATION_MS) 
         {
             // 持续时间达到阈值，触发状态变化
-            if (button->isPressed != button->isrTriggered) 
+            if (current_button_state != last_button_state) 
             {
+                button->isPressed = current_button_state;
                 button->isrTriggered = true;
+                last_button_state = current_button_state;
             }
         }
     }
@@ -215,6 +217,8 @@ Button_pair_1::Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button
 
 void Button_pair_1::clear_state()
 {
+    current_button_state = false;
+    last_button_state = false;
     button->clear_state();
 }
 

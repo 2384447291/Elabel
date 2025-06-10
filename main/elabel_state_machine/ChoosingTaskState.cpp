@@ -271,20 +271,25 @@ void ChoosingTaskState::recolor_task()
 
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_long_mode(ui_Label1, LV_LABEL_LONG_SCROLL_CIRCULAR);
             for(int j = 0; j < lv_obj_get_child_cnt(ui_Label1); j++)
             {
                 lv_obj_t *label_child = lv_obj_get_child(ui_Label1, j);
                 lv_obj_set_style_text_color(label_child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_label_set_long_mode(label_child, LV_LABEL_LONG_SCROLL_CIRCULAR);
             }
         }
         else {
             lv_obj_set_style_bg_color(child, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+
             lv_obj_t *ui_Label1 = lv_obj_get_child(child, 0);
             lv_obj_set_style_text_color(ui_Label1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_long_mode(ui_Label1, LV_LABEL_LONG_DOT);
             for(int j = 0; j < lv_obj_get_child_cnt(ui_Label1); j++)
             {
                 lv_obj_t *label_child = lv_obj_get_child(ui_Label1, j);
                 lv_obj_set_style_text_color(label_child, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+                lv_label_set_long_mode(label_child, LV_LABEL_LONG_DOT);
             }
         }
     }

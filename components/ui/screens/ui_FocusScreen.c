@@ -27,10 +27,10 @@ void ui_FocusScreen_screen_init(void)
 
     ui_FocusTask = lv_label_create(ui_TaskFocus1);
     lv_obj_set_width(ui_FocusTask, 180);
-    lv_obj_set_height(ui_FocusTask, 32);
+    lv_obj_set_height(ui_FocusTask, 40);
     lv_obj_set_align(ui_FocusTask, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_FocusTask, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_FocusTask, "fuck you");
+    lv_label_set_long_mode(ui_FocusTask, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_FocusTask, "fuck you asdasdasd");
     lv_obj_set_style_text_color(ui_FocusTask, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTask, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_FocusTask, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -38,12 +38,12 @@ void ui_FocusScreen_screen_init(void)
 
     ui_Task = lv_label_create(ui_FocusTask);
     lv_obj_set_width(ui_Task, 180);
-    lv_obj_set_height(ui_Task, 32);
+    lv_obj_set_height(ui_Task, 40);
     lv_obj_set_x(ui_Task, -1);
     lv_obj_set_y(ui_Task, 0);
     lv_obj_set_align(ui_Task, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_Task, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_Task, "fuck you");
+    lv_label_set_long_mode(ui_Task, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_Task, "fuck you asdasdasd");
     lv_obj_set_style_text_color(ui_Task, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Task, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_Task, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);

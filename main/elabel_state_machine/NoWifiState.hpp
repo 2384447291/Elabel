@@ -60,12 +60,17 @@ public:
         //禁止重新连接的断连
         m_wifi_disconnect();
         need_back = false;
-        button_host_active_choose_left = true;
         need_flash_paper = false;
 
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+
+        button_host_active_choose_left = true;
+        lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
+
         set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
+        
         lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
         release_lvgl();

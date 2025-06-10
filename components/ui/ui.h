@@ -40,14 +40,26 @@ extern lv_obj_t * ui_Panel7;
 extern lv_obj_t * ui_NewFirmware;
 extern lv_obj_t * ui_NewFirmware2;
 extern lv_obj_t * ui_VersionChange;
+extern lv_obj_t * ui_OTAWaitingGuide;
+extern lv_obj_t * ui_scrollbar3;
+extern lv_obj_t * ui_Arc4;
+extern lv_obj_t * ui_VersionDescribtion;
 extern lv_obj_t * ui_OTAButton;
 extern lv_obj_t * ui_OTAButtonCancel;
 extern lv_obj_t * ui_OTAButtonStart;
+extern lv_obj_t * ui_RetryCheckVersionButton;
+extern lv_obj_t * ui_RetryCheckVersionButtonCancel;
+extern lv_obj_t * ui_RetryCheckVersionButtonRetry;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_NewFirmware;
 extern lv_obj_t * uic_NewFirmware2;
 extern lv_obj_t * uic_VersionChange;
+extern lv_obj_t * uic_OTAWaitingGuide;
+extern lv_obj_t * uic_VersionChange;
 extern lv_obj_t * uic_OTAButtonStart;
+extern lv_obj_t * uic_RetryCheckVersionButton;
+extern lv_obj_t * uic_HostActiveCancel;
+extern lv_obj_t * uic_RetryCheckVersionButtonRetry;
 
 // SCREEN: ui_TaskScreen
 void ui_TaskScreen_screen_init(void);
@@ -223,22 +235,26 @@ extern lv_obj_t * uic_NoFocusWarning;
 // SCREEN: ui_MessageScreen
 void ui_MessageScreen_screen_init(void);
 extern lv_obj_t * ui_MessageScreen;
-extern lv_obj_t * ui_Panel1;
+extern lv_obj_t * ui_Container1;
 extern lv_obj_t * ui_Messageguide;
 extern lv_obj_t * ui_Messageguide2;
+extern lv_obj_t * ui_scrollbar2;
+extern lv_obj_t * ui_Arc3;
 extern lv_obj_t * ui_Message1;
 extern lv_obj_t * ui_Message2;
 extern lv_obj_t * ui_Message3;
 extern lv_obj_t * ui_Message4;
+extern lv_obj_t * ui_OTA;
+extern lv_obj_t * ui_Reboot;
 extern lv_obj_t * ui_Message5;
-extern lv_obj_t * ui_scrollbar2;
-extern lv_obj_t * ui_Arc3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 extern lv_obj_t * uic_MessageGuide;
 extern lv_obj_t * uic_MessageGuide;
 extern lv_obj_t * uic_MessageFirmware;
 extern lv_obj_t * uic_MessageLanguage;
+extern lv_obj_t * uic_HostActiveCancel;
+extern lv_obj_t * uic_HostActiveCancel;
 
 // SCREEN: ui_SleepScreen
 void ui_SleepScreen_screen_init(void);
@@ -258,11 +274,13 @@ LV_IMG_DECLARE(ui_img_halfmind_png);    // assets/halfmind.png
 LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
 LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
 LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
+LV_IMG_DECLARE(ui_img_scollarbar_png);    // assets/scollarbar.png
 LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
 LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
 LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
 LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
-LV_IMG_DECLARE(ui_img_scollarbar_png);    // assets/scollarbar.png
+LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
+LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
 LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
 LV_IMG_DECLARE(ui_img_tips1_png);    // assets/Tips1.png
 LV_IMG_DECLARE(ui_img_tips2_png);    // assets/Tips2.png
@@ -272,12 +290,14 @@ LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
 LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
 LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
 LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
-LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
-LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
 LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
+LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
+LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
+LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
+LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
 
 // FONTS

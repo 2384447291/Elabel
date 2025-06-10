@@ -26,7 +26,7 @@ void OTAState::Execute(ElabelController* pOwner)
         lv_bar_set_value(ui_Bar, 100, LV_ANIM_OFF);
         set_text_without_change_font(ui_Updating,"OTA Success,Restart...");
         release_lvgl();        
-        //等2s把字刷出来
+        //等4s把字刷出来
         vTaskDelay(4000 / portTICK_PERIOD_MS);
         esp_restart();
     }
@@ -36,7 +36,7 @@ void OTAState::Execute(ElabelController* pOwner)
         lv_bar_set_value(ui_Bar, 0, LV_ANIM_OFF);
         set_text_without_change_font(ui_Updating,"OTA Fail,Restart...");
         release_lvgl();
-        //等2s把字刷出来
+        //等4s把字刷出来
         vTaskDelay(4000 / portTICK_PERIOD_MS);
         esp_restart();
     }

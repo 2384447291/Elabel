@@ -64,8 +64,8 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_x(ui_chooseTaskF, 4);
     lv_obj_set_y(ui_chooseTaskF, 3);
     lv_obj_set_align(ui_chooseTaskF, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_chooseTaskF, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_chooseTaskF, "fuckas");
+    lv_label_set_long_mode(ui_chooseTaskF, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_chooseTaskF, "fuckas asdasdasdasd");
     lv_obj_set_style_text_color(ui_chooseTaskF, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTaskF, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_chooseTaskF, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -77,8 +77,8 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_x(ui_chooseTask1, -1);
     lv_obj_set_y(ui_chooseTask1, 0);
     lv_obj_set_align(ui_chooseTask1, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_chooseTask1, LV_LABEL_LONG_DOT);
-    lv_label_set_text(ui_chooseTask1, "fuckas");
+    lv_label_set_long_mode(ui_chooseTask1, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(ui_chooseTask1, "fuckas asdasdasdasd");
     lv_obj_set_style_text_color(ui_chooseTask1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_chooseTask1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_chooseTask1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);

@@ -49,6 +49,8 @@ public:
     Button* button;
     void update();
     void clear_state();
+    bool current_button_state = false;
+    bool last_button_state = false;
     uint32_t state_start_time = 0;
 };
 //----------------------------------------------Button_pair_1类定义----------------------------------------------//

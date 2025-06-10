@@ -238,8 +238,6 @@ Global_data* get_global_data() {
         instance = (Global_data*)malloc(sizeof(Global_data));
         if (instance != NULL) 
         {
-            instance->m_language = English;       
-
             instance->m_is_host = 0;
 
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));
@@ -261,6 +259,8 @@ Global_data* get_global_data() {
             instance->m_device_info.sleep_time = 0;
 
             memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
+            memset(instance->m_language, 0, sizeof(instance->m_language));
+            memset(instance->m_content, 0, sizeof(instance->m_content));
             memset(instance->m_version, 0, sizeof(instance->m_version));
             memset(instance->m_deviceModel, 0, sizeof(instance->m_deviceModel));
             memset(instance->m_createTime, 0, sizeof(instance->m_createTime));

@@ -2,6 +2,7 @@
 #include "control_driver.hpp"
 #include "network.h"
 #include "http.h"
+#include "httpmusic.h"
 #include "ssd1680.h"
 #include "codec.hpp"
 #include "Esp_now_slave.hpp"
@@ -9,6 +10,7 @@
 void outfocus()
 {
     if(FocusTaskState::Instance()->need_out_focus) return;
+    play_finish_task_sound();
     FocusTaskState::Instance()->need_out_focus = true;
     if(get_global_data()->m_is_host == 1)
     {
@@ -41,20 +43,23 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     need_flash_paper = false;
     
     TodoItem* chose_todo;
-    // if(pOwner->manual_focus)
-    // {
-    //     chose_todo = &pOwner->focustodo;
-    //     pOwner->manual_focus = false;
-    //     ESP_LOGI(STATEMACHINE,"Manual enter FocusTaskState");
-    // }
-    // else
-    // {
-    //     chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-    // }
     chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
     focus_type = chose_todo->taskType;
+
     focus_task_id = chose_todo->id;
-    ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %d", focus_type, focus_task_id);
+
+    char focus_task_name[100];
+    memset(focus_task_name, 0, sizeof(focus_task_name));
+    strcpy(focus_task_name, chose_todo->title);
+    if(focus_type == 3)
+    {
+        sscanf(focus_task_name, "Record Task %lu", &focus_record_message_unique_id);
+        ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %ld, Record Message Unique ID: %lu", focus_type, focus_task_id, focus_record_message_unique_id);
+    }
+    else
+    {
+        ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %ld", focus_type, focus_task_id);
+    }
 
     //计算时间,来保证时间轴同步
     if(chose_todo->fallTiming - (get_unix_time() - chose_todo->startTime)/1000 <= 0) pOwner->TimeCountdown = 0;
@@ -62,6 +67,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
     inner_time_countdown_ms = pOwner->TimeCountdown*1000;
     inner_time_countdown_s = pOwner->TimeCountdown;
+    inner_time_music_deal_with_count = 0;
 
     //更新屏幕
     lock_lvgl();
@@ -126,6 +132,15 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         }
         return;
     }
+
+    if(inner_time_music_deal_with_count == 0)
+    {
+        post_music_info();
+    }
+    else if(inner_time_music_deal_with_count == 5000)
+    {
+        get_music_info();
+    }
     
     if(elabelUpdateTick % 1000 == 0)
     {
@@ -136,7 +151,10 @@ void FocusTaskState::Execute(ElabelController* pOwner)
     if(elabelUpdateTick % 20 == 0)
     {
         inner_time_countdown_ms-=20;
+        inner_time_music_deal_with_count+=20;
     }
+
+
 
     //当时间大于5分钟，每5min响一次
     if(inner_time_countdown_ms >= 300000 )

@@ -24,7 +24,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_width(ui_NewFirmware, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NewFirmware, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_NewFirmware, 0);
-    lv_obj_set_y(ui_NewFirmware, -37);
+    lv_obj_set_y(ui_NewFirmware, -45);
     lv_obj_set_align(ui_NewFirmware, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NewFirmware, "New Firmware");
     lv_obj_set_style_text_font(ui_NewFirmware, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -42,14 +42,80 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_width(ui_VersionChange, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_VersionChange, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_VersionChange, 0);
-    lv_obj_set_y(ui_VersionChange, -9);
+    lv_obj_set_y(ui_VersionChange, -25);
     lv_obj_set_align(ui_VersionChange, LV_ALIGN_CENTER);
     lv_label_set_text(ui_VersionChange, "V1.2-------->V2.4");
     lv_obj_set_style_text_font(ui_VersionChange, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_OTAWaitingGuide = lv_label_create(ui_Panel7);
+    lv_obj_set_width(ui_OTAWaitingGuide, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_OTAWaitingGuide, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_OTAWaitingGuide, 0);
+    lv_obj_set_y(ui_OTAWaitingGuide, 30);
+    lv_obj_set_align(ui_OTAWaitingGuide, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_OTAWaitingGuide, "Please Waiting");
+    lv_obj_add_flag(ui_OTAWaitingGuide, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_set_style_text_font(ui_OTAWaitingGuide, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_scrollbar3 = lv_obj_create(ui_Panel7);
+    lv_obj_set_width(ui_scrollbar3, 32);
+    lv_obj_set_height(ui_scrollbar3, 122);
+    lv_obj_set_x(ui_scrollbar3, 13);
+    lv_obj_set_y(ui_scrollbar3, 0);
+    lv_obj_set_align(ui_scrollbar3, LV_ALIGN_RIGHT_MID);
+    lv_obj_clear_flag(ui_scrollbar3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_scrollbar3, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_scrollbar3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_scrollbar3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_src(ui_scrollbar3, &ui_img_scollarbar_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_img_opa(ui_scrollbar3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_scrollbar3, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_scrollbar3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Arc4 = lv_arc_create(ui_scrollbar3);
+    lv_obj_set_width(ui_Arc4, 269);
+    lv_obj_set_height(ui_Arc4, 269);
+    lv_obj_set_x(ui_Arc4, -123);
+    lv_obj_set_y(ui_Arc4, 0);
+    lv_obj_set_align(ui_Arc4, LV_ALIGN_CENTER);
+    lv_arc_set_value(ui_Arc4, 33);
+    lv_arc_set_bg_angles(ui_Arc4, 0, 36);
+    lv_arc_set_rotation(ui_Arc4, 342);
+    lv_obj_set_style_bg_color(ui_Arc4, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Arc4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Arc4, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Arc4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(ui_Arc4, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_Arc4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_Arc4, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(ui_Arc4, lv_color_hex(0x000000), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Arc4, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Arc4, lv_color_hex(0x000000), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Arc4, 0, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(ui_Arc4, lv_color_hex(0x000000), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(ui_Arc4, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_Arc4, 13, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(ui_Arc4, false, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(ui_Arc4, lv_color_hex(0x000000), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Arc4, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Arc4, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Arc4, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    ui_VersionDescribtion = lv_label_create(ui_Panel7);
+    lv_obj_set_width(ui_VersionDescribtion, 150);
+    lv_obj_set_height(ui_VersionDescribtion, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_VersionDescribtion, 0);
+    lv_obj_set_y(ui_VersionDescribtion, 5);
+    lv_obj_set_align(ui_VersionDescribtion, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_VersionDescribtion, "-Test ota description display format asdasdas asd");
+    lv_obj_set_style_text_align(ui_VersionDescribtion, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_VersionDescribtion, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_OTAButton = lv_obj_create(ui_OTAScreen);
-    lv_obj_set_width(ui_OTAButton, 250);
-    lv_obj_set_height(ui_OTAButton, 40);
+    lv_obj_set_width(ui_OTAButton, 185);
+    lv_obj_set_height(ui_OTAButton, 25);
     lv_obj_set_x(ui_OTAButton, 0);
     lv_obj_set_y(ui_OTAButton, 40);
     lv_obj_set_align(ui_OTAButton, LV_ALIGN_CENTER);
@@ -62,7 +128,7 @@ void ui_OTAScreen_screen_init(void)
     lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
     lv_obj_set_height(ui_OTAButtonCancel, 19);
     lv_obj_set_width(ui_OTAButtonCancel, LV_SIZE_CONTENT);   /// 87
-    lv_obj_set_x(ui_OTAButtonCancel, -60);
+    lv_obj_set_x(ui_OTAButtonCancel, -45);
     lv_obj_set_y(ui_OTAButtonCancel, 0);
     lv_obj_set_align(ui_OTAButtonCancel, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_OTAButtonCancel,
@@ -75,13 +141,50 @@ void ui_OTAScreen_screen_init(void)
     lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
     lv_obj_set_height(ui_OTAButtonStart, 19);
     lv_obj_set_width(ui_OTAButtonStart, LV_SIZE_CONTENT);   /// 87
-    lv_obj_set_x(ui_OTAButtonStart, 60);
+    lv_obj_set_x(ui_OTAButtonStart, 45);
     lv_obj_set_y(ui_OTAButtonStart, 0);
     lv_obj_set_align(ui_OTAButtonStart, LV_ALIGN_CENTER);
+
+    ui_RetryCheckVersionButton = lv_obj_create(ui_OTAScreen);
+    lv_obj_set_width(ui_RetryCheckVersionButton, 185);
+    lv_obj_set_height(ui_RetryCheckVersionButton, 25);
+    lv_obj_set_x(ui_RetryCheckVersionButton, 0);
+    lv_obj_set_y(ui_RetryCheckVersionButton, 40);
+    lv_obj_set_align(ui_RetryCheckVersionButton, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_RetryCheckVersionButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_RetryCheckVersionButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RetryCheckVersionButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RetryCheckVersionButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_RetryCheckVersionButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_RetryCheckVersionButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_RetryCheckVersionButtonCancel = lv_imgbtn_create(ui_RetryCheckVersionButton);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_obj_set_height(ui_RetryCheckVersionButtonCancel, 19);
+    lv_obj_set_width(ui_RetryCheckVersionButtonCancel, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_RetryCheckVersionButtonCancel, -45);
+    lv_obj_set_y(ui_RetryCheckVersionButtonCancel, 0);
+    lv_obj_set_align(ui_RetryCheckVersionButtonCancel, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_RetryCheckVersionButtonCancel, LV_STATE_PRESSED);       /// States
+
+    ui_RetryCheckVersionButtonRetry = lv_imgbtn_create(ui_RetryCheckVersionButton);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_retry_n_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_retry_y_png, NULL);
+    lv_obj_set_height(ui_RetryCheckVersionButtonRetry, 19);
+    lv_obj_set_width(ui_RetryCheckVersionButtonRetry, LV_SIZE_CONTENT);   /// 87
+    lv_obj_set_x(ui_RetryCheckVersionButtonRetry, 45);
+    lv_obj_set_y(ui_RetryCheckVersionButtonRetry, 0);
+    lv_obj_set_align(ui_RetryCheckVersionButtonRetry, LV_ALIGN_CENTER);
 
     uic_NewFirmware = ui_NewFirmware;
     uic_NewFirmware2 = ui_NewFirmware2;
     uic_VersionChange = ui_VersionChange;
+    uic_OTAWaitingGuide = ui_OTAWaitingGuide;
+    uic_VersionChange = ui_VersionDescribtion;
     uic_OTAButtonStart = ui_OTAButtonStart;
+    uic_RetryCheckVersionButton = ui_RetryCheckVersionButton;
+    uic_HostActiveCancel = ui_RetryCheckVersionButtonCancel;
+    uic_RetryCheckVersionButtonRetry = ui_RetryCheckVersionButtonRetry;
 
 }

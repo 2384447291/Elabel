@@ -25,13 +25,15 @@
 #define READ_BLOCK_SIZE 1024      
 #define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 #define RecordTime 8
-#define ShutdownTime 0.6f
-#define BeforeRecordTime 0.1f
+#define DuringTime 0.5f
+#define ShutdownTime 0.5f + 0.5f
+#define BeforeRecordTime 0.05f
 #define FILE_PATH "/fat/mic.raw"
 
 void play_button_sound();
-void play_start_task_sound();
 void play_finish_task_sound();
+void play_charge_sound();
+void play_pikachu_sound();
 
 typedef enum {
     default_speaker,
@@ -59,13 +61,14 @@ public:
     
     void set_volume(uint8_t volume);
     void set_mic_gain(float gain);
-    
 
     static MCodec* Instance() {
         static MCodec instance;
         return &instance;
     }
     
+    uint32_t record_message_unique_id = 0;
+
     esp_codec_dev_handle_t codec_dev = NULL;
     TaskHandle_t speaker_task = NULL;
     TaskHandle_t mic_task = NULL;

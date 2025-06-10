@@ -1,6 +1,7 @@
 #include "esp_now_client.hpp"
 #include "esp_now_slave.hpp"
 #include "esp_now_host.hpp"
+#include "esp_random.h"
 
 void set_is_connect_to_host(bool _is_connect_to_host)
 {
@@ -188,5 +189,103 @@ void EspNowClient::init()
     if (get_global_data()->m_is_host == 0)
     {
         ESP_ERROR_CHECK(espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Bind_handle));
+    }
+}
+
+typedef enum
+{
+    default_test_connect_process,
+    test_connect_process_start,
+    test_connect_process_send_packet,
+    test_connect_process_stop,
+    test_waiting_ack_process,
+}Test_connect_process;
+
+Test_connect_process test_connect_process = default_test_connect_process;
+
+TaskHandle_t test_connecting_task_handle = NULL;
+bool need_stop_test_connecting = false;
+TickType_t start_time = 0;
+uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
+size_t temp_data_len = MAX_EFFECTIVE_DATA_LEN;
+
+static void test_connecting_task(void *pvParameter)
+{
+    esp_err_t ret;
+    for(int i = 0; i < MAX_EFFECTIVE_DATA_LEN; i++)
+    {
+        temp_data[i] = esp_random() & 0xFF;
+    }
+    while(!need_stop_test_connecting)
+    {
+        switch(test_connect_process)
+        {
+            case default_test_connect_process:
+            break;
+            case test_connect_process_start:
+            {
+                do{
+                    ret = EspNowClient::Instance()->send_message(temp_data, temp_data_len, Test_Start_Request_Slave2Host, get_global_data()->m_host_mac);
+                }while(ret!=ESP_OK);
+                test_connect_process = test_connect_process_send_packet;
+            }
+            break;
+            case test_connect_process_send_packet:
+            {
+                start_time = xTaskGetTickCount();
+                do{
+                    ret = EspNowClient::Instance()->send_test_message(temp_data, temp_data_len, get_global_data()->m_host_mac);
+                }while(xTaskGetTickCount() - start_time < pdMS_TO_TICKS(2000));
+                EspNowClient::Instance()->test_connecting_send_count = -1;
+                test_connect_process = test_connect_process_stop;
+            }
+            break;
+            case test_connect_process_stop:
+            {
+                do{
+                    ret = EspNowClient::Instance()->send_message(temp_data, temp_data_len, Test_Stop_Request_Slave2Host, get_global_data()->m_host_mac);
+                }while(ret!=ESP_OK);
+                test_connect_process = test_waiting_ack_process;
+            }
+            break;
+            case test_waiting_ack_process:
+            {
+                while(EspNowClient::Instance()->test_connecting_send_count == -1)
+                {
+                    vTaskDelay(100 / portTICK_PERIOD_MS);
+                }
+                test_connect_process = test_connect_process_start;
+            }
+            break;
+        }
+    }
+    test_connecting_task_handle = NULL;
+    vTaskDelete(NULL);
+}
+
+void EspNowClient::start_test_connecting_task(bool need_add_new_peer)
+{
+    if(test_connecting_task_handle == NULL)
+    {
+        //添加主机为peer
+        if(need_add_new_peer) espnow_add_peer(get_global_data()->m_host_mac, NULL);
+        need_stop_test_connecting = false;
+        test_connect_process = test_connect_process_start;
+        xTaskCreate(test_connecting_task, "test_connecting_task", 4096, NULL, 10, &test_connecting_task_handle);
+    }
+}
+
+void EspNowClient::stop_test_connecting_task(bool need_add_new_peer)
+{
+    if(test_connecting_task_handle != NULL)
+    {
+        TickType_t stop_tick = xTaskGetTickCount();
+        //等待测试历程运行一个循环再删除或者4s超时
+        while(test_connect_process != test_waiting_ack_process && xTaskGetTickCount() - stop_tick < pdMS_TO_TICKS(4000))
+        {
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+        }
+        if(need_add_new_peer) espnow_del_peer(get_global_data()->m_host_mac);
+        need_stop_test_connecting = true;
     }
 }

@@ -2,6 +2,7 @@
 #include "Esp_now_host.hpp"
 #include "global_time.h"
 #include "codec.hpp"
+#include "global_message.h"
 #include "http.h"
 
 static esp_err_t Host_handle(uint8_t *src_addr, void *data,
@@ -48,7 +49,10 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     {
         ESP_LOGI(ESP_NOW, "Receive Test_Start_Request_Slave2Host from " MACSTR, MAC2STR(src_addr));
         EspNowClient::Instance()->test_connecting_send_count = 0;
-        espnow_add_peer(src_addr, NULL);
+        if(!mac_address_exists(src_addr))
+        {
+            espnow_add_peer(src_addr, NULL);
+        }
     }
     else if(m_message_type == Test_Stop_Request_Slave2Host)
     {
@@ -59,7 +63,10 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         do{
             ret = EspNowHost::Instance()->send_message_ack(temp_data, 2, Test_Feedback_Host2Slave,src_addr);
         }while(ret!=ESP_OK);
-        espnow_del_peer(src_addr);
+        if(!mac_address_exists(src_addr))
+        {
+            espnow_del_peer(src_addr);
+        }
         ESP_LOGI(ESP_NOW, "Receive Test_Stop_Request_Slave2Host from " MACSTR" , send count: %d", MAC2STR(src_addr),EspNowClient::Instance()->test_connecting_send_count);
     }
     else if(m_message_type == default_message_type)
@@ -115,6 +122,11 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Out_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
         EspNowHost::Instance()->http_response_out_focus(data_ptr, size);
+    }
+    else if(m_message_type == Slave2Host_Get_Wifi_Info_Request_Http)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Wifi_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
+        EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr);
     }
     else if(m_message_type == Slave2Host_Synchronous_Request_Http)
     {
@@ -180,7 +192,7 @@ void EspNowHost::deinit()
 {
     if(EspNowClient::Instance()->m_role == default_role)
     {
-        ESP_LOGE(ESP_NOW, "EspNowHost deinit failed, role is default");
+        // ESP_LOGE(ESP_NOW, "EspNowHost deinit failed, role is default");
         return;
     }
 
@@ -401,5 +413,25 @@ void EspNowHost::Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
         ESP_LOGI(ESP_NOW, "Send Host2Slave_UpdateTaskList_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
         send_message_ack(&temp_data, 1, Host2Slave_UpdateTaskList_Control_Mqtt, slave_mac);
     }
+}
+
+void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+{
+    uint8_t wifi_name_len = strlen(get_global_data()->m_wifi_ssid);
+    uint8_t wifi_password_len = strlen(get_global_data()->m_wifi_password);
+    uint8_t usertoken_len = strlen(get_global_data()->m_usertoken);
+    
+    uint8_t total_len = wifi_name_len + wifi_password_len + usertoken_len + 3;
+    uint8_t temp_data[total_len];
+
+    temp_data[0] = wifi_name_len;
+    memcpy(1 + temp_data, get_global_data()->m_wifi_ssid, wifi_name_len);
+
+    temp_data[1 + wifi_name_len] = wifi_password_len;
+    memcpy(2 + temp_data + wifi_name_len, get_global_data()->m_wifi_password, wifi_password_len);
+
+    temp_data[2 + wifi_name_len + wifi_password_len] = usertoken_len;
+    memcpy(3 + temp_data + wifi_name_len + wifi_password_len, get_global_data()->m_usertoken, usertoken_len);
+    send_message_ack(temp_data, total_len, Host2Slave_Get_Wifi_Info_Control_Mqtt, slave_mac);
 }
 

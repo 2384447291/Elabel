@@ -81,6 +81,8 @@ public:
 
         release_lvgl();
 
+        //防止按键的声音和提示音混在一起了
+        vTaskDelay(500 / portTICK_PERIOD_MS);
         MCodec::Instance()->stop_play();
         MCodec::Instance()->play_music("record");
         while(MCodec::Instance()->speaker_task!=NULL)
@@ -96,11 +98,9 @@ public:
         ESP_LOGI("OperatingRecorderState", "enter_screen_confirm_voice");
         record_process = Record_time_process;
         need_flash_paper = true;
-        MCodec::Instance()->stop_play();
         MCodec::Instance()->stop_record();
         confirm_voice_countdown = CONFIRM_VOICE_TIME;
         button_choose_record_confirm_left = false;
-        MCodec::Instance()->play_mic();
 
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
@@ -135,6 +135,9 @@ public:
         set_text_without_change_font(ui_RecordOperateTime, timestr);
 
         release_lvgl();
+        
+        MCodec::Instance()->stop_play();
+        MCodec::Instance()->play_mic();
     }
 
     void enter_screen_reconfirm_process() 
@@ -179,7 +182,9 @@ public:
         record_process = finish_record_process;
         if(get_global_data()->m_is_host == 1)
         {
-            http_add_enter_focus((char*)"Record Task",(char*)"3",ElabelController::Instance()->TimeCountdown,true);
+            char record_task_name[100];
+            sprintf(record_task_name, "Record Task %lu", MCodec::Instance()->record_message_unique_id);
+            http_add_enter_focus(record_task_name,(char*)"3",ElabelController::Instance()->TimeCountdown,true);
         }
         else if(get_global_data()->m_is_host == 2)
         {

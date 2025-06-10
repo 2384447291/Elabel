@@ -15,7 +15,7 @@
 #define Same_mac(mac1, mac2) (memcmp(mac1, mac2, ESP_NOW_ETH_ALEN) == 0)
 //数据最大长度等于内置最大长度 - message类型
 #define MAX_EFFECTIVE_DATA_LEN ESPNOW_SEC_PACKET_MAX_SIZE - 1
-#define SLAVE_ASK_HOST_TIME 4
+#define SLAVE_ASK_HOST_TIME 3
 #define HOST_ASK_SLAVE_TIME 2
 
 enum message_type
@@ -41,6 +41,7 @@ enum message_type
     Slave2Host_Sleep_Request_Http,
     Slave2Host_Wakeup_Request_Http,
     Slave2Host_Synchronous_Request_Http,
+    Slave2Host_Get_Wifi_Info_Request_Http,
     
     // 主机发送给从机的mqtt 消息
     Host2Slave_Bind_Control_Mqtt,
@@ -51,7 +52,7 @@ enum message_type
     Host2Slave_Enter_Focus_Control_Mqtt,
     Host2Slave_Out_Focus_Control_Mqtt,
     Host2Slave_Synchronous_Control_Mqtt,
-
+    Host2Slave_Get_Wifi_Info_Control_Mqtt,
     // 反馈消息
     Feedback_ACK
 };
@@ -173,7 +174,7 @@ class EspNowClient{
         .forward_ttl           = 0,                  
         .forward_rssi          = 0,
     };
-    uint16_t test_connecting_send_count = 0;
+    int16_t test_connecting_send_count = 0;
 
     //espnow配置
     espnow_config_t espnow_config =  {  
@@ -210,6 +211,9 @@ class EspNowClient{
     TaskHandle_t update_task_handle = NULL;
     void start_find_channel();
     void stop_find_channel();   
+
+    void start_test_connecting_task(bool need_add_new_peer = true);
+    void stop_test_connecting_task(bool need_add_new_peer = true);
 
     esp_err_t send_test_message(uint8_t* data, size_t size, const espnow_addr_t dest_addr)
     {

@@ -111,11 +111,22 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(data, "deviceModel"));
             const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(data, "firmwareUrl"));
             const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(data, "createTime"));
+            const char *language = cJSON_GetStringValue(cJSON_GetObjectItem(data, "language"));
+            const char *content = cJSON_GetStringValue(cJSON_GetObjectItem(data, "content"));
             if (version) memcpy(get_global_data()->m_version, version, strlen(version));
             if (deviceModel) memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
             if (newest_firmware_url) memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
             if (createTime) memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-            ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION");   
+            if (language) memcpy(get_global_data()->m_language, language, strlen(language));
+            if (content) memcpy(get_global_data()->m_content, content, strlen(content));
+            ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION," 
+                        "version is %s," 
+                        "deviceModel is %s," 
+                        "newest_firmware_url is %s," 
+                        "createTime is %s," 
+                        "language is %s," 
+                        "content is %s", 
+                        version, deviceModel, newest_firmware_url, createTime, language, content);   
         } 
         else 
         {
@@ -173,10 +184,6 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
 
                     sscanf(sn_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
                            &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
-                    
-                    // // 打印 MAC 地址用于调试
-                    // ESP_LOGI("HTTP", "Device MAC: %02X:%02X:%02X:%02X:%02X:%02X",
-                    //         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
                 }
 
                 // 检测是否位主机

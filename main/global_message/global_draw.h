@@ -4,15 +4,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef enum {
-    Btn_ChooseTask_big_height,
-    Btn_ChooseTask_big_width,
-    Btn_ChooseTask_small_height,
-    Btn_ChooseTask_small_width,
-} Button_type;
-
-uint8_t get_button_size(Button_type button_type);
-
 void lock_lvgl();
 void release_lvgl();
 void Inituilock();

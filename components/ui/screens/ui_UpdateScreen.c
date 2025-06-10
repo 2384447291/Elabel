@@ -26,7 +26,7 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_x(ui_VersionnNmber, 0);
     lv_obj_set_y(ui_VersionnNmber, -9);
     lv_obj_set_align(ui_VersionnNmber, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_VersionnNmber, "V 1.0.2");
+    lv_label_set_text(ui_VersionnNmber, "V 1.2.0 ---> V???");
     lv_obj_set_style_text_color(ui_VersionnNmber, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_VersionnNmber, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_VersionnNmber, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -41,12 +41,12 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_Updating, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Updating2 = lv_label_create(ui_Updating);
-    lv_obj_set_width(ui_Updating2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_width(ui_Updating2, LV_SIZE_CONTENT);   /// 12
     lv_obj_set_height(ui_Updating2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Updating2, -1);
     lv_obj_set_y(ui_Updating2, 0);
     lv_obj_set_align(ui_Updating2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Updating2, "Updating...");
+    lv_label_set_text(ui_Updating2, "Updating..");
     lv_obj_set_style_text_font(ui_Updating2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Bar = lv_bar_create(ui_Panel8);

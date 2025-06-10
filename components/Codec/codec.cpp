@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include "music.hpp"
+#include "esp_random.h"
 
 // 用于任务间通信的标志
 static volatile bool should_stop_recording = false;
@@ -16,16 +17,22 @@ void play_button_sound()
     MCodec::Instance()->play_music("button");
 }
 
-void play_start_task_sound()
+void play_charge_sound()
 {
     MCodec::Instance()->stop_play();
-    MCodec::Instance()->play_music("starttask");
+    MCodec::Instance()->play_music("charge");
+}
+
+void play_pikachu_sound()
+{
+    MCodec::Instance()->stop_play();
+    MCodec::Instance()->play_music("pikachu");
 }
 
 void play_finish_task_sound()
 {
     MCodec::Instance()->stop_play();
-    MCodec::Instance()->play_music("finishtask");
+    MCodec::Instance()->play_music("finish");
 }
 
 void resize_file()
@@ -68,7 +75,8 @@ void resize_file()
 }
 
 //限制幅度0---20
-void amplify_db(float db_gain) {
+void amplify_db(float db_gain) 
+{
     if(db_gain < 0) db_gain = 0;
     if(db_gain > 20) db_gain = 20;
     FILE *f = fopen(FILE_PATH, "rb+");
@@ -131,7 +139,6 @@ static void mic_task_func(void *arg)
     }
 
     MCodec::Instance()->open_mic_dev(MIC_SAMPLE_RATE);
-    ESP_LOGI(TAG, "Mic task started");
 
     // 重置录音大小
     should_stop_recording = false;
@@ -143,7 +150,6 @@ static void mic_task_func(void *arg)
         esp_codec_dev_read(codec->codec_dev, buffer, READ_BLOCK_SIZE);
         // 复制数据到录音缓冲区
         fwrite(buffer, 1, READ_BLOCK_SIZE, f);
-        
         total_bytes_write += READ_BLOCK_SIZE;
         // 检查是否达到缓冲区限制
         if (total_bytes_write  >= max_bytes)
@@ -152,18 +158,23 @@ static void mic_task_func(void *arg)
         }
     }
     fclose(f);
-    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes ( %.1f seconds)", total_bytes_write, (float)total_bytes_write / BytesPerSecond);
+
+    // 放大15db
+    amplify_db(15);
     // 关闭设备
     codec->close_dev();
     // 清除任务句柄
     codec->mic_task = NULL;
+    // 打印录音信息
+    ESP_LOGI(TAG, "Mic task ended, total recorded: %d bytes ( %.1f seconds)", total_bytes_write, (float)total_bytes_write / BytesPerSecond);
+    // 生成一个随机数作为录音的唯一标识
+    codec->record_message_unique_id = esp_random();
     vTaskDelete(NULL);
 }
 
 // 播放任务函数
 static void speaker_task_func(void *arg)
 {
-    ESP_LOGI(TAG, "Speaker task started");
     MCodec *codec = MCodec::Instance();
     should_stop_playing = false;
 
@@ -294,7 +305,7 @@ void MCodec::start_record()
     }
 
     ESP_LOGI(TAG, "Starting recording...");
-    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 10, &mic_task);
+    xTaskCreate(mic_task_func, "mic_task", 4096, NULL, 5, &mic_task);
 }
 
 void MCodec::stop_record()
@@ -304,6 +315,7 @@ void MCodec::stop_record()
         ESP_LOGW(TAG, "mic_task is NULL, No need to stop recording");
         return;
     }
+    vTaskDelay(pdMS_TO_TICKS(DuringTime * 1000));
     // 设置停止标志，让任务自己结束
     should_stop_recording = true;
     // 等待任务结束
@@ -312,11 +324,6 @@ void MCodec::stop_record()
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     resize_file();
-
-    //和codec_vol 映射（0-20）（0-100）
-    amplify_db((float_t)codec_vol/5);
-
-    ESP_LOGI(TAG, "Recording stopped");
 }
 
 void MCodec::play_mic()
@@ -341,25 +348,25 @@ void MCodec::play_music(const char *filename)
         audio_data = record20db;
         audio_size = record20db_size;
     }
-    else if (strcmp(filename, "open") == 0)
+    else if (strcmp(filename, "charge") == 0)
     {
-        audio_data = open;
-        audio_size = open_size;
+        audio_data = charge;
+        audio_size = charge_size;
     }
     else if (strcmp(filename, "button") == 0)
     {
-        audio_data = button20db;
-        audio_size = button20db_size;
+        audio_data = button;
+        audio_size = button_size;
     }
-    else if (strcmp(filename, "starttask") == 0)
+    else if (strcmp(filename, "finish") == 0)
     {
-        audio_data = starttask;
-        audio_size = starttask_size;
+        audio_data = finish;
+        audio_size = finish_size;
     }
-    else if (strcmp(filename, "finishtask") == 0)
+    else if (strcmp(filename, "pikachu") == 0)
     {
-        audio_data = finishtask;
-        audio_size = finishtask_size;
+        audio_data = pikachu;
+        audio_size = pikachu_size;
     }
     else
     {
@@ -411,7 +418,7 @@ void MCodec::play_record(const uint8_t *data, size_t size)
         open_speaker_dev(MIC_SAMPLE_RATE);
     }
 
-    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 10, &speaker_task);
+    xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
 }
 
 void MCodec::stop_play()

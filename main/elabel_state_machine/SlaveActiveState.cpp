@@ -5,91 +5,6 @@
 #include "esp_random.h"
 #include "global_message.h"
 
-TaskHandle_t test_connecting_task_handle = NULL;
-bool need_stop_test_connecting = false;
-TickType_t start_time = 0;
-uint8_t temp_data[MAX_EFFECTIVE_DATA_LEN];
-size_t temp_data_len = MAX_EFFECTIVE_DATA_LEN;
-esp_err_t ret;
-static void test_connecting_task(void *pvParameter)
-{
-    for(int i = 0; i < MAX_EFFECTIVE_DATA_LEN; i++)
-    {
-        temp_data[i] = esp_random() & 0xFF;
-    }
-    while(!need_stop_test_connecting)
-    {
-        switch(SlaveActiveState::Instance()->test_connect_process)
-        {
-            case default_test_connect_process:
-            break;
-            case test_connect_process_start:
-            {
-                do{
-                    ret = EspNowClient::Instance()->send_message(temp_data, temp_data_len, Test_Start_Request_Slave2Host, get_global_data()->m_host_mac);
-                }while(ret!=ESP_OK);
-                SlaveActiveState::Instance()->test_connect_process = test_connect_process_send_packet;
-            }
-            break;
-            case test_connect_process_send_packet:
-            {
-                start_time = xTaskGetTickCount();
-                do{
-                    ret = EspNowClient::Instance()->send_test_message(temp_data, temp_data_len, get_global_data()->m_host_mac);
-                }while(xTaskGetTickCount() - start_time < pdMS_TO_TICKS(2000));
-                EspNowClient::Instance()->test_connecting_send_count = 0;
-                SlaveActiveState::Instance()->test_connect_process = test_connect_process_stop;
-            }
-            break;
-            case test_connect_process_stop:
-            {
-                do{
-                    ret = EspNowClient::Instance()->send_message(temp_data, temp_data_len, Test_Stop_Request_Slave2Host, get_global_data()->m_host_mac);
-                }while(ret!=ESP_OK);
-                SlaveActiveState::Instance()->test_connect_process = test_waiting_ack_process;
-            }
-            break;
-            case test_waiting_ack_process:
-            {
-                while(EspNowClient::Instance()->test_connecting_send_count == 0)
-                {
-                    vTaskDelay(100 / portTICK_PERIOD_MS);
-                }
-                SlaveActiveState::Instance()->need_flash_paper = true;
-                SlaveActiveState::Instance()->test_connect_process = test_connect_process_start;
-            }
-            break;
-        }
-    }
-    test_connecting_task_handle = NULL;
-    vTaskDelete(NULL);
-}
-
-void SlaveActiveState::start_test_connecting_task()
-{
-    if(test_connecting_task_handle == NULL)
-    {
-        //添加主机为peer
-        espnow_add_peer(get_global_data()->m_host_mac, NULL);
-        need_stop_test_connecting = false;
-        xTaskCreate(test_connecting_task, "test_connecting_task", 4096, NULL, 10, &test_connecting_task_handle);
-    }
-}
-
-void SlaveActiveState::stop_test_connecting_task()
-{
-    if(test_connecting_task_handle != NULL)
-    {
-        //等待测试历程运行一个循环再删除
-        while(SlaveActiveState::Instance()->test_connect_process != test_waiting_ack_process)
-        {
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-        }
-        espnow_del_peer(get_global_data()->m_host_mac);
-        need_stop_test_connecting = true;
-    }
-}
-
 void change_slave_active_button_choice()
 {
     if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
@@ -150,19 +65,7 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
 
 void SlaveActiveState::Execute(ElabelController* pOwner)
 {
-    if(slave_active_process == Slaveactive_test_connect_process)
-    {
-        if(need_flash_paper)
-        {
-            lock_lvgl();
-            char buffer[32];
-            sprintf(buffer, "score: %d", EspNowClient::Instance()->test_connecting_send_count);
-            set_text_without_change_font(ui_ConnectGuide2, buffer);
-            release_lvgl();
-            need_flash_paper = false;
-        }
-    }
-    else if(slave_active_process == Slaveactive_waiting_connect_process)
+    if(slave_active_process == Slaveactive_waiting_connect_process)
     {  
         if(need_flash_paper)
         {
@@ -184,11 +87,24 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
             need_flash_paper = false;
         }
     }
+    else if(slave_active_process == Slaveactive_test_connect_process)
+    {
+        if(score!=EspNowClient::Instance()->test_connecting_send_count && EspNowClient::Instance()->test_connecting_send_count!=-1)
+        {
+            score = EspNowClient::Instance()->test_connecting_send_count;
+            lock_lvgl();
+            char buffer[32];
+            sprintf(buffer, "score: %d", EspNowClient::Instance()->test_connecting_send_count);
+            set_text_without_change_font(ui_ConnectGuide2, buffer);
+            release_lvgl();
+        }
+    }
     else if(slave_active_process == Slaveactive_bind_host_process)
     {
-        stop_test_connecting_task();
+        EspNowClient::Instance()->stop_test_connecting_task();
         espnow_add_peer(get_global_data()->m_host_mac, NULL);
         uint8_t temp_data = 0;
+        esp_err_t ret; 
         do{
             ret = EspNowClient::Instance()->send_message(&temp_data, 1, Slave2Host_Bind_Request_Http, get_global_data()->m_host_mac);
         }while(ret!=ESP_OK);
@@ -208,6 +124,6 @@ void SlaveActiveState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_slave_active_button_choice);
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(change_slave_active_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(change_slave_active_button_choice);
-    stop_test_connecting_task();
+    EspNowClient::Instance()->stop_test_connecting_task();
     ESP_LOGI(STATEMACHINE,"Out SlaveActiveState.\n");
 }

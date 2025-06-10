@@ -37,24 +37,32 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
             EspNowClient::Instance()->is_connect_to_host = true;
         }
     }
+    //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
+    else if (m_message_type == Test_Feedback_Host2Slave)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Test_Feedback_Host2Slave message.");
+        EspNowClient::Instance()->test_connecting_send_count = data_ptr[0] | (data_ptr[1] << 8);
+        ESP_LOGI(ESP_NOW, "Test Connecting Send Count: %d", EspNowClient::Instance()->test_connecting_send_count);
+    }
+    //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
     else if(m_message_type == Host2Slave_UpdateTaskList_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_UpdateTaskList_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_todo_list(data_ptr, size);
     }
     else if(m_message_type == Host2Slave_Send_Task_List_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Send_Task_List_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Send_Task_List_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_send_task_list(data_ptr, size);
     }
     else if(m_message_type == Host2Slave_Device_Info_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_device_info(data_ptr, size);
     }
     else if(m_message_type == Host2Slave_Get_Time_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Time_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Time_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_time(data_ptr, size);
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
@@ -64,7 +72,7 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     }
     else if(m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
@@ -74,8 +82,13 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     }
     else if(m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message unique id.");
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_out_focus();
+    }
+    else if(m_message_type == Host2Slave_Get_Wifi_Info_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Wifi_Info_Control_Mqtt message.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_wifi_info(data_ptr, size);
     }
     return ESP_OK;
 }
@@ -111,7 +124,7 @@ void EspNowSlave::deinit()
 {
     if(EspNowClient::Instance()->m_role == default_role)
     {
-        ESP_LOGE(ESP_NOW, "EspNowSlave deinit failed, role is default");
+        // ESP_LOGE(ESP_NOW, "EspNowSlave deinit failed, role is default");
         return;
     }
 
@@ -129,6 +142,9 @@ void EspNowSlave::resume_espnow()
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, Slave_handle);
 }
 
+
+
+//----------------------------------------------------------------------------从机请求主机的函数----------------------------------------------------------------------------//
 esp_err_t EspNowSlave::slave_send_espnow_http_sleep_request()
 {
     uint8_t temp_data = 0;
@@ -256,8 +272,27 @@ esp_err_t EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t foc
     return ret;
 }
 
+esp_err_t EspNowSlave::slave_send_espnow_http_get_wifi_info()
+{
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Get_Wifi_Info_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send get wifi info request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send get wifi info request message success");
+    }
+    return ret;
+}
+//----------------------------------------------------------------------------从机请求主机的函数----------------------------------------------------------------------------//
+
+
+//----------------------------------------------------------------------------从机回复主机的函数----------------------------------------------------------------------------//
 void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size)
 {
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Send_Task_List_Control_Mqtt message");
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
     bool clear_flag = data[1];  // 获取清除标志
 
@@ -303,7 +338,11 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_device_info(uint8_t* data, size
     get_global_data()->m_device_info.overtime_alert_time = data[1];
     get_global_data()->m_device_info.is_idel_clock_time = data[2];
     get_global_data()->m_device_info.sound_volume = data[3];
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d", get_global_data()->m_device_info.default_counter_time, get_global_data()->m_device_info.overtime_alert_time, get_global_data()->m_device_info.is_idel_clock_time, get_global_data()->m_device_info.sound_volume);
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d", 
+    get_global_data()->m_device_info.default_counter_time, 
+    get_global_data()->m_device_info.overtime_alert_time, 
+    get_global_data()->m_device_info.is_idel_clock_time, 
+    get_global_data()->m_device_info.sound_volume);
 }
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_time(uint8_t* data, size_t size)
@@ -369,6 +408,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
 {
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message");
     //清零列表
     get_global_data()->m_focus_state->is_focus = 2;
     get_global_data()->m_focus_state->focus_task_id = 0;
@@ -377,4 +417,14 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
     slave_send_espnow_http_get_todo_list();
 }
 
-
+void EspNowSlave::slave_respense_espnow_mqtt_get_wifi_info(uint8_t* data, size_t size)
+{
+    uint8_t wifi_name_len = data[0];
+    uint8_t wifi_password_len = data[1 + wifi_name_len];
+    uint8_t usertoken_len = data[2 + wifi_name_len + wifi_password_len];
+    memcpy(get_global_data()->m_wifi_ssid, data + 1, wifi_name_len);
+    memcpy(get_global_data()->m_wifi_password, data + 1 + wifi_name_len + 1, wifi_password_len);
+    memcpy(get_global_data()->m_usertoken, data + 1 + wifi_name_len + 1 + wifi_password_len, usertoken_len);
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Wifi_Info_Control_Mqtt message, wifi name: %s, wifi password: %s, usertoken: %s", get_global_data()->m_wifi_ssid, get_global_data()->m_wifi_password, get_global_data()->m_usertoken);
+}
+//----------------------------------------------------------------------------从机回复主机的函数----------------------------------------------------------------------------//

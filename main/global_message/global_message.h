@@ -10,7 +10,10 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.6"
+#define FIRMWARE_VERSION "3.0.9"
+#define DEVICE_MODEL "R01A_TEST"
+#define LANGUAGE "EN"
+
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
     int is_focus; //默认0，专注1，未专注2
@@ -18,10 +21,6 @@ typedef struct {
 } Focus_state;
 
 //--------------------------------------Task_list对应的结构体--------------------------------------//
-typedef enum {
-    English,
-    Chinese,
-} language;
 
 typedef enum {
     newest,
@@ -94,6 +93,8 @@ void add_or_update_todo_item(TodoList *list, TodoItem item);
 //清除 TodoList
 void clean_todo_list(TodoList *list);
 
+bool mac_address_exists(const uint8_t mac[6]);
+
 bool insert_slave(uint8_t slave_mac[6]);
 
 bool delete_slave(uint8_t slave_mac[6]);
@@ -106,8 +107,6 @@ uint8_t set_sleep(uint8_t slave_mac[6], bool is_sleep);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
-    //语言
-    language m_language;
     //主机还是从机 0 是没有设定 1 是主机 2 是从机
     uint8_t m_is_host;
     //是否有专注任务
@@ -127,6 +126,8 @@ typedef struct
 
     //查询的最新版本号
     char m_newest_firmware_url[100];
+    char m_language[100];
+    char m_content[1024];
     char m_version[100];
     char m_deviceModel[100];
     char m_createTime[100];

@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "Codec.hpp"
+#include "httpmusic.h"
 class FocusTaskState : public State<ElabelController>
 {
 private:
@@ -16,11 +17,14 @@ public:
 
     int inner_time_countdown_ms = 0;
     int inner_time_countdown_s = 0;
+    int inner_time_music_deal_with_count = 0;
     bool need_out_focus = false;
-    //当前focus的类型
+    //当前focus的类型1是纯时间，2是task，3是record
     uint8_t focus_type = 0;
     //当前focus的task_id
-    uint8_t focus_task_id = 0;
+    int32_t focus_task_id = 0;
+    //当前focus的record_message_unique_id
+    uint32_t focus_record_message_unique_id = 0;
     bool need_flash_paper = false;
 
     static FocusTaskState* Instance()
@@ -29,11 +33,35 @@ public:
         return &instance;
     }
 
+    void post_music_info()
+    {
+        //如果是音频任务且音频任务对的上
+        if(focus_type == 3 && focus_record_message_unique_id == MCodec::Instance()->record_message_unique_id)
+        {
+            start_post_music(focus_task_id);
+        }
+    }
+
+    void get_music_info()
+    {
+        if(focus_type == 3 && focus_record_message_unique_id != MCodec::Instance()->record_message_unique_id)
+        {
+            start_get_music(focus_task_id, &MCodec::Instance()->record_message_unique_id, focus_record_message_unique_id);
+        }
+    }
+
     void play_focus_music()
     {
         if(focus_type == 3)
         {
-            MCodec::Instance()->play_mic();
+            if(focus_record_message_unique_id == MCodec::Instance()->record_message_unique_id)
+            {
+                MCodec::Instance()->play_mic();
+            }
+            else
+            {
+                MCodec::Instance()->play_music("bell");
+            }
         }
         else
         {

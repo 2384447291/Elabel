@@ -8,6 +8,9 @@ void SleepState::Init(ElabelController* pOwner)
 
 void SleepState::Enter(ElabelController* pOwner)
 {
+    //同步时间
+    EspNowSlave::Instance()->slave_send_espnow_http_get_time();
+    vTaskDelay(pdMS_TO_TICKS(1000));
     ESP_LOGI(STATEMACHINE,"Enter SleepState.");
     need_out_state = false;
     char clock_time[6];
