@@ -186,6 +186,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
     //当时间小于0，每10s响一次
     else if(inner_time_countdown_ms < 0)
     {
+        if(get_global_data()->m_device_info.overtime_alert_time == 0) return;
         if((-inner_time_countdown_ms) % (get_global_data()->m_device_info.overtime_alert_time*1000) == 0)
         {
             play_focus_music();

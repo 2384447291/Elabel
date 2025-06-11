@@ -82,30 +82,6 @@ void ElabelFsm::HandleInput()
         }
         m_pOwner->stuck_time = STUCK_RELOAD_TIME;
     }
-
-    if(get_global_data()->need_update_device_info)
-    {
-        if(get_global_data()->m_is_host == 1)
-        {
-            for(int i = 0; i < get_global_data()->m_slave_num; i++)
-            {
-                if(get_global_data()->m_slave_info[i].is_sleep)
-                {
-                    ESP_LOGI("ElabelFsm", "skip sleep slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
-                    continue;
-                }
-                else
-                {
-                    ESP_LOGI("ElabelFsm", "send device info to slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
-                    EspNowHost::Instance()->Mqtt_send_device_info(get_global_data()->m_slave_info[i].mac);
-                }
-            }
-        }
-
-        get_global_data()->need_update_device_info = false;
-    }
-
-
     
     // 如果没有激活
     if (get_global_data()->m_is_host == 0)
@@ -256,11 +232,65 @@ void ElabelFsm::HandleInput()
             }
         }
     }
+    else if(GetCurrentState() == OTAState::Instance()){}
     //-------------------------------OTA流程--------------------------------//
-
+    
+    //这个else排除了激活，初始化和ota共2+1+3=6个状态机
     //-------------------------------正常逻辑流程--------------------------------//
     else
     {
+        // 外部数据更新设备打断
+        if(get_global_data()->need_update_device_info)
+        {
+            if(get_global_data()->m_is_host == 1)
+            {
+                for(int i = 0; i < get_global_data()->m_slave_num; i++)
+                {
+                    if(get_global_data()->m_slave_info[i].is_sleep)
+                    {
+                        ESP_LOGI("ElabelFsm", "skip sleep slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
+                        continue;
+                    }
+                    else
+                    {
+                        ESP_LOGI("ElabelFsm", "send device info to slave "MACSTR" ", MAC2STR(get_global_data()->m_slave_info[i].mac));
+                        EspNowHost::Instance()->Mqtt_send_device_info(get_global_data()->m_slave_info[i].mac);
+                    }
+                }
+            }
+            get_global_data()->need_update_device_info = false;
+        }
+
+        //收到这个消息说明在后端已近没有数据了
+        if(get_global_data()->need_update_device)
+        {
+            for(int i = 0; i < get_global_data()->unbind_device_num; i++)
+            {
+                //如果是主机则要删除所有从机
+                if(Same_mac(get_global_data()->m_mac_uint, get_global_data()->unbind_device_mac[i]))
+                {
+                    http_unbind_device(true, get_global_data()->m_mac_uint);
+                    for(int i = 0; i < get_global_data()->m_slave_num; i++)
+                    {
+                        //通知从机删除自己
+                        EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->m_slave_info[i].mac);
+                        //通知后端删除从机
+                        http_unbind_device(true, get_global_data()->m_slave_info[i].mac);
+                    }
+                    reset_elabel();  
+                }
+                //如果是从机则删除他就好了，不用删除后端
+                else
+                {
+                    //主机删除
+                    EspNowHost::Instance()->Delete_exist_slave(get_global_data()->unbind_device_mac[i]);
+                    //通知从机删除自己,特殊处理了，即使之前给他删除了
+                    EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->unbind_device_mac[i]);
+                }
+            }
+            get_global_data()->need_update_device = false;
+        }
+
         // 外部有数据更新打断
         if (get_task_list_state() == firmware_need_update)
         {

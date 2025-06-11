@@ -91,6 +91,7 @@ void espnow_update_task(void *parameters)
     wifi_country.cc[2] = '\0';
     ESP_LOGI(ESP_NOW, "country: %s, channel: %d, channel num : %d",
              wifi_country.cc, wifi_country.schan, wifi_country.nchan);
+    channel = wifi_country.schan + esp_random() % wifi_country.nchan;
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(SCAN_CHANNEL_TIME_INTERVAL));

@@ -277,6 +277,9 @@ Global_data* get_global_data() {
             memset(instance->m_slave_info,0, sizeof(instance->m_slave_info)); 
             instance->m_slave_num = 0;
             instance->need_update_device_info = false;
+            instance->need_update_device = false;
+            instance->unbind_device_num = 0;
+            memset(instance->unbind_device_mac, 0, sizeof(instance->unbind_device_mac));
         }
     }
     return instance;

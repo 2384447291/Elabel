@@ -32,7 +32,16 @@ void BatteryManager::init() {
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
 
+    //开启外设电源
     setPowerState(true);
+    
+    io_conf.pin_bit_mask = (1ULL << BATTERY_ADC_GPIO);
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+
+    gpio_config(&io_conf);
 
     // 初始化ADC1
     adc1_config_width(ADC_WIDTH_BIT_12);
@@ -62,17 +71,17 @@ void BatteryManager::setPowerState(bool enable) {
 }
 
 float BatteryManager::getBatteryLevel() {
-    uint32_t adc_reading = 0;
+    int adc_reading = 0;
     
     // 多次采样取平均值
     for (int i = 0; i < ADC_SAMPLES; i++) {
-        adc_reading += 0;
+        adc_reading += adc1_get_raw(BATTERY_ADC_CHAN);
     }
-    adc_reading /= ADC_SAMPLES;
+    float adc_float = (float)adc_reading / (float)ADC_SAMPLES;
 
     // 由于使用分压电路，这里需要根据实际分压比例计算真实电池电压
     // 假设使用100K和100K的分压电阻，则实际电压为ADC读数的2倍
-    float actual_voltage = adc_reading / 1000.0f * 2.0f; // 转换为V
+    float actual_voltage = adc_float / 1000.0f * 2.0f; // 转换为V
     
     ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
     batteryLevel = actual_voltage;

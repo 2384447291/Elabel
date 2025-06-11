@@ -19,6 +19,28 @@
 #include "ElabelController.hpp"
 #include "esp_now_host.hpp"
 #include "esp_now_slave.hpp"
+void force_reset_elabel()
+{
+    //如果是主机
+    if(get_global_data()->m_is_host == 1)
+    {
+        http_unbind_device(true, get_global_data()->m_mac_uint);
+        for(int i = 0; i < get_global_data()->m_slave_num; i++)
+        {
+            //通知从机删除自己
+            EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->m_slave_info[i].mac);
+            //通知后端删除从机
+            http_unbind_device(true, get_global_data()->m_slave_info[i].mac);
+        }
+    }
+    //如果是从机
+    else if(get_global_data()->m_is_host == 2)
+    {
+        //通知主机删除自己
+        EspNowSlave::Instance()->slave_send_espnow_http_unbind_device();
+    }
+    reset_elabel();
+}
 
 extern "C" void app_main(void)
 {
@@ -45,8 +67,17 @@ extern "C" void app_main(void)
 
     //初始化wifi
     m_wifi_init();
+
+    //初始化espnow
+    EspNowClient::Instance()->init();
+
     //因为和后面的初始化强相关所以提前初始化
-    if(get_global_data()->m_is_host)
+    if(get_global_data()->m_is_host == 2)
+    {
+        //初始化EspNowSlave
+        EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+    }
+    else 
     {
         //初始化http客户端
         http_client_init();
@@ -59,11 +90,8 @@ extern "C" void app_main(void)
     //初始化codec
     MCodec::Instance()->init();
 
-    //初始化espnow
-    EspNowClient::Instance()->init();
-
     //注册按键回调
-    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(reset_elabel);
+    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(force_reset_elabel);
 
     ControlDriver::Instance()->register_all_button_callback(play_button_sound);
 

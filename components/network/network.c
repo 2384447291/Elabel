@@ -94,6 +94,16 @@ void m_wifi_disconnect(void)
 
 void m_wifi_init(void)
 {
+    //获取mac地址
+    uint8_t mac[6];
+    esp_efuse_mac_get_default(mac);
+    for (size_t i = 0; i < 6; i++) {
+        get_global_data()->m_mac_uint[i] = mac[i];
+    }
+    snprintf(get_global_data()->m_mac_str, sizeof(get_global_data()->m_mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    ESP_LOGI(WIFI_CONNECT,"MAC: %s\n", get_global_data()->m_mac_str);
+
     if(!is_wifi_preprocess)
     {
         is_wifi_preprocess = true;
@@ -131,7 +141,7 @@ void start_blufi(void)
 
     if(!is_blufi_init)
     {
-        xTaskCreate(blufi_notify, "blufi_notify", 8192, NULL, 0, pTask_blufi);
+        xTaskCreate(blufi_notify, "blufi_notify", 4096, NULL, 0, pTask_blufi);
 
         blufi_notify_flag = true;
 

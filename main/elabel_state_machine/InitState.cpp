@@ -8,6 +8,8 @@
 #include "Esp_now_host.hpp"
 #include "OtaPrepareState.hpp"
 
+static bool check_firmware_once = false;
+
 
 void InitState::Init(ElabelController* pOwner)
 {
@@ -22,6 +24,10 @@ void InitState::Enter(ElabelController* pOwner)
     switch_screen(ui_HalfmindScreen);
     release_lvgl();
     ESP_LOGI(STATEMACHINE,"Enter InitState.");
+    if(get_global_data()->m_is_host == 2)
+    {
+        EspNowSlave::Instance()->waiting_host_feedback = false;
+    }
 }
 
 void InitState::Execute(ElabelController* pOwner)
@@ -62,8 +68,9 @@ void InitState::Execute(ElabelController* pOwner)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
         //如果上一个任务的来源是otaprepare说明ota被拒绝了所以跳过这个判断
-        if(pOwner->m_elabelFsm.GetPreviousState() != OtaPrepareState::Instance())
+        if(!check_firmware_once)
         {
+            check_firmware_once = true;
             //获取最新版本固件
             http_get_latest_version(true);
 
@@ -101,8 +108,11 @@ void InitState::Execute(ElabelController* pOwner)
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
     {
-        //初始化EspNowSlave
-        EspNowSlave::Instance()->init(get_global_data()->m_host_mac, get_global_data()->m_host_channel, get_global_data()->m_userName);
+        //等待收到一帧反馈
+        if(!EspNowSlave::Instance()->waiting_host_feedback)
+        {
+            return;
+        }
 
         //激活
         EspNowSlave::Instance()->slave_send_espnow_http_wakeup_request();

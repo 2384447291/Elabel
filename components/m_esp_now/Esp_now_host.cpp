@@ -13,37 +13,6 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     //读取数据
     data_ptr++;
     size--;
-    //------------------------------------------------睡眠请求------------------------------------------------//
-    if(m_message_type == Slave2Host_Sleep_Request_Http)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Sleep_Request_Http from " MACSTR, MAC2STR(src_addr));
-        if(set_sleep(src_addr, true) == 2)
-        {
-            ESP_LOGI(ESP_NOW, "" MACSTR" Sleep", MAC2STR(src_addr));
-        }
-    }   
-    else if(m_message_type == Slave2Host_Wakeup_Request_Http)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Wakeup_Request_Http from " MACSTR, MAC2STR(src_addr));
-        if(set_sleep(src_addr, false) == 2)
-        {
-            ESP_LOGI(ESP_NOW, "" MACSTR" Wake up", MAC2STR(src_addr));
-        }
-    }
-    //------------------------------------------------睡眠请求------------------------------------------------//
-
-    //------------------------------------------------所有的非睡眠非睡眠同步请求和测试请求都可视为唤醒------------------------------------------------//
-    if(m_message_type != Slave2Host_Sleep_Request_Http && m_message_type != Slave2Host_Wakeup_Request_Http && m_message_type!= Slave2Host_Synchronous_Request_Http 
-    && m_message_type != Test_Start_Request_Slave2Host && m_message_type != Test_Stop_Request_Slave2Host && m_message_type != default_message_type)
-    {
-        if(set_sleep(src_addr, false) == 2)
-        {
-            ESP_LOGI(ESP_NOW, "" MACSTR" Wake up", MAC2STR(src_addr));
-        }
-        
-    }
-    //------------------------------------------------所有的非睡眠非睡眠同步请求都可视为唤醒------------------------------------------------//
-
     //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
     if(m_message_type == Test_Start_Request_Slave2Host)
     {
@@ -76,7 +45,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
     //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
 
 
-    //------------------------------------------------解决从机需求------------------------------------------------//
+    //--------------------------------绑定请求--------------------------------//
     if(m_message_type == Slave2Host_Bind_Request_Http)
     {
         ESP_LOGI(ESP_NOW, "Receive Slave2Host_Bind_Request_Http from " MACSTR, MAC2STR(src_addr));
@@ -87,62 +56,138 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         http_save_setting(true,"0050101080",src_addr);
         http_save_power(true,-1,src_addr);
     }
-    else if(m_message_type == Slave2Host_Get_Time_Request_Http)
+    //--------------------------------绑定请求--------------------------------//
+
+
+    //------------------------------------------------睡眠请求------------------------------------------------//
+    if(m_message_type == Slave2Host_Sleep_Request_Http)
     {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Time_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->Mqtt_send_time(src_addr);
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Sleep_Request_Http from " MACSTR, MAC2STR(src_addr));
+            if(set_sleep(src_addr, true) == 2)
+            {
+                ESP_LOGI(ESP_NOW, "" MACSTR" Sleep", MAC2STR(src_addr));
+            }
+        }
+    }   
+    else if(m_message_type == Slave2Host_Wakeup_Request_Http)
+    {
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Wakeup_Request_Http from " MACSTR, MAC2STR(src_addr));
+            if(set_sleep(src_addr, false) == 2)
+            {
+                ESP_LOGI(ESP_NOW, "" MACSTR" Wake up", MAC2STR(src_addr));
+            }
+        }
+    }
+
+    //所有的非睡眠非睡眠同步请求和测试请求都可视为唤醒
+    if(m_message_type != Slave2Host_Sleep_Request_Http && m_message_type != Slave2Host_Wakeup_Request_Http && m_message_type!= Slave2Host_Synchronous_Request_Http 
+    && m_message_type != Test_Start_Request_Slave2Host && m_message_type != Test_Stop_Request_Slave2Host && m_message_type != default_message_type)
+    {
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            if(set_sleep(src_addr, false) == 2)
+            {
+                ESP_LOGI(ESP_NOW, "" MACSTR" Wake up", MAC2STR(src_addr));
+            }
+        }
+        
+    }
+
+    //------------------------------------------------睡眠请求------------------------------------------------//
+
+
+    //------------------------------------------------解决从机需求------------------------------------------------//
+    if(m_message_type == Slave2Host_Get_Time_Request_Http)
+    {
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Time_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->Mqtt_send_time(src_addr);
+        }
     }
     else if(m_message_type == Slave2Host_Get_Device_Info_Request_Http)
     {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Device_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->Mqtt_send_device_info(src_addr);
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Device_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->Mqtt_send_device_info(src_addr);
+        }
     }
     else if(m_message_type == Slave2Host_UpdateTaskList_Request_Http)
     {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_UpdateTaskList_Request_Http from " MACSTR, MAC2STR(src_addr));
-        //如果正在focus则传递focus消息
-        if(get_global_data()->m_focus_state->is_focus == 1)
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
         {
-            TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-            focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
-            EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr);
-        }
-        //如果没有focus则发送task更新
-        else
-        {
-            EspNowHost::Instance()->Mqtt_send_task_list(src_addr);
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_UpdateTaskList_Request_Http from " MACSTR, MAC2STR(src_addr));
+            //如果正在focus则传递focus消息
+            if(get_global_data()->m_focus_state->is_focus == 1)
+            {
+                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
+                EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr);
+            }
+            //如果没有focus则发送task更新
+            else
+            {
+                EspNowHost::Instance()->Mqtt_send_task_list(src_addr);
+            }
         }
     }
     else if(m_message_type == Slave2Host_Enter_Focus_Request_Http)
     {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Enter_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->http_response_enter_focus(data_ptr, size);
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Enter_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->http_response_enter_focus(data_ptr, size);
+        }
     }
     else if(m_message_type == Slave2Host_Out_Focus_Request_Http)
-    {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Out_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->http_response_out_focus(data_ptr, size);
+    {   
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Out_Focus_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->http_response_out_focus(data_ptr, size);
+        }
     }
     else if(m_message_type == Slave2Host_Get_Wifi_Info_Request_Http)
     {
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Wifi_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
-        EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr);
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Wifi_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr);
+        }
+    }
+    else if(m_message_type == Slave2Host_Unbind_Device_Control_Http)
+    {
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Unbind_Device_Control_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->Delete_exist_slave(src_addr);
+            //通知后端删除从机
+            http_unbind_device(true, src_addr);
+        }
     }
     else if(m_message_type == Slave2Host_Synchronous_Request_Http)
     {
-        //如果正在focus则传递focus消息
-        if(get_global_data()->m_focus_state->is_focus == 1)
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
         {
-            TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
-            focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
-            EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr, false);
+            //如果正在focus则传递focus消息
+            if(get_global_data()->m_focus_state->is_focus == 1)
+            {
+                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->m_focus_state->focus_task_id, todo->title);
+                EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr, false);
+            }
+            //如果没有则发送时间戳同步
+            else
+            {
+                EspNowHost::Instance()->Mqtt_send_time(src_addr, false);
+            }
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Synchronous_Request_Http from " MACSTR, MAC2STR(src_addr));
         }
-        //如果没有则发送时间戳同步
-        else
-        {
-            EspNowHost::Instance()->Mqtt_send_time(src_addr, false);
-        }
-        ESP_LOGI(ESP_NOW, "Receive Slave2Host_Synchronous_Request_Http from " MACSTR, MAC2STR(src_addr));
     }
     //------------------------------------------------解决从机需求------------------------------------------------//
 
@@ -435,3 +480,28 @@ void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     send_message_ack(temp_data, total_len, Host2Slave_Get_Wifi_Info_Control_Mqtt, slave_mac);
 }
 
+void EspNowHost::Mqtt_send_unbind_device(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+{
+    bool is_peer_exist = esp_now_is_peer_exist(slave_mac);
+    if(!is_peer_exist) espnow_add_peer(slave_mac, NULL);
+    uint8_t temp_data = 0;
+    ESP_LOGI(ESP_NOW, "Send Host2Slave_Unbind_Device_Control_Mqtt to " MACSTR, MAC2STR(slave_mac));
+    send_message_ack(&temp_data, 1, Host2Slave_Unbind_Device_Control_Mqtt, slave_mac);
+    if(!is_peer_exist) espnow_del_peer(slave_mac);
+}
+
+bool EspNowHost::recieve_from_unbind_device(uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+{
+    if(mac_address_exists(slave_mac))
+    {
+        return false;
+    }
+    else
+    {
+        //如果从机不存在，则删除从机
+        Mqtt_send_unbind_device(slave_mac);
+        http_unbind_device(true, slave_mac);
+        ESP_LOGE(ESP_NOW, "Slave " MACSTR " does not exist", MAC2STR(slave_mac));
+        return true;
+    }
+}

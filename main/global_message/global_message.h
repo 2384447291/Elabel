@@ -144,8 +144,12 @@ typedef struct
     //如果是主机保存的从机mac
     slave_device_info m_slave_info[MAX_SLAVE_NUM];
     uint8_t m_slave_num;
+
     bool need_update_device_info;
-    
+    bool need_update_device;
+    //记录出问题的设备的Mac地址
+    uint8_t unbind_device_mac[MAX_SLAVE_NUM + 1][6]; 
+    uint8_t unbind_device_num;
 } Global_data;
 
 #ifdef __cplusplus

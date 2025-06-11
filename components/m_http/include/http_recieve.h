@@ -42,6 +42,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             return;
         }
     }
+    
     if(m_task_struct->task == FINDTODOLIST)
     {
         // 获取 rows 数组
@@ -151,6 +152,18 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         if (data != NULL) 
         {
             int array_size = cJSON_GetArraySize(data);
+
+            //--------------检测是否所有设备还在线----------------//
+            bool Is_get_slave_device_Info[get_global_data()->m_slave_num];
+            for(int i = 0; i < get_global_data()->m_slave_num; i++)
+            {
+                Is_get_slave_device_Info[i] = false;
+            }
+            bool Is_get_host_device_Info = false;
+            get_global_data()->unbind_device_num = 0;
+            memset(get_global_data()->unbind_device_mac, 0, sizeof(get_global_data()->unbind_device_mac));
+            //--------------检测是否所有设备还在线----------------//
+
             for(int i = 0; i < array_size; i++)
             {
                 cJSON *item = cJSON_GetArrayItem(data, i);
@@ -179,7 +192,8 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 
                 // 获取并转换 sn 为 MAC 地址
                 const char *sn_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "sn"));
-                if (sn_str != NULL) {
+                if (sn_str != NULL) 
+                {
                     // 将字符串形式的 MAC 地址转换为字节数组
 
                     sscanf(sn_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
@@ -189,6 +203,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 // 检测是否位主机
                 if(memcmp(get_global_data()->m_mac_uint, mac, 6) == 0)
                 {
+                    Is_get_host_device_Info = true;
                     get_global_data()->m_device_info.default_counter_time = setting_info.default_counter_time;
                     get_global_data()->m_device_info.overtime_alert_time = setting_info.overtime_alert_time;
                     get_global_data()->m_device_info.is_idel_clock_time = setting_info.is_idel_clock_time;
@@ -202,6 +217,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     {
                         if(memcmp(get_global_data()->m_slave_info[i].mac, mac, 6) == 0)
                         {
+                            Is_get_slave_device_Info[i] = true;
                             get_global_data()->m_slave_info[i].setting.default_counter_time = setting_info.default_counter_time;
                             get_global_data()->m_slave_info[i].setting.overtime_alert_time = setting_info.overtime_alert_time;
                             get_global_data()->m_slave_info[i].setting.is_idel_clock_time = setting_info.is_idel_clock_time;
@@ -211,6 +227,27 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     }
                 }
             }
+            
+            //记录unbind的数据
+            if(!Is_get_host_device_Info)
+            {
+                ESP_LOGE("HTTP", "Host device info is not get, host " MACSTR " unbind", MAC2STR(get_global_data()->m_mac_uint));
+                get_global_data()->need_update_device = true;
+                memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_mac_uint, 6);
+                get_global_data()->unbind_device_num++;
+            }
+            
+            for(int i = 0; i < get_global_data()->m_slave_num; i++)
+            {
+                if(!Is_get_slave_device_Info[i])
+                {
+                    ESP_LOGE("HTTP", "Slave device info is not get, slave " MACSTR " unbind", MAC2STR(get_global_data()->m_slave_info[i].mac));
+                    get_global_data()->need_update_device = true;
+                    memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_slave_info[i].mac, 6);
+                    get_global_data()->unbind_device_num++;
+                }
+            }
+
             get_global_data()->need_update_device_info = true;
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDDEVICE ");
@@ -237,12 +274,12 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     }  
     else if (m_task_struct->task == BINDDEVICE)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is BINDDEVICE ");
+        ESP_LOGI("HTTP", "Successful get response post task is BINDDEVICE is %s", m_task_struct->parament[0]);
     } 
 
     else if (m_task_struct->task == UNBINDDEVICE)
     {
-        ESP_LOGI("HTTP", "Successful get response post task is UNBINDDEVICE ");
+        ESP_LOGI("HTTP", "Successful get response post task is UNBINDDEVICE is %s", m_task_struct->parament[0]);
     }
     else if (m_task_struct->task == SAVESETTING)
     {

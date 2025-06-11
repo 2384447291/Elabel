@@ -32,7 +32,6 @@ enum message_type
     Test_Feedback_Host2Slave,
 
     // 从机发送给主机的http消息
-
     Slave2Host_UpdateTaskList_Request_Http,
     Slave2Host_Get_Device_Info_Request_Http,
     Slave2Host_Get_Time_Request_Http,
@@ -42,6 +41,7 @@ enum message_type
     Slave2Host_Wakeup_Request_Http,
     Slave2Host_Synchronous_Request_Http,
     Slave2Host_Get_Wifi_Info_Request_Http,
+    Slave2Host_Unbind_Device_Control_Http,
     
     // 主机发送给从机的mqtt 消息
     Host2Slave_Bind_Control_Mqtt,
@@ -53,6 +53,7 @@ enum message_type
     Host2Slave_Out_Focus_Control_Mqtt,
     Host2Slave_Synchronous_Control_Mqtt,
     Host2Slave_Get_Wifi_Info_Control_Mqtt,
+    Host2Slave_Unbind_Device_Control_Mqtt,
     // 反馈消息
     Feedback_ACK
 };

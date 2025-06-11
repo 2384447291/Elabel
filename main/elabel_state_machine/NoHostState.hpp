@@ -41,6 +41,8 @@ public:
         no_host_process = No_host_connecting_host_process;
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
         set_text_without_change_font(ui_HostActiveGuide1, "Connect to HOST");
 
         char mac_str[18];

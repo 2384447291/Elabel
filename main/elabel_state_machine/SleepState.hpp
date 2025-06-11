@@ -15,6 +15,7 @@
 #include <vector>
 
 #define WAKEUP_INTERVAL_SEC 15
+//等待收同步消息的间隔
 #define ESPNOW_WAITING_TIME 100
 
 class SleepState : public State<ElabelController>
@@ -26,6 +27,7 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
     bool need_out_state = false;
+    bool need_clock_mode = false;
     char show_clock_time[6];
     int64_t start_sleep_time = 0;
 
@@ -106,17 +108,21 @@ public:
             }
         }   
         
-        char clock_time[6];
-        get_clock_time(clock_time);
-        if(strcmp(clock_time, show_clock_time) != 0)
+        //更新时间
+        if(need_clock_mode)
         {
-            BatteryManager::Instance()->setPowerState(true);
-            vTaskDelay(pdMS_TO_TICKS(500));
-            lock_lvgl();
-            set_text_without_change_font(ui_SleepCLock, clock_time);
-            memcpy(show_clock_time, clock_time, 6);
-            release_lvgl();
-            vTaskDelay(pdMS_TO_TICKS(2500));
+            char clock_time[6];
+            get_clock_time(clock_time);
+            if(strcmp(clock_time, show_clock_time) != 0)
+            {
+                BatteryManager::Instance()->setPowerState(true);
+                vTaskDelay(pdMS_TO_TICKS(500));
+                lock_lvgl();
+                set_text_without_change_font(ui_SleepCLock, clock_time);
+                memcpy(show_clock_time, clock_time, 6);
+                release_lvgl();
+                vTaskDelay(pdMS_TO_TICKS(2500));
+            }
         }
     }
 

@@ -11,7 +11,14 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     //读取数据
     data_ptr++;
     size--;
-    EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
+
+    //必须要和自己绑定的主机一样的信号才可以算数
+    if(Same_mac(get_global_data()->m_host_mac, (uint8_t *)(src_addr)))
+    {
+        EspNowSlave::Instance()->last_recv_heart_time = xTaskGetTickCount();
+        EspNowSlave::Instance()->waiting_host_feedback = true;
+    }
+
     if (m_message_type == Host2Slave_Bind_Control_Http)
     {
         // 一定要收到原来主机的消息
@@ -35,6 +42,16 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
             // 保证nvs设置完毕
             vTaskDelay(pdMS_TO_TICKS(1000));
             EspNowClient::Instance()->is_connect_to_host = true;
+        }
+    }
+    else if(m_message_type == Host2Slave_Unbind_Device_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Unbind_Device_Control_Mqtt message from " MACSTR, MAC2STR(src_addr));
+        if(Same_mac(get_global_data()->m_host_mac, (uint8_t *)(src_addr)))
+        {
+            ESP_LOGI(ESP_NOW, "Host " MACSTR " unbind device", MAC2STR(src_addr));
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            reset_elabel();
         }
     }
     //------------------------------------------------专门用来测试连接的接口------------------------------------------------//
@@ -106,7 +123,6 @@ void EspNowSlave::init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel,
     memcpy(this->host_mac, host_mac, ESP_NOW_ETH_ALEN);
     this->host_channel = host_channel;
     memcpy(this->username, username, sizeof(this->username));
-    last_recv_heart_time = 0;
 
     EspNowClient::Instance()->m_role = slave_role;
     //停止搜索设备
@@ -283,6 +299,21 @@ esp_err_t EspNowSlave::slave_send_espnow_http_get_wifi_info()
     else
     {
         ESP_LOGI(ESP_NOW, "Slave send get wifi info request message success");
+    }
+    return ret;
+}
+
+esp_err_t EspNowSlave::slave_send_espnow_http_unbind_device()
+{
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Unbind_Device_Control_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send unbind device request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send unbind device request message success");
     }
     return ret;
 }

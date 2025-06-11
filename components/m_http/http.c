@@ -329,7 +329,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_DATA:
             if(need_deal_with_music) break;
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
             response_buffer = realloc(response_buffer, response_buffer_len + evt->data_len + 1);
             if (response_buffer == NULL) {
                 ESP_LOGE(HTTP_TAG, "Failed to allocate memory for response buffer");
@@ -340,7 +340,7 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_FINISH:
             if(need_deal_with_music) break;
-            ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
+            // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_FINISH");
             if (response_buffer != NULL) 
             {
                 parse_json_response(response_buffer,m_dealing_task,&m_http_state);
@@ -435,7 +435,7 @@ void http_client_update(void *Parameters )
         }
         else if(m_http_state == send_success)
         {
-            ESP_LOGI(HTTP_TAG, "Send Success. %s.\n",taskToString(m_dealing_task->task));  
+            // ESP_LOGI(HTTP_TAG, "Send Success. %s.\n",taskToString(m_dealing_task->task));  
             if(m_dealing_task->need_stuck)
             {
                 m_dealing_task->need_stuck = false;
@@ -465,15 +465,6 @@ void http_client_update(void *Parameters )
 void http_client_init(void)
 {
     if(phttp_Task_state != NULL) return;
-    //获取设备的mac地址
-    uint8_t mac[6];
-    esp_efuse_mac_get_default(mac);
-    for (size_t i = 0; i < 6; i++) {
-        get_global_data()->m_mac_uint[i] = mac[i];
-    }
-    snprintf(get_global_data()->m_mac_str, sizeof(get_global_data()->m_mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    ESP_LOGI(HTTP_TAG,"MAC: %s\n", get_global_data()->m_mac_str);
     client = esp_http_client_init(&config);
     if (client == NULL) {
         ESP_LOGE(HTTP_TAG,"httpclient init error!\r\n");
@@ -485,7 +476,7 @@ void http_client_init(void)
     m_http_state = send_waiting;
 
     Task_list_Mutex = xSemaphoreCreateMutex();
-    xTaskCreate(http_client_update, "http_client_update", 8192, NULL, 0, phttp_Task_state);
+    xTaskCreate(http_client_update, "http_client_update", 4096, NULL, 0, phttp_Task_state);
 
     m_dealing_task = create_http_task_struct(NO_TASK, NULL, 0 ,false);
 }

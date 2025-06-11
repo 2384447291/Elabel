@@ -165,7 +165,7 @@ public:
 
         float battery_level = BatteryManager::Instance()->getBatteryLevel();
         char stringBattery[40] = "Battery Power:";
-        sprintf(stringBattery, "%s %d %s", "Battery Power: ", (int)battery_level, "V");
+        sprintf(stringBattery, "%s %f %s", "Battery Power: ", battery_level, "V");
         set_text_without_change_font(ui_Message2, stringBattery);
 
         if(battery_level < 1.0f || battery_level > 4.6f)
@@ -187,10 +187,9 @@ public:
     {
         show_button();
         set_text_without_change_font(ui_Messageguide, "Power Info");
-
         float battery_level = BatteryManager::Instance()->getBatteryLevel();
         char stringBattery[40] = "Battery Power:";
-        sprintf(stringBattery, "%s %d %s", "Battery Power: ", (int)battery_level, "V");
+        sprintf(stringBattery, "%s %f %s", "Battery Power: ", battery_level, "V");
         set_text_without_change_font(ui_Message2, stringBattery);
 
         if(battery_level < 1.0f || battery_level > 4.6f)

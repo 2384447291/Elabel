@@ -58,7 +58,7 @@ void mqtt_event_fun(void *event_handler_arg, esp_event_base_t event_base, int32_
         ESP_LOGE(MQTT_TAG,"lose connect mqtt\r\n");
     }else if(event_id==MQTT_EVENT_DATA){                //收到订阅信息
         esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t )event_data;   //强转获取存放订阅信息的参数
-        ESP_LOGI(MQTT_TAG,"receive data : %.*s from %.*s\r\n",event->data_len,event->data,event->topic_len,event->topic);
+        // ESP_LOGI(MQTT_TAG,"receive data : %.*s from %.*s\r\n",event->data_len,event->data,event->topic_len,event->topic);
         if(event->topic_len == 0 || event->data_len == 0) return;
         
         // 分配内存并复制消息

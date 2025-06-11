@@ -12,6 +12,7 @@ class EspNowSlave {
         // 上一次收到包的时间
         TickType_t last_recv_heart_time = 0;  
         uint8_t sleep_sync_flag = 3;//0表示需要同步，1表示focus同步，2表示时间同步, 3表示无需同步
+        bool waiting_host_feedback = false;
 
         void init(uint8_t host_mac[ESP_NOW_ETH_ALEN], uint8_t host_channel, char username[100]);
         void deinit();
@@ -31,6 +32,7 @@ class EspNowSlave {
         esp_err_t slave_send_espnow_http_wakeup_request();
         esp_err_t slave_send_espnow_http_synchronous_request();
         esp_err_t slave_send_espnow_http_get_wifi_info();
+        esp_err_t slave_send_espnow_http_unbind_device();
 
         // 从机收到主机需要怎么反应
         void slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size);
