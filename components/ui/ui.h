@@ -36,7 +36,7 @@ extern lv_obj_t * uic_ActiveScreen;
 // SCREEN: ui_OTAScreen
 void ui_OTAScreen_screen_init(void);
 extern lv_obj_t * ui_OTAScreen;
-extern lv_obj_t * ui_Panel7;
+extern lv_obj_t * ui_Container2;
 extern lv_obj_t * ui_NewFirmware;
 extern lv_obj_t * ui_NewFirmware2;
 extern lv_obj_t * ui_VersionChange;

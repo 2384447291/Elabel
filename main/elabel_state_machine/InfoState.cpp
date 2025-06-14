@@ -169,7 +169,8 @@ void InfoState::Exit(ElabelController* pOwner)
 {
     EspNowClient::Instance()->stop_test_connecting_task(false);
     ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(out_info);
-    ControlDriver::Instance()->button6.CallbackLongPress.unregisterCallback(previous_info);
-    ControlDriver::Instance()->button7.CallbackLongPress.unregisterCallback(next_info);
+    ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(previous_info);
+    ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(next_info);
+    ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_ota_button);
 }
 

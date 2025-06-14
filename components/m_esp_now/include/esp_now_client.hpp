@@ -40,6 +40,7 @@ enum message_type
     Slave2Host_Sleep_Request_Http,
     Slave2Host_Wakeup_Request_Http,
     Slave2Host_Synchronous_Request_Http,
+    Slave2Host_Get_UserToken_Request_Http,
     Slave2Host_Get_Wifi_Info_Request_Http,
     Slave2Host_Unbind_Device_Control_Http,
     
@@ -54,6 +55,7 @@ enum message_type
     Host2Slave_Synchronous_Control_Mqtt,
     Host2Slave_Get_Wifi_Info_Control_Mqtt,
     Host2Slave_Unbind_Device_Control_Mqtt,
+    Host2Slave_Get_UserToken_Control_Mqtt,
     // 反馈消息
     Feedback_ACK
 };

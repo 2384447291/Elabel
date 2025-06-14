@@ -96,7 +96,7 @@ void m_wifi_init(void)
 {
     //获取mac地址
     uint8_t mac[6];
-    esp_efuse_mac_get_default(mac);
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
     for (size_t i = 0; i < 6; i++) {
         get_global_data()->m_mac_uint[i] = mac[i];
     }

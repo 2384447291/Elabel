@@ -87,7 +87,7 @@ void NoWifiState::Execute(ElabelController* pOwner)
 void NoWifiState::Exit(ElabelController* pOwner)
 {
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(no_wifi_change_button_choice);
-    ControlDriver::Instance()->button7.CallbackLongPress.unregisterCallback(no_wifi_change_button_choice);
+    ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(no_wifi_change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(no_wifi_confirm_button_choice);
     stop_blue_activate();
     //等待2s蓝牙完全清理

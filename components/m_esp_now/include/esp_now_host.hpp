@@ -24,6 +24,7 @@ class EspNowHost {
         void Mqtt_send_time(const uint8_t slave_mac[ESP_NOW_ETH_ALEN], bool need_ack = true);
         void Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         void Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
+        void Mqtt_send_usertoken(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         void Mqtt_send_unbind_device(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]);
         //群体同步请求
         void Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN] = ESPNOW_ADDR_BROADCAST);

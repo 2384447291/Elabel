@@ -19,42 +19,9 @@
 #include "ElabelController.hpp"
 #include "esp_now_host.hpp"
 #include "esp_now_slave.hpp"
-void force_reset_elabel()
-{
-    //如果是主机
-    if(get_global_data()->m_is_host == 1)
-    {
-        http_unbind_device(true, get_global_data()->m_mac_uint);
-        for(int i = 0; i < get_global_data()->m_slave_num; i++)
-        {
-            //通知从机删除自己
-            EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->m_slave_info[i].mac);
-            //通知后端删除从机
-            http_unbind_device(true, get_global_data()->m_slave_info[i].mac);
-        }
-    }
-    //如果是从机
-    else if(get_global_data()->m_is_host == 2)
-    {
-        //通知主机删除自己
-        EspNowSlave::Instance()->slave_send_espnow_http_unbind_device();
-    }
-    reset_elabel();
-}
 
 extern "C" void app_main(void)
 {
-    //初始化电池管理
-    BatteryManager::Instance()->init();
-
-    //等待电路初始化
-    vTaskDelay(pdMS_TO_TICKS(500));
-
-    //初始化gui
-    Gui_init();
-    //等待lvgl初始化
-    vTaskDelay(pdMS_TO_TICKS(2000));
-
     //安装GPIO中断服务
     gpio_install_isr_service(0);
     //初始化nvs
@@ -83,9 +50,23 @@ extern "C" void app_main(void)
         http_client_init();
     }
 
+    //等待wifi初始化完毕
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     //初始化Elabel控制器
     ElabelController::Instance()->Init();//Elabel控制器初始化
     elabelUpdateTick = 0;
+
+    //初始化电池管理
+    BatteryManager::Instance()->init();
+
+    //等待电路初始化
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    //初始化gui
+    Gui_init();
+    //等待lvgl初始化
+    vTaskDelay(pdMS_TO_TICKS(2000));
 
     //初始化codec
     MCodec::Instance()->init();

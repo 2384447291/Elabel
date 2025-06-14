@@ -4,7 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "global_time.h"
-#define SLEEP_COUTDOWN 10000
+#define SLEEP_COUTDOWN 30000
 
 class ChoosingTaskState : public State<ElabelController>
 {

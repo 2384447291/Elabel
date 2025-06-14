@@ -10,6 +10,8 @@
 #include "../../components/ui/ui.h"
 #define MAX_time 3600
 
+void force_reset_elabel();
+
 class ElabelController;
 
 class ElabelFsm : public StateMachine<ElabelController>

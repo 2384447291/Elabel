@@ -96,7 +96,7 @@ void HostActiveState::Execute(ElabelController* pOwner)
 void HostActiveState::Exit(ElabelController* pOwner)
 {
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(change_button_choice);
-    ControlDriver::Instance()->button7.CallbackLongPress.unregisterCallback(change_button_choice);
+    ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(change_button_choice);
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_button_choice);
     stop_blue_activate();
     //等待2s蓝牙完全清理

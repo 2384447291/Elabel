@@ -1,6 +1,7 @@
 #include "ChoosingTaskState.hpp"
-// #include "Esp_now_client.hpp"
+#include "http.h"
 #include "control_driver.hpp"
+#include "codec.hpp"
 #include <cmath>
 
 void choose_next_task()
@@ -107,6 +108,15 @@ void choose_previous_task()
     ChoosingTaskState::Instance()->need_flash_paper = true;
 }
 
+void delete_task()
+{
+    int ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
+    char ChosenTaskId_str[10];
+    sprintf(ChosenTaskId_str, "%d", ChosenTaskId);
+    http_delet_todo(ChosenTaskId_str, true);
+    play_finish_task_sound();
+}
+
 void jump_to_task_mode()
 {
     if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
@@ -203,6 +213,8 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
 
     ControlDriver::Instance()->button_press_together_58.Togetherlongpress.registerCallback(jump_to_info_mode);
 
+    ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(delete_task);
+
     //给所有按键增加打断
     ControlDriver::Instance()->register_all_button_callback(reload_sleep_count);
 }
@@ -253,6 +265,8 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
 
     ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(jump_to_info_mode);
+
+    ControlDriver::Instance()->button3.CallbackLongPress.unregisterCallback(delete_task);
 
     //取消所有按键的打断
     ControlDriver::Instance()->unregister_button_callback(reload_sleep_count);

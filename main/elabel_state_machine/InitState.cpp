@@ -6,7 +6,7 @@
 #include "Esp_now_client.hpp"
 #include "Esp_now_slave.hpp"
 #include "Esp_now_host.hpp"
-#include "OtaPrepareState.hpp"
+#include "SleepState.hpp"
 
 static bool check_firmware_once = false;
 
@@ -20,9 +20,14 @@ void InitState::Enter(ElabelController* pOwner)
 {
     is_init = false;
     need_enter_ota = false;
-    lock_lvgl();
-    switch_screen(ui_HalfmindScreen);
-    release_lvgl();
+    //休眠状态的返回不刷新界面
+    if(pOwner->m_elabelFsm.GetPreviousState() != SleepState::Instance())
+    {
+        lock_lvgl();
+        switch_screen(ui_HalfmindScreen);
+        release_lvgl();
+    }
+
     ESP_LOGI(STATEMACHINE,"Enter InitState.");
     if(get_global_data()->m_is_host == 2)
     {
@@ -57,25 +62,15 @@ void InitState::Execute(ElabelController* pOwner)
 
         if(need_enter_ota) return;
 
-        //等待1swifi连接两秒稳定
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        //时间同步(堵塞等待)
-        HTTP_syset_time();
-        //获取挂墙时间
-        get_unix_time();
-
-        //等待1shttp连接稳定
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-
         //如果上一个任务的来源是otaprepare说明ota被拒绝了所以跳过这个判断
         if(!check_firmware_once)
         {
             check_firmware_once = true;
             //获取最新版本固件
-            http_get_latest_version(true);
+            bool get_firmware_need_update = http_get_latest_version(true);
 
             //如果判断为需要OTA
-            if(strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+            if(get_firmware_need_update && strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
             {
                 need_enter_ota = true;
             }
@@ -90,6 +85,11 @@ void InitState::Execute(ElabelController* pOwner)
         //刷新一下focus状态
         get_global_data()->m_focus_state->is_focus = 0;
         get_global_data()->m_focus_state->focus_task_id = 0;
+
+        //时间同步(堵塞等待)
+        HTTP_syset_time();
+        //获取挂墙时间
+        get_unix_time();
 
         //获取任务列表  
         http_get_todo_list(true);
@@ -114,6 +114,33 @@ void InitState::Execute(ElabelController* pOwner)
             return;
         }
 
+        if(need_enter_ota) return;
+
+        if(!check_firmware_once)
+        {
+            check_firmware_once = true;
+
+            //获取wifi
+            esp_err_t ret = EspNowSlave::Instance()->slave_send_espnow_http_get_wifi_info();
+            //等待2s收到反馈
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            //如果判断为需要OTA
+            if(ret == ESP_OK && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+            {
+                need_enter_ota = true;
+            }
+            else
+            {
+                ESP_LOGI("OTA", "No need OTA, newest version");
+            }
+        }
+
+        if(need_enter_ota) return;
+
+        //刷新一下focus状态
+        get_global_data()->m_focus_state->is_focus = 0;
+        get_global_data()->m_focus_state->focus_task_id = 0;
+
         //激活
         EspNowSlave::Instance()->slave_send_espnow_http_wakeup_request();
         
@@ -125,9 +152,6 @@ void InitState::Execute(ElabelController* pOwner)
 
         //获取挂墙时间
         EspNowSlave::Instance()->slave_send_espnow_http_get_time();
-
-        //获取wifi
-        EspNowSlave::Instance()->slave_send_espnow_http_get_wifi_info();
 
         is_init = true;
     }

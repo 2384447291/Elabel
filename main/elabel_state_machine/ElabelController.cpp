@@ -32,6 +32,29 @@
 #define STUCK_TIME 6000
 #define STUCK_RELOAD_TIME -4000
 
+void force_reset_elabel()
+{
+    //如果是主机
+    if(get_global_data()->m_is_host == 1)
+    {
+        http_unbind_device(true, get_global_data()->m_mac_uint);
+        for(int i = 0; i < get_global_data()->m_slave_num; i++)
+        {
+            //通知从机删除自己
+            EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->m_slave_info[i].mac);
+            //通知后端删除从机
+            http_unbind_device(true, get_global_data()->m_slave_info[i].mac);
+        }
+    }
+    //如果是从机
+    else if(get_global_data()->m_is_host == 2)
+    {
+        //通知主机删除自己
+        EspNowSlave::Instance()->slave_send_espnow_http_unbind_device();
+    }
+    reset_elabel();
+}
+
 ElabelController::ElabelController() : m_elabelFsm(this) {}
 // 初始化状态是init_state
 

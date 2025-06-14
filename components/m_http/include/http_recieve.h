@@ -45,61 +45,68 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     
     if(m_task_struct->task == FINDTODOLIST)
     {
-        // 获取 rows 数组
-        cJSON *data = cJSON_GetObjectItem(json, "rows");
-        int array_size = cJSON_GetArraySize(data);
+        // 获取 data 数组
+        cJSON *data = cJSON_GetObjectItem(json, "data");
+        int todo_type_array_size = cJSON_GetArraySize(data);
         clean_todo_list(get_global_data()->m_todo_list);
-        for (int i = 0; i < array_size; i++) 
+        // 有这么多类型的datatype
+        for (int i = 0; i < todo_type_array_size; i++) 
         {
-            cJSON *item = cJSON_GetArrayItem(data, i);
-            TodoItem todo;
-            cleantodoItem(&todo);
-            // 解析各字段
-            todo.createBy = cJSON_GetStringValue(cJSON_GetObjectItem(item, "createBy"));
+            //获取第一个todotype类型组
+            cJSON *todotype = cJSON_GetArrayItem(data, i);
+            cJSON *todolist = cJSON_GetObjectItem(todotype, "todoList");
+            int todo_array_size = cJSON_GetArraySize(todolist);
+            for (int j = 0; j < todo_array_size; j++) 
+            {
+                cJSON *item = cJSON_GetArrayItem(todolist, j);
+                TodoItem todo;
+                cleantodoItem(&todo);
+                // 解析各字段
+                todo.createBy = cJSON_GetStringValue(cJSON_GetObjectItem(item, "createBy"));
 
-            char *create_time_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "createTime"));
-            if (create_time_str != NULL) {
-                todo.createTime = strtoll(create_time_str, NULL, 10);
+                char *create_time_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "createTime"));
+                if (create_time_str != NULL) {
+                    todo.createTime = strtoll(create_time_str, NULL, 10);
+                }
+
+                todo.updateBy = cJSON_GetStringValue(cJSON_GetObjectItem(item, "updateBy"));
+
+                char *updateTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "updateTime"));
+                if (updateTime_str != NULL) {
+                    todo.updateTime = strtoll(updateTime_str, NULL, 10);
+                }
+
+                todo.remark = cJSON_GetStringValue(cJSON_GetObjectItem(item, "remark"));
+
+                todo.id = cJSON_GetObjectItem(item, "id")->valueint;
+
+                todo.title = cJSON_GetStringValue(cJSON_GetObjectItem(item, "title"));
+
+                todo.isPressing = cJSON_GetObjectItem(item, "isPressing")->valueint;
+
+                todo.todoType = cJSON_GetStringValue(cJSON_GetObjectItem(item, "todoType"));
+
+                todo.taskType = cJSON_GetObjectItem(item, "taskType")->valueint;
+
+                todo.isComplete = cJSON_GetObjectItem(item, "isComplete")->valueint;
+
+                char *startTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "startTime"));
+                if (startTime_str != NULL) {
+                    todo.startTime = strtoll(startTime_str, NULL, 10);
+                }
+
+                char *fallTiming_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "fallTiming"));
+                if (fallTiming_str != NULL) {
+                    todo.fallTiming = atoi(fallTiming_str);
+                }
+
+                todo.isFocus = cJSON_GetObjectItem(item, "isFocus")->valueint;
+
+                todo.isImportant = cJSON_GetObjectItem(item, "isImportant")->valueint;
+
+                Global_data* _global_data = get_global_data();
+                add_or_update_todo_item(_global_data->m_todo_list, todo);
             }
-
-            todo.updateBy = cJSON_GetStringValue(cJSON_GetObjectItem(item, "updateBy"));
-
-            char *updateTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "updateTime"));
-            if (updateTime_str != NULL) {
-
-                todo.updateTime = strtoll(updateTime_str, NULL, 10);
-            }
-
-            todo.remark = cJSON_GetStringValue(cJSON_GetObjectItem(item, "remark"));
-
-            todo.id = cJSON_GetObjectItem(item, "id")->valueint;
-
-            todo.title = cJSON_GetStringValue(cJSON_GetObjectItem(item, "title"));
-
-            todo.isPressing = cJSON_GetObjectItem(item, "isPressing")->valueint;
-
-            todo.todoType = cJSON_GetStringValue(cJSON_GetObjectItem(item, "todoType"));
-
-            todo.taskType = cJSON_GetObjectItem(item, "taskType")->valueint;
-
-            todo.isComplete = cJSON_GetObjectItem(item, "isComplete")->valueint;
-
-            char *startTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "startTime"));
-            if (startTime_str != NULL) {
-                todo.startTime = strtoll(startTime_str, NULL, 10);
-            }
-
-            char *fallTiming_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "fallTiming"));
-            if (fallTiming_str != NULL) {
-                todo.fallTiming = atoi(fallTiming_str);
-            }
-
-            todo.isFocus = cJSON_GetObjectItem(item, "isFocus")->valueint;
-
-            todo.isImportant = cJSON_GetObjectItem(item, "isImportant")->valueint;
-
-            Global_data* _global_data = get_global_data();
-            add_or_update_todo_item(_global_data->m_todo_list, todo);
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDTODOLIST");
     }
@@ -185,9 +192,13 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     snprintf(temp, sizeof(temp), "%.1s", setting_str + 6);
                     setting_info.is_idel_clock_time = atoi(temp);
 
-                    // 解析 volume (80)
+                    // 解析 volume (080)
                     snprintf(temp, sizeof(temp), "%.3s", setting_str + 7);
                     setting_info.sound_volume = atoi(temp);
+
+                    //解析 sleep_cycle (030)
+                    snprintf(temp, sizeof(temp), "%.3s", setting_str + 10);
+                    setting_info.sleep_time = atoi(temp);
                 }
                 
                 // 获取并转换 sn 为 MAC 地址
@@ -208,7 +219,14 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     get_global_data()->m_device_info.overtime_alert_time = setting_info.overtime_alert_time;
                     get_global_data()->m_device_info.is_idel_clock_time = setting_info.is_idel_clock_time;
                     get_global_data()->m_device_info.sound_volume = setting_info.sound_volume;
-                    ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d", MAC2STR(mac), get_global_data()->m_device_info.default_counter_time, get_global_data()->m_device_info.overtime_alert_time, get_global_data()->m_device_info.is_idel_clock_time, get_global_data()->m_device_info.sound_volume);
+                    get_global_data()->m_device_info.sleep_time = setting_info.sleep_time;
+                    ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d, sleep_time is %d", 
+                    MAC2STR(mac), 
+                    get_global_data()->m_device_info.default_counter_time, 
+                    get_global_data()->m_device_info.overtime_alert_time, 
+                    get_global_data()->m_device_info.is_idel_clock_time, 
+                    get_global_data()->m_device_info.sound_volume, 
+                    get_global_data()->m_device_info.sleep_time);
                 }
                 //查找是否位从机数据
                 else
@@ -222,7 +240,14 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                             get_global_data()->m_slave_info[i].setting.overtime_alert_time = setting_info.overtime_alert_time;
                             get_global_data()->m_slave_info[i].setting.is_idel_clock_time = setting_info.is_idel_clock_time;
                             get_global_data()->m_slave_info[i].setting.sound_volume = setting_info.sound_volume;
-                            ESP_LOGI("HTTP", "Save setting to slave " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d", MAC2STR(mac), get_global_data()->m_slave_info[i].setting.default_counter_time, get_global_data()->m_slave_info[i].setting.overtime_alert_time, get_global_data()->m_slave_info[i].setting.is_idel_clock_time, get_global_data()->m_slave_info[i].setting.sound_volume);
+                            get_global_data()->m_slave_info[i].setting.sleep_time = setting_info.sleep_time;
+                            ESP_LOGI("HTTP", "Save setting to slave " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, sound_volume is %d, sleep_time is %d", 
+                            MAC2STR(mac), 
+                            get_global_data()->m_slave_info[i].setting.default_counter_time, 
+                            get_global_data()->m_slave_info[i].setting.overtime_alert_time, 
+                            get_global_data()->m_slave_info[i].setting.is_idel_clock_time, 
+                            get_global_data()->m_slave_info[i].setting.sound_volume, 
+                            get_global_data()->m_slave_info[i].setting.sleep_time);
                         }
                     }
                 }

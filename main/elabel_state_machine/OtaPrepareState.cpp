@@ -113,7 +113,13 @@ void OtaPrepareState::Enter(ElabelController* pOwner)
         if(EspNowSlave::Instance()->slave_send_espnow_http_get_wifi_info() == ESP_OK)
         {
             //等待1s获取返回的wifi——info
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+        }
+        //获取最新的user token
+        if(EspNowSlave::Instance()->slave_send_espnow_http_get_user_token() == ESP_OK)
+        {
+            //等待1s获取返回的user token
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
         }
     }
 

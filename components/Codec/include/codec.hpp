@@ -58,9 +58,6 @@ public:
     void play_music(const char* filename);
     void play_mic();
     void stop_play();
-    
-    void set_volume(uint8_t volume);
-    void set_mic_gain(float gain);
 
     static MCodec* Instance() {
         static MCodec instance;
@@ -91,22 +88,20 @@ public:
         .sample_rate = SPEAKER_SAMPLE_RATE,
         .mclk_multiple = I2S_MCLK_MULTIPLE_256,
     };
-    uint8_t codec_gain = 25;
-    uint8_t codec_vol = get_global_data()->m_device_info.sound_volume;
     
     void open_speaker_dev(uint32_t sample_rate)
     {
         fs.sample_rate = sample_rate;
         esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_in_gain(codec_dev, 0);
-        esp_codec_dev_set_out_vol(codec_dev, codec_vol);
+        esp_codec_dev_set_out_vol(codec_dev, get_global_data()->m_device_info.sound_volume);
     }
 
     void open_mic_dev(uint32_t sample_rate)
     {
         fs.sample_rate = sample_rate;
         esp_codec_dev_open(codec_dev, &fs);
-        esp_codec_dev_set_in_gain(codec_dev, codec_gain);
+        esp_codec_dev_set_in_gain(codec_dev, 25);
         esp_codec_dev_set_out_vol(codec_dev, 0);
     }
     void close_dev()

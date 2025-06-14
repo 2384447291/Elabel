@@ -14,9 +14,8 @@
 #include "esp_now_slave.hpp"
 #include <vector>
 
-#define WAKEUP_INTERVAL_SEC 15
 //等待收同步消息的间隔
-#define ESPNOW_WAITING_TIME 100
+#define ESPNOW_WAITING_TIME 500
 
 class SleepState : public State<ElabelController>
 {
@@ -57,7 +56,7 @@ public:
         //不设置唤醒源，light-sleep-enter没有用
         uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_567) | (1ULL << DEVICE_BUTTON_8);
         ESP_ERROR_CHECK(esp_sleep_enable_ext1_wakeup(mask, ESP_EXT1_WAKEUP_ANY_HIGH));  // 任意引脚高电平触发唤醒
-        ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(WAKEUP_INTERVAL_SEC * 1000000ULL));
+        ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(get_global_data()->m_device_info.sleep_time * 1000000ULL));
         //进入休眠
         int64_t t_before_us = esp_timer_get_time();
         uart_wait_tx_idle_polling((uart_port_t)CONFIG_ESP_CONSOLE_UART_NUM);
@@ -66,7 +65,7 @@ public:
         int64_t t_after_us = esp_timer_get_time();
         int64_t slept_ms = (t_after_us - t_before_us) / 1000;
         
-        if(slept_ms < WAKEUP_INTERVAL_SEC*1000)
+        if(slept_ms < get_global_data()->m_device_info.sleep_time*1000)
         {
             printf("Woke up from sleep GPIO interrupt\n");
             out_sleep();

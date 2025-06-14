@@ -307,7 +307,7 @@ public:
         ota_prepare_wait_tick = OTA_WAIT_TICK;
         need_flash_paper = false;
         check_firmware_content();
-
+        current_step = 0;
         lock_lvgl();
 
         switch_screen(ui_OTAScreen);
@@ -340,9 +340,17 @@ public:
         if(_need_enter_ota)
         {
             need_enter_ota = true;
+            need_out_ota_prepare = false;
         }
+        //如果不需要ota
         else
         {
+            //如果是从机还要断开wifi
+            if(get_global_data()->m_is_host == 2)
+            {
+                m_wifi_disconnect();
+            }
+            need_enter_ota = false;
             need_out_ota_prepare = true;
         }
     }

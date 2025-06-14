@@ -217,9 +217,7 @@ void OperatingRecorderState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_record_confirm_button_choice);
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(change_record_confirm_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(change_record_confirm_button_choice);
-    //很重要这个结算顺序，一定要最后结算这个打断，要不打断完了跳转，会继续结算上面两个按键
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(finish_record);
-    //很重要这个结算顺序，一定要最后结算这个打断，要不打断完了跳转，会继续结算上面两个按键
     ControlDriver::Instance()->unregister_button_callback(reset_auto_start);
     ESP_LOGI(STATEMACHINE,"Out OperatingRecorderState.\n");
 

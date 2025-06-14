@@ -106,7 +106,7 @@ public:
         //绑定设备
         http_bind_device(true,get_global_data()->m_mac_uint);
         //保存设置
-        http_save_setting(true,"0050101080",get_global_data()->m_mac_uint);
+        http_save_setting(true,"0050101080030",get_global_data()->m_mac_uint);
         //保存电池电量
         int battery_level = BatteryManager::Instance()->getBatteryLevelInt();
         http_save_power(true,battery_level,get_global_data()->m_mac_uint);

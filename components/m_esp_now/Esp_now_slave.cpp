@@ -107,6 +107,11 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Wifi_Info_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_wifi_info(data_ptr, size);
     }
+    else if(m_message_type == Host2Slave_Get_UserToken_Control_Mqtt)
+    {
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_UserToken_Control_Mqtt message.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_user_token(data_ptr, size);
+    }
     return ESP_OK;
 }
 
@@ -303,6 +308,20 @@ esp_err_t EspNowSlave::slave_send_espnow_http_get_wifi_info()
     return ret;
 }
 
+esp_err_t EspNowSlave::slave_send_espnow_http_get_user_token()
+{
+    uint8_t temp_data = 0;
+    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Get_UserToken_Request_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send get user token request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send get user token request message success");
+    }
+    return ret;
+}
 esp_err_t EspNowSlave::slave_send_espnow_http_unbind_device()
 {
     uint8_t temp_data = 0;
@@ -323,7 +342,6 @@ esp_err_t EspNowSlave::slave_send_espnow_http_unbind_device()
 //----------------------------------------------------------------------------从机回复主机的函数----------------------------------------------------------------------------//
 void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size)
 {
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Send_Task_List_Control_Mqtt message");
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
     bool clear_flag = data[1];  // 获取清除标志
 
@@ -365,15 +383,17 @@ void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_device_info(uint8_t* data, size_t size)
 {
-    get_global_data()->m_device_info.default_counter_time = data[0];
-    get_global_data()->m_device_info.overtime_alert_time = data[1];
-    get_global_data()->m_device_info.is_idel_clock_time = data[2];
-    get_global_data()->m_device_info.sound_volume = data[3];
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d", 
+    get_global_data()->m_device_info.default_counter_time = (data[0] << 8) | data[1];
+    get_global_data()->m_device_info.overtime_alert_time = (data[2] << 8) | data[3];
+    get_global_data()->m_device_info.is_idel_clock_time = data[4] & 0x01;
+    get_global_data()->m_device_info.sound_volume = data[5];
+    get_global_data()->m_device_info.sleep_time = (data[6] << 8) | data[7];
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d, sleep time: %d", 
     get_global_data()->m_device_info.default_counter_time, 
     get_global_data()->m_device_info.overtime_alert_time, 
     get_global_data()->m_device_info.is_idel_clock_time, 
-    get_global_data()->m_device_info.sound_volume);
+    get_global_data()->m_device_info.sound_volume,
+    get_global_data()->m_device_info.sleep_time);
 }
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_time(uint8_t* data, size_t size)
@@ -452,10 +472,23 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_wifi_info(uint8_t* data, size_t
 {
     uint8_t wifi_name_len = data[0];
     uint8_t wifi_password_len = data[1 + wifi_name_len];
-    uint8_t usertoken_len = data[2 + wifi_name_len + wifi_password_len];
+    uint8_t firmware_version_len = data[2 + wifi_name_len + wifi_password_len];
+
+    memset(get_global_data()->m_wifi_ssid, 0, sizeof(get_global_data()->m_wifi_ssid));
+    memset(get_global_data()->m_wifi_password, 0, sizeof(get_global_data()->m_wifi_password));
+    memset(get_global_data()->m_version, 0, sizeof(get_global_data()->m_version));
+
     memcpy(get_global_data()->m_wifi_ssid, data + 1, wifi_name_len);
     memcpy(get_global_data()->m_wifi_password, data + 1 + wifi_name_len + 1, wifi_password_len);
-    memcpy(get_global_data()->m_usertoken, data + 1 + wifi_name_len + 1 + wifi_password_len, usertoken_len);
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Wifi_Info_Control_Mqtt message, wifi name: %s, wifi password: %s, usertoken: %s", get_global_data()->m_wifi_ssid, get_global_data()->m_wifi_password, get_global_data()->m_usertoken);
+    memcpy(get_global_data()->m_version, data + 1 + wifi_name_len + 1 + wifi_password_len + 1, firmware_version_len);
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Wifi_Info_Control_Mqtt message, wifi name: %s, wifi password: %s, firmware version: %s", get_global_data()->m_wifi_ssid, get_global_data()->m_wifi_password, get_global_data()->m_version);
+}
+
+void EspNowSlave::slave_respense_espnow_mqtt_get_user_token(uint8_t* data, size_t size)
+{
+    uint8_t user_token_len = data[0];
+    memset(get_global_data()->m_usertoken, 0, sizeof(get_global_data()->m_usertoken));
+    memcpy(get_global_data()->m_usertoken, data + 1, user_token_len);
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_UserToken_Control_Mqtt message, user token: %s", get_global_data()->m_usertoken);
 }
 //----------------------------------------------------------------------------从机回复主机的函数----------------------------------------------------------------------------//

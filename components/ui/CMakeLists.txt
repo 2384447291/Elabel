@@ -45,3 +45,4 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     fonts/ui_font_Chinese24.c
     fonts/ui_font_Chinese32.c
     REQUIRES lvgl)
+

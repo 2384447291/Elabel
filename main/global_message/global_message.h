@@ -10,7 +10,7 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.9"
+#define FIRMWARE_VERSION "3.0.16"
 #define DEVICE_MODEL "R01A_TEST"
 #define LANGUAGE "EN"
 
@@ -54,10 +54,10 @@ typedef struct {
 typedef struct {
     int power;//-1表示正在充电，0-100表示电量
     bool is_idel_clock_time;
-    uint8_t default_counter_time;
-    uint8_t overtime_alert_time;
+    uint16_t default_counter_time;
+    uint16_t overtime_alert_time;
     uint8_t sound_volume;
-    uint8_t sleep_time;
+    uint16_t sleep_time;
 } device_info;
 
 typedef struct {

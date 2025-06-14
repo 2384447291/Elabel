@@ -278,24 +278,6 @@ void MCodec::deinit()
     esp_codec_deinit(codec_dev);
 }
 
-void MCodec::set_volume(uint8_t volume)
-{
-    if (codec_dev)
-    {
-        MCodec::Instance()->codec_vol = volume;
-        ESP_LOGI(TAG, "Volume set to %d", volume);
-    }
-}
-
-void MCodec::set_mic_gain(float gain)
-{
-    if (codec_dev)
-    {
-        MCodec::Instance()->codec_gain = gain;
-        ESP_LOGI(TAG, "Mic gain set to %.1f", gain);
-    }
-}
-
 void MCodec::start_record()
 {
     if (mic_task != NULL)

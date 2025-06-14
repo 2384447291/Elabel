@@ -53,7 +53,7 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         EspNowHost::Instance()->Add_new_slave(src_addr);
         //告知后端
         http_bind_device(true,src_addr);
-        http_save_setting(true,"0050101080",src_addr);
+        http_save_setting(true,"0050101080030",src_addr);
         http_save_power(true,-1,src_addr);
     }
     //--------------------------------绑定请求--------------------------------//
@@ -158,6 +158,14 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         {
             ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Wifi_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
             EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr);
+        }
+    }
+    else if(m_message_type == Slave2Host_Get_UserToken_Request_Http)
+    {
+        if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
+        {
+            ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_UserToken_Request_Http from " MACSTR, MAC2STR(src_addr));
+            EspNowHost::Instance()->Mqtt_send_usertoken(src_addr);
         }
     }
     else if(m_message_type == Slave2Host_Unbind_Device_Control_Http)
@@ -359,11 +367,20 @@ void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
     {
         if(Same_mac(get_global_data()->m_slave_info[i].mac, slave_mac))
         {
-            temp_data[0] = get_global_data()->m_slave_info[i].setting.default_counter_time;
-            temp_data[1] = get_global_data()->m_slave_info[i].setting.overtime_alert_time;
-            temp_data[2] = get_global_data()->m_slave_info[i].setting.is_idel_clock_time;
-            temp_data[3] = get_global_data()->m_slave_info[i].setting.sound_volume;
-            send_message_ack(temp_data, 4, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
+            temp_data[0] = (get_global_data()->m_slave_info[i].setting.default_counter_time >> 8) & 0xFF;
+            temp_data[1] = get_global_data()->m_slave_info[i].setting.default_counter_time & 0xFF;
+
+            temp_data[2] = (get_global_data()->m_slave_info[i].setting.overtime_alert_time >> 8) & 0xFF;
+            temp_data[3] = get_global_data()->m_slave_info[i].setting.overtime_alert_time & 0xFF;
+
+            temp_data[4] = get_global_data()->m_slave_info[i].setting.is_idel_clock_time;
+
+            temp_data[5] = get_global_data()->m_slave_info[i].setting.sound_volume;
+            
+            temp_data[6] = (get_global_data()->m_slave_info[i].setting.sleep_time >> 8) & 0xFF;
+            temp_data[7] = get_global_data()->m_slave_info[i].setting.sleep_time & 0xFF;
+
+            send_message_ack(temp_data, 8, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
             return;
         }
     }
@@ -460,13 +477,22 @@ void EspNowHost::Mqtt_update_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
     }
 }
 
+void EspNowHost::Mqtt_send_usertoken(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+{
+    uint8_t user_token_len = strlen(get_global_data()->m_usertoken);
+    uint8_t temp_data[user_token_len + 1];
+    temp_data[0] = user_token_len;
+    memcpy(temp_data + 1, get_global_data()->m_usertoken, user_token_len);
+    send_message_ack(temp_data, user_token_len + 1, Host2Slave_Get_UserToken_Control_Mqtt, slave_mac);
+}
+
 void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
 {
     uint8_t wifi_name_len = strlen(get_global_data()->m_wifi_ssid);
     uint8_t wifi_password_len = strlen(get_global_data()->m_wifi_password);
-    uint8_t usertoken_len = strlen(get_global_data()->m_usertoken);
+    uint8_t firmware_version_len = strlen(FIRMWARE_VERSION);
     
-    uint8_t total_len = wifi_name_len + wifi_password_len + usertoken_len + 3;
+    uint8_t total_len = wifi_name_len + wifi_password_len + firmware_version_len + 3;
     uint8_t temp_data[total_len];
 
     temp_data[0] = wifi_name_len;
@@ -475,8 +501,9 @@ void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     temp_data[1 + wifi_name_len] = wifi_password_len;
     memcpy(2 + temp_data + wifi_name_len, get_global_data()->m_wifi_password, wifi_password_len);
 
-    temp_data[2 + wifi_name_len + wifi_password_len] = usertoken_len;
-    memcpy(3 + temp_data + wifi_name_len + wifi_password_len, get_global_data()->m_usertoken, usertoken_len);
+    temp_data[2 + wifi_name_len + wifi_password_len] = firmware_version_len;
+    memcpy(3 + temp_data + wifi_name_len + wifi_password_len, FIRMWARE_VERSION, firmware_version_len);
+
     send_message_ack(temp_data, total_len, Host2Slave_Get_Wifi_Info_Control_Mqtt, slave_mac);
 }
 

@@ -32,6 +32,7 @@ class EspNowSlave {
         esp_err_t slave_send_espnow_http_wakeup_request();
         esp_err_t slave_send_espnow_http_synchronous_request();
         esp_err_t slave_send_espnow_http_get_wifi_info();
+        esp_err_t slave_send_espnow_http_get_user_token();
         esp_err_t slave_send_espnow_http_unbind_device();
 
         // 从机收到主机需要怎么反应
@@ -42,6 +43,7 @@ class EspNowSlave {
         void slave_respense_espnow_mqtt_get_out_focus();
         void slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_t size);
         void slave_respense_espnow_mqtt_get_wifi_info(uint8_t* data, size_t size);
+        void slave_respense_espnow_mqtt_get_user_token(uint8_t* data, size_t size);
 
         // 必须收到ack，爆发1s共10次，尝试4次
         esp_err_t send_message(uint8_t* data, size_t size, message_type m_message_type)

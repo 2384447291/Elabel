@@ -82,7 +82,7 @@ public:
         release_lvgl();
 
         //防止按键的声音和提示音混在一起了
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         MCodec::Instance()->stop_play();
         MCodec::Instance()->play_music("record");
         while(MCodec::Instance()->speaker_task!=NULL)
