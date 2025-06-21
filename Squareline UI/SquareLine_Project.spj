@@ -2130,7 +2130,7 @@
                   {
                     "nid": 1030,
                     "strtype": "LABEL/Text",
-                    "strval": "-Test ota description display format asdasdas asd",
+                    "strval": "-Test ota description display format asdasdas asdasd",
                     "InheritedType": 10
                   },
                   {
@@ -15726,7 +15726,7 @@
                               {
                                 "nid": 15,
                                 "strtype": "_codename/Codename",
-                                "strval": "Task2",
+                                "strval": "Task",
                                 "InheritedType": 10
                               }
                             ],
@@ -15767,11 +15767,11 @@
                           },
                           {
                             "nid": 60,
-                            "flags": 17,
+                            "flags": 49,
                             "strtype": "OBJECT/Size",
                             "intarray": [
-                              180,
-                              40
+                              220,
+                              1
                             ],
                             "InheritedType": 7
                           },
@@ -15819,13 +15819,13 @@
                           {
                             "nid": 1020,
                             "strtype": "LABEL/Long_mode",
-                            "strval": "SCROLL_CIRCULAR",
+                            "strval": "WRAP",
                             "InheritedType": 3
                           },
                           {
                             "nid": 1030,
                             "strtype": "LABEL/Text",
-                            "strval": "fuck you asdasdasd",
+                            "strval": "我和你心连心同住地球",
                             "InheritedType": 10
                           },
                           {
@@ -15862,7 +15862,7 @@
                                   {
                                     "nid": 10450,
                                     "strtype": "_style/Text_Font",
-                                    "strval": "Chinese32",
+                                    "strval": "Chinese24",
                                     "InheritedType": 3
                                   }
                                 ],
@@ -15930,11 +15930,11 @@
                       },
                       {
                         "nid": 60,
-                        "flags": 17,
+                        "flags": 49,
                         "strtype": "OBJECT/Size",
                         "intarray": [
-                          180,
-                          40
+                          220,
+                          1
                         ],
                         "InheritedType": 7
                       },
@@ -15982,13 +15982,13 @@
                       {
                         "nid": 1020,
                         "strtype": "LABEL/Long_mode",
-                        "strval": "SCROLL_CIRCULAR",
+                        "strval": "WRAP",
                         "InheritedType": 3
                       },
                       {
                         "nid": 1030,
                         "strtype": "LABEL/Text",
-                        "strval": "fuck you asdasdasd",
+                        "strval": "我和你心连心同住地球",
                         "InheritedType": 10
                       },
                       {
@@ -16025,7 +16025,7 @@
                               {
                                 "nid": 10450,
                                 "strtype": "_style/Text_Font",
-                                "strval": "Chinese32",
+                                "strval": "Chinese24",
                                 "InheritedType": 3
                               }
                             ],
@@ -21612,25 +21612,25 @@
               {
                 "nid": 1050,
                 "strtype": "IMGBUTTON/Image_disabled",
-                "strval": "",
+                "strval": "-",
                 "InheritedType": 5
               },
               {
                 "nid": 1060,
                 "strtype": "IMGBUTTON/Image_checked_released",
-                "strval": "",
+                "strval": "-",
                 "InheritedType": 5
               },
               {
                 "nid": 1070,
                 "strtype": "IMGBUTTON/Image_checked_pressed",
-                "strval": "",
+                "strval": "-",
                 "InheritedType": 5
               },
               {
                 "nid": 1080,
                 "strtype": "IMGBUTTON/Image_checked_disabled",
-                "strval": "",
+                "strval": "-",
                 "InheritedType": 5
               },
               {
@@ -22646,7 +22646,7 @@
     "uiExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\components\\ui",
     "projectExportFolderPath": "C:\\Users\\slj\\Desktop\\Elabel\\Squareline UI",
     "custom_variable_prefix": "uic",
-    "backup_cnt": 197,
+    "backup_cnt": 209,
     "autosave_cnt": 0,
     "lvgl_version": "8.3.11",
     "callfuncsexport": "C_FILE",

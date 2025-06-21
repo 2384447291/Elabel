@@ -34,6 +34,8 @@ class EspNowSlave {
         esp_err_t slave_send_espnow_http_get_wifi_info();
         esp_err_t slave_send_espnow_http_get_user_token();
         esp_err_t slave_send_espnow_http_unbind_device();
+        esp_err_t slave_send_espnow_http_send_power_message(int power_state);
+        esp_err_t slave_send_espnow_http_delete_task(int task_id);
 
         // 从机收到主机需要怎么反应
         void slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size);

@@ -106,7 +106,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_VersionDescribtion, 0);
     lv_obj_set_y(ui_VersionDescribtion, 5);
     lv_obj_set_align(ui_VersionDescribtion, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_VersionDescribtion, "-Test ota description display format asdasdas asd");
+    lv_label_set_text(ui_VersionDescribtion, "-Test ota description display format asdasdas asdasd");
     lv_obj_set_style_text_align(ui_VersionDescribtion, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_VersionDescribtion, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 

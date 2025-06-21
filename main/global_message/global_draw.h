@@ -15,6 +15,8 @@ void set_text_without_change_font(lv_obj_t * target_label,  const char * text);
 void Gui_init();
 void suspend_gui();
 void resume_gui();
+
+uint16_t lv_label_count_lines_wrap(lv_obj_t * label, char* first_title);
 #ifdef __cplusplus
 }
 #endif

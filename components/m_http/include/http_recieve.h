@@ -211,7 +211,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                            &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
                 }
 
-                // 检测是否位主机
+                // 属不属于自己的主机
                 if(memcmp(get_global_data()->m_mac_uint, mac, 6) == 0)
                 {
                     Is_get_host_device_Info = true;
@@ -228,7 +228,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     get_global_data()->m_device_info.sound_volume, 
                     get_global_data()->m_device_info.sleep_time);
                 }
-                //查找是否位从机数据
+                //属不属于主机序列下的从机
                 else
                 {
                     for(int i = 0; i < get_global_data()->m_slave_num; i++)
@@ -253,7 +253,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 }
             }
             
-            //记录unbind的数据
+            //如果没有收到主机的信息则解绑自己
             if(!Is_get_host_device_Info)
             {
                 ESP_LOGE("HTTP", "Host device info is not get, host " MACSTR " unbind", MAC2STR(get_global_data()->m_mac_uint));
@@ -262,6 +262,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 get_global_data()->unbind_device_num++;
             }
             
+            //如果没有收到从机的信息则解绑对应从机
             for(int i = 0; i < get_global_data()->m_slave_num; i++)
             {
                 if(!Is_get_slave_device_Info[i])

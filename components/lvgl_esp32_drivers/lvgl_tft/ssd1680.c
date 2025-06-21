@@ -64,7 +64,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
 {
     if(lock_flush) return;
     lv_obj_t * act_scr = lv_scr_act();
-    if(act_scr == ui_HalfmindScreen) //只能快刷
+    if(act_scr == ui_HalfmindScreen) 
     {
         force_full_update = false;
         elabel_screen = HALFMIND_SCREEN;
@@ -72,7 +72,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
     }
-    else if(act_scr == ui_SleepScreen) //只能快刷
+    else if(act_scr == ui_SleepScreen) 
     {
         force_full_update = false;
         elabel_screen = SLEEP_SCREEN;
@@ -80,13 +80,20 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_SleepScreen Flush called.");
     }
-    else if(act_scr == ui_MessageScreen) //只能快刷
+    else if(act_scr == ui_MessageScreen) 
     {
-        force_full_update = false;
-        elabel_screen = MESSAGE_SCREEN;
-        isBaseMapFresh = false;
-        elabel_update_mode = FAST_UPDATE;
-        ESP_LOGI(TAG,"ui_MessageScreen Flush called.");
+        if(elabel_screen != MESSAGE_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_screen = MESSAGE_SCREEN;
+            isBaseMapFresh = false;
+            elabel_update_mode = FAST_UPDATE;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
+        ESP_LOGI(TAG,"ui_MessageScreen Flush called.");     
     }
     else if(act_scr == ui_ShutdownScreen)
     {
@@ -96,12 +103,19 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_ShutdownScreen Flush called.");
     }
-    else if(act_scr == ui_ActiveScreen) //只能快刷
+    else if(act_scr == ui_ActiveScreen) 
     {
-        force_full_update = false;
-        elabel_screen = ACTIVE_SCREEN;
-        isBaseMapFresh = false;
-        elabel_update_mode = FAST_UPDATE;
+        if(elabel_screen != ACTIVE_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_screen = ACTIVE_SCREEN;
+            isBaseMapFresh = false;
+            elabel_update_mode = FAST_UPDATE;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
         ESP_LOGI(TAG,"ui_ActiveScreen Flush called.");
     }
     else if(act_scr == ui_HostActiveScreen)

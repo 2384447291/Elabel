@@ -112,6 +112,7 @@ void HTTP_syset_time(void)
     if(err != ESP_OK) 
     {
         ESP_LOGE("HTTP_SYTIME", "HTTP GET request failed: %s", esp_err_to_name(err));
+        send_error = true;
     }
 
     esp_http_client_cleanup(sys_time_client); 

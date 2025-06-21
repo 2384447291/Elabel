@@ -227,7 +227,7 @@ lv_obj_t * ui_Image13;
 // CUSTOM VARIABLES
 lv_obj_t * uic_FocusScreen;
 lv_obj_t * uic_FocusTask;
-lv_obj_t * uic_Task2;
+lv_obj_t * uic_Task;
 lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTime1;

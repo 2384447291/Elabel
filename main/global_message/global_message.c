@@ -199,12 +199,9 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
 {
     if(item.isFocus == 1)
     {   
-        if(get_global_data()->m_focus_state->is_focus != 1) 
-        {
-            get_global_data()->m_focus_state->is_focus = 1;
-            get_global_data()->m_focus_state->focus_task_id = item.id;
-            ESP_LOGI("Task_list", "A New focus Task show up, its title is %s, its id is %d.\n", item.title, item.id);
-        }
+        get_global_data()->m_focus_state->is_focus = 1;
+        get_global_data()->m_focus_state->focus_task_id = item.id;
+        ESP_LOGI("Task_list", "A New focus Task show up, its title is %s, its id is %d.\n", item.title, item.id);
     }
 
     list->items = (TodoItem *)realloc(list->items, (list->size + 1) * sizeof(TodoItem));
@@ -238,6 +235,7 @@ Global_data* get_global_data() {
         instance = (Global_data*)malloc(sizeof(Global_data));
         if (instance != NULL) 
         {
+            instance->reset_count = 0;
             instance->m_is_host = 0;
 
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));

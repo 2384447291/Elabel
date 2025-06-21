@@ -22,16 +22,6 @@ typedef enum
     HALFMIND_STATE,
 } bitmap_state;
 
-// typedef enum
-// {
-//     //HostActive
-//     HOSTACTIVE_LOWER_PLACE,
-//     TASK_LIST,
-//     OTA_PROCESS,
-//     TIME_SET,
-//     TIME_CHANGE,
-// } partial_area;
-
 typedef enum
 {
     BITMAP_UPDATE,

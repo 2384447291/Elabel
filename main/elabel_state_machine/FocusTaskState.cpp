@@ -15,12 +15,12 @@ void outfocus()
     if(get_global_data()->m_is_host == 1)
     {
         char sstr[12];
-        sprintf(sstr, "%d", get_global_data()->m_focus_state->focus_task_id);
+        sprintf(sstr, "%ld", FocusTaskState::Instance()->focus_task_id);
         http_out_focus(sstr,false);
     }
     else if(get_global_data()->m_is_host == 2)
     {
-        focus_message_t focus_message = pack_focus_message(0, 0, 0,get_global_data()->m_focus_state->focus_task_id, (char*)"");
+        focus_message_t focus_message = pack_focus_message(0, 0, 0,FocusTaskState::Instance()->focus_task_id, (char*)"");
         EspNowSlave::Instance()->slave_send_espnow_http_out_focus_task(focus_message);
     }
 }
@@ -37,16 +37,21 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
     inner_time_countdown_ms = 0;
     inner_time_countdown_s = 0;
+    inner_time_countup_ms = 0;
     need_out_focus = false;
-    focus_type = 0;
-    focus_task_id = 0;
+    need_enter_sleep = false;
     need_flash_paper = false;
+    focus_type = 0;
+    focus_record_message_unique_id = 0;
+    choose_task_fall_timing = 0;
+    choose_task_start_time = 0;
+
     
     TodoItem* chose_todo;
-    chose_todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
+    chose_todo = find_todo_by_id(get_global_data()->m_todo_list, FocusTaskState::Instance()->focus_task_id);
     focus_type = chose_todo->taskType;
-
-    focus_task_id = chose_todo->id;
+    choose_task_fall_timing = chose_todo->fallTiming;
+    choose_task_start_time = chose_todo->startTime;
 
     char focus_task_name[100];
     memset(focus_task_name, 0, sizeof(focus_task_name));
@@ -67,7 +72,6 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
     inner_time_countdown_ms = pOwner->TimeCountdown*1000;
     inner_time_countdown_s = pOwner->TimeCountdown;
-    inner_time_music_deal_with_count = 0;
 
     //更新屏幕
     lock_lvgl();
@@ -101,7 +105,8 @@ void FocusTaskState::Enter(ElabelController* pOwner)
         lv_obj_clear_flag(ui_TaskFocus1, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_TaskFocus2, LV_OBJ_FLAG_HIDDEN);
 
-        set_text_without_change_font(ui_FocusTask, chose_todo->title);
+        //更新任务描述
+        change_focus_task_label(chose_todo->title);
         set_text_without_change_font(ui_TaskFocusTime, timestr);
     }
     else if(focus_type == 3)
@@ -124,6 +129,8 @@ void FocusTaskState::Enter(ElabelController* pOwner)
 
 void FocusTaskState::Execute(ElabelController* pOwner)
 {
+    if(need_enter_sleep) return;
+
     if(need_out_focus) 
     {
         if(elabelUpdateTick % 100 == 0)
@@ -133,13 +140,23 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         return;
     }
 
-    if(inner_time_music_deal_with_count == 0)
+    if(get_global_data()->m_is_host == 1)
     {
-        post_music_info();
+        if(inner_time_countup_ms == 0)
+        {
+            post_music_info();
+        }
+        else if(inner_time_countup_ms == 5000)
+        {
+            get_music_info();
+        }
     }
-    else if(inner_time_music_deal_with_count == 5000)
+    else if(get_global_data()->m_is_host == 2)
     {
-        get_music_info();
+        if(inner_time_countup_ms == 4000)
+        {
+            need_enter_sleep = true;
+        }
     }
     
     if(elabelUpdateTick % 1000 == 0)
@@ -151,10 +168,8 @@ void FocusTaskState::Execute(ElabelController* pOwner)
     if(elabelUpdateTick % 20 == 0)
     {
         inner_time_countdown_ms-=20;
-        inner_time_music_deal_with_count+=20;
+        inner_time_countup_ms+=20;
     }
-
-
 
     //当时间大于5分钟，每5min响一次
     if(inner_time_countdown_ms >= 300000 )
@@ -165,6 +180,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
             ESP_LOGI(STATEMACHINE,"play long beep:%d",inner_time_countdown_ms);
         }
     }
+    
     //当时间大于1分钟，每1min响一次
     else if(inner_time_countdown_ms >= 60000)
     {

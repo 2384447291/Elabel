@@ -26,28 +26,26 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_style_bg_opa(ui_TaskFocus1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_FocusTask = lv_label_create(ui_TaskFocus1);
-    lv_obj_set_width(ui_FocusTask, 180);
-    lv_obj_set_height(ui_FocusTask, 40);
+    lv_obj_set_width(ui_FocusTask, 220);
+    lv_obj_set_height(ui_FocusTask, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_FocusTask, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_FocusTask, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(ui_FocusTask, "fuck you asdasdasd");
+    lv_label_set_text(ui_FocusTask, "我和你心连心同住地球");
     lv_obj_set_style_text_color(ui_FocusTask, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTask, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_FocusTask, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTask, &ui_font_Chinese32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTask, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Task = lv_label_create(ui_FocusTask);
-    lv_obj_set_width(ui_Task, 180);
-    lv_obj_set_height(ui_Task, 40);
+    lv_obj_set_width(ui_Task, 220);
+    lv_obj_set_height(ui_Task, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Task, -1);
     lv_obj_set_y(ui_Task, 0);
     lv_obj_set_align(ui_Task, LV_ALIGN_CENTER);
-    lv_label_set_long_mode(ui_Task, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(ui_Task, "fuck you asdasdasd");
+    lv_label_set_text(ui_Task, "我和你心连心同住地球");
     lv_obj_set_style_text_color(ui_Task, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Task, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_Task, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Task, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TaskFocus2 = lv_obj_create(ui_TaskFocus);
     lv_obj_set_width(ui_TaskFocus2, 250);
@@ -298,7 +296,7 @@ void ui_FocusScreen_screen_init(void)
 
     uic_FocusScreen = ui_FocusScreen;
     uic_FocusTask = ui_FocusTask;
-    uic_Task2 = ui_Task;
+    uic_Task = ui_Task;
     uic_FocusTime1 = ui_TaskFocusTime;
     uic_FocusTime1 = ui_FocusTime2;
     uic_FocusTime1 = ui_RecordFocusTime;

@@ -85,7 +85,11 @@ void InfoState::Enter(ElabelController* pOwner)
         EspNowClient::Instance()->start_test_connecting_task(false);
     }
 
-    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.registerCallback(out_info);
+    ControlDriver::Instance()->button1.CallbackShortPress.registerCallback(out_info);
+    ControlDriver::Instance()->button4.CallbackShortPress.registerCallback(out_info);
+    ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(out_info);
+    ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(out_info);
+
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(previous_info);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(next_info);
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_ota_button);
@@ -168,7 +172,11 @@ void InfoState::Execute(ElabelController* pOwner)
 void InfoState::Exit(ElabelController* pOwner)
 {
     EspNowClient::Instance()->stop_test_connecting_task(false);
-    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(out_info);
+    ControlDriver::Instance()->button1.CallbackShortPress.unregisterCallback(out_info);
+    ControlDriver::Instance()->button4.CallbackShortPress.unregisterCallback(out_info);
+    ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(out_info);
+    ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(out_info);
+
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(previous_info);
     ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(next_info);
     ControlDriver::Instance()->button3.CallbackShortPress.unregisterCallback(confirm_ota_button);

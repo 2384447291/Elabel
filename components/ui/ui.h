@@ -225,7 +225,7 @@ extern lv_obj_t * ui_Image13;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_FocusScreen;
 extern lv_obj_t * uic_FocusTask;
-extern lv_obj_t * uic_Task2;
+extern lv_obj_t * uic_Task;
 extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_FocusTime1;

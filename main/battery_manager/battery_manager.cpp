@@ -75,6 +75,7 @@ float BatteryManager::getBatteryLevel() {
     
     // 多次采样取平均值
     for (int i = 0; i < ADC_SAMPLES; i++) {
+        vTaskDelay(5 / portTICK_PERIOD_MS);
         adc_reading += adc1_get_raw(BATTERY_ADC_CHAN);
     }
     float adc_float = (float)adc_reading / (float)ADC_SAMPLES;
@@ -88,14 +89,50 @@ float BatteryManager::getBatteryLevel() {
     return actual_voltage;
 }
 
-int BatteryManager::getBatteryLevelInt() {
+bool BatteryManager::is_usb_connected() 
+{
+    #ifdef R01A_TEST
     float battery_level = getBatteryLevel();
-    if(battery_level < 1.0f)
+    if(battery_level < 1.0f || battery_level > 4.5f)
+    {
+        return true;
+    }else
+    {
+        return false;
+    }
+    #elif defined(R01B_TEST)
+    return gpio_get_level(USB_CONNECT_GPIO) == 1;
+    #endif
+}
+
+int BatteryManager::getBatteryLevelInt() 
+{
+    if(is_usb_connected())
     {
         return -1;
     }
-    else
+    else 
     {
-        return 80;
+        float battery_level = getBatteryLevel();
+        if(battery_level > 4.2f)
+        {
+            return 100;
+        }
+        else if(battery_level > 3.8f)
+        {
+            return 75;
+        }
+        else if(battery_level > 3.5f)
+        {
+            return 50;
+        }
+        else if(battery_level > 3.3f)
+        {
+            return 25;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }

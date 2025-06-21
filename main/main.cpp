@@ -63,16 +63,35 @@ extern "C" void app_main(void)
     //等待电路初始化
     vTaskDelay(pdMS_TO_TICKS(500));
 
+    //如果电池电压低于3.3V且没有连接线材，则重启次数+1，清零在后面
+    if(BatteryManager::Instance()->getBatteryLevel() < 3.3f && !BatteryManager::Instance()->is_usb_connected())
+    {
+        get_global_data()->reset_count++;
+        set_reset_count(get_global_data()->reset_count);
+    }
+
     //初始化gui
     Gui_init();
     //等待lvgl初始化
     vTaskDelay(pdMS_TO_TICKS(2000));
 
+    //如果5次没有启动成功则不运行
+    if(get_global_data()->reset_count >= 5)
+    {
+        lock_lvgl();
+        switch_screen(ui_ShutdownScreen);
+        release_lvgl();
+        while(1)
+        {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+    }
+
     //初始化codec
     MCodec::Instance()->init();
 
     //注册按键回调
-    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(force_reset_elabel);
+    ControlDriver::Instance()->button_press_together_48.Togetherlongpress.registerCallback(force_reset_elabel);
 
     ControlDriver::Instance()->register_all_button_callback(play_button_sound);
 

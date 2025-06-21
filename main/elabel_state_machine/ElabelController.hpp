@@ -7,7 +7,6 @@
 #include "global_draw.h"
 #include "global_nvs.h"
 #include "control_driver.hpp"
-#include "../../components/ui/ui.h"
 #define MAX_time 3600
 
 void force_reset_elabel();
@@ -44,11 +43,6 @@ class ElabelController
         uint16_t CenterTaskNum = 0;
         //当前task_length的长度
         uint16_t TaskLength = 0;
-
-        // //本地用来记录focus的变量
-        // TodoItem focustodo = {0};
-        // //是否用本地信息进入focus
-        // bool manual_focus = false;
 
         //防止卡死的标签
         int32_t stuck_time = 0;

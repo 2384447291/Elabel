@@ -43,6 +43,8 @@ enum message_type
     Slave2Host_Get_UserToken_Request_Http,
     Slave2Host_Get_Wifi_Info_Request_Http,
     Slave2Host_Unbind_Device_Control_Http,
+    Slave2Host_Send_power_message_Http,
+    Slave2Host_Delete_Task_Http,
     
     // 主机发送给从机的mqtt 消息
     Host2Slave_Bind_Control_Mqtt,

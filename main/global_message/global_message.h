@@ -10,13 +10,15 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.16"
+#define FIRMWARE_VERSION "3.0.21"
 #define DEVICE_MODEL "R01A_TEST"
 #define LANGUAGE "EN"
+#define EN 
+#define R01A_TEST
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
-    int is_focus; //默认0，专注1，未专注2
+    int is_focus; //任务列表中没有focus任务置位0，有focus任务置位1
     int focus_task_id;
 } Focus_state;
 
@@ -107,6 +109,8 @@ uint8_t set_sleep(uint8_t slave_mac[6], bool is_sleep);
 //-------------------------------------- Global_data--------------------------------------//
 typedef struct 
 {
+    //重启的次数
+    uint8_t reset_count;
     //主机还是从机 0 是没有设定 1 是主机 2 是从机
     uint8_t m_is_host;
     //是否有专注任务
@@ -115,6 +119,7 @@ typedef struct
 
     //为了确保字符串能够正确存储格式化后的 MAC 地址，并以 '\0' 结尾，字符串的大小应该至少为 18 字节。具体计算如下：
     // 每个字节以两位十六进制表示：02（2 字符）
+
     // 6 个字节的 MAC 地址：6 * 2 = 12 字符
     // 5 个冒号分隔符：5 字符
     // 1 个结束字符 '\0'：1 字符

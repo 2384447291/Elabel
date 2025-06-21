@@ -3,6 +3,7 @@
 #include "global_nvs.h"
 #include "codec.hpp"
 #include "global_time.h"
+#include "ElabelController.hpp"
 static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
@@ -79,23 +80,23 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
     }
     else if(m_message_type == Host2Slave_Get_Time_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Time_Control_Mqtt message.");
-        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_time(data_ptr, size);
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
             EspNowSlave::Instance()->sleep_sync_flag = 2;
             printf("get sleep sync response Time sync ");
         }
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Get_Time_Control_Mqtt message.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_time(data_ptr, size);
     }
     else if(m_message_type == Host2Slave_Enter_Focus_Control_Mqtt)
     {
-        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message.");
-        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
             EspNowSlave::Instance()->sleep_sync_flag = 1;
-            printf("get sleep sync response Time sync ");
+            printf("get sleep sync response Enter Focus ");
         }
+        ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message.");
+        EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
     }
     else if(m_message_type == Host2Slave_Out_Focus_Control_Mqtt)
     {
@@ -154,6 +155,7 @@ void EspNowSlave::deinit()
     ESP_LOGI(ESP_NOW, "Slave deinit success");
 }
 
+//每次唤醒需要重新设置这个
 void EspNowSlave::resume_espnow()
 {
     ESP_ERROR_CHECK(esp_wifi_set_channel(this->host_channel, WIFI_SECOND_CHAN_NONE));
@@ -336,6 +338,44 @@ esp_err_t EspNowSlave::slave_send_espnow_http_unbind_device()
     }
     return ret;
 }
+esp_err_t EspNowSlave::slave_send_espnow_http_send_power_message(int power_state)
+{
+    uint8_t temp_data[4];
+    temp_data[0] = power_state >> 24;
+    temp_data[1] = (power_state >> 16) & 0xFF;
+    temp_data[2] = (power_state >> 8) & 0xFF;
+    temp_data[3] = power_state & 0xFF;
+    esp_err_t ret = send_message(temp_data, 4, Slave2Host_Send_power_message_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send unbind device request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send unbind device request message success");
+    }
+    return ret;
+}
+
+esp_err_t EspNowSlave::slave_send_espnow_http_delete_task(int task_id)
+{
+    uint8_t temp_data[4];
+    temp_data[0] = task_id >> 24;
+    temp_data[1] = (task_id >> 16) & 0xFF;
+    temp_data[2] = (task_id >> 8) & 0xFF;
+    temp_data[3] = task_id & 0xFF;
+    esp_err_t ret = send_message(temp_data, 4, Slave2Host_Delete_Task_Http);
+    if(ret != ESP_OK)
+    {
+        ESP_LOGE(ESP_NOW, "Slave send delete task request message failed");
+    }
+    else
+    {
+        ESP_LOGI(ESP_NOW, "Slave send delete task request message success");
+    }
+    return ret;
+}
+
 //----------------------------------------------------------------------------从机请求主机的函数----------------------------------------------------------------------------//
 
 
@@ -413,16 +453,11 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_time(uint8_t* data, size_t size
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_todo_list(uint8_t* data, size_t size)
 {
-    get_global_data()->m_focus_state->is_focus = 0;
-    get_global_data()->m_focus_state->focus_task_id = 0;
     slave_send_espnow_http_get_todo_list();
 }
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size_t size)
 {
-    //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
-    get_global_data()->m_focus_state->is_focus = 0;
-    get_global_data()->m_focus_state->focus_task_id = 0;
     //-----------------------------------------这个操作类似于http_get_todo_list-----------------------------------------//
     focus_message_t focus_message = data_to_focus_message(data);
     ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message, focus type: %d, focus time: %d, focus id: %d", focus_message.focus_type, focus_message.fallTiming, focus_message.focus_id);
@@ -452,7 +487,6 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
     }
 
     clean_todo_list(get_global_data()->m_todo_list);
-    //这个函数会置标get_global_data()->m_focus_state
     add_or_update_todo_item(get_global_data()->m_todo_list, todo);
     set_task_list_state(firmware_need_update);
 }
@@ -460,9 +494,6 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
 void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
 {
     ESP_LOGI(ESP_NOW, "Receive Host2Slave_Out_Focus_Control_Mqtt message");
-    //清零列表
-    get_global_data()->m_focus_state->is_focus = 2;
-    get_global_data()->m_focus_state->focus_task_id = 0;
     clean_todo_list(get_global_data()->m_todo_list);
     //重新拉一下http_todo_list，也会有个firmware_need_update是为了刷新task
     slave_send_espnow_http_get_todo_list();
@@ -470,6 +501,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_out_focus()
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_wifi_info(uint8_t* data, size_t size)
 {
+
     uint8_t wifi_name_len = data[0];
     uint8_t wifi_password_len = data[1 + wifi_name_len];
     uint8_t firmware_version_len = data[2 + wifi_name_len + wifi_password_len];

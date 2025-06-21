@@ -45,7 +45,7 @@ public:
         lock_lvgl();
         lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
-        switch_screen(ui_HostActiveScreen);
+
         set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
         char time_str[40];
         sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
@@ -63,7 +63,6 @@ public:
         need_flash_paper = false;
 
         lock_lvgl();
-        switch_screen(ui_HostActiveScreen);
 
         button_host_active_choose_left = true;
         lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );

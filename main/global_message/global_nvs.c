@@ -16,9 +16,14 @@ void get_nvs_info(void)
 
     nvs_handle wificfg_nvs_handler; /* 定义一个NVS操作句柄 */
     ESP_ERROR_CHECK(nvs_open(NVS_HANDLER, NVS_READWRITE, &wificfg_nvs_handler) );//打开一个名叫"Elabel_cfg"的可读可写nvs空间
-
-    //--------------------------从nvs中获取wifi_ssid--------------------------------//
+    //--------------------------从nvs中获取reset_count--------------------------------//
     size_t len;                   
+    len = sizeof(get_global_data()->reset_count);  
+    esp_err_t reset_count_err = nvs_get_u8(wificfg_nvs_handler,"reset_count",&get_global_data()->reset_count) ;
+    if(reset_count_err != ESP_OK) ESP_LOGE(NVS_TAG,"No history reset_count found. \n");
+    else ESP_LOGI(NVS_TAG,"history reset_count found : %d. \n", get_global_data()->reset_count);
+
+    //--------------------------从nvs中获取wifi_ssid--------------------------------//                  
     len = sizeof(get_global_data()->m_wifi_ssid);  
     esp_err_t ssid_err = nvs_get_str(wificfg_nvs_handler,"wifi_ssid",get_global_data()->m_wifi_ssid,&len) ;
     if(ssid_err != ESP_OK) ESP_LOGE(NVS_TAG,"No history wifi_ssid found. \n");
@@ -164,6 +169,22 @@ void set_nvs_info(const char *tag, const char *value)
     nvs_close(wificfg_nvs_handler);
 
     ESP_LOGI(NVS_TAG,"Save NVS %s to %s successfully. \n", tag, value);
+}
+
+void set_reset_count(uint8_t reset_count)
+{
+    if(!is_nvs_init)
+    {
+        ESP_LOGE(NVS_TAG,"NVS is not initialized. \n");
+        return;
+    }
+    nvs_handle wificfg_nvs_handler;
+    ESP_ERROR_CHECK(nvs_open(NVS_HANDLER, NVS_READWRITE, &wificfg_nvs_handler));
+    ESP_ERROR_CHECK(nvs_set_u8(wificfg_nvs_handler, "reset_count", reset_count));
+    ESP_ERROR_CHECK(nvs_commit(wificfg_nvs_handler));
+    nvs_close(wificfg_nvs_handler);
+
+    ESP_LOGI(NVS_TAG,"Save NVS reset_count to %d successfully. \n", reset_count);    
 }
 
 //对于输入数组 {0x01, 0x02, 0x03, 0x04}，会正确生成字符串 "01 02 03 04"

@@ -6,6 +6,7 @@
 #include "driver/adc.h"
 #include "esp_pm.h"
 #include "esp_sleep.h"
+#include "global_message.h"
 
 #undef ESP_LOGI
 #define ESP_LOGI(tag, format, ...) 
@@ -14,7 +15,11 @@
 #define DEV_POWER_CTRL        GPIO_NUM_5
 #define BATTERY_ADC_GPIO      GPIO_NUM_6
 #define BATTERY_ADC_CHAN      ADC1_CHANNEL_6  // GPIO6 对应 ADC1_CH6
-#define ADC_SAMPLES    64               // 采样次数
+#define ADC_SAMPLES    20               // 采样次数
+
+#ifdef R01B_TEST
+#define USB_CONNECT_GPIO GPIO_NUM_3
+#endif
 
 class BatteryManager {
 public:
@@ -31,6 +36,8 @@ public:
 
     // 获取电池电量
     int getBatteryLevelInt();
+
+    bool is_usb_connected();
 
     // 控制电池开关
     void setPowerState(bool enable);

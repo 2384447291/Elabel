@@ -54,7 +54,12 @@ void HostActiveState::Execute(ElabelController* pOwner)
     }
     else if(host_active_process == Hostactive_connecting_wifi_process)
     {
-        if(get_wifi_status() == 0x02) enter_success_connect_wifi();
+        if(get_wifi_status() == 0x02)
+        {
+            //停留2s保证APP接收到消息
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            enter_success_connect_wifi();
+        } 
         if(elabelUpdateTick%5000 == 0)
         {
             reconnect_count_down-=5;

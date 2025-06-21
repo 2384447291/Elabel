@@ -25,8 +25,8 @@
 #define READ_BLOCK_SIZE 1024      
 #define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
 #define RecordTime 8
-#define DuringTime 0.5f
-#define ShutdownTime 0.5f + 0.5f
+#define DuringTime 0.0f
+#define ShutdownTime 0.5f + DuringTime
 #define BeforeRecordTime 0.05f
 #define FILE_PATH "/fat/mic.raw"
 

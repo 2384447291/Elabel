@@ -36,9 +36,13 @@ void ControlDriver::start_button_check_task()
 {
     if (button_check_task_handle == nullptr) {
         button_pair_1234.clear_state();
+#ifdef R01A_TEST
         button_pair_567.clear_state();
         button_pair_8.clear_state();
-        button_press_together_58.clear_state();
+#elif defined(R01B_TEST)
+        button_pair_5678.clear_state();
+#endif
+        button_press_together_48.clear_state();
         button_press_together_15.clear_state();
         xTaskCreate(button_check_task, "button_check_task", 4096, nullptr, 10, &button_check_task_handle);
     }
@@ -61,17 +65,30 @@ void ControlDriver::button_check_task(void* parameters) {
     while (true) {
         vTaskDelay(10 / portTICK_PERIOD_MS);
         ControlDriver::Instance()->button_pair_1234.update();
-        ControlDriver::Instance()->button_pair_567.update();
-        ControlDriver::Instance()->button_pair_8.update();
-        ControlDriver::Instance()->button_press_together_58.update();
-        ControlDriver::Instance()->button_press_together_15.update();
         for(int i = 0; i < 4; i++) {
             ControlDriver::Instance()->button_pair_1234.button[i]->handle();
         }
+
+#ifdef R01A_TEST
+        ControlDriver::Instance()->button_pair_567.update();
+        ControlDriver::Instance()->button_pair_8.update();
+#elif defined(R01B_TEST)
+        ControlDriver::Instance()->button_pair_5678.update();
+#endif
+
+
+#ifdef R01A_TEST
         for(int i = 0; i < 3; i++) {
             ControlDriver::Instance()->button_pair_567.button[i]->handle();
         }
         ControlDriver::Instance()->button_pair_8.button->handle();
+#elif defined(R01B_TEST)
+        for(int i = 0; i < 4; i++) {
+            ControlDriver::Instance()->button_pair_5678.button[i]->handle();
+        }
+#endif
+        ControlDriver::Instance()->button_press_together_48.update();
+        ControlDriver::Instance()->button_press_together_15.update();
     }
 }
 

@@ -92,6 +92,10 @@ void espnow_update_task(void *parameters)
     ESP_LOGI(ESP_NOW, "country: %s, channel: %d, channel num : %d",
              wifi_country.cc, wifi_country.schan, wifi_country.nchan);
     channel = wifi_country.schan + esp_random() % wifi_country.nchan;
+    wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
+    esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+    esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
+    ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(SCAN_CHANNEL_TIME_INTERVAL));
@@ -100,7 +104,6 @@ void espnow_update_task(void *parameters)
         if (!EspNowClient::Instance()->is_connect_to_host)
         {
             channel = channel % wifi_country.nchan + 1;
-            wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
             esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
             esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
             ESP_LOGI(ESP_NOW, "Set espnow channel to %d", actual_wifi_channel);
@@ -272,7 +275,7 @@ void EspNowClient::start_test_connecting_task(bool need_add_new_peer)
         if(need_add_new_peer) espnow_add_peer(get_global_data()->m_host_mac, NULL);
         need_stop_test_connecting = false;
         test_connect_process = test_connect_process_start;
-        xTaskCreate(test_connecting_task, "test_connecting_task", 4096, NULL, 10, &test_connecting_task_handle);
+        xTaskCreate(test_connecting_task, "test_connecting_task", 4096, NULL, 8, &test_connecting_task_handle);
     }
 }
 

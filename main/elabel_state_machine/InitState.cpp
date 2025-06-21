@@ -7,8 +7,57 @@
 #include "Esp_now_slave.hpp"
 #include "Esp_now_host.hpp"
 #include "SleepState.hpp"
+#include "SleepFocusState.hpp"
+#include "global_nvs.h"
 
 static bool check_firmware_once = false;
+
+int compare_version_str(const char* v1, const char* v2) {
+    // 复制原始，用于日志
+    ESP_LOGI("VERSION CHECK", "Compare versions: '%s' vs '%s'", v1, v2);
+
+    // 假设单段长度与总长度不会超过 31 字符
+    char buf1[32];
+    char buf2[32];
+    strncpy(buf1, v1, sizeof(buf1) - 1);
+    buf1[sizeof(buf1) - 1] = '\0';
+    strncpy(buf2, v2, sizeof(buf2) - 1);
+    buf2[sizeof(buf2) - 1] = '\0';
+
+    char *save1 = NULL, *save2 = NULL;
+    char *token1 = strtok_r(buf1, ".", &save1);
+    char *token2 = strtok_r(buf2, ".", &save2);
+    int idx = 0;
+
+    // 只要任一还有段，就继续比较；短的自动当作 0
+    while (token1 != NULL || token2 != NULL) {
+        int num1 = 0, num2 = 0;
+        if (token1) {
+            num1 = atoi(token1);
+        }
+        if (token2) {
+            num2 = atoi(token2);
+        }
+        ESP_LOGI("VERSION CHECK", "Segment %d: '%s'->%d vs '%s'->%d",
+                 idx,
+                 token1 ? token1 : "(none)", num1,
+                 token2 ? token2 : "(none)", num2);
+
+        if (num1 < num2) {
+            ESP_LOGI("VERSION CHECK", "Result at segment %d: %d < %d => v1 < v2", idx, num1, num2);
+            return -1;
+        } else if (num1 > num2) {
+            ESP_LOGI("VERSION CHECK", "Result at segment %d: %d > %d => v1 > v2", idx, num1, num2);
+            return 1;
+        }
+        // 相等，继续下一段
+        token1 = token1 ? strtok_r(NULL, ".", &save1) : NULL;
+        token2 = token2 ? strtok_r(NULL, ".", &save2) : NULL;
+        idx++;
+    }
+    ESP_LOGI("VERSION CHECK", "All segments equal => v1 == v2");
+    return 0;
+}
 
 
 void InitState::Init(ElabelController* pOwner)
@@ -21,7 +70,8 @@ void InitState::Enter(ElabelController* pOwner)
     is_init = false;
     need_enter_ota = false;
     //休眠状态的返回不刷新界面
-    if(pOwner->m_elabelFsm.GetPreviousState() != SleepState::Instance())
+    if(pOwner->m_elabelFsm.GetPreviousState() != SleepState::Instance() 
+    && pOwner->m_elabelFsm.GetPreviousState() != SleepFocusState::Instance())
     {
         lock_lvgl();
         switch_screen(ui_HalfmindScreen);
@@ -81,6 +131,7 @@ void InitState::Execute(ElabelController* pOwner)
         }
 
         if(need_enter_ota) return;
+        
 
         //刷新一下focus状态
         get_global_data()->m_focus_state->is_focus = 0;
@@ -97,6 +148,9 @@ void InitState::Execute(ElabelController* pOwner)
         //获取设备设置项
         http_find_device(true);
 
+        //保存电源设置
+        http_save_power(true,BatteryManager::Instance()->getBatteryLevelInt(),get_global_data()->m_mac_uint);
+
         //mqtt服务器初始化
         mqtt_client_init();
 
@@ -104,6 +158,9 @@ void InitState::Execute(ElabelController* pOwner)
         EspNowHost::Instance()->init();
 
         is_init = true;
+
+        get_global_data()->reset_count = 0;
+        set_reset_count(get_global_data()->reset_count);
     }
     //从机的初始化流程
     else if(get_global_data()->m_is_host == 2)
@@ -125,7 +182,19 @@ void InitState::Execute(ElabelController* pOwner)
             //等待2s收到反馈
             vTaskDelay(2000 / portTICK_PERIOD_MS);
             //如果判断为需要OTA
-            if(ret == ESP_OK && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+
+            // 复制并准备版本字符串
+            char version_str[32] = {0};
+            char firmware_str[32] = {0};
+
+            strncpy(version_str, FIRMWARE_VERSION, sizeof(version_str) - 1);
+            version_str[sizeof(version_str) - 1] = '\0';
+            strncpy(firmware_str, get_global_data()->m_version, sizeof(firmware_str) - 1);
+            firmware_str[sizeof(firmware_str) - 1] = '\0';
+
+            int cmp = compare_version_str(version_str, firmware_str);
+            
+            if(ret == ESP_OK && cmp < 0)
             {
                 need_enter_ota = true;
             }
@@ -153,7 +222,13 @@ void InitState::Execute(ElabelController* pOwner)
         //获取挂墙时间
         EspNowSlave::Instance()->slave_send_espnow_http_get_time();
 
+        //发送电源状态  
+        EspNowSlave::Instance()->slave_send_espnow_http_send_power_message(BatteryManager::Instance()->getBatteryLevelInt());
+
         is_init = true;
+
+        get_global_data()->reset_count = 0;
+        set_reset_count(get_global_data()->reset_count);
     }
 }
 

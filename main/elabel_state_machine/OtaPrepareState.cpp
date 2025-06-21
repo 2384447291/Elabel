@@ -197,7 +197,7 @@ void OtaPrepareState::Execute(ElabelController* pOwner)
                 lv_obj_clear_state(ui_RetryCheckVersionButtonCancel, LV_STATE_PRESSED );
                 lv_obj_add_state(ui_RetryCheckVersionButtonRetry, LV_STATE_PRESSED );
             }
-            set_text_without_change_font(ui_NewFirmware, "Up to date");
+            set_text_without_change_font(ui_NewFirmware, "Fail Get Update Data");
             release_lvgl(); 
             need_flash_paper = false;          
         }        
@@ -209,7 +209,7 @@ void OtaPrepareState::Execute(ElabelController* pOwner)
             ota_prepare_wait_tick--;
             if(ota_prepare_wait_tick <= 0)
             {
-                enter_ota_finish(true);
+                enter_ota_finish(false);
                 return;
             }
         }

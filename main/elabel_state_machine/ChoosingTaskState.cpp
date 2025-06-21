@@ -2,6 +2,7 @@
 #include "http.h"
 #include "control_driver.hpp"
 #include "codec.hpp"
+#include "Esp_now_slave.hpp"
 #include <cmath>
 
 void choose_next_task()
@@ -113,7 +114,14 @@ void delete_task()
     int ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
     char ChosenTaskId_str[10];
     sprintf(ChosenTaskId_str, "%d", ChosenTaskId);
-    http_delet_todo(ChosenTaskId_str, true);
+    if(get_global_data()->m_is_host == 1)
+    {
+        http_delet_todo(ChosenTaskId_str, true);
+    }
+    else if(get_global_data()->m_is_host == 2)
+    {
+        EspNowSlave::Instance()->slave_send_espnow_http_delete_task(ChosenTaskId);
+    }
     play_finish_task_sound();
 }
 
@@ -211,7 +219,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     ControlDriver::Instance()->button5.CallbackShortPress.registerCallback(jump_to_time_mode);
     ControlDriver::Instance()->button8.CallbackShortPress.registerCallback(jump_to_time_mode);
 
-    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.registerCallback(jump_to_info_mode);
+    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(jump_to_info_mode);
 
     ControlDriver::Instance()->button3.CallbackLongPress.registerCallback(delete_task);
 
@@ -264,7 +272,7 @@ void ChoosingTaskState::Exit(ElabelController* pOwner)
     ControlDriver::Instance()->button5.CallbackShortPress.unregisterCallback(jump_to_time_mode);
     ControlDriver::Instance()->button8.CallbackShortPress.unregisterCallback(jump_to_time_mode);
 
-    ControlDriver::Instance()->button_press_together_58.Togetherlongpress.unregisterCallback(jump_to_info_mode);
+    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.unregisterCallback(jump_to_info_mode);
 
     ControlDriver::Instance()->button3.CallbackLongPress.unregisterCallback(delete_task);
 

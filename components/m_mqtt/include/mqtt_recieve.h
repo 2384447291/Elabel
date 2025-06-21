@@ -149,29 +149,16 @@ static void solve_message(char *response)
         //我会收到两个outfocus只处理一个不需要回复的那一个
         if(Mqtt_msg.order == Out_focus && Mqtt_msg.isReply == 0)
         {
-            if(get_global_data()->m_focus_state->is_focus == 2) 
-            {
-                ESP_LOGE(MQTT_RECIEVE_TAG, "Not in focus yet!!.\n");
-                return;
-            }
-            get_global_data()->m_focus_state->is_focus = 2;
-            get_global_data()->m_focus_state->focus_task_id = 0;
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Out_focus. A Task out focus.\n");    
             http_get_todo_list(false);
         }
         else if(Mqtt_msg.order == Enter_focus)
         {
-            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
-            get_global_data()->m_focus_state->is_focus = 0;
-            get_global_data()->m_focus_state->focus_task_id = 0;
             ESP_LOGI(MQTT_RECIEVE_TAG, "Get MQTTMsg Enter_focus. A New focus task show up.\n");
             http_get_todo_list(false);
         }
         else if(Mqtt_msg.order == Tasklist_change)
         {
-            //刷新一下focus状态，真正的判断是否有entertask的操作是在http_get_todo_list中
-            get_global_data()->m_focus_state->is_focus = 0;
-            get_global_data()->m_focus_state->focus_task_id = 0;
             //每次增加一次任务，就同步一次时间
             HTTP_syset_time();
             http_get_todo_list(false);

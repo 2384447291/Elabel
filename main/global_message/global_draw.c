@@ -13,7 +13,7 @@
 #include "ssd1680.h"
 #include "esp_timer.h"
 
-
+#define TAG "LVGL"
 #undef ESP_LOGI
 #define ESP_LOGI(tag, format, ...) 
 //--------------------------------------lvgl相关的内容-------------------------------------//
@@ -273,23 +273,101 @@ void update_lvgl_task_list(int center_task, uint8_t guide_page)
 //--------------------------------------更新任务列表-------------------------------------//
 
 
+uint16_t lv_label_count_lines_wrap(lv_obj_t * label, char* first_title)
+{
+    if(label == NULL) {
+        ESP_LOGI(TAG, "label is NULL");
+        return 0;
+    }
 
-//--------------------------------------修改label-------------------------------------//
-// void set_text_with_change_font(lv_obj_t * target_label,  const char * text, bool Is_bigger)
-// {
-//     //当你设置样式时，LV_PART_MAIN 允许你定义对象的主要视觉特征，例如背景颜色、边框、字体等
-//     //LV_STATE_DEFAULT 是指对象在没有任何特殊状态时的外观
-//     lv_label_set_text(target_label, text);
-//     lv_obj_set_style_text_font(target_label, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
-//     uint8_t child_count = lv_obj_get_child_cnt(target_label);
-//     for(int i = 0; i < child_count; i++)
-//     {
-//         lv_obj_t *ui_tmpLabel = lv_obj_get_child(target_label, i);
-//         lv_label_set_text(ui_tmpLabel, text);
-//         lv_obj_set_style_text_font(ui_tmpLabel, get_language_font(Is_bigger), LV_PART_MAIN | LV_STATE_DEFAULT);
-//     }
-// }
+    /* 可选：打印 long_mode，确认 wrap 已生效 */
+    lv_label_long_mode_t lm = lv_label_get_long_mode(label);
+    ESP_LOGI(TAG, "当前 long_mode = %d (LV_LABEL_LONG_WRAP = %d)", lm, LV_LABEL_LONG_WRAP);
 
+    const char * txt = lv_label_get_text(label);
+    if(txt == NULL) {
+        ESP_LOGI(TAG, "文本指针为 NULL");
+        return 0;
+    }
+    ESP_LOGI(TAG, "文本内容: \"%s\"", txt);
+
+    const lv_font_t * font = lv_obj_get_style_text_font(label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_coord_t letter_space = lv_obj_get_style_text_letter_space(label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_coord_t line_space   = lv_obj_get_style_text_line_space(label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ESP_LOGI(TAG, "字体指针: %p, letter_space=%d, line_space=%d", font, letter_space, line_space);
+    lv_obj_update_layout(label);
+    lv_coord_t total_w = lv_obj_get_width(label);
+    ESP_LOGI(TAG, "对象总宽度 total_w=%d", total_w);
+    if(total_w <= 0) {
+        ESP_LOGI(TAG, "total_w <= 0，返回 0");
+        return 0;
+    }
+    lv_coord_t pad_left  = lv_obj_get_style_pad_left(label,  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_coord_t pad_right = lv_obj_get_style_pad_right(label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_coord_t box_width = total_w - pad_left - pad_right;
+    ESP_LOGI(TAG, "pad_left=%d, pad_right=%d, 可用宽度 box_width=%d", pad_left, pad_right, box_width);
+    if(box_width <= 0) {
+        ESP_LOGI(TAG, "box_width <= 0，返回 0");
+        return 0;
+    }
+
+    uint16_t line_count = 0;
+    const char * p = txt;
+    size_t offset = 0;
+    size_t copied = 0;
+
+    while(*p) {
+        line_count++;
+        ESP_LOGI(TAG, "---- 第 %u 行 ----", line_count);
+        ESP_LOGI(TAG, " offset=%zu, 内容开始: \"%s\"", offset, p);
+
+        /* 新签名：传 NULL 给 used_width，flag 传 0 */
+        uint32_t adv = _lv_txt_get_next_line(p, font, letter_space, box_width, NULL, 0);
+        ESP_LOGI(TAG, "_lv_txt_get_next_line adv=%lu", adv);
+
+        //打印log
+        if(adv > 0) {
+            uint16_t len = adv;
+            const uint16_t MAX_PRINT = 128;
+            if(len > MAX_PRINT) len = MAX_PRINT;
+            char buf[MAX_PRINT + 1];
+            memcpy(buf, p, len);
+            buf[len] = '\0';
+            ESP_LOGI(TAG, "第 %u 行内容（%u bytes）: \"%s\"%s",
+                     line_count, len, buf, (adv > MAX_PRINT) ? "..." : "");
+        } else {
+            ESP_LOGI(TAG, "最后一行剩余内容: \"%s\"", p);
+            break;
+        }
+        //打印log
+
+        if(first_title!=NULL)
+        {
+            if(line_count <= 2) 
+            {
+                memcpy(first_title + copied, p, adv);
+                copied += adv;
+                first_title[copied] = '\0';
+            }
+            ESP_LOGI(TAG, "first_title=%s", first_title);
+        }
+
+        p += adv;
+        offset += adv;
+    }   
+
+    ESP_LOGI(TAG, "统计到总行数: %u", line_count);
+
+    /* 可选：打印预估高度 vs 对象实际高度 */
+    lv_coord_t font_h = lv_font_get_line_height(font);
+    lv_coord_t est_h = font_h * line_count + line_space * (line_count - 1)
+                       + lv_obj_get_style_pad_top(label, LV_PART_MAIN | LV_STATE_DEFAULT)
+                       + lv_obj_get_style_pad_bottom(label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_coord_t real_h = lv_obj_get_height(label);
+    ESP_LOGI(TAG, "预估渲染高度: %d, 对象实际高度: %d", est_h, real_h);
+
+    return line_count;
+}
 
 //--------------------------------------修改label-------------------------------------//
 void set_text_without_change_font(lv_obj_t * target_label,  const char * text)
@@ -309,3 +387,5 @@ void switch_screen(lv_obj_t* new_screen) {
     set_force_full_update(true);
     lv_scr_load(new_screen);
 }
+
+

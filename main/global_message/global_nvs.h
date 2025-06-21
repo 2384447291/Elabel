@@ -23,6 +23,8 @@ void nvs_init(void);
 
 void set_nvs_info(const char *tag, const char *value);
 
+void set_reset_count(uint8_t reset_count);
+
 void get_nvs_info_uint8_t_array(const char *value_str, uint8_t* value);
 
 void set_nvs_info_uint8_t_array(const char *tag, uint8_t* value, int length);
