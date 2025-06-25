@@ -1,15 +1,4 @@
 #include "battery_manager.hpp"
-#include "global_time.h"
-#include "esp_log.h"
-#include "control_driver.hpp"
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
-#include "global_draw.h"
-#include "freertos/timers.h"
-#include "global_message.h"
-#include "codec.hpp"
-#include "ssd1680.h"
-#include "ElabelController.hpp"
 #define TAG "BATTERY_MANAGER"
 
 // #undef ESP_LOGI
@@ -31,32 +20,23 @@ void BatteryManager::init() {
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
-
     //开启外设电源
     setPowerState(true);
-    
-    io_conf.pin_bit_mask = (1ULL << BATTERY_ADC_GPIO);
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf.intr_type = GPIO_INTR_DISABLE;
 
-    gpio_config(&io_conf);
 
-    // 初始化ADC1
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(BATTERY_ADC_CHAN, ADC_ATTEN_DB_12);
+    // 初始化ADC
+    init_adc();
 
+
+    // 初始化电源管理
     esp_pm_config_esp32c6_t pm_cfg = {
         .max_freq_mhz = 80,
         .min_freq_mhz = 10,
         .light_sleep_enable = true,
     };
     ESP_ERROR_CHECK(esp_pm_configure(&pm_cfg));
-
     // 创建锁，名称可自定义（最多16字节），锁住频率不降和 light sleep
     ESP_ERROR_CHECK(esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP, 0, "no_sleep", &s_pm_lock));
-
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);   
 }
 
@@ -71,28 +51,40 @@ void BatteryManager::setPowerState(bool enable) {
 }
 
 float BatteryManager::getBatteryLevel() {
-    int adc_reading = 0;
-    
-    // 多次采样取平均值
-    for (int i = 0; i < ADC_SAMPLES; i++) {
-        vTaskDelay(5 / portTICK_PERIOD_MS);
-        adc_reading += adc1_get_raw(BATTERY_ADC_CHAN);
+    int raw = 0;
+    int sum_raw = 0;
+    int voltage = 0;
+    for(int i = 0; i < SAMPLE_RATE_TIMES; i++)
+    {
+        ControlDriver::Instance()->lock_adc();
+        adc_oneshot_read(ControlDriver::Instance()->adc_handle, BATTERY_ADC_CHAN, &raw);
+        ControlDriver::Instance()->release_adc();
+        sum_raw += raw;
     }
-    float adc_float = (float)adc_reading / (float)ADC_SAMPLES;
+    raw = sum_raw / SAMPLE_RATE_TIMES;
 
-    // 由于使用分压电路，这里需要根据实际分压比例计算真实电池电压
-    // 假设使用100K和100K的分压电阻，则实际电压为ADC读数的2倍
-    float actual_voltage = adc_float / 1000.0f * 2.0f; // 转换为V
+    if (cali_handle) 
+    {
+        esp_err_t r2 = adc_cali_raw_to_voltage(cali_handle, raw, &voltage);
+        if (r2 != ESP_OK) 
+        {
+            ESP_LOGE(TAG, "adc_cali_raw_to_voltage error: %s", esp_err_to_name(r2));
+        }
+    } 
+    else 
+    {
+        ESP_LOGE(TAG, "Raw ADC (no calibration): %d", raw);
+    }
+
+    float actual_voltage = (float)voltage * 2.0f / 1000.0f; // 转换为V
     
     ESP_LOGI(TAG, "Battery voltage: %.3fV", actual_voltage);
-    batteryLevel = actual_voltage;
     return actual_voltage;
 }
 
-bool BatteryManager::is_usb_connected() 
+bool BatteryManager::is_usb_connected(float battery_level) 
 {
     #ifdef R01A_TEST
-    float battery_level = getBatteryLevel();
     if(battery_level < 1.0f || battery_level > 4.5f)
     {
         return true;
@@ -107,13 +99,13 @@ bool BatteryManager::is_usb_connected()
 
 int BatteryManager::getBatteryLevelInt() 
 {
-    if(is_usb_connected())
+    float battery_level = getBatteryLevel();
+    if(is_usb_connected(battery_level))
     {
         return -1;
     }
     else 
     {
-        float battery_level = getBatteryLevel();
         if(battery_level > 4.2f)
         {
             return 100;

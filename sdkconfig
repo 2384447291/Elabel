@@ -1000,13 +1000,13 @@ CONFIG_BT_ALARM_MAX_NUM=50
 #
 # Legacy ADC Driver Configuration
 #
-# CONFIG_ADC_SUPPRESS_DEPRECATE_WARN is not set
-# CONFIG_ADC_SKIP_LEGACY_CONFLICT_CHECK is not set
+CONFIG_ADC_SUPPRESS_DEPRECATE_WARN=y
+CONFIG_ADC_SKIP_LEGACY_CONFLICT_CHECK=y
 
 #
 # Legacy ADC Calibration Configuration
 #
-# CONFIG_ADC_CALI_SUPPRESS_DEPRECATE_WARN is not set
+CONFIG_ADC_CALI_SUPPRESS_DEPRECATE_WARN=y
 # end of Legacy ADC Calibration Configuration
 # end of Legacy ADC Driver Configuration
 

@@ -64,7 +64,8 @@ extern "C" void app_main(void)
     vTaskDelay(pdMS_TO_TICKS(500));
 
     //如果电池电压低于3.3V且没有连接线材，则重启次数+1，清零在后面
-    if(BatteryManager::Instance()->getBatteryLevel() < 3.3f && !BatteryManager::Instance()->is_usb_connected())
+    float battery_level = BatteryManager::Instance()->getBatteryLevel();
+    if(battery_level < 3.3f && !BatteryManager::Instance()->is_usb_connected(battery_level))
     {
         get_global_data()->reset_count++;
         set_reset_count(get_global_data()->reset_count);

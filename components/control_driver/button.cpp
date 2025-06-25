@@ -3,9 +3,9 @@
 #include "freertos/task.h"
 #include "callback.hpp"
 #include "global_message.h"
-#include "driver/adc.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_oneshot.h"
+#include "control_driver.hpp"
 
 #define TAG "BUTTON"
 #ifdef R01A_TEST
@@ -86,8 +86,34 @@ void Button::handle() {
 //----------------------------------------------单个IO控制三个按钮----------------------------------------------//
 void Button_pair_3::update() 
 {
-    int adc_value = adc1_get_raw(adc1_chan);
-    float voltage = adc_value / 1000.0f;
+    int raw = 0;
+    int adc_value = 0;
+
+    ControlDriver::Instance()->lock_adc();
+    esp_err_t r = adc_oneshot_read(adc_handle, adc_channel, &raw);
+    ControlDriver::Instance()->release_adc();
+
+    if (r != ESP_OK) 
+    {
+        ESP_LOGE(TAG, "adc_oneshot_read failed: %s", esp_err_to_name(r));
+    } 
+    else 
+    {
+        if (cali_handle) 
+        {
+            esp_err_t r2 = adc_cali_raw_to_voltage(cali_handle, raw, &adc_value);
+            if (r2 != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "adc_cali_raw_to_voltage error: %s", esp_err_to_name(r2));
+            }
+        } 
+        else 
+        {
+            ESP_LOGE(TAG, "Raw ADC (no calibration): %d", raw);
+        }
+    }
+
+    float voltage = (float)adc_value/ 1000.0f; // 转换为V
 
     // 临时状态变量,默认都是0
     bool temp_button_state[3] = {false, false, false};
@@ -139,25 +165,34 @@ void Button_pair_3::update()
     }
 }
 
-Button_pair_3::Button_pair_3(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2)
+void Button_pair_3::init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button0, Button* _button1, Button* _button2)
 {    
     button[0] = _button0;
     button[1] = _button1;
     button[2] = _button2;
-    gpio = _gpio;
-    adc1_chan = _adc1_chan;
+    adc_handle = _adc_handle;
+    adc_channel = _adc_channel;
 
-    gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << gpio),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE
+    // 创建校准方案句柄
+    adc_cali_curve_fitting_config_t cali_config = {
+        .unit_id = ADC_UNIT_1,
+        .chan = adc_channel,
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_12,
     };
-    gpio_config(&io_conf);
+    esp_err_t ret = adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "adc_cali_create_scheme_curve_fitting failed: %s", esp_err_to_name(ret));
+        // 若返回 ESP_ERR_NOT_SUPPORTED，可继续使用原始读数
+    } else {
+        ESP_LOGI(TAG, "Calibration scheme created");
+    }
 
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
+    adc_oneshot_chan_cfg_t chan_cfg = {
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle, adc_channel, &chan_cfg));  
 }
 
 void Button_pair_3::clear_state()
@@ -178,8 +213,35 @@ void Button_pair_3::clear_state()
 
 void Button_pair_1::update() 
 {
-    int adc_value = adc1_get_raw(adc1_chan);
-    float voltage = adc_value / 1000.0f;
+    int raw = 0;
+    int adc_value = 0;
+
+    ControlDriver::Instance()->lock_adc();
+    esp_err_t r = adc_oneshot_read(adc_handle, adc_channel, &raw);
+    ControlDriver::Instance()->release_adc();
+
+    if (r != ESP_OK) 
+    {
+        ESP_LOGE(TAG, "adc_oneshot_read failed: %s", esp_err_to_name(r));
+    } 
+    else 
+    {
+        if (cali_handle) 
+        {
+            esp_err_t r2 = adc_cali_raw_to_voltage(cali_handle, raw, &adc_value);
+            if (r2 != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "adc_cali_raw_to_voltage error: %s", esp_err_to_name(r2));
+            }
+        } 
+        else 
+        {
+            ESP_LOGE(TAG, "Raw ADC (no calibration): %d", raw);
+        }
+    }
+
+    float voltage = (float)adc_value/ 1000.0f; // 转换为V
+
     bool temp_button_state = false;
 
     // 判断当前状态
@@ -212,23 +274,32 @@ void Button_pair_1::update()
     }
 }
 
-Button_pair_1::Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button)
+void Button_pair_1::init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button)
 {    
-    this->button = _button;
-    gpio = _gpio;
-    adc1_chan = _adc1_chan;
+    button = _button;
+    adc_handle = _adc_handle;
+    adc_channel = _adc_channel;
 
-    gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << gpio),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE
+    // 创建校准方案句柄
+    adc_cali_curve_fitting_config_t cali_config = { 
+        .unit_id = ADC_UNIT_1,
+        .chan = adc_channel,
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_12,
     };
-    gpio_config(&io_conf);
+    esp_err_t ret = adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "adc_cali_create_scheme_curve_fitting failed: %s", esp_err_to_name(ret));
+        // 若返回 ESP_ERR_NOT_SUPPORTED，可继续使用原始读数
+    } else {
+        ESP_LOGI(TAG, "Calibration scheme created");
+    }
 
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
+    adc_oneshot_chan_cfg_t chan_cfg = {
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle, adc_channel, &chan_cfg));  
 }
 
 void Button_pair_1::clear_state()
@@ -246,8 +317,34 @@ void Button_pair_1::clear_state()
 //----------------------------------------------单个IO控制四个按钮----------------------------------------------//
 void Button_pair_4::update() 
 {
-    int adc_value = adc1_get_raw(adc1_chan);
-    float voltage = adc_value / 1000.0f;
+    int raw = 0;
+    int adc_value = 0;
+
+    ControlDriver::Instance()->lock_adc();
+    esp_err_t r = adc_oneshot_read(adc_handle, adc_channel, &raw);
+    ControlDriver::Instance()->release_adc();
+
+    if (r != ESP_OK) 
+    {
+        ESP_LOGE(TAG, "adc_oneshot_read failed: %s", esp_err_to_name(r));
+    } 
+    else 
+    {
+        if (cali_handle) 
+        {
+            esp_err_t r2 = adc_cali_raw_to_voltage(cali_handle, raw, &adc_value);
+            if (r2 != ESP_OK) 
+            {
+                ESP_LOGE(TAG, "adc_cali_raw_to_voltage error: %s", esp_err_to_name(r2));
+            }
+        } 
+        else 
+        {
+            ESP_LOGE(TAG, "Raw ADC (no calibration): %d", raw);
+        }
+    }
+
+    float voltage = (float)adc_value/ 1000.0f; // 转换为V
 
     // 临时状态变量,默认都是0
     bool temp_button_state[4] = {false, false, false, false};
@@ -304,26 +401,35 @@ void Button_pair_4::update()
     }
 }
 
-Button_pair_4::Button_pair_4(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2, Button* _button3)
+void Button_pair_4::init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button0, Button* _button1, Button* _button2, Button* _button3)
 {    
     button[0] = _button0;
     button[1] = _button1;
     button[2] = _button2;
     button[3] = _button3;
-    gpio = _gpio;
-    adc1_chan = _adc1_chan;
+    adc_handle = _adc_handle;
+    adc_channel = _adc_channel;
 
-    gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << gpio),
-        .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_DISABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type = GPIO_INTR_DISABLE
+    // 创建校准方案句柄
+    adc_cali_curve_fitting_config_t cali_config = {
+        .unit_id = ADC_UNIT_1,
+        .chan = adc_channel,
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_12,
     };
-    gpio_config(&io_conf);
+    esp_err_t ret = adc_cali_create_scheme_curve_fitting(&cali_config, &cali_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "adc_cali_create_scheme_curve_fitting failed: %s", esp_err_to_name(ret));
+        // 若返回 ESP_ERR_NOT_SUPPORTED，可继续使用原始读数
+    } else {
+        ESP_LOGI(TAG, "Calibration scheme created");
+    }
 
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(adc1_chan, ADC_ATTEN_DB_12);
+    adc_oneshot_chan_cfg_t chan_cfg = {
+        .atten = ADC_ATTEN_DB_12,
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_handle, adc_channel, &chan_cfg));  
 }
 
 void Button_pair_4::clear_state()

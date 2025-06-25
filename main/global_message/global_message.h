@@ -10,11 +10,11 @@
 #include "esp_mac.h"
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.21"
-#define DEVICE_MODEL "R01A_TEST"
+#define FIRMWARE_VERSION "3.0.22"
+#define DEVICE_MODEL "R01B_TEST"
 #define LANGUAGE "EN"
 #define EN 
-#define R01A_TEST
+#define R01B_TEST
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {

@@ -29,6 +29,24 @@ void ControlDriver::unregister_button_callback(Callback::CallbackFunc callback)
 // ControlDriver类实现
 void ControlDriver::init() 
 {
+    // 配置 ADC oneshot
+    adc_oneshot_unit_init_cfg_t init_cfg = {
+        .unit_id = ADC_UNIT_1,
+        .ulp_mode = ADC_ULP_MODE_DISABLE,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_cfg, &adc_handle));
+
+    xadcSemaphore = xSemaphoreCreateMutex();
+
+#ifdef R01A_TEST
+    button_pair_1234.init(adc_handle, DEVICE_BUTTON_1234_CHANNEL, &button1, &button2, &button3, &button4);
+    button_pair_567.init(adc_handle, DEVICE_BUTTON_567_CHANNEL, &button5, &button6, &button7);
+    button_pair_8.init(adc_handle, DEVICE_BUTTON_8_CHANNEL, &button8);
+#elif defined(R01B_TEST)
+    button_pair_1234.init(adc_handle, DEVICE_BUTTON_1234_CHANNEL, &button1, &button2, &button3, &button4);
+    button_pair_5678.init(adc_handle, DEVICE_BUTTON_5678_CHANNEL, &button5, &button6, &button7, &button8);
+#endif
+
    start_button_check_task();
 }
 

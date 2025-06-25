@@ -91,7 +91,7 @@ void espnow_update_task(void *parameters)
     wifi_country.cc[2] = '\0';
     ESP_LOGI(ESP_NOW, "country: %s, channel: %d, channel num : %d",
              wifi_country.cc, wifi_country.schan, wifi_country.nchan);
-    channel = wifi_country.schan + esp_random() % wifi_country.nchan;
+    channel = (get_global_data()->m_host_channel + (uint8_t)(wifi_country.nchan / 2)) % wifi_country.nchan + 1;
     wifi_second_chan_t wifi_second_channel = WIFI_SECOND_CHAN_NONE;
     esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
     esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
@@ -148,6 +148,11 @@ static esp_err_t Bind_handle(uint8_t *src_addr, void *data,
     size--;
     if (m_message_type == Host2Slave_Bind_Control_Http)
     {
+        if(rx_ctrl->rssi < -38)
+        {
+            ESP_LOGE(ESP_NOW, "Bind_Control_Host2Slave message rssi: %d", rx_ctrl->rssi);
+            return ESP_OK;
+        }
         // 如果没有连接到主机，则更新主机消息
         if (!EspNowClient::Instance()->is_connect_to_host)
         {

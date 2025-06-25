@@ -4,7 +4,9 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "callback.hpp"
-#include "driver/adc.h"
+#include "esp_adc_cal.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
 
 //----------------------------------------------Button类定义----------------------------------------------//
 class Button {
@@ -43,11 +45,16 @@ public:
 //----------------------------------------------Button_pair_1类定义----------------------------------------------//
 class Button_pair_1 {
 public:
-    Button_pair_1(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button);
-    gpio_num_t gpio;
-    adc1_channel_t adc1_chan;
+    Button_pair_1(){};
+
+    //adc读取参数
+    adc_oneshot_unit_handle_t adc_handle = NULL;
+    adc_cali_handle_t cali_handle = NULL;
+    adc_channel_t adc_channel;
+
     Button* button;
     void update();
+    void init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button);
     void clear_state();
     bool current_button_state = false;
     bool last_button_state = false;
@@ -59,10 +66,14 @@ public:
 //-------------------------------------------Button_pair_3类定义-------------------------------------------//
 class Button_pair_3 {
 public:
-    Button_pair_3(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2);
+    Button_pair_3(){};
     Button* button[3];
-    gpio_num_t gpio;
-    adc1_channel_t adc1_chan;
+
+    //adc读取参数
+    adc_oneshot_unit_handle_t adc_handle = NULL;
+    adc_cali_handle_t cali_handle = NULL;
+    adc_channel_t adc_channel;
+
     // 当前状态
     bool current_button_state[3] = {false, false, false};
     // 上一次状态
@@ -70,6 +81,7 @@ public:
     // 状态持续时间
     uint32_t state_start_time = 0;
 
+    void init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button0, Button* _button1, Button* _button2);
     void update();
     void clear_state();
 };
@@ -79,10 +91,14 @@ public:
 //-------------------------------------------Button_pair_4类定义-------------------------------------------//
 class Button_pair_4 {
 public:
-    Button_pair_4(gpio_num_t _gpio, adc1_channel_t _adc1_chan, Button* _button0, Button* _button1, Button* _button2, Button* _button3);
+    Button_pair_4(){};
     Button* button[4];
-    gpio_num_t gpio;
-    adc1_channel_t adc1_chan;
+
+    //adc读取参数
+    adc_oneshot_unit_handle_t adc_handle = NULL;
+    adc_cali_handle_t cali_handle = NULL;
+    adc_channel_t adc_channel;
+
     // 当前状态
     bool current_button_state[4] = {false, false, false, false};
     // 上一次状态
@@ -90,6 +106,7 @@ public:
     // 状态持续时间
     uint32_t state_start_time = 0;
 
+    void init(adc_oneshot_unit_handle_t _adc_handle, adc_channel_t _adc_channel, Button* _button0, Button* _button1, Button* _button2, Button* _button3);
     void update();
     void clear_state();
 };

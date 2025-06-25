@@ -168,14 +168,14 @@ public:
         sprintf(stringBattery, "%s %f %s", "Battery Power: ", battery_level, "V");
         set_text_without_change_font(ui_Message2, stringBattery);
 
-        if(BatteryManager::Instance()->is_usb_connected())
+        if(BatteryManager::Instance()->is_usb_connected(battery_level))
         {
             char stringPower[40] = "Cable Power: Connected";
             set_text_without_change_font(ui_Message1, stringPower);
         } 
         else
         {
-            char stringPower[40] = "Cable Power: Discennected";
+            char stringPower[40] = "Cable Power: Disconnected";
             set_text_without_change_font(ui_Message1, stringPower);            
         }
 
@@ -192,7 +192,7 @@ public:
         sprintf(stringBattery, "%s %f %s", "Battery Power: ", battery_level, "V");
         set_text_without_change_font(ui_Message2, stringBattery);
 
-        if(BatteryManager::Instance()->is_usb_connected())
+        if(BatteryManager::Instance()->is_usb_connected(battery_level))
         {
             char stringPower[40] = "Cable Power: Connected";
             set_text_without_change_font(ui_Message1, stringPower);
