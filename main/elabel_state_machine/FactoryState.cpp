@@ -55,8 +55,8 @@ void Enter_next_process()
     }
     else if(FactoryState::Instance()->factory_process == factory_power_process)
     {
-        FactoryState::Instance()->need_out_state = true;
         FactoryState::Instance()->factory_process = factory_finish_process;
+        esp_restart();
     }
 }
 
@@ -79,8 +79,7 @@ void FactoryState::Enter(ElabelController* pOwner)
         FactoryState::Instance()->Button_mask[i] = false;
     }
     FactoryState::Instance()->need_flash_paper = false;
-    FactoryState::Instance()->need_out_state = false;
-    FactoryState::Instance()->record_voice_countdown = 5;
+    FactoryState::Instance()->record_voice_countdown = Factory_coutdown;
 
     ESP_LOGI(STATEMACHINE,"Enter FactoryState.");
 
@@ -130,10 +129,6 @@ void FactoryState::Execute(ElabelController* pOwner)
     }
     else if(factory_process == factory_speaker_process)
     {
-        if(MCodec::Instance()->speaker_task == NULL)
-        {
-            MCodec::Instance()->play_music("pikachu");
-        }
         if(need_flash_paper)
         {
             lock_lvgl();
@@ -142,20 +137,25 @@ void FactoryState::Execute(ElabelController* pOwner)
             set_text_without_change_font(ui_CharacterDescribe, volume_str);
             release_lvgl();
             need_flash_paper = false;
+            MCodec::Instance()->stop_play();
+            MCodec::Instance()->play_music("pikachu");
         }
     }
     else if(factory_process == factory_mic_process)
     {
         if(elabelUpdateTick%1000 == 0)
         {
-            record_voice_countdown--;
-            lock_lvgl();
-            char time_str[20];
-            sprintf(time_str, "%d secs left", record_voice_countdown);
-            set_text_without_change_font(ui_CharacterDescribe, time_str);
-            release_lvgl();
+            if(record_voice_countdown > 0)
+            {
+                record_voice_countdown--;
+                lock_lvgl();
+                char time_str[20];
+                sprintf(time_str, "%d secs left", record_voice_countdown);
+                set_text_without_change_font(ui_CharacterDescribe, time_str);
+                release_lvgl();
+            }
         }
-        if(record_voice_countdown == 0)
+        if(MCodec::Instance()->mic_task == NULL && record_voice_countdown == 0)
         {
             enter_record_process();
         }
@@ -171,7 +171,6 @@ void FactoryState::Execute(ElabelController* pOwner)
             release_lvgl();
         }        
     }
-
 }
 
 void FactoryState::Exit(ElabelController* pOwner)

@@ -7,6 +7,8 @@
 #include "control_driver.hpp"
 #include "battery_manager.hpp"
 
+#define Factory_coutdown 6
+
 
 typedef enum
 {
@@ -34,8 +36,7 @@ public:
     bool Button_mask[8];
     lv_obj_t* Button_mask_ui[8] = {ui_ButtonMask1, ui_ButtonMask2, ui_ButtonMask3, ui_ButtonMask4, ui_ButtonMask5, ui_ButtonMask6, ui_ButtonMask7, ui_ButtonMask8};
     bool need_flash_paper = false;
-    bool need_out_state = false;
-    uint8_t record_voice_countdown = 5;
+    uint8_t record_voice_countdown = Factory_coutdown;
 
     static FactoryState* Instance()
     {
@@ -45,13 +46,12 @@ public:
 
     void enter_button_process()
     {
-        factory_process = factory_button_process;
         need_flash_paper = false;
         for(int i = 0; i < 8; i++)
         {
             Button_mask[i] = false;
         }
-
+        factory_process = factory_button_process;
         lock_lvgl();
         lv_obj_clear_flag(ui_ButtonPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);
@@ -67,8 +67,8 @@ public:
 
     void enter_speaker_process()
     {
-        factory_process = factory_speaker_process;
         need_flash_paper = false;
+        factory_process = factory_speaker_process;
 
         lock_lvgl();
         lv_obj_clear_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);
@@ -80,13 +80,15 @@ public:
         sprintf(volume_str, "volume:%d", get_global_data()->m_device_info.sound_volume);
         set_text_without_change_font(ui_CharacterDescribe, volume_str);
         release_lvgl();
+        MCodec::Instance()->stop_play();
+        MCodec::Instance()->play_music("pikachu");
     }
 
     void enter_mic_process()
     {
-        factory_process = factory_mic_process;
-        record_voice_countdown = 5;
+        record_voice_countdown = Factory_coutdown;
         need_flash_paper = false;
+        factory_process = factory_mic_process;
 
         lock_lvgl();
         lv_obj_clear_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);
@@ -96,22 +98,22 @@ public:
         lv_obj_clear_flag(ui_CharacterDescribe, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_RecordRetryDescribtion, LV_OBJ_FLAG_HIDDEN);
         set_text_without_change_font(ui_CharacterName, "Microphone");
-        set_text_without_change_font(ui_CharacterDescribe, "5 secs left");
+        char time_str[20];
+        sprintf(time_str, "%d secs left", record_voice_countdown);
+        set_text_without_change_font(ui_CharacterDescribe, time_str);
 
         release_lvgl();
-        //防止按键的声音和提示音混在一起了
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
         MCodec::Instance()->stop_play();
-        MCodec::Instance()->play_music("record");
+        MCodec::Instance()->start_record();
     }
 
     void enter_record_process()
     {
-        factory_process = factory_record_process;
         need_flash_paper = false;
-        MCodec::Instance()->stop_record();
-        record_voice_countdown = 5;
-
+        record_voice_countdown = Factory_coutdown;
+        
+        factory_process = factory_record_process;
         lock_lvgl();
         lv_obj_clear_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_ButtonPanel, LV_OBJ_FLAG_HIDDEN);
@@ -128,9 +130,9 @@ public:
 
     void enter_power_process()
     {
-        factory_process = factory_power_process;
         need_flash_paper = false;
 
+        factory_process = factory_power_process;
         lock_lvgl();
         lv_obj_clear_flag(ui_PowerPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_ButtonPanel, LV_OBJ_FLAG_HIDDEN);

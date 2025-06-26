@@ -73,7 +73,8 @@ void retry_record()
 
 void finish_record()
 {
-    if(OperatingRecorderState::Instance()->record_process != Record_voice_process || OperatingRecorderState::Instance()->record_voice_countdown == 0) return;
+    if(OperatingRecorderState::Instance()->record_process != Record_voice_process) return;
+    MCodec::Instance()->stop_record();
     OperatingRecorderState::Instance()->enter_screen_confirm_voice();
 }
 
@@ -139,14 +140,17 @@ void OperatingRecorderState::Execute(ElabelController* pOwner)
     {
         if(elabelUpdateTick%1000 == 0)
         {
-            record_voice_countdown--;
-            lock_lvgl();
-            char time_str[20];
-            sprintf(time_str, "%ds left", record_voice_countdown);
-            set_text_without_change_font(ui_RecordOperateMiddleText, time_str);
-            release_lvgl();
+            if(record_voice_countdown > 0)
+            {
+                record_voice_countdown--;
+                lock_lvgl();
+                char time_str[20];
+                sprintf(time_str, "%ds left", record_voice_countdown);
+                set_text_without_change_font(ui_RecordOperateMiddleText, time_str);
+                release_lvgl();
+            }
         }
-        if(record_voice_countdown == 0)
+        if(MCodec::Instance()->mic_task == NULL && record_voice_countdown == 0)
         {
             enter_screen_confirm_voice();
         }

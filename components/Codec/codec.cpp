@@ -88,13 +88,11 @@ void amplify_db(float db_gain)
     // 计算放大倍数
     float gain = powf(10.0f, db_gain / 20.0f);
 
-    // 分配一个 uint8_t 缓冲区，用于分块读取
-    uint8_t buffer[READ_BLOCK_SIZE];
     size_t bytes_read;
 
     // 从文件开头开始
     fseek(f, 0, SEEK_SET);
-
+    memset(buffer, 0, READ_BLOCK_SIZE);
     while ((bytes_read = fread(buffer, 1, READ_BLOCK_SIZE, f)) > 0) {
         // 读取了 bytes_read 字节，按 16-bit 样本处理
         // 一定要确保 bytes_read 是偶数（READ_BLOCK_SIZE 本身是偶数，最后一块若不足则小于它，但文件本身应保证总字节数是偶数）
@@ -137,8 +135,16 @@ static void mic_task_func(void *arg)
         ESP_LOGE(TAG, "Failed to open file for writing");
         return;
     }
+    
+    //开始播放录音提示音
+    MCodec::Instance()->play_music("record");
+    while(MCodec::Instance()->speaker_task!=NULL)
+    {
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
 
-    MCodec::Instance()->open_mic_dev(MIC_SAMPLE_RATE);
+    MCodec::Instance()->open_mic_dev();
+
 
     // 重置录音大小
     should_stop_recording = false;
@@ -202,7 +208,7 @@ static void speaker_task_func(void *arg)
             if (bytes_to_play == 0)
                 break; // 文件读取完毕
         }
-        else if (codec->speaker_type == music)
+        else if (codec->speaker_type == music || codec->speaker_type == record)
         {
             // 从内存数组读取数据
             size_t remaining = codec->play_data_size - total_played;
@@ -230,8 +236,13 @@ static void speaker_task_func(void *arg)
         fclose(codec->play_file);
         codec->play_file = NULL;
     }
-    // 关闭设备
-    codec->close_dev();
+
+    //如果是record提示音则不需要关闭
+    if(codec->speaker_type != record)
+    {
+        codec->close_dev();
+    }
+
     ESP_LOGI(TAG, "播放结束，总共播放: %d bytes", total_played);
     codec->speaker_task = NULL;
     vTaskDelete(NULL);
@@ -355,7 +366,14 @@ void MCodec::play_music(const char *filename)
         ESP_LOGE(TAG, "未找到对应的音频文件: %s", filename);
         return;
     }
-    speaker_type = music;
+    if(strcmp(filename, "record") == 0)
+    {
+        speaker_type = record;
+    }
+    else
+    {
+        speaker_type = music;
+    }
     play_record(audio_data, audio_size);
 }
 
@@ -367,14 +385,14 @@ void MCodec::play_record(const uint8_t *data, size_t size)
         return;
     }
 
-    if (mic_task != NULL)
+    if (mic_task != NULL && speaker_type != record)
     {
         ESP_LOGE(TAG, "Mic task running, please stop previous recording");
         return;
     }
 
     // 任务结束自动关闭设备
-    if (speaker_type == music)
+    if (speaker_type == music || speaker_type == record)
     {
         // 保存播放数据的指针和大小
         play_data = data;
@@ -397,9 +415,8 @@ void MCodec::play_record(const uint8_t *data, size_t size)
         fseek(play_file, 0, SEEK_SET);
         ESP_LOGI(TAG, "Creating speaker task for %d bytes (%.1f seconds)",
                 size, (float)size / BytesPerSecond);
-        open_speaker_dev(MIC_SAMPLE_RATE);
+        open_speaker_dev(SPEAKER_SAMPLE_RATE);
     }
-
     xTaskCreate(speaker_task_func, "speaker_task", 4096, NULL, 5, &speaker_task);
 }
 

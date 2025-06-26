@@ -17,17 +17,18 @@
 #define I2C_PORT I2C_NUM_0
 #define I2S_PORT I2S_NUM_0 
 #define I2S_BITS_PER_SAMPLE 16
-#define MIC_SAMPLE_RATE 16000
 #define SPEAKER_SAMPLE_RATE 16000
 #define I2S_CHANNEL_NUM 1
 
 #define TAG "M_CODEC"
-#define READ_BLOCK_SIZE 1024      
-#define BytesPerSecond (MIC_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
-#define RecordTime 8
+#define READ_BLOCK_SIZE 1024     
+#define BytesPerSecond (SPEAKER_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
+#define RecordTime 5
 #define DuringTime 0.0f
 #define ShutdownTime 0.5f + DuringTime
 #define BeforeRecordTime 0.1f
+// 最佳参数，少1s都不行
+#define Warmingcodec 200
 #define FILE_PATH "/fat/mic.raw"
 
 void play_button_sound();
@@ -39,6 +40,7 @@ typedef enum {
     default_speaker,
     mic,
     music,
+    record,
 } Speakertype;
 
 class MCodec {
@@ -95,6 +97,7 @@ public:
         esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_in_gain(codec_dev, 0);
         esp_codec_dev_set_out_vol(codec_dev, get_global_data()->m_device_info.sound_volume);
+        vTaskDelay(pdMS_TO_TICKS(Warmingcodec));
     }
 
     void set_speaker_volume(uint8_t volume)
@@ -107,15 +110,14 @@ public:
         esp_codec_dev_set_in_gain(codec_dev, volume);
     }
 
-    void open_mic_dev(uint32_t sample_rate)
+    void open_mic_dev()
     {
-        fs.sample_rate = sample_rate;
-        esp_codec_dev_open(codec_dev, &fs);
         esp_codec_dev_set_in_gain(codec_dev, 25);
         esp_codec_dev_set_out_vol(codec_dev, 0);
     }
     void close_dev()
     {
+        vTaskDelay(pdMS_TO_TICKS(Warmingcodec));
         esp_codec_dev_close(codec_dev);
     }
 };

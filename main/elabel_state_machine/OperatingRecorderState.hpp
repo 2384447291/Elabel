@@ -6,7 +6,7 @@
 #include "codec.hpp"
 #include "Esp_now_slave.hpp"
 #include "http.h"
-#define RECORD_TIME 5
+#define RECORD_TIME 6
 #define CONFIRM_VOICE_TIME 15
 #define RECONFIRM_VOICE_TIME 3
 
@@ -48,9 +48,9 @@ public:
     void enter_screen_record_voice()
     {
         ESP_LOGI("OperatingRecorderState", "enter_screen_record_voice");
-        record_process = Record_voice_process;
         record_voice_countdown = RECORD_TIME;
 
+        record_process = Record_voice_process;
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
         lv_obj_clear_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);
@@ -82,26 +82,19 @@ public:
         release_lvgl();
 
         //防止按键的声音和提示音混在一起了
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
         MCodec::Instance()->stop_play();
-        MCodec::Instance()->play_music("record");
-        while(MCodec::Instance()->speaker_task!=NULL)
-        {
-            ESP_LOGI(TAG,"Recording Guidance playing");
-            vTaskDelay(50 / portTICK_PERIOD_MS);
-        }
         MCodec::Instance()->start_record();
     }
 
     void enter_screen_confirm_voice()
     {
         ESP_LOGI("OperatingRecorderState", "enter_screen_confirm_voice");
-        record_process = Record_time_process;
         need_flash_paper = true;
-        MCodec::Instance()->stop_record();
         confirm_voice_countdown = CONFIRM_VOICE_TIME;
         button_choose_record_confirm_left = false;
 
+        record_process = Record_time_process;
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
         lv_obj_clear_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);
@@ -143,8 +136,9 @@ public:
     void enter_screen_reconfirm_process() 
     {
         ESP_LOGI("OperatingRecorderState", "enter_screen_reconfirm_process");
-        record_process = Record_reconfirm_process;
         reconfirm_process_countdown = RECONFIRM_VOICE_TIME;
+        
+        record_process = Record_reconfirm_process;
         lock_lvgl();
         switch_screen(ui_OperatingScreen);
         lv_obj_clear_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);

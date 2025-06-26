@@ -214,13 +214,6 @@ void ElabelFsm::HandleInput()
             }
         }
     }
-    else if (GetCurrentState() == FactoryState::Instance())
-    {
-        if(FactoryState::Instance()->need_out_state)
-        {
-            ChangeState(ActiveState::Instance());
-        }
-    }
     else if (GetCurrentState() == HostActiveState::Instance())
     {
         if (HostActiveState::Instance()->need_back)
@@ -235,6 +228,7 @@ void ElabelFsm::HandleInput()
             ChangeState(ActiveState::Instance());
         }
     }
+    else if (GetCurrentState() == FactoryState::Instance()){}
     //-------------------------------整个激活流程--------------------------------//
 
 
