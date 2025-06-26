@@ -196,6 +196,7 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     update_progress_bar();
     //更新任务列表ui
     release_lvgl();
+
     is_jump_to_task_mode = false;
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;

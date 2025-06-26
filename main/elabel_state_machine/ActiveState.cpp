@@ -43,6 +43,13 @@ void move_to_previous_page()
     change_guide_page(ActiveState::Instance()->m_active_page);
 }
 
+void enter_factory()
+{
+    ActiveState::Instance()->need_enter_factory = true;
+    stop_blue_activate();
+    EspNowClient::Instance()->stop_find_channel();
+}
+
 void ActiveState::Init(ElabelController* pOwner)
 {
     
@@ -51,6 +58,7 @@ void ActiveState::Init(ElabelController* pOwner)
 void ActiveState::Enter(ElabelController* pOwner)
 {
     m_active_page = 0;
+    need_enter_factory = false;
 
     //将两个连接指标置为false
     set_is_connect_to_host(false);
@@ -73,6 +81,7 @@ void ActiveState::Enter(ElabelController* pOwner)
 
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(move_to_previous_page);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(move_to_next_page);
+    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.registerCallback(enter_factory);
 
     ESP_LOGI(STATEMACHINE,"Enter ActiveState.");
 }
@@ -85,5 +94,6 @@ void ActiveState::Exit(ElabelController* pOwner)
 {
     ControlDriver::Instance()->button6.CallbackShortPress.unregisterCallback(move_to_previous_page);
     ControlDriver::Instance()->button7.CallbackShortPress.unregisterCallback(move_to_next_page);
+    ControlDriver::Instance()->button_press_together_15.Togetherlongpress.unregisterCallback(enter_factory);
     ESP_LOGI(STATEMACHINE,"Out ActiveState.\n");
 }

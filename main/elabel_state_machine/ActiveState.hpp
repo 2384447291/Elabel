@@ -10,6 +10,7 @@ private:
 
 public:
     uint8_t m_active_page = 0;
+    bool need_enter_factory = false;
     virtual void Init(ElabelController* pOwner);
     virtual void Enter(ElabelController* pOwner);
     virtual void Execute(ElabelController* pOwner);

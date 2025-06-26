@@ -74,7 +74,7 @@ extern "C" void app_main(void)
     //初始化gui
     Gui_init();
     //等待lvgl初始化
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     //如果5次没有启动成功则不运行
     if(get_global_data()->reset_count >= 5)

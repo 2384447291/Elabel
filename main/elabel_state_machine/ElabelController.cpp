@@ -25,6 +25,7 @@
 #include "OperatingTimerState.hpp"
 #include "NoWifiState.hpp"
 #include "NoHostState.hpp"
+#include "FactoryState.hpp"
 #include "OtaPrepareState.hpp"
 #include "InfoState.hpp"
 #include "SleepState.hpp"
@@ -99,7 +100,10 @@ void ElabelFsm::HandleInput()
     if (get_global_data()->m_is_host == 0)
     {
         // 如果当前状态不是激活状态，则进入激活状态
-        if (GetCurrentState() != ActiveState::Instance() && GetCurrentState() != HostActiveState::Instance() && GetCurrentState() != SlaveActiveState::Instance())
+        if (GetCurrentState() != ActiveState::Instance() 
+        && GetCurrentState() != HostActiveState::Instance() 
+        && GetCurrentState() != SlaveActiveState::Instance() 
+        && GetCurrentState() != FactoryState::Instance())
         {
             // 等待2秒，确保init刷新出来了
             vTaskDelay(pdMS_TO_TICKS(2000));
@@ -194,13 +198,27 @@ void ElabelFsm::HandleInput()
     // 如果没有被激活，则进入激活状态
     else if (GetCurrentState() == ActiveState::Instance())
     {
-        if (Is_connect_to_phone())
+        if(ActiveState::Instance()->need_enter_factory)
         {
-            ChangeState(HostActiveState::Instance());
+            ChangeState(FactoryState::Instance());
         }
-        else if (Is_connect_to_host())
+        else
         {
-            ChangeState(SlaveActiveState::Instance());
+            if (Is_connect_to_phone())
+            {
+                ChangeState(HostActiveState::Instance());
+            }
+            else if (Is_connect_to_host())
+            {
+                ChangeState(SlaveActiveState::Instance());
+            }
+        }
+    }
+    else if (GetCurrentState() == FactoryState::Instance())
+    {
+        if(FactoryState::Instance()->need_out_state)
+        {
+            ChangeState(ActiveState::Instance());
         }
     }
     else if (GetCurrentState() == HostActiveState::Instance())

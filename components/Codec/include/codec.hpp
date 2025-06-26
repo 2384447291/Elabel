@@ -97,6 +97,16 @@ public:
         esp_codec_dev_set_out_vol(codec_dev, get_global_data()->m_device_info.sound_volume);
     }
 
+    void set_speaker_volume(uint8_t volume)
+    {
+        esp_codec_dev_set_out_vol(codec_dev, volume);
+    }
+
+    void set_mic_volume(uint8_t volume)
+    {
+        esp_codec_dev_set_in_gain(codec_dev, volume);
+    }
+
     void open_mic_dev(uint32_t sample_rate)
     {
         fs.sample_rate = sample_rate;

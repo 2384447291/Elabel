@@ -43,7 +43,6 @@ enum
 #define PROFILE_NUM                 1
 #define PROFILE_APP_IDX             0
 #define ESP_APP_ID                  0x55
-#define SAMPLE_DEVICE_NAME          "Intelligent_TAG"
 #define SVC_INST_ID                 0
 
 /* The max length of characteristic value. When the GATT client performs a write or prepare write operation,
@@ -465,7 +464,16 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 {
     switch (event) {
         case ESP_GATTS_REG_EVT:{
-            esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(SAMPLE_DEVICE_NAME);
+            //获取设备mac
+            uint8_t name_dev_mac[6];
+            esp_err_t name_ret = esp_read_mac(name_dev_mac, ESP_MAC_BT);
+            if (name_ret != ESP_OK){
+                ESP_LOGE(GATTS_TABLE_TAG, "get mac failed, error code = %x", name_ret);
+            }
+            ESP_LOGI(GATTS_TABLE_TAG, "device mac: %02X:%02X:%02X:%02X:%02X:%02X", name_dev_mac[0], name_dev_mac[1], name_dev_mac[2], name_dev_mac[3], name_dev_mac[4], name_dev_mac[5]);
+            char ble_name[100];
+            snprintf(ble_name, sizeof(ble_name), "Reminder-%02X%02X%02X%02X%02X%02X", name_dev_mac[0], name_dev_mac[1], name_dev_mac[2], name_dev_mac[3], name_dev_mac[4], name_dev_mac[5]);
+            esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(ble_name);
             if (set_dev_name_ret){
                 ESP_LOGE(GATTS_TABLE_TAG, "set device name failed, error code = %x", set_dev_name_ret);
             }
