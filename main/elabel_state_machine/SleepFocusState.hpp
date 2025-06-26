@@ -56,28 +56,44 @@ public:
         int inner_time_s = FocusTaskState::Instance()->choose_task_fall_timing
                         - int((get_unix_time() - FocusTaskState::Instance()->choose_task_start_time) / 1000);
 
-        // 四舍五入到分钟
         int abs_seconds = abs(inner_time_s);
-        int minutes = abs_seconds / 60;
-        int seconds = abs_seconds % 60;
+        int rounded_seconds;
 
-        if (seconds >= 30) {
-            minutes++;
-        }
-
-        int rounded_seconds = minutes * 60;
-
-        // 恢复原始符号：倒计时为正，超时为负
         if (inner_time_s < 0) {
+            // 负数：不管多大，统一按 10 秒为格四舍五入
+            int tens = (abs_seconds + 5) / 10;  // +5 用于四舍五入
+            rounded_seconds = tens * 10;
             return -rounded_seconds;
-        } else {
-            return rounded_seconds;
         }
+
+        // 正数：不足 1 分钟按 10 秒格，1 分钟及以上按分钟四舍五入
+        if (abs_seconds < 60) {
+            int tens = (abs_seconds + 5) / 10;
+            rounded_seconds = tens * 10;
+        } else {
+        // 1 分钟及以上：按分钟四舍五入（秒 ≥30s 向上进 1 分钟）
+            int minutes = abs_seconds / 60;
+            int seconds = abs_seconds % 60;
+            if (seconds >= 30) {
+                minutes++;
+            }
+            rounded_seconds = minutes * 60;
+        }
+
+        return rounded_seconds;
     }
+
+
 
     void calculate_wake_up_time()
     {
-        uint32_t focus_time =  FocusTaskState::Instance()->choose_task_fall_timing - (get_unix_time() - FocusTaskState::Instance()->choose_task_start_time)/1000;
+        int focus_time =  FocusTaskState::Instance()->choose_task_fall_timing 
+                            - (get_unix_time() - FocusTaskState::Instance()->choose_task_start_time)/1000;
+        //如果倒计时时间小于0，则设置为0
+        if(focus_time < 0)
+        {
+            focus_time = 0;
+        }
         //如果倒计时时间大于5分钟
         if(focus_time > 300)
         {
@@ -109,6 +125,7 @@ public:
         //关闭外设电源
         BatteryManager::Instance()->setPowerState(false);
         ESP_ERROR_CHECK(esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL));
+
         //不设置唤醒源，light-sleep-enter没有用
         #ifdef R01A_TEST
         uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_567) | (1ULL << DEVICE_BUTTON_8);
@@ -174,16 +191,46 @@ public:
 
         if(!need_out_state)
         {
+           //唤醒lvgl和硬件开关
             BatteryManager::Instance()->setPowerState(true);
-            vTaskDelay(pdMS_TO_TICKS(100));
+            resume_gui();
+            vTaskDelay(pdMS_TO_TICKS(500));
+            
             //播放音乐
             FocusTaskState::Instance()->play_focus_music();
+
             lock_lvgl();
-            switch_screen(ui_FocusScreen);
-            FocusTaskState::Instance()->inner_time_countdown_s = get_inner_countdown_time();
-            FocusTaskState::Instance()->flush_focus_time();
+            switch_screen(ui_SleepFocusScreen);
+            //设置倒计时
+            int inner_time_countdown_s = get_inner_countdown_time();
+            char timestr[20];
+            if(inner_time_countdown_s >= 0)
+            {
+                sprintf(timestr, "< %02d:%02d", inner_time_countdown_s / 60, inner_time_countdown_s % 60);
+            }
+            else
+            {
+                sprintf(timestr, "> %02d:%02d", (-inner_time_countdown_s) / 60, (-inner_time_countdown_s) % 60);
+            }
+            set_text_without_change_font(ui_SleepTaskFocusTime, timestr);
+
+            //设置进度条
+            int process_length = 0;
+            if(inner_time_countdown_s >= 0)
+            {
+                process_length =  round(360.0f *( 1 - (float)(inner_time_countdown_s)/(float)(FocusTaskState::Instance()->choose_task_fall_timing)));
+                lv_arc_set_value(ui_MinuteBar, process_length);
+            }
+            else
+            {
+                process_length =  360.0f;
+            }
+            lv_arc_set_value(ui_CoutdownBar, process_length);
             release_lvgl();
-            vTaskDelay(pdMS_TO_TICKS(2000));
+
+            //等待墨水瓶响应和关闭ui线程
+            vTaskDelay(pdMS_TO_TICKS(WAITING_RESUME_TIME));
+            suspend_gui();
         }
     }
 };

@@ -72,13 +72,21 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_HalfmindScreen Flush called.");
     }
-    else if(act_scr == ui_SleepScreen) 
+    else if(act_scr == ui_SleepFocusScreen) 
     {
         force_full_update = false;
-        elabel_screen = SLEEP_SCREEN;
+        elabel_screen = SLEEP_FOCUS_SCREEN;
         isBaseMapFresh = false;
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_SleepScreen Flush called.");
+    }
+    else if(act_scr == ui_SleepClockScreen) 
+    {
+        force_full_update = false;
+        elabel_screen = SLEEP_CLOCK_SCREEN;
+        isBaseMapFresh = false;
+        elabel_update_mode = FAST_UPDATE;
+        ESP_LOGI(TAG,"ui_SleepClockScreen Flush called.");
     }
     else if(act_scr == ui_MessageScreen) 
     {
@@ -102,6 +110,20 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         isBaseMapFresh = false;
         elabel_update_mode = FAST_UPDATE;
         ESP_LOGI(TAG,"ui_ShutdownScreen Flush called.");
+    }
+    else if(act_scr == ui_FactoryScreen)
+    {
+        if(elabel_screen != FACTORY_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_screen = FACTORY_SCREEN;
+            isBaseMapFresh = false;
+            elabel_update_mode = FAST_UPDATE;
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
     }
     else if(act_scr == ui_ActiveScreen) 
     {

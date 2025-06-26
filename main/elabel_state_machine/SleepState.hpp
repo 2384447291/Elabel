@@ -34,8 +34,6 @@ public:
     int64_t start_sleep_time = 0;
     //下一次唤醒的时间
     uint16_t next_wake_up_time = 0;
-    //显示的clock时间
-    char show_clock_time[6];
 
     static SleepState* Instance()
     {
@@ -134,21 +132,33 @@ public:
             }
         }   
         
-        //更新时间
-        if(need_clock_mode)
+        //需要更新时间且不需要退出睡眠状态
+        if(need_clock_mode && !need_out_state)
         {
-            char clock_time[6];
-            get_clock_time(clock_time);
-            if(strcmp(clock_time, show_clock_time) != 0)
-            {
-                memcpy(show_clock_time, clock_time, 6);
-                BatteryManager::Instance()->setPowerState(true);
-                vTaskDelay(pdMS_TO_TICKS(500));
-                lock_lvgl();
-                set_text_without_change_font(ui_SleepCLock, clock_time);
-                release_lvgl();
-                vTaskDelay(pdMS_TO_TICKS(2500));
-            }
+            //唤醒lvgl和硬件开关
+            BatteryManager::Instance()->setPowerState(true);
+            resume_gui();
+            vTaskDelay(pdMS_TO_TICKS(500));
+
+            lock_lvgl();
+            switch_screen(ui_SleepClockScreen);
+            //设置date
+            time_description date_time = get_date_time();
+            char str_date[20];
+            sprintf(str_date, "%s %s", month_abbr[date_time.month], data_abbr[date_time.day - 1]);
+            set_text_without_change_font(ui_Date, str_date);
+            //设置hour
+            char str_hour[20];
+            sprintf(str_hour, "%s", time_abbr[date_time.hour]);
+            set_text_without_change_font(ui_Hour, str_hour);
+            //设置minutes
+            int minute_length =  round(6.0f * (float)(date_time.minute+1));
+            lv_arc_set_value(ui_MinuteBar, minute_length);
+            release_lvgl();
+
+            //等待墨水瓶响应和关闭ui线程
+            vTaskDelay(pdMS_TO_TICKS(WAITING_RESUME_TIME));
+            suspend_gui();
         }
     }
 };

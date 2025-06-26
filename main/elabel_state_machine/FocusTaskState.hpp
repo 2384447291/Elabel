@@ -32,6 +32,7 @@ public:
     //任务描述
     int choose_task_fall_timing = 0;
     long long choose_task_start_time = 0;
+    char choose_task_title[100] = "";
 
 
     static FocusTaskState* Instance()

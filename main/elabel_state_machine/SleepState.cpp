@@ -23,12 +23,24 @@ void SleepState::Enter(ElabelController* pOwner)
     //如果需要显示idel_clock,则切换界面
     if(need_clock_mode)
     {
-        char clock_time[6];
-        get_clock_time(clock_time);
-        memcpy(show_clock_time, clock_time, 6);
         lock_lvgl();
-        switch_screen(ui_SleepScreen);
-        set_text_without_change_font(ui_SleepCLock, clock_time);
+        switch_screen(ui_SleepClockScreen);
+        //设置todo的数目
+        char str_todo_num[20];
+        sprintf(str_todo_num, "%d to-dos", get_global_data()->m_todo_list->size);
+        set_text_without_change_font(ui_TodoNum, str_todo_num);
+        //设置date
+        time_description date_time = get_date_time();
+        char str_date[20];
+        sprintf(str_date, "%s %s", month_abbr[date_time.month], data_abbr[date_time.day - 1]);
+        set_text_without_change_font(ui_Date, str_date);
+        //设置hour
+        char str_hour[20];
+        sprintf(str_hour, "%s", time_abbr[date_time.hour]);
+        set_text_without_change_font(ui_Hour, str_hour);
+        //设置minutes
+        int minute_length =  round(6.0f * (float)(date_time.minute+1));
+        lv_arc_set_value(ui_MinuteBar, minute_length);
         release_lvgl();
     }
     //把所有choosetask的内容改为静止的
@@ -49,17 +61,14 @@ void SleepState::Enter(ElabelController* pOwner)
         }
         release_lvgl();
     }
+    //等待2s页面刷新
+    vTaskDelay(pdMS_TO_TICKS(WAITING_RESUME_TIME));
 
     //关闭其他额外线程
     ControlDriver::Instance()->stop_button_check_task();
-    if(!need_clock_mode)
-    {
-        suspend_gui();
-    }
+    suspend_gui();
 
     EspNowSlave::Instance()->slave_send_espnow_http_sleep_request();
-    //等待2s页面刷新
-    vTaskDelay(pdMS_TO_TICKS(2000));
     EspNowSlave::Instance()->sleep_sync_flag = 0;
     start_sleep();
 }
@@ -75,10 +84,7 @@ void SleepState::Exit(ElabelController* pOwner)
     EspNowSlave::Instance()->resume_espnow();
 
     ControlDriver::Instance()->start_button_check_task();
-    if(!need_clock_mode)
-    {
-        resume_gui();
-    }
+    resume_gui();
     vTaskDelay(pdMS_TO_TICKS(500));
 }
 

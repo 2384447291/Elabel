@@ -192,6 +192,24 @@ lv_obj_t * uic_HostActiveCancel;
 lv_obj_t * uic_HostActiveRetry;
 
 
+// SCREEN: ui_SleepFocusScreen
+void ui_SleepFocusScreen_screen_init(void);
+lv_obj_t * ui_SleepFocusScreen;
+lv_obj_t * ui_TaskFocus5;
+lv_obj_t * ui_CoutdownBar;
+lv_obj_t * ui_SleepTaskFocusTime;
+lv_obj_t * ui_FocusTime5;
+lv_obj_t * ui_SleepTaskFocusName;
+lv_obj_t * ui_Task5;
+// CUSTOM VARIABLES
+lv_obj_t * uic_SleepFocusScreen;
+lv_obj_t * uic_CoutdownBar;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_FocusTask;
+lv_obj_t * uic_Task;
+
+
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 lv_obj_t * ui_FocusScreen;
@@ -260,14 +278,51 @@ lv_obj_t * uic_HostActiveCancel;
 lv_obj_t * uic_HostActiveCancel;
 
 
-// SCREEN: ui_SleepScreen
-void ui_SleepScreen_screen_init(void);
-lv_obj_t * ui_SleepScreen;
-lv_obj_t * ui_Panel3;
-lv_obj_t * ui_SleepCLock;
-lv_obj_t * ui_SleepCLock1;
+// SCREEN: ui_SleepClockScreen
+void ui_SleepClockScreen_screen_init(void);
+lv_obj_t * ui_SleepClockScreen;
+lv_obj_t * ui_TaskFocus4;
+lv_obj_t * ui_TodoNum;
+lv_obj_t * ui_Task2;
+lv_obj_t * ui_Date;
+lv_obj_t * ui_Label14;
+lv_obj_t * ui_Hour;
+lv_obj_t * ui_Label13;
+lv_obj_t * ui_MinuteBar;
 // CUSTOM VARIABLES
-lv_obj_t * uic_ActiveScreen;
+lv_obj_t * uic_FocusScreen;
+lv_obj_t * uic_TodoNum;
+lv_obj_t * uic_Task;
+
+
+// SCREEN: ui_FactoryScreen
+void ui_FactoryScreen_screen_init(void);
+lv_obj_t * ui_FactoryScreen;
+lv_obj_t * ui_ButtonPanel;
+lv_obj_t * ui_ButtonMask1;
+lv_obj_t * ui_ButtonMask2;
+lv_obj_t * ui_ButtonMask3;
+lv_obj_t * ui_ButtonMask4;
+lv_obj_t * ui_ButtonMask5;
+lv_obj_t * ui_ButtonMask6;
+lv_obj_t * ui_ButtonMask7;
+lv_obj_t * ui_ButtonMask8;
+lv_obj_t * ui_SpeakerPanel;
+lv_obj_t * ui_CharacterName;
+lv_obj_t * ui_Label12;
+lv_obj_t * ui_CharacterDescribe;
+lv_obj_t * ui_RecordRetryDescribtion;
+lv_obj_t * ui_PowerPanel;
+lv_obj_t * ui_PowerName;
+lv_obj_t * ui_Label11;
+lv_obj_t * ui_BatteryDescribtion;
+lv_obj_t * ui_WireDescribtion;
+// CUSTOM VARIABLES
+lv_obj_t * uic_CharacterName;
+lv_obj_t * uic_CharacterName;
+lv_obj_t * uic_CharacterName;
+lv_obj_t * uic_CharacterName;
+lv_obj_t * uic_CharacterName;
 
 // EVENTS
 lv_obj_t * ui____initial_actions0;
@@ -304,9 +359,11 @@ void ui_init(void)
     ui_ShutdownScreen_screen_init();
     ui_HostActiveScreen_screen_init();
     ui_SlaveActiveScreen_screen_init();
+    ui_SleepFocusScreen_screen_init();
     ui_FocusScreen_screen_init();
     ui_MessageScreen_screen_init();
-    ui_SleepScreen_screen_init();
+    ui_SleepClockScreen_screen_init();
+    ui_FactoryScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HalfmindScreen);
 }

@@ -13,7 +13,7 @@ void ui_FocusScreen_screen_init(void)
     ui_TaskFocus = lv_obj_create(ui_FocusScreen);
     lv_obj_remove_style_all(ui_TaskFocus);
     lv_obj_set_width(ui_TaskFocus, 250);
-    lv_obj_set_height(ui_TaskFocus, 122);
+    lv_obj_set_height(ui_TaskFocus, 123);
     lv_obj_set_align(ui_TaskFocus, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_TaskFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

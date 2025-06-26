@@ -13,6 +13,8 @@ void ui_SlaveActiveScreen_screen_init(void)
     ui_ConnectingHost = lv_obj_create(ui_SlaveActiveScreen);
     lv_obj_set_width(ui_ConnectingHost, 250);
     lv_obj_set_height(ui_ConnectingHost, 122);
+    lv_obj_set_x(ui_ConnectingHost, 0);
+    lv_obj_set_y(ui_ConnectingHost, -1);
     lv_obj_clear_flag(ui_ConnectingHost, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ConnectingHost, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_ConnectingHost, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);

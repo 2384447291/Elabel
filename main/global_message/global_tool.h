@@ -1,5 +1,5 @@
-#ifndef GLOBAL_TIME_H
-#define GLOBAL_TIME_
+#ifndef GLOBAL_TOOL_H
+#define GLOBAL_TOOL_H
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -27,7 +27,7 @@
 #define RecordTime 8
 #define DuringTime 0.0f
 #define ShutdownTime 0.5f + DuringTime
-#define BeforeRecordTime 0.05f
+#define BeforeRecordTime 0.1f
 #define FILE_PATH "/fat/mic.raw"
 
 void play_button_sound();

@@ -36,7 +36,7 @@ void Inituilock()
 }
 //--------------------------------------lvgl相关的内容-------------------------------------//
 
-
+bool is_lvgl_sleep = false;
 
 //--------------------------------------lvgl主任务-------------------------------------//
 /* 创建一个 semaphore 来处理对 lvgl 的并发调用。
@@ -144,6 +144,7 @@ void guiTask(void *pvParameter) {
     ESP_LOGI("lvgl", "start gui task.\n");
     ui_init();
     lv_refr_now(NULL);
+    is_lvgl_sleep = false;
     while (1) {
         /* lvgl刷新率10ms*/
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -178,14 +179,18 @@ void Gui_init()
 
 void suspend_gui()
 {
+    if(is_lvgl_sleep) return;
     stop_lvgl_tick_timer();
     vTaskSuspend(gui_task_handle);
+    is_lvgl_sleep = true;
 }
 
 void resume_gui()
 {
+    if(!is_lvgl_sleep) return;
     start_lvgl_tick_timer();
     vTaskResume(gui_task_handle);
+    is_lvgl_sleep = false;
 }
 //--------------------------------------lvgl主任务-------------------------------------//
 

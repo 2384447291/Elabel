@@ -111,6 +111,7 @@ void choose_previous_task()
 
 void delete_task()
 {
+    play_finish_task_sound();
     int ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
     char ChosenTaskId_str[10];
     sprintf(ChosenTaskId_str, "%d", ChosenTaskId);
@@ -122,7 +123,6 @@ void delete_task()
     {
         EspNowSlave::Instance()->slave_send_espnow_http_delete_task(ChosenTaskId);
     }
-    play_finish_task_sound();
 }
 
 void jump_to_task_mode()
@@ -187,8 +187,6 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
-    //只有在每次进入choosetask的时候或者退出focus的时候需要重置时间
-    ElabelController::Instance()->TimeCountdown = (get_global_data()->m_device_info.default_counter_time*60);
     sleep_count = SLEEP_COUTDOWN;
     lock_lvgl();
     //加载界面

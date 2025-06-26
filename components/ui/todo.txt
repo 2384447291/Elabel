@@ -9,7 +9,8 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     screens/ui_SlaveActiveScreen.c
     screens/ui_FocusScreen.c
     screens/ui_MessageScreen.c
-    screens/ui_SleepScreen.c
+    screens/ui_SleepFocusScreen.c
+    screens/ui_SleepClockScreen.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
@@ -17,11 +18,13 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_activate1_png.c
     images/ui_img_activate2_png.c
     images/ui_img_activate3_png.c
+    images/ui_img_scollarbar_png.c
     images/ui_img_cancel_n_png.c
     images/ui_img_cancel_y_png.c
     images/ui_img_start_n_png.c
     images/ui_img_start_y_png.c
-    images/ui_img_scollarbar_png.c
+    images/ui_img_retry_n_png.c
+    images/ui_img_retry_y_png.c
     images/ui_img_seeyounexttime_png.c
     images/ui_img_tips1_png.c
     images/ui_img_tips2_png.c
@@ -31,8 +34,6 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_finish_n_png.c
     images/ui_img_battery_png.c
     images/ui_img_disconnectwifi_png.c
-    images/ui_img_retry_n_png.c
-    images/ui_img_retry_y_png.c
     images/ui_img_hostactive_png.c
     images/ui_img_accept_y_png.c
     images/ui_img_warning_amber_png.c
@@ -41,6 +42,8 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_otay_png.c
     images/ui_img_rebootn_png.c
     images/ui_img_rebooty_png.c
+    images/ui_img_timebar_png.c
+    images/ui_img_fullbar_png.c
     images/ui_img_accept_n_png.c
     fonts/ui_font_Chinese24.c
     fonts/ui_font_Chinese32.c

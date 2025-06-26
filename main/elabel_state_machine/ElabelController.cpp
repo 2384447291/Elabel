@@ -409,14 +409,17 @@ void ElabelFsm::HandleInput()
         {
             if (ChoosingTaskState::Instance()->is_jump_to_record_mode)
             {
+                ElabelController::Instance()->TimeCountdown = get_global_data()->m_device_info.default_counter_time*60;
                 ChangeState(OperatingRecorderState::Instance());
             }
             else if (ChoosingTaskState::Instance()->is_jump_to_task_mode)
             {
+                ElabelController::Instance()->TimeCountdown = get_global_data()->m_device_info.default_counter_time*60;
                 ChangeState(OperatingTaskState::Instance());
             }
             else if (ChoosingTaskState::Instance()->is_jump_to_time_mode)
             {
+                ElabelController::Instance()->TimeCountdown = get_global_data()->m_device_info.default_counter_time*60;
                 ChangeState(OperatingTimeState::Instance());
             }
             else if (ChoosingTaskState::Instance()->is_jump_to_info_mode)

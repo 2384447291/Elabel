@@ -1,5 +1,5 @@
-#ifndef __GLOBAL_NVS_H__
-#define __GLOBAL_NVS_H__
+#ifndef GLOBAL_NVS_H
+#define GLOBAL_NVS_H
 
 #include "esp_mac.h"
 #include "esp_log.h"

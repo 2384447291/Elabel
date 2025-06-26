@@ -1,5 +1,5 @@
-#ifndef InitState_HPP
-#define InitState_HPP
+#ifndef INITSTATE_HPP
+#define INITSTATE_HPP
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp" 

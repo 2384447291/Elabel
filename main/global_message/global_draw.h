@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#define WAITING_RESUME_TIME 1800
 void lock_lvgl();
 void release_lvgl();
 void Inituilock();

@@ -32,9 +32,10 @@ void FocusTaskState::Init(ElabelController* pOwner)
 
 void FocusTaskState::Enter(ElabelController* pOwner)
 {
-    // 进入focus的时候，重置卡死时间
+    // 进入focus的时候，重置卡死时间,这个代表的是outfocus的倒计时
     pOwner->stuck_time = 0;
 
+    //重置成员变量
     inner_time_countdown_ms = 0;
     inner_time_countdown_s = 0;
     inner_time_countup_ms = 0;
@@ -46,19 +47,19 @@ void FocusTaskState::Enter(ElabelController* pOwner)
     choose_task_fall_timing = 0;
     choose_task_start_time = 0;
 
-    
+    //获取任务信息
     TodoItem* chose_todo;
     chose_todo = find_todo_by_id(get_global_data()->m_todo_list, FocusTaskState::Instance()->focus_task_id);
     focus_type = chose_todo->taskType;
     choose_task_fall_timing = chose_todo->fallTiming;
     choose_task_start_time = chose_todo->startTime;
+    memset(choose_task_title, 0, sizeof(choose_task_title));
+    strcpy(choose_task_title, chose_todo->title);
 
-    char focus_task_name[100];
-    memset(focus_task_name, 0, sizeof(focus_task_name));
-    strcpy(focus_task_name, chose_todo->title);
+    //如果是音乐任务
     if(focus_type == 3)
     {
-        sscanf(focus_task_name, "Record Task %lu", &focus_record_message_unique_id);
+        sscanf(choose_task_title, "Record Task %lu", &focus_record_message_unique_id);
         ESP_LOGI(STATEMACHINE,"Enter FocusTaskState, focus_type: %d, focus_task_id: %ld, Record Message Unique ID: %lu", focus_type, focus_task_id, focus_record_message_unique_id);
     }
     else
@@ -106,7 +107,7 @@ void FocusTaskState::Enter(ElabelController* pOwner)
         lv_obj_clear_flag(ui_TaskFocus2, LV_OBJ_FLAG_HIDDEN);
 
         //更新任务描述
-        change_focus_task_label(chose_todo->title);
+        change_focus_task_label(choose_task_title);
         set_text_without_change_font(ui_TaskFocusTime, timestr);
     }
     else if(focus_type == 3)

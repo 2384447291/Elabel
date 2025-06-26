@@ -1,5 +1,5 @@
-#ifndef OTA_PREPARE_STATE_HPP
-#define OTA_PREPARE_STATE_HPP
+#ifndef OTAPREPARESTATE_HPP
+#define OTAPREPARESTATE_HPP
 
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"

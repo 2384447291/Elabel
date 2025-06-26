@@ -190,6 +190,23 @@ extern lv_obj_t * uic_SlaveActiveScreen;
 extern lv_obj_t * uic_HostActiveCancel;
 extern lv_obj_t * uic_HostActiveRetry;
 
+// SCREEN: ui_SleepFocusScreen
+void ui_SleepFocusScreen_screen_init(void);
+extern lv_obj_t * ui_SleepFocusScreen;
+extern lv_obj_t * ui_TaskFocus5;
+extern lv_obj_t * ui_CoutdownBar;
+extern lv_obj_t * ui_SleepTaskFocusTime;
+extern lv_obj_t * ui_FocusTime5;
+extern lv_obj_t * ui_SleepTaskFocusName;
+extern lv_obj_t * ui_Task5;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_SleepFocusScreen;
+extern lv_obj_t * uic_CoutdownBar;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_FocusTask;
+extern lv_obj_t * uic_Task;
+
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
 extern lv_obj_t * ui_FocusScreen;
@@ -256,14 +273,50 @@ extern lv_obj_t * uic_MessageLanguage;
 extern lv_obj_t * uic_HostActiveCancel;
 extern lv_obj_t * uic_HostActiveCancel;
 
-// SCREEN: ui_SleepScreen
-void ui_SleepScreen_screen_init(void);
-extern lv_obj_t * ui_SleepScreen;
-extern lv_obj_t * ui_Panel3;
-extern lv_obj_t * ui_SleepCLock;
-extern lv_obj_t * ui_SleepCLock1;
+// SCREEN: ui_SleepClockScreen
+void ui_SleepClockScreen_screen_init(void);
+extern lv_obj_t * ui_SleepClockScreen;
+extern lv_obj_t * ui_TaskFocus4;
+extern lv_obj_t * ui_TodoNum;
+extern lv_obj_t * ui_Task2;
+extern lv_obj_t * ui_Date;
+extern lv_obj_t * ui_Label14;
+extern lv_obj_t * ui_Hour;
+extern lv_obj_t * ui_Label13;
+extern lv_obj_t * ui_MinuteBar;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_ActiveScreen;
+extern lv_obj_t * uic_FocusScreen;
+extern lv_obj_t * uic_TodoNum;
+extern lv_obj_t * uic_Task;
+
+// SCREEN: ui_FactoryScreen
+void ui_FactoryScreen_screen_init(void);
+extern lv_obj_t * ui_FactoryScreen;
+extern lv_obj_t * ui_ButtonPanel;
+extern lv_obj_t * ui_ButtonMask1;
+extern lv_obj_t * ui_ButtonMask2;
+extern lv_obj_t * ui_ButtonMask3;
+extern lv_obj_t * ui_ButtonMask4;
+extern lv_obj_t * ui_ButtonMask5;
+extern lv_obj_t * ui_ButtonMask6;
+extern lv_obj_t * ui_ButtonMask7;
+extern lv_obj_t * ui_ButtonMask8;
+extern lv_obj_t * ui_SpeakerPanel;
+extern lv_obj_t * ui_CharacterName;
+extern lv_obj_t * ui_Label12;
+extern lv_obj_t * ui_CharacterDescribe;
+extern lv_obj_t * ui_RecordRetryDescribtion;
+extern lv_obj_t * ui_PowerPanel;
+extern lv_obj_t * ui_PowerName;
+extern lv_obj_t * ui_Label11;
+extern lv_obj_t * ui_BatteryDescribtion;
+extern lv_obj_t * ui_WireDescribtion;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_CharacterName;
+extern lv_obj_t * uic_CharacterName;
+extern lv_obj_t * uic_CharacterName;
+extern lv_obj_t * uic_CharacterName;
+extern lv_obj_t * uic_CharacterName;
 
 // EVENTS
 
@@ -292,12 +345,15 @@ LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
 LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
 LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
+LV_IMG_DECLARE(ui_img_timebar_png);    // assets/TimeBar.png
+LV_IMG_DECLARE(ui_img_fullbar_png);    // assets/FullBar.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
 LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
 LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
 LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
+LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
 
 // FONTS

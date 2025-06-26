@@ -191,6 +191,21 @@ void get_clock_time(char* str_time)
     strftime(str_time, 6, "%H:%M", &timeinfo);
 }
 
+time_description get_date_time()
+{
+    time_description time_desc;
+    time_desc.year = timeinfo.tm_year + 1900;
+    time_desc.month = timeinfo.tm_mon;
+    time_desc.day = timeinfo.tm_mday;
+    time_desc.week = timeinfo.tm_wday;
+    time_desc.hour = timeinfo.tm_hour;
+    time_desc.minute = timeinfo.tm_min;
+    time_desc.second = timeinfo.tm_sec;
+    ESP_LOGI("DATE TIME", "year: %d, month: %d, day: %d, week: %d, hour: %d, minute: %d, second: %d", 
+        time_desc.year, time_desc.month, time_desc.day, time_desc.week, time_desc.hour, time_desc.minute, time_desc.second);
+    return time_desc;
+}
+
 void Log_time(void)
 {
 	// 打印现在时间
