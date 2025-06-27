@@ -23,7 +23,7 @@
 #define TAG "M_CODEC"
 #define READ_BLOCK_SIZE 1024     
 #define BytesPerSecond (SPEAKER_SAMPLE_RATE * I2S_CHANNEL_NUM * I2S_BITS_PER_SAMPLE / 8)
-#define RecordTime 5
+#define RecordTime 6.5
 #define DuringTime 0.0f
 #define ShutdownTime 0.5f + DuringTime
 #define BeforeRecordTime 0.1f

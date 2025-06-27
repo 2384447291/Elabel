@@ -117,7 +117,7 @@ void delete_task()
     sprintf(ChosenTaskId_str, "%d", ChosenTaskId);
     if(get_global_data()->m_is_host == 1)
     {
-        http_delet_todo(ChosenTaskId_str, true);
+        http_delet_todo(ChosenTaskId_str, false);
     }
     else if(get_global_data()->m_is_host == 2)
     {

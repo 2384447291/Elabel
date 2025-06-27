@@ -165,9 +165,28 @@ void FactoryState::Execute(ElabelController* pOwner)
         if(elabelUpdateTick%1000 == 0)
         {
             lock_lvgl();
+            float battery_level = BatteryManager::Instance()->getBatteryLevel();
+            bool is_usb_connected = BatteryManager::Instance()->is_usb_connected(battery_level);
             set_text_without_change_font(ui_PowerName, "Power");
-            set_text_without_change_font(ui_BatteryDescribtion, "Battery:Not detected");
-            set_text_without_change_font(ui_WireDescribtion, "Wire:Detected");
+            if(battery_level > 0.5f)
+            {
+                char battery_str[20];
+                sprintf(battery_str, "Battery:%.3fV", battery_level);
+                set_text_without_change_font(ui_BatteryDescribtion, battery_str);
+            }
+            else
+            {
+                set_text_without_change_font(ui_BatteryDescribtion, "Battery:Not detected");
+            }
+
+            if(is_usb_connected)
+            {
+                set_text_without_change_font(ui_WireDescribtion, "Wire:Detected");
+            }
+            else
+            {
+                set_text_without_change_font(ui_WireDescribtion, "Wire:Not detected");
+            }
             release_lvgl();
         }        
     }
