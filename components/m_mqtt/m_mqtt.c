@@ -95,8 +95,10 @@ void mqtt_client_init(void)
     strcat(send_topic,get_global_data()->m_mac_str);
 
     esp_mqtt_client_config_t emcct = {
-        .broker.address.uri="mqtt://120.77.1.151",   //MQTT服务器的uri
-        .broker.address.port=1883,                   //MQTT服务器的端口
+        .broker.address.uri = MQTT_URL,         //MQTT服务器的uri
+        .broker.address.port = MQTT_PORT,       //MQTT服务器的端口
+        .credentials.username = MQTT_USER,
+        .credentials.authentication.password = MQTT_PASSWORD,
         .session.protocol_ver = MQTT_PROTOCOL_V_3_1_1,
         .network.disable_auto_reconnect = false, // 自动重连
         .session.keepalive = 60,

@@ -50,7 +50,7 @@ esp_err_t http_post_music_data(int32_t id)
 
     // 1. 设置请求方法
     esp_http_client_set_method(client,HTTP_METHOD_POST);
-    esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/addAudio");
+    esp_http_client_set_url(client,HTTP_URL"/userApi/todo/addAudio");
 
     // 2. 设置 Content-Type
     char content_type[100]; // 确保大小足够
@@ -173,7 +173,7 @@ esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_un
 
     // 1. 设置请求方法
     esp_http_client_set_method(client,HTTP_METHOD_POST);
-    esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/getAudio");
+    esp_http_client_set_url(client,HTTP_URL"/userApi/todo/getAudio");
 
     // 2. 设置 Content-Type
     char content_type[100]; // 确保大小足够

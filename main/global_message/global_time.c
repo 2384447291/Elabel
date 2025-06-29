@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "esp_sntp.h"
 #include "cJSON.h"
+#include "global_message.h"
 
 #undef ESP_LOGI
 #define ESP_LOGI(tag, format, ...) 
@@ -27,7 +28,7 @@ char *response_buffer = NULL;
 int response_buffer_len = 0;
 bool send_error = false;
 
-#define URL "http://120.77.1.151:8080/userApi/common/getTimeStamp"
+#define URL HTTP_URL"/userApi/common/getTimeStamp"
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     switch (evt->event_id) {
         case HTTP_EVENT_ERROR:

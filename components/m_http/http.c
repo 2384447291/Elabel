@@ -12,7 +12,7 @@ http_task_struct* m_dealing_task;
 TaskHandle_t* phttp_Task_state = NULL;  // 修改这里，添加初始化为NULL
 esp_err_t http_client_event_handler(esp_http_client_event_t *evt);
 esp_http_client_config_t config = {
-    .url = "http://120.77.1.151",
+    .url = HTTP_URL,
     .event_handler = http_client_event_handler,
     .timeout_ms = 4000,
     .buffer_size = 1024,

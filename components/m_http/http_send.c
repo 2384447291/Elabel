@@ -21,7 +21,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     if(m_task_struct->task==ADDTODO)
     {
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/addTodo");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/addTodo");
         esp_http_client_set_header(client,"Content-Type","application/json");
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造 JSON 数据
@@ -42,7 +42,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     else if(m_task_struct->task==ADD_ENTER_FOCUS)
     {
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/addEnterFocus");\
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/addEnterFocus");\
         
         esp_http_client_set_header(client,"Content-Type","application/json");
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
@@ -69,7 +69,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/enterFocus");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/enterFocus");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -105,7 +105,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/outFocus");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/outFocus");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -132,7 +132,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/deleteTodo");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/deleteTodo");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -156,7 +156,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     { 
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/todo/todoListMap");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/todoListMap");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -187,7 +187,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/deviceFirmware/getDeviceUpToDateFirmwareVersion");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/deviceFirmware/getDeviceUpToDateFirmwareVersion");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -216,7 +216,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/moveUser/getUserInfo");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/moveUser/getUserInfo");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -234,7 +234,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/bindDevice");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/device/bindDevice");
         char short_mac[7]; // 6位字符 + 1位 '\0'
         snprintf(short_mac, sizeof(short_mac), "%c%c%c%c%c%c",
                 m_task_struct->parament[0][9], m_task_struct->parament[0][10],  // "13"
@@ -275,7 +275,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/unBindDevice");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/device/unBindDevice");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -302,7 +302,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/list");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/device/list");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -320,7 +320,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/saveSetting");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/device/saveSetting");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);
@@ -353,7 +353,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
     {
         generate_boundary(m_boundary, sizeof(m_boundary));
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,"http://120.77.1.151:8080/userApi/device/savePower");
+        esp_http_client_set_url(client,HTTP_URL"/userApi/device/savePower");
         // 设置 Content-Type
         char content_type[100]; // 确保大小足够
         snprintf(content_type, sizeof(content_type), "multipart/form-data; boundary=%s", m_boundary);

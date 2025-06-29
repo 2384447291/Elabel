@@ -9,6 +9,12 @@
 #include "freertos/task.h"
 #include "esp_mac.h"
 
+#define HTTP_URL "http://cloud-gateway-ts.halfmind.tech"
+#define MQTT_URL "mqtt://47.239.99.37"
+#define MQTT_PORT 1883
+#define MQTT_USER "dspro"
+#define MQTT_PASSWORD "dspro123.." 
+
 #define MAX_SLAVE_NUM 6
 #define FIRMWARE_VERSION "3.0.22"
 #define DEVICE_MODEL "R01B_TEST"
