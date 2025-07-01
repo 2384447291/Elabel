@@ -16,7 +16,7 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.22"
+#define FIRMWARE_VERSION "3.0.23"
 #define DEVICE_MODEL "R01B_TEST"
 #define LANGUAGE "EN"
 #define EN 
@@ -122,6 +122,8 @@ typedef struct
     //是否有专注任务
     Focus_state* m_focus_state;//2表示否focus 1表示是focus 0表示没东西
     TodoList* m_todo_list;
+    //正在focus的任务
+    int focusing_task_id;
 
     //为了确保字符串能够正确存储格式化后的 MAC 地址，并以 '\0' 结尾，字符串的大小应该至少为 18 字节。具体计算如下：
     // 每个字节以两位十六进制表示：02（2 字符）

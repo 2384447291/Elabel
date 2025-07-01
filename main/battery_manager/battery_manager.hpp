@@ -20,9 +20,6 @@
 #include "control_driver.hpp"
 #include "esp_adc/adc_oneshot.h"
 
-#undef ESP_LOGI
-#define ESP_LOGI(tag, format, ...) 
-
 // IO定义
 #define DEV_POWER_CTRL        GPIO_NUM_5
 #define BATTERY_ADC_CHAN      ADC_CHANNEL_6  // GPIO6 对应 ADC1_CH6

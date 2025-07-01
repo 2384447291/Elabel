@@ -26,7 +26,6 @@ void change_guide_page(uint8_t page)
         default:
             break;
     }
-    
     release_lvgl();
 }
 

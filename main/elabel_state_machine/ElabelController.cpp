@@ -47,6 +47,7 @@ void force_reset_elabel()
             EspNowHost::Instance()->Mqtt_send_unbind_device(get_global_data()->m_slave_info[i].mac);
             //通知后端删除从机
             http_unbind_device(true, get_global_data()->m_slave_info[i].mac);
+            reset_elabel();
         }
     }
     //如果是从机
@@ -54,8 +55,12 @@ void force_reset_elabel()
     {
         //通知主机删除自己
         EspNowSlave::Instance()->slave_send_espnow_http_unbind_device();
+        reset_elabel();
     }
-    reset_elabel();
+    else if(get_global_data()->m_is_host == 0)
+    {
+        erase_nvs();
+    }
 }
 
 ElabelController::ElabelController() : m_elabelFsm(this) {}
@@ -157,13 +162,7 @@ void ElabelFsm::HandleInput()
         }
         return;
     }
-    else if(GetCurrentState() == SleepFocusState::Instance())
-    {
-        if(SleepFocusState::Instance()->need_out_state)
-        {
-            ChangeState(InitState::Instance());
-        }
-    }
+    //很重要sleepfocus要参加接下来的操作
     //-------------------------------休眠流程--------------------------------//
 
 
@@ -247,8 +246,15 @@ void ElabelFsm::HandleInput()
             {
                 if (get_global_data()->m_focus_state->is_focus == 1)
                 {
-                    FocusTaskState::Instance()->focus_task_id = get_global_data()->m_focus_state->focus_task_id;
-                    ChangeState(FocusTaskState::Instance());
+                    get_global_data()->focusing_task_id = get_global_data()->m_focus_state->focus_task_id;
+                    if(get_global_data()->m_is_host == 1)
+                    {
+                        ChangeState(FocusTaskState::Instance());
+                    }
+                    else if(get_global_data()->m_is_host == 2)
+                    {
+                        ChangeState(SleepFocusState::Instance());
+                    }
                 }
                 else
                 {
@@ -348,23 +354,37 @@ void ElabelFsm::HandleInput()
             if (get_global_data()->m_focus_state->is_focus == 1)
             {
                 ESP_LOGI("ElabelFsm", "enter focus");
-                //如果在focus状态
-                if (GetCurrentState() == FocusTaskState::Instance())
+                // 处理focus状态切换的通用逻辑
+                auto handleFocusStateChange = [this](auto currentFocusState, auto targetFocusState) 
                 {
-                    if(FocusTaskState::Instance()->focus_task_id != get_global_data()->m_focus_state->focus_task_id)
+                    if (GetCurrentState() == currentFocusState)
                     {
-                        ESP_LOGI("ElabelFsm", "focus task id changed from %d to %d", FocusTaskState::Instance()->focus_task_id, get_global_data()->m_focus_state->focus_task_id);
-                        FocusTaskState::Instance()->Exit(m_pOwner);
-                        FocusTaskState::Instance()->focus_task_id = get_global_data()->m_focus_state->focus_task_id;
-                        FocusTaskState::Instance()->Enter(m_pOwner);
+                        if(get_global_data()->focusing_task_id != get_global_data()->m_focus_state->focus_task_id)
+                        {
+                            ESP_LOGI("ElabelFsm", "focus task id changed from %d to %d", 
+                                    get_global_data()->focusing_task_id, 
+                                    get_global_data()->m_focus_state->focus_task_id);
+                            currentFocusState->Exit(m_pOwner);
+                            get_global_data()->focusing_task_id = get_global_data()->m_focus_state->focus_task_id;
+                            currentFocusState->Enter(m_pOwner);
+                        }
                     }
-                }
-                //如果没有在focus状态
-                else
+                    else
+                    {
+                        get_global_data()->focusing_task_id = get_global_data()->m_focus_state->focus_task_id;
+                        ChangeState(targetFocusState);
+                    }
+                };
+
+                if(get_global_data()->m_is_host == 1)
                 {
-                    FocusTaskState::Instance()->focus_task_id = get_global_data()->m_focus_state->focus_task_id;
-                    ChangeState(FocusTaskState::Instance());
+                    handleFocusStateChange(FocusTaskState::Instance(), FocusTaskState::Instance());
                 }
+                else if(get_global_data()->m_is_host == 2)
+                {
+                    handleFocusStateChange(SleepFocusState::Instance(), SleepFocusState::Instance());
+                }
+    
                 if (get_global_data()->m_is_host == 1)
                 {
                     TodoItem *todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->m_focus_state->focus_task_id);
@@ -376,7 +396,7 @@ void ElabelFsm::HandleInput()
             // 如果任务列表中没有focus任务
             else if (get_global_data()->m_focus_state->is_focus == 0)
             {
-                if (GetCurrentState() == FocusTaskState::Instance())
+                if (GetCurrentState() == FocusTaskState::Instance() || GetCurrentState() == SleepFocusState::Instance())
                 {
                     ESP_LOGI("ElabelFsm", "exit focus");
                     ChangeState(ChoosingTaskState::Instance());
@@ -482,11 +502,11 @@ void ElabelFsm::HandleInput()
                 ChangeState(OtaPrepareState::Instance());
             }
         }
-        else if(GetCurrentState() == FocusTaskState::Instance())
+        else if (GetCurrentState() == SleepFocusState::Instance())
         {
-            if(FocusTaskState::Instance()->need_enter_sleep)
+            if(SleepFocusState::Instance()->need_out_state)
             {
-                ChangeState(SleepFocusState::Instance());
+                ChangeState(InitState::Instance());
             }
         }
         //-------------------------------正常逻辑流程--------------------------------//

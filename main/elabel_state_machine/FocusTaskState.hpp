@@ -4,6 +4,7 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "Codec.hpp"
+#include <limits.h>
 #include "httpmusic.h"
 class FocusTaskState : public State<ElabelController>
 {
@@ -14,19 +15,13 @@ public:
     virtual void Enter(ElabelController* pOwner);
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
-
-
-    int inner_time_countdown_ms = 0;
-    int inner_time_countdown_s = 0;
+    int last_beep_time = INT32_MIN;
     //正向计时
     int inner_time_countup_ms = 0;
     bool need_out_focus = false;
-    bool need_enter_sleep = false;
     bool need_flash_paper = false;
     //当前focus的类型1是纯时间，2是task，3是record
     uint8_t focus_type = 0;
-    //当前focus的task_id，这个数据是从外部获取的
-    int32_t focus_task_id = 0;
     //当前focus的record_message_unique_id,从任务名字中获取，需要和mcodec里的对应
     uint32_t focus_record_message_unique_id = 0;
     //任务描述
@@ -46,7 +41,7 @@ public:
         //如果是音频任务且音频任务对的上
         if(focus_type == 3 && focus_record_message_unique_id == MCodec::Instance()->record_message_unique_id)
         {
-            start_post_music(focus_task_id);
+            start_post_music(get_global_data()->focusing_task_id);
         }
     }
 
@@ -54,7 +49,7 @@ public:
     {
         if(focus_type == 3 && focus_record_message_unique_id != MCodec::Instance()->record_message_unique_id)
         {
-            start_get_music(focus_task_id, &MCodec::Instance()->record_message_unique_id, focus_record_message_unique_id);
+            start_get_music(get_global_data()->focusing_task_id, &MCodec::Instance()->record_message_unique_id, focus_record_message_unique_id);
         }
     }
 
@@ -166,6 +161,8 @@ public:
         uint8_t minutes = 0;
         uint8_t seconds = 0;
         uint32_t total_seconds = 0;
+
+        int inner_time_countdown_s = choose_task_fall_timing - (get_unix_time() - choose_task_start_time)/1000;
         if(inner_time_countdown_s <= 0)
         {
             if(focus_type == 1)

@@ -13,10 +13,10 @@
 #include "esp_now_client.hpp"
 #include "esp_now_slave.hpp"
 #include <vector>
-#include "FocusTaskState.hpp"
 
 //等待收同步消息的间隔
 #define ESPNOW_WAITING_TIME 100
+#define SLEEP_FOCUS_COUTDOWN 15*1000
 
 //当时间>300，每5min响一次
 //当时间>60,<300，每1min响一次
@@ -30,10 +30,27 @@ public:
     virtual void Enter(ElabelController* pOwner);
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
+
     //是否需要跳出该状态
     bool need_out_state = false;
     //下一次唤醒的时间
     int16_t next_wake_up_time = 0;
+    bool need_out_focus = false;
+
+    //当前focus的类型1是纯时间，2是task，3是record
+    uint8_t focus_type = 0;
+    //当前focus的record_message_unique_id,从任务名字中获取，需要和mcodec里的对应
+    uint32_t focus_record_message_unique_id = 0;
+
+    //任务描述
+    int choose_task_fall_timing = 0;
+    long long choose_task_start_time = 0;
+    char choose_task_title[100] = "";
+
+    //是否进入了sleep
+    bool is_sleep_focus = false;
+    //进入focus的倒计时
+    uint32_t sleep_count = SLEEP_FOCUS_COUTDOWN;
 
     static SleepFocusState* Instance()
     {
@@ -50,11 +67,29 @@ public:
         }
     }
 
+    void play_focus_music()
+    {
+        if(focus_type == 3)
+        {
+            if(focus_record_message_unique_id == MCodec::Instance()->record_message_unique_id)
+            {
+                MCodec::Instance()->play_mic();
+            }
+            else
+            {
+                MCodec::Instance()->play_music("bell");
+            }
+        }
+        else
+        {
+            MCodec::Instance()->play_music("bell");
+        }
+    }
+
     int get_inner_countdown_time()
     {
         // 计算剩余秒数，可能为负（超时）
-        int inner_time_s = FocusTaskState::Instance()->choose_task_fall_timing
-                        - int((get_unix_time() - FocusTaskState::Instance()->choose_task_start_time) / 1000);
+        int inner_time_s = choose_task_fall_timing - int((get_unix_time() - choose_task_start_time) / 1000);
 
         int abs_seconds = abs(inner_time_s);
         int rounded_seconds;
@@ -87,13 +122,7 @@ public:
 
     void calculate_wake_up_time()
     {
-        int focus_time =  FocusTaskState::Instance()->choose_task_fall_timing 
-                            - (get_unix_time() - FocusTaskState::Instance()->choose_task_start_time)/1000;
-        //如果倒计时时间小于0，则设置为0
-        if(focus_time < 0)
-        {
-            focus_time = 0;
-        }
+        int focus_time =  choose_task_fall_timing - (get_unix_time() - choose_task_start_time)/1000;
         //如果倒计时时间大于5分钟
         if(focus_time > 300)
         {
@@ -109,16 +138,67 @@ public:
         }
         else
         {
-            next_wake_up_time = 9;
+            if(get_global_data()->m_device_info.overtime_alert_time == 0) return;
+            int abs_seconds = -focus_time;
+            next_wake_up_time = 10 - abs_seconds % (get_global_data()->m_device_info.overtime_alert_time);
         }
         //加一使得下次取余顺利
         next_wake_up_time++;
     }
 
+    void set_time_str_and_process(bool is_sleep)
+    {
+        //设置倒计时
+        int inner_time_countdown_s = 0;
+        char timestr[20];
+        if(is_sleep)
+        {
+            inner_time_countdown_s = get_inner_countdown_time();
+            if(inner_time_countdown_s >= 0)
+            {
+                sprintf(timestr, "< %02d:%02d", inner_time_countdown_s / 60, inner_time_countdown_s % 60);
+            }
+            else
+            {
+                sprintf(timestr, "+ %02d:%02d", (-inner_time_countdown_s) / 60, (-inner_time_countdown_s) % 60);
+            }
+        }
+        else
+        {
+            inner_time_countdown_s = choose_task_fall_timing - int((get_unix_time() - choose_task_start_time) / 1000);
+            if(inner_time_countdown_s >= 0)
+            {
+                sprintf(timestr, "%02d:%02d", inner_time_countdown_s / 60, inner_time_countdown_s % 60);
+            }
+            else
+            {
+                sprintf(timestr, "+ %02d:%02d", (-inner_time_countdown_s) / 60, (-inner_time_countdown_s) % 60);
+            }
+        }
+
+        set_text_without_change_font(ui_SleepTaskFocusTime, timestr);
+        set_text_without_change_font(ui_SleepTimeFocusTime, timestr);  
+
+        //设置进度条
+        int process_length = 0;
+        if(inner_time_countdown_s >= 0)
+        {
+            process_length =  round(360.0f *( 1 - (float)(inner_time_countdown_s)/(float)(choose_task_fall_timing)));
+            lv_arc_set_value(ui_MinuteBar, process_length);
+        }
+        else
+        {
+            process_length =  360.0f;
+        }
+        lv_arc_set_value(ui_CoutdownBar, process_length);
+    }
+
+
     void enter_sleep()
     {
         calculate_wake_up_time();
-        printf("Enter Sleep, next_wake_up_time: %d\n", next_wake_up_time);
+        int focus_time =  choose_task_fall_timing - (get_unix_time() - choose_task_start_time)/1000;
+        printf("Enter Sleep, next_wake_up_time: %d, focus_time: %d\n", next_wake_up_time, focus_time);
 
         //关闭wifi
         ESP_ERROR_CHECK(esp_wifi_stop());
@@ -197,35 +277,11 @@ public:
             vTaskDelay(pdMS_TO_TICKS(500));
             
             //播放音乐
-            FocusTaskState::Instance()->play_focus_music();
+            play_focus_music();
 
             lock_lvgl();
             switch_screen(ui_SleepFocusScreen);
-            //设置倒计时
-            int inner_time_countdown_s = get_inner_countdown_time();
-            char timestr[20];
-            if(inner_time_countdown_s >= 0)
-            {
-                sprintf(timestr, "< %02d:%02d", inner_time_countdown_s / 60, inner_time_countdown_s % 60);
-            }
-            else
-            {
-                sprintf(timestr, "> %02d:%02d", (-inner_time_countdown_s) / 60, (-inner_time_countdown_s) % 60);
-            }
-            set_text_without_change_font(ui_SleepTaskFocusTime, timestr);
-
-            //设置进度条
-            int process_length = 0;
-            if(inner_time_countdown_s >= 0)
-            {
-                process_length =  round(360.0f *( 1 - (float)(inner_time_countdown_s)/(float)(FocusTaskState::Instance()->choose_task_fall_timing)));
-                lv_arc_set_value(ui_MinuteBar, process_length);
-            }
-            else
-            {
-                process_length =  360.0f;
-            }
-            lv_arc_set_value(ui_CoutdownBar, process_length);
+            set_time_str_and_process(is_sleep_focus);
             release_lvgl();
 
             //等待墨水瓶响应和关闭ui线程

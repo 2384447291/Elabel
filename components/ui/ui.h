@@ -19,7 +19,7 @@ extern "C" {
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 extern lv_obj_t * ui_HalfmindScreen;
-extern lv_obj_t * ui_Image1;
+extern lv_obj_t * ui_Image15;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
 
@@ -199,6 +199,9 @@ extern lv_obj_t * ui_SleepTaskFocusTime;
 extern lv_obj_t * ui_FocusTime5;
 extern lv_obj_t * ui_SleepTaskFocusName;
 extern lv_obj_t * ui_Task5;
+extern lv_obj_t * ui_SleepTimeFocusTime;
+extern lv_obj_t * ui_FocusTime4;
+extern lv_obj_t * ui_SleepRecordFocusName;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_SleepFocusScreen;
 extern lv_obj_t * uic_CoutdownBar;
@@ -206,6 +209,9 @@ extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_FocusTime1;
 extern lv_obj_t * uic_FocusTask;
 extern lv_obj_t * uic_Task;
+extern lv_obj_t * uic_SleepTimeFocusTime;
+extern lv_obj_t * uic_FocusTime1;
+extern lv_obj_t * uic_SleepRecordFocusName;
 
 // SCREEN: ui_FocusScreen
 void ui_FocusScreen_screen_init(void);
@@ -347,6 +353,7 @@ LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
 LV_IMG_DECLARE(ui_img_timebar_png);    // assets/TimeBar.png
 LV_IMG_DECLARE(ui_img_fullbar_png);    // assets/FullBar.png
+LV_IMG_DECLARE(ui_img_record_slave_png);    // assets/record_slave.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
 LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png

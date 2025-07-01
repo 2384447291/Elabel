@@ -93,7 +93,12 @@ static esp_err_t Slave_handle(uint8_t *src_addr, void *data,
         if(EspNowSlave::Instance()->sleep_sync_flag == 0)
         {
             EspNowSlave::Instance()->sleep_sync_flag = 1;
-            printf("get sleep sync response Enter Focus ");
+            focus_message_t focus_message = data_to_focus_message(data_ptr);
+            printf("get sleep sync response Enter Focus task %d", focus_message.focus_id);
+            if(get_global_data()->focusing_task_id == focus_message.focus_id)
+            {
+                return ESP_OK;
+            }
         }
         ESP_LOGI(ESP_NOW, "Receive Host2Slave_Enter_Focus_Control_Mqtt message.");
         EspNowSlave::Instance()->slave_respense_espnow_mqtt_get_enter_focus(data_ptr, size);
@@ -470,21 +475,7 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_enter_focus(uint8_t* data, size
     todo.startTime = focus_message.enter_focus_time;
     todo.id = focus_message.focus_id;
     todo.isFocus = 1;
-
-    if(focus_message.focus_type == 1)
-    {
-        char title[20] = "Pure Time Task";;
-        todo.title = title;
-    }
-    else if(focus_message.focus_type == 2)
-    {
-        todo.title = focus_message.task_name;
-    }
-    else if(focus_message.focus_type == 3)
-    {
-        char title[20] = "Record Task";
-        todo.title = title;
-    }
+    todo.title = focus_message.task_name;
 
     clean_todo_list(get_global_data()->m_todo_list);
     add_or_update_todo_item(get_global_data()->m_todo_list, todo);

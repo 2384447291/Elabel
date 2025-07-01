@@ -85,6 +85,7 @@ void SleepState::Exit(ElabelController* pOwner)
 
     ControlDriver::Instance()->start_button_check_task();
     resume_gui();
+    EspNowSlave::Instance()->sleep_sync_flag = 3;
     vTaskDelay(pdMS_TO_TICKS(500));
 }
 

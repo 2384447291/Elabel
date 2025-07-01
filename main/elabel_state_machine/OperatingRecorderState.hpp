@@ -174,16 +174,15 @@ public:
     {
         ESP_LOGI("OperatingRecorderState", "enter_screen_finish_record");
         record_process = finish_record_process;
+        char record_task_name[100];
+        sprintf(record_task_name, "Record Task %lu", MCodec::Instance()->record_message_unique_id);
         if(get_global_data()->m_is_host == 1)
         {
-            char record_task_name[100];
-            sprintf(record_task_name, "Record Task %lu", MCodec::Instance()->record_message_unique_id);
             http_add_enter_focus(record_task_name,(char*)"3",ElabelController::Instance()->TimeCountdown,true);
         }
         else if(get_global_data()->m_is_host == 2)
         {
-            //主机只需要focus的时间和类型还有id
-            focus_message_t focus_message = pack_focus_message(3, ElabelController::Instance()->TimeCountdown, 0, 0, "");
+            focus_message_t focus_message = pack_focus_message(3, ElabelController::Instance()->TimeCountdown, 0, 0, record_task_name);
             EspNowSlave::Instance()->slave_send_espnow_http_enter_focus_task(focus_message);
         }
     }

@@ -39,6 +39,7 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_accept_y_png.c
     images/ui_img_timebar_png.c
     images/ui_img_fullbar_png.c
+    images/ui_img_record_slave_png.c
     images/ui_img_warning_amber_png.c
     images/ui_img_player_png.c
     images/ui_img_otan_png.c

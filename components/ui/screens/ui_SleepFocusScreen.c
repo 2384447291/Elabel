@@ -61,7 +61,7 @@ void ui_SleepFocusScreen_screen_init(void)
     lv_label_set_text(ui_SleepTaskFocusTime, "<5:00");
     lv_obj_set_style_text_color(ui_SleepTaskFocusTime, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SleepTaskFocusTime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_SleepTaskFocusTime, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SleepTaskFocusTime, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_FocusTime5 = lv_label_create(ui_SleepTaskFocusTime);
     lv_obj_set_width(ui_FocusTime5, LV_SIZE_CONTENT);   /// 1
@@ -72,7 +72,7 @@ void ui_SleepFocusScreen_screen_init(void)
     lv_label_set_text(ui_FocusTime5, "<5:00");
     lv_obj_set_style_text_color(ui_FocusTime5, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_FocusTime5, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_FocusTime5, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTime5, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SleepTaskFocusName = lv_label_create(ui_TaskFocus5);
     lv_obj_set_width(ui_SleepTaskFocusName, 180);
@@ -82,6 +82,7 @@ void ui_SleepFocusScreen_screen_init(void)
     lv_obj_set_align(ui_SleepTaskFocusName, LV_ALIGN_CENTER);
     lv_label_set_long_mode(ui_SleepTaskFocusName, LV_LABEL_LONG_DOT);
     lv_label_set_text(ui_SleepTaskFocusName, "我和你心连心同住地球");
+    lv_obj_add_flag(ui_SleepTaskFocusName, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_color(ui_SleepTaskFocusName, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_SleepTaskFocusName, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ui_SleepTaskFocusName, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -100,11 +101,44 @@ void ui_SleepFocusScreen_screen_init(void)
     lv_obj_set_style_text_align(ui_Task5, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Task5, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_SleepTimeFocusTime = lv_label_create(ui_TaskFocus5);
+    lv_obj_set_width(ui_SleepTimeFocusTime, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SleepTimeFocusTime, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SleepTimeFocusTime, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_SleepTimeFocusTime, "<5:00");
+    lv_obj_set_style_text_color(ui_SleepTimeFocusTime, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_SleepTimeFocusTime, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_SleepTimeFocusTime, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_FocusTime4 = lv_label_create(ui_SleepTimeFocusTime);
+    lv_obj_set_width(ui_FocusTime4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_FocusTime4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_FocusTime4, -1);
+    lv_obj_set_y(ui_FocusTime4, 0);
+    lv_obj_set_align(ui_FocusTime4, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_FocusTime4, "<5:00");
+    lv_obj_set_style_text_color(ui_FocusTime4, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_FocusTime4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_FocusTime4, &lv_font_montserrat_48, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SleepRecordFocusName = lv_img_create(ui_SleepFocusScreen);
+    lv_img_set_src(ui_SleepRecordFocusName, &ui_img_record_slave_png);
+    lv_obj_set_width(ui_SleepRecordFocusName, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SleepRecordFocusName, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_SleepRecordFocusName, 0);
+    lv_obj_set_y(ui_SleepRecordFocusName, -16);
+    lv_obj_set_align(ui_SleepRecordFocusName, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SleepRecordFocusName, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SleepRecordFocusName, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
     uic_SleepFocusScreen = ui_SleepFocusScreen;
     uic_CoutdownBar = ui_CoutdownBar;
     uic_FocusTime1 = ui_SleepTaskFocusTime;
     uic_FocusTime1 = ui_FocusTime5;
     uic_FocusTask = ui_SleepTaskFocusName;
     uic_Task = ui_Task5;
+    uic_SleepTimeFocusTime = ui_SleepTimeFocusTime;
+    uic_FocusTime1 = ui_FocusTime4;
+    uic_SleepRecordFocusName = ui_SleepRecordFocusName;
 
 }

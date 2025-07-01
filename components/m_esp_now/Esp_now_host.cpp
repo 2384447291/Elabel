@@ -130,8 +130,8 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
             //如果正在focus则传递focus消息
             if(ElabelController::Instance()->m_elabelFsm.GetCurrentState() == FocusTaskState::Instance())
             {
-                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, FocusTaskState::Instance()->focus_task_id);
-                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, FocusTaskState::Instance()->focus_task_id, todo->title);
+                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->focusing_task_id);
+                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->focusing_task_id, todo->title);
                 EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr);
             }
             //如果没有focus则发送task更新
@@ -210,8 +210,8 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
             //如果正在focus则传递focus消息
             if(ElabelController::Instance()->m_elabelFsm.GetCurrentState() == FocusTaskState::Instance())
             {
-                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, FocusTaskState::Instance()->focus_task_id);
-                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, FocusTaskState::Instance()->focus_task_id, todo->title);
+                TodoItem* todo = find_todo_by_id(get_global_data()->m_todo_list, get_global_data()->focusing_task_id);
+                focus_message_t focus_message = pack_focus_message(todo->taskType, todo->fallTiming, todo->startTime, get_global_data()->focusing_task_id, todo->title);
                 EspNowHost::Instance()->Mqtt_enter_focus(focus_message, src_addr, true);
             }
             //如果没有则发送时间戳同步
@@ -306,7 +306,7 @@ void EspNowHost::http_response_enter_focus(uint8_t* data, size_t size)
     }
     else if(focus_message.focus_type == 3)
     {
-        http_add_enter_focus((char*)"Record Task",(char*)"3",focus_message.fallTiming,false);
+        http_add_enter_focus(focus_message.task_name,(char*)"3",focus_message.fallTiming,false);
     }
 }
 

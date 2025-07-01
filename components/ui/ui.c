@@ -12,7 +12,7 @@
 // SCREEN: ui_HalfmindScreen
 void ui_HalfmindScreen_screen_init(void);
 lv_obj_t * ui_HalfmindScreen;
-lv_obj_t * ui_Image1;
+lv_obj_t * ui_Image15;
 // CUSTOM VARIABLES
 lv_obj_t * uic_HalfmindScreen;
 
@@ -201,6 +201,9 @@ lv_obj_t * ui_SleepTaskFocusTime;
 lv_obj_t * ui_FocusTime5;
 lv_obj_t * ui_SleepTaskFocusName;
 lv_obj_t * ui_Task5;
+lv_obj_t * ui_SleepTimeFocusTime;
+lv_obj_t * ui_FocusTime4;
+lv_obj_t * ui_SleepRecordFocusName;
 // CUSTOM VARIABLES
 lv_obj_t * uic_SleepFocusScreen;
 lv_obj_t * uic_CoutdownBar;
@@ -208,6 +211,9 @@ lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTime1;
 lv_obj_t * uic_FocusTask;
 lv_obj_t * uic_Task;
+lv_obj_t * uic_SleepTimeFocusTime;
+lv_obj_t * uic_FocusTime1;
+lv_obj_t * uic_SleepRecordFocusName;
 
 
 // SCREEN: ui_FocusScreen

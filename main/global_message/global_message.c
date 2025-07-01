@@ -241,6 +241,7 @@ Global_data* get_global_data() {
             instance->m_focus_state = (Focus_state*)malloc(sizeof(Focus_state));
             instance->m_focus_state->is_focus = 0;
             instance->m_focus_state->focus_task_id = 0;
+            instance->focusing_task_id = 0;
 
             instance->m_todo_list = (TodoList*)malloc(sizeof(TodoList));
             instance->m_todo_list->items = NULL;

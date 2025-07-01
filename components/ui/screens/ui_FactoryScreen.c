@@ -146,7 +146,6 @@ void ui_FactoryScreen_screen_init(void)
     lv_obj_set_width(ui_SpeakerPanel, 250);
     lv_obj_set_height(ui_SpeakerPanel, 122);
     lv_obj_set_align(ui_SpeakerPanel, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_SpeakerPanel, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_CharacterName = lv_label_create(ui_SpeakerPanel);
@@ -192,6 +191,7 @@ void ui_FactoryScreen_screen_init(void)
     lv_obj_set_width(ui_PowerPanel, 250);
     lv_obj_set_height(ui_PowerPanel, 122);
     lv_obj_set_align(ui_PowerPanel, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_PowerPanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_PowerPanel, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_PowerName = lv_label_create(ui_PowerPanel);

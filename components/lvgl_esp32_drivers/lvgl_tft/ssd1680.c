@@ -74,11 +74,18 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
     }
     else if(act_scr == ui_SleepFocusScreen) 
     {
-        force_full_update = false;
-        elabel_screen = SLEEP_FOCUS_SCREEN;
-        isBaseMapFresh = false;
-        elabel_update_mode = FAST_UPDATE;
-        ESP_LOGI(TAG,"ui_SleepScreen Flush called.");
+        if(elabel_screen != SLEEP_FOCUS_SCREEN || force_full_update)
+        {
+            force_full_update = false;
+            elabel_screen = SLEEP_FOCUS_SCREEN;
+            isBaseMapFresh = false;
+            elabel_update_mode = FAST_UPDATE;
+            ESP_LOGI(TAG,"ui_SleepScreen Flush called."); 
+        }
+        else
+        {
+            elabel_update_mode = PARTIAL_UPDATE;
+        }
     }
     else if(act_scr == ui_SleepClockScreen) 
     {
@@ -306,7 +313,7 @@ void ssd1680_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_
         uint16_t x1 = 0;
         uint16_t y1 = 0;
         uint16_t x2 = 250;
-        uint16_t y2 = 122;
+        uint16_t y2 = 128;
         uint16_t X1 = y1;
         uint16_t X2 = y2;
         uint16_t Y1 = x1;
