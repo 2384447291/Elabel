@@ -28,6 +28,7 @@
 #include "FactoryState.hpp"
 #include "OtaPrepareState.hpp"
 #include "InfoState.hpp"
+#include "EasyInfoState.hpp"
 #include "SleepState.hpp"
 #include "SleepFocusState.hpp"
 #include "../../components/ui/ui.h"
@@ -108,7 +109,8 @@ void ElabelFsm::HandleInput()
         if (GetCurrentState() != ActiveState::Instance() 
         && GetCurrentState() != HostActiveState::Instance() 
         && GetCurrentState() != SlaveActiveState::Instance() 
-        && GetCurrentState() != FactoryState::Instance())
+        && GetCurrentState() != FactoryState::Instance()
+        && GetCurrentState() != EasyInfoState::Instance())
         {
             // 等待2秒，确保init刷新出来了
             vTaskDelay(pdMS_TO_TICKS(2000));
@@ -201,6 +203,10 @@ void ElabelFsm::HandleInput()
         {
             ChangeState(FactoryState::Instance());
         }
+        else if(ActiveState::Instance()->need_enter_info)
+        {
+            ChangeState(EasyInfoState::Instance());
+        }
         else
         {
             if (Is_connect_to_phone())
@@ -228,6 +234,7 @@ void ElabelFsm::HandleInput()
         }
     }
     else if (GetCurrentState() == FactoryState::Instance()){}
+    else if (GetCurrentState() == EasyInfoState::Instance()){}
     //-------------------------------整个激活流程--------------------------------//
 
 

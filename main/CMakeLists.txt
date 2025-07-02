@@ -17,6 +17,7 @@ idf_component_register(SRCS "main.cpp" "global_message/global_message.c"  "globa
                         "elabel_state_machine/SleepState.cpp"
                         "elabel_state_machine/SleepFocusState.cpp"
                         "elabel_state_machine/FactoryState.cpp"
+                        "elabel_state_machine/EasyInfoState.cpp"
                         "battery_manager/battery_manager.cpp"
                     INCLUDE_DIRS "global_message" "elabel_state_machine" "battery_manager" "spiffs_data/include" "." 
                     REQUIRES esp_adc

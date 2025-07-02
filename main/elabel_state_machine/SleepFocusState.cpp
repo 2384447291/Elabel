@@ -22,7 +22,7 @@ void SleepFocusState::Enter(ElabelController* pOwner)
 {
     //同步时间戳
     EspNowSlave::Instance()->slave_send_espnow_http_get_time();
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(100));
 
     //是否需要跳出该状态
     need_out_state = false;

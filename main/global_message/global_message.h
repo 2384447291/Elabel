@@ -16,11 +16,11 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.23"
-#define DEVICE_MODEL "R01B_TEST"
+#define FIRMWARE_VERSION "3.0.24"
+#define DEVICE_MODEL "R01A_TEST"
 #define LANGUAGE "EN"
 #define EN 
-#define R01B_TEST
+#define R01A_TEST
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct {
