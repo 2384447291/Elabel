@@ -4,7 +4,10 @@
 #include "StateMachine.hpp"
 #include "ElabelController.hpp"
 #include "Esp_now_slave.hpp"
+#include "battery_manager.hpp"
+#include "esp_timer.h"
 #define RECONNECT_COUNT_DOWN 30
+#define ENTER_SLEEP_COUNT_DOWN 10
 
 typedef enum
 {
@@ -24,8 +27,6 @@ public:
     virtual void Execute(ElabelController* pOwner);
     virtual void Exit(ElabelController* pOwner);
 
-
-
     No_host_process no_host_process = default_No_host_process;
 
     bool button_host_active_choose_left = true;
@@ -33,6 +34,7 @@ public:
     bool need_forward = false;
     bool need_flash_paper = false;
     uint8_t reconnect_count_down = RECONNECT_COUNT_DOWN;
+    uint8_t enter_sleep_count_down = ENTER_SLEEP_COUNT_DOWN;
 
     void enter_connect_host()
     {
@@ -63,6 +65,7 @@ public:
         need_back = false;
         button_host_active_choose_left = true;
         need_flash_paper = false;
+        enter_sleep_count_down = ENTER_SLEEP_COUNT_DOWN;
 
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
@@ -74,6 +77,8 @@ public:
         set_text_without_change_font(ui_Disconnectwifiname, mac_str);
         lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
+        lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
         release_lvgl();
     }
 
@@ -92,6 +97,33 @@ public:
         set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
         release_lvgl();
         need_forward = true;
+    }
+
+    void enter_sleep()
+    {
+        //关闭其他额外线程
+        ControlDriver::Instance()->stop_button_check_task();
+        suspend_gui();
+
+        printf("Enter Sleep\n");
+        //关闭wifi
+        ESP_ERROR_CHECK(esp_wifi_stop());
+        //关闭外设电源
+        BatteryManager::Instance()->setPowerState(false);
+        ESP_ERROR_CHECK(esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL));
+        uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_5678);  
+        ESP_ERROR_CHECK(esp_sleep_enable_ext1_wakeup(mask, ESP_EXT1_WAKEUP_ANY_HIGH));  // 任意引脚高电平触发唤醒
+        esp_light_sleep_start();
+
+        BatteryManager::Instance()->setPowerState(true);
+        ESP_ERROR_CHECK(esp_wifi_start());
+        EspNowSlave::Instance()->resume_espnow();
+
+        ControlDriver::Instance()->start_button_check_task();
+        resume_gui();
+        vTaskDelay(pdMS_TO_TICKS(500));
+        //重新全刷界面
+        enter_disconnect_host();
     }
 
     static NoHostState* Instance()

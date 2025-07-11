@@ -27,6 +27,7 @@ public:
     bool is_jump_to_record_mode = false;
     bool is_jump_to_info_mode = false;
     bool is_jump_to_sleep_mode = false;
+    
     uint32_t sleep_count = SLEEP_COUTDOWN;
 
     //刷新标记

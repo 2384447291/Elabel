@@ -102,7 +102,6 @@ void OperatingRecorderState::Enter(ElabelController* pOwner)
     reconfirm_process_countdown = RECONFIRM_VOICE_TIME;
     need_flash_paper = false;
     need_out_state = false;
-    need_enter_focus = false;
 
     enter_screen_record_voice();
     

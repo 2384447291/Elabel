@@ -20,6 +20,9 @@ void SleepFocusState::Init(ElabelController* pOwner)
 
 void SleepFocusState::Enter(ElabelController* pOwner)
 {
+    // 进入focus的时候，重置卡死时间,这个代表的是outfocus的倒计时
+    pOwner->stuck_time = 0;
+    
     //同步时间戳
     EspNowSlave::Instance()->slave_send_espnow_http_get_time();
     vTaskDelay(pdMS_TO_TICKS(100));
@@ -112,6 +115,15 @@ void SleepFocusState::Enter(ElabelController* pOwner)
 }
 void SleepFocusState::Execute(ElabelController* pOwner)
 {
+    if(need_out_focus) 
+    {
+        if(elabelUpdateTick % 100 == 0)
+        {
+            ElabelController::Instance()->stuck_time+=100;
+        }
+        return;
+    }
+
     if(!is_sleep_focus && !need_out_focus)
     {
         if(elabelUpdateTick % 1000 == 0)
@@ -123,8 +135,7 @@ void SleepFocusState::Execute(ElabelController* pOwner)
                 lock_lvgl();
                 set_time_str_and_process(is_sleep_focus); 
                 release_lvgl();
-                //等待 2s ui刷新
-                vTaskDelay(pdMS_TO_TICKS(2000));
+                vTaskDelay(pdMS_TO_TICKS(WAITING_BEFORE_SLEEP_TIME));
 
                 //关闭其他额外线程
                 ControlDriver::Instance()->stop_button_check_task();

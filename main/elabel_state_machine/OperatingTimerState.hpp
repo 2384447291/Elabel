@@ -39,7 +39,6 @@ public:
     uint8_t time_reconfirm_countdown = RECONFIRM_TIMER_TIME;
     bool need_flash_paper = false;
     bool need_out_state = false;
-    bool need_enter_focus = false;
     bool need_jump_to_record = false;
 
     void enter_screen_confirm_time()

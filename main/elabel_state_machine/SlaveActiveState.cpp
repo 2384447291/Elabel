@@ -20,7 +20,10 @@ void confirm_slave_active_button_choice()
     //如果是在测试连接状态
     if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_test_connect_process)
     {
-        SlaveActiveState::Instance()->slave_active_process = Slaveactive_bind_host_process;
+        if(SlaveActiveState::Instance()->slave_connect_state != Lose_connect)
+        {
+            SlaveActiveState::Instance()->slave_active_process = Slaveactive_bind_host_process;
+        }
     }
     //如果是在确定激活者的状态
     else if(SlaveActiveState::Instance()->slave_active_process == Slaveactive_waiting_connect_process)
@@ -52,10 +55,15 @@ void SlaveActiveState::Enter(ElabelController* pOwner)
     esp_wifi_set_channel(get_global_data()->m_host_channel, WIFI_SECOND_CHAN_NONE);
     esp_wifi_get_channel(&actual_wifi_channel, &wifi_second_channel);
     ESP_LOGI(ESP_NOW, "Get Host, set espnow channel to %d", actual_wifi_channel);
+
+    slave_active_process = default_Slaveactive_process;
+    slave_connect_state = default_connect_state;
     
     button_slave_active_confirm_left = false;
     need_back = false;
     need_flash_paper = false;
+    score = 0;
+
     enter_connect_host();
     ControlDriver::Instance()->button3.CallbackShortPress.registerCallback(confirm_slave_active_button_choice);
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(change_slave_active_button_choice);
@@ -93,9 +101,7 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
         {
             score = EspNowClient::Instance()->test_connecting_send_count;
             lock_lvgl();
-            char buffer[32];
-            sprintf(buffer, "score: %d", EspNowClient::Instance()->test_connecting_send_count);
-            set_text_without_change_font(ui_ConnectGuide2, buffer);
+            update_score(score);
             release_lvgl();
         }
     }
@@ -116,9 +122,9 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
         set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
         SlaveActiveState::Instance()->slave_active_process = Slaveactive_success_connect_process;
         lock_lvgl();
-        set_text_without_change_font(ui_ConnectGuide2, "Success");
+        set_text_without_change_font(ui_ConnectGuide1, "Success Deployed Restart");
         release_lvgl();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
         esp_restart();
     }
 }   

@@ -31,6 +31,16 @@ void NoHostState::Init(ElabelController* pOwner)
 
 void NoHostState::Enter(ElabelController* pOwner)
 {
+    no_host_process = default_No_host_process;
+
+    button_host_active_choose_left = true;
+    need_back = false;
+    need_forward = false;
+    need_flash_paper = false;
+    
+    reconnect_count_down = RECONNECT_COUNT_DOWN;
+    enter_sleep_count_down = ENTER_SLEEP_COUNT_DOWN;
+
     enter_connect_host();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(no_host_change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(no_host_change_button_choice);
@@ -66,8 +76,18 @@ void NoHostState::Execute(ElabelController* pOwner)
     }
     else if(no_host_process == No_host_disconnecting_host_process)
     {
+        if(elabelUpdateTick%1000 == 0)
+        {
+            enter_sleep_count_down-=1;
+            if(enter_sleep_count_down == 0)
+            {
+                enter_sleep();
+                enter_sleep_count_down = ENTER_SLEEP_COUNT_DOWN;
+            }
+        }
         if(need_flash_paper)
         {
+            enter_sleep_count_down = ENTER_SLEEP_COUNT_DOWN;
             lock_lvgl();
             //重新刷新按钮
             if(button_host_active_choose_left)

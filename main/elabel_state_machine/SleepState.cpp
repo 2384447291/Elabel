@@ -61,8 +61,7 @@ void SleepState::Enter(ElabelController* pOwner)
         }
         release_lvgl();
     }
-    //等待2s页面刷新
-    vTaskDelay(pdMS_TO_TICKS(WAITING_RESUME_TIME));
+    vTaskDelay(pdMS_TO_TICKS(WAITING_BEFORE_SLEEP_TIME));
 
     //关闭其他额外线程
     ControlDriver::Instance()->stop_button_check_task();

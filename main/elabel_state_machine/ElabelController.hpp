@@ -45,7 +45,7 @@ class ElabelController
         uint16_t TaskLength = 0;
 
         //防止卡死的标签
-        int32_t stuck_time = 0;
+        int stuck_time = 0;
 
         static ElabelController* Instance()
         {

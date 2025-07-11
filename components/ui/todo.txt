@@ -37,6 +37,10 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_disconnectwifi_png.c
     images/ui_img_hostactive_png.c
     images/ui_img_accept_y_png.c
+    images/ui_img_slaveactivatebad_png.c
+    images/ui_img_slaveactivategood_png.c
+    images/ui_img_slaveactivatetooclose_png.c
+    images/ui_img_slave_activateloseconnection_png.c
     images/ui_img_timebar_png.c
     images/ui_img_fullbar_png.c
     images/ui_img_record_slave_png.c
@@ -51,6 +55,7 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     fonts/ui_font_Chinese24.c
     fonts/ui_font_Chinese32.c
     REQUIRES lvgl)
+
 
 
 lv_theme_t * theme = lv_theme_mono_init(dispp,false, LV_FONT_DEFAULT);

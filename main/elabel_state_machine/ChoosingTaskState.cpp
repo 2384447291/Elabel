@@ -187,7 +187,6 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
-    sleep_count = SLEEP_COUTDOWN;
     lock_lvgl();
     //加载界面
     switch_screen(ui_TaskScreen);
@@ -197,13 +196,17 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     //更新任务列表ui
     release_lvgl();
 
+    guide_page = 0;
+
     is_jump_to_task_mode = false;
     is_jump_to_record_mode = false;
     is_jump_to_time_mode = false;
     is_jump_to_info_mode = false;
     is_jump_to_sleep_mode = false;
 
-    guide_page = 0;
+    sleep_count = SLEEP_COUTDOWN;
+    
+    need_flash_paper = false;
 
     ESP_LOGI(STATEMACHINE,"Enter ChoosingTaskState.");
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(choose_previous_task);

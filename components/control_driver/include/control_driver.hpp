@@ -13,21 +13,10 @@
 #include "global_message.h"
 
 // 按键定义
-#ifdef R01A_TEST
-#define DEVICE_BUTTON_1234 GPIO_NUM_4
-#define DEVICE_BUTTON_1234_CHANNEL ADC_CHANNEL_4
-
-#define DEVICE_BUTTON_567 GPIO_NUM_2
-#define DEVICE_BUTTON_567_CHANNEL ADC_CHANNEL_2
-
-#define DEVICE_BUTTON_8 GPIO_NUM_3
-#define DEVICE_BUTTON_8_CHANNEL ADC_CHANNEL_3
-#elif defined(R01B_TEST)
 #define DEVICE_BUTTON_1234 GPIO_NUM_4
 #define DEVICE_BUTTON_1234_CHANNEL ADC_CHANNEL_4
 #define DEVICE_BUTTON_5678 GPIO_NUM_2
 #define DEVICE_BUTTON_5678_CHANNEL ADC_CHANNEL_2
-#endif
 
 class Button_Press_together{
 public:
@@ -97,14 +86,8 @@ public:
     Button button7{"Button_7", 1000};
     Button button8{"Button_8", 1000};
 
-#ifdef R01A_TEST
-    Button_pair_4 button_pair_1234;
-    Button_pair_3 button_pair_567;
-    Button_pair_1 button_pair_8;
-#elif defined(R01B_TEST)
     Button_pair_4 button_pair_1234;
     Button_pair_4 button_pair_5678;
-#endif
 
     Button_Press_together button_press_together_48{&button4, &button8, "button_press_together_48"};
     Button_Press_together button_press_together_15{&button1, &button5, "button_press_together_15"};

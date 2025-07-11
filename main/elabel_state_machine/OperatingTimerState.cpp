@@ -94,7 +94,6 @@ void OperatingTimeState::Enter(ElabelController* pOwner)
     need_flash_paper = false;
     need_out_state = false;
     need_jump_to_record = false;
-    need_enter_focus = false;
     
     enter_screen_confirm_time();
 

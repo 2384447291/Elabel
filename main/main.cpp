@@ -51,7 +51,7 @@ extern "C" void app_main(void)
     }
 
     //等待wifi初始化完毕
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     //初始化Elabel控制器
     ElabelController::Instance()->Init();//Elabel控制器初始化
@@ -61,20 +61,28 @@ extern "C" void app_main(void)
     BatteryManager::Instance()->init();
 
     //等待电路初始化
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(pdMS_TO_TICKS(100));
 
     //如果电池电压低于3.3V且没有连接线材，则重启次数+1，清零在后面
     float battery_level = BatteryManager::Instance()->getBatteryLevel();
-    if(battery_level < 3.3f && !BatteryManager::Instance()->is_usb_connected(battery_level))
+    if(BatteryManager::Instance()->is_usb_connected(battery_level))
     {
-        get_global_data()->reset_count++;
+        get_global_data()->reset_count = 0;
         set_reset_count(get_global_data()->reset_count);
     }
-
+    else
+    {
+        if(battery_level < 3.3f)
+        {
+            get_global_data()->reset_count++;
+            set_reset_count(get_global_data()->reset_count);
+        }
+    }
+           
     //初始化gui
     Gui_init();
     //等待lvgl初始化
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     //如果5次没有启动成功则不运行
     if(get_global_data()->reset_count >= 5)

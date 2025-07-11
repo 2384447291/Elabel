@@ -36,6 +36,15 @@ void NoWifiState::Enter(ElabelController* pOwner)
     lock_lvgl();
     switch_screen(ui_HostActiveScreen);
     release_lvgl();
+
+    no_wifi_process = default_No_wifi_process;
+
+    button_host_active_choose_left = true;
+    need_back = false;
+    need_forward = false;
+    need_flash_paper = false;
+    reconnect_count_down = RECONNECT_COUNT_DOWN;
+    
     enter_connect_wifi();
     ControlDriver::Instance()->button6.CallbackShortPress.registerCallback(no_wifi_change_button_choice);
     ControlDriver::Instance()->button7.CallbackShortPress.registerCallback(no_wifi_change_button_choice);

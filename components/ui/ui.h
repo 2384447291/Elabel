@@ -183,12 +183,17 @@ extern lv_obj_t * ui_SlaveActiveConfirm;
 extern lv_obj_t * ui_TestConnecting;
 extern lv_obj_t * ui_ConnectGuide1;
 extern lv_obj_t * ui_Label10;
-extern lv_obj_t * ui_ConnectGuide2;
-extern lv_obj_t * ui_Image14;
+extern lv_obj_t * ui_SlaveActivateAccept;
+extern lv_obj_t * ui_SlaveActivateRetry;
+extern lv_obj_t * ui_SlaveActivateBad;
+extern lv_obj_t * ui_SlaveActivateGood;
+extern lv_obj_t * ui_SlaveActivateTooClose;
+extern lv_obj_t * ui_SlaveActivateLoseConnection;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_SlaveActiveScreen;
 extern lv_obj_t * uic_HostActiveCancel;
 extern lv_obj_t * uic_HostActiveRetry;
+extern lv_obj_t * uic_SlaveActivateLoseConnection;
 
 // SCREEN: ui_SleepFocusScreen
 void ui_SleepFocusScreen_screen_init(void);
@@ -351,6 +356,10 @@ LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
 LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
 LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
+LV_IMG_DECLARE(ui_img_slaveactivatebad_png);    // assets/SlaveActivateBad.png
+LV_IMG_DECLARE(ui_img_slaveactivategood_png);    // assets/SlaveActivateGood.png
+LV_IMG_DECLARE(ui_img_slaveactivatetooclose_png);    // assets/SlaveActivateTooClose.png
+LV_IMG_DECLARE(ui_img_slave_activateloseconnection_png);    // assets/Slave ActivateLoseConnection.png
 LV_IMG_DECLARE(ui_img_timebar_png);    // assets/TimeBar.png
 LV_IMG_DECLARE(ui_img_fullbar_png);    // assets/FullBar.png
 LV_IMG_DECLARE(ui_img_record_slave_png);    // assets/record_slave.png

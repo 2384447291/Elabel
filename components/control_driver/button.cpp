@@ -8,30 +8,28 @@
 #include "control_driver.hpp"
 
 #define TAG "BUTTON"
-#ifdef R01A_TEST
-#define R0 20.0
-#define R1 20.0
-#define R2 10.0
-#define R3 3.0
-#elif defined(R01B_TEST)
+#ifdef R01B_TEST
+#define R_Bais 20.0
 #define R0 20.0
 #define R1 30.0
 #define R2 10.0
 #define R3 3.0
+#elif defined(R01C_TEST)
+#define R_Bais 20.0
+#define R0 10.0
+#define R1 3.0
+#define R2 0.0
+#define R3 30.0
 #endif
 
 
 
-#define V_BUTTON_0 3.3
-#define V_BUTTON_1 (3.3*(R0/(R0+R1)))  
-#define V_BUTTON_2 (3.3*(R0/(R0+R2)))  
-#define V_BUTTON_3 (3.3*(R0/(R0+R3))) 
+#define V_BUTTON_0 (3.3*(R_Bais/(R_Bais+R0)))
+#define V_BUTTON_1 (3.3*(R_Bais/(R_Bais+R1)))  
+#define V_BUTTON_2 (3.3*(R_Bais/(R_Bais+R2)))  
+#define V_BUTTON_3 (3.3*(R_Bais/(R_Bais+R3))) 
  
-#ifdef R01A_TEST
-#define ERROR_RANGE 0.1
-#elif defined(R01B_TEST)
 #define ERROR_RANGE 0.2
-#endif
 
 
 #define STATE_DURATION_MS 40

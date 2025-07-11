@@ -43,7 +43,6 @@ public:
     uint8_t reconfirm_process_countdown = RECONFIRM_VOICE_TIME;
     bool need_flash_paper = false;
     bool need_out_state = false;
-    bool need_enter_focus = false;
 
     void enter_screen_record_voice()
     {

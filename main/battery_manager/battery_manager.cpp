@@ -84,17 +84,7 @@ float BatteryManager::getBatteryLevel() {
 
 bool BatteryManager::is_usb_connected(float battery_level) 
 {
-    #ifdef R01A_TEST
-    if(battery_level < 1.0f || battery_level > 4.5f)
-    {
-        return true;
-    }else
-    {
-        return false;
-    }
-    #elif defined(R01B_TEST)
     return gpio_get_level(USB_CONNECT_GPIO) == 1;
-    #endif
 }
 
 int BatteryManager::getBatteryLevelInt() 

@@ -184,12 +184,17 @@ lv_obj_t * ui_SlaveActiveConfirm;
 lv_obj_t * ui_TestConnecting;
 lv_obj_t * ui_ConnectGuide1;
 lv_obj_t * ui_Label10;
-lv_obj_t * ui_ConnectGuide2;
-lv_obj_t * ui_Image14;
+lv_obj_t * ui_SlaveActivateAccept;
+lv_obj_t * ui_SlaveActivateRetry;
+lv_obj_t * ui_SlaveActivateBad;
+lv_obj_t * ui_SlaveActivateGood;
+lv_obj_t * ui_SlaveActivateTooClose;
+lv_obj_t * ui_SlaveActivateLoseConnection;
 // CUSTOM VARIABLES
 lv_obj_t * uic_SlaveActiveScreen;
 lv_obj_t * uic_HostActiveCancel;
 lv_obj_t * uic_HostActiveRetry;
+lv_obj_t * uic_SlaveActivateLoseConnection;
 
 
 // SCREEN: ui_SleepFocusScreen

@@ -40,7 +40,6 @@ public:
 
     bool need_flash_paper = false;
     bool need_out_state = false;
-    bool need_enter_focus = false;
 
     void enter_screen_confirm_task()
     {

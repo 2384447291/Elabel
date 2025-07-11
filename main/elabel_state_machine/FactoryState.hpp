@@ -43,10 +43,22 @@ public:
         static FactoryState instance;
         return &instance;
     }
-
+    
+    void initialize_button_mask()
+    {
+        Button_mask_ui[0] = ui_ButtonMask1;
+        Button_mask_ui[1] = ui_ButtonMask2;
+        Button_mask_ui[2] = ui_ButtonMask3;
+        Button_mask_ui[3] = ui_ButtonMask4;
+        Button_mask_ui[4] = ui_ButtonMask5;
+        Button_mask_ui[5] = ui_ButtonMask6;
+        Button_mask_ui[6] = ui_ButtonMask7;
+        Button_mask_ui[7] = ui_ButtonMask8;
+    }
     void enter_button_process()
     {
         need_flash_paper = false;
+        initialize_button_mask();
         for(int i = 0; i < 8; i++)
         {
             Button_mask[i] = false;

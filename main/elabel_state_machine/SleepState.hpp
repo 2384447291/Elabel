@@ -72,11 +72,7 @@ public:
         ESP_ERROR_CHECK(esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL));
 
         //不设置唤醒源，light-sleep-enter没有用
-        #ifdef R01A_TEST
-        uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_567) | (1ULL << DEVICE_BUTTON_8);
-        #elif defined(R01B_TEST)
         uint64_t mask = (1ULL << DEVICE_BUTTON_1234) | (1ULL << DEVICE_BUTTON_5678);
-        #endif
         ESP_ERROR_CHECK(esp_sleep_enable_ext1_wakeup(mask, ESP_EXT1_WAKEUP_ANY_HIGH));  // 任意引脚高电平触发唤醒
         calculate_wake_up_time();
         ESP_ERROR_CHECK(esp_sleep_enable_timer_wakeup(next_wake_up_time * 1000000ULL));
@@ -157,7 +153,7 @@ public:
             release_lvgl();
 
             //等待墨水瓶响应和关闭ui线程
-            vTaskDelay(pdMS_TO_TICKS(WAITING_RESUME_TIME));
+            vTaskDelay(pdMS_TO_TICKS(WAITING_BEFORE_SLEEP_TIME));
             suspend_gui();
         }
     }

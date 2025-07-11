@@ -33,7 +33,7 @@
 #include "SleepFocusState.hpp"
 #include "../../components/ui/ui.h"
 
-#define STUCK_TIME 6000
+#define STUCK_TIME 4000
 #define STUCK_RELOAD_TIME -4000
 
 void force_reset_elabel()
@@ -113,7 +113,7 @@ void ElabelFsm::HandleInput()
         && GetCurrentState() != EasyInfoState::Instance())
         {
             // 等待2秒，确保init刷新出来了
-            vTaskDelay(pdMS_TO_TICKS(2000));
+            vTaskDelay(pdMS_TO_TICKS(2500));
             ChangeState(ActiveState::Instance());
         }
     }
@@ -126,7 +126,7 @@ void ElabelFsm::HandleInput()
             if (get_wifi_status() == 0)
             {
                 // 等待3秒，确保halfmind刷新出来了,再进入连接模式，开机保护
-                vTaskDelay(pdMS_TO_TICKS(3000));
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 ChangeState(NoWifiState::Instance());
             }
         }
@@ -141,7 +141,8 @@ void ElabelFsm::HandleInput()
     // ----------------如果是从机且长时间没有收到主机消息，则进入断网状态 ----------------//
     if (get_global_data()->m_is_host == 2)
     {
-        if(GetCurrentState() != NoHostState::Instance())
+        //进入ota模式不会被打断
+        if(GetCurrentState() != NoHostState::Instance() && GetCurrentState() != OTAState::Instance())
         {
             // 如果长时间没有收到主机消息，则进入断网状态
             if (xTaskGetTickCount() - EspNowSlave::Instance()->last_recv_heart_time > pdMS_TO_TICKS(10000))
@@ -364,8 +365,10 @@ void ElabelFsm::HandleInput()
                 // 处理focus状态切换的通用逻辑
                 auto handleFocusStateChange = [this](auto currentFocusState, auto targetFocusState) 
                 {
+                    //如果当前任务就在focus中
                     if (GetCurrentState() == currentFocusState)
                     {
+                        //如果当前任务需要退出focus或者focus任务不同
                         if(get_global_data()->focusing_task_id != get_global_data()->m_focus_state->focus_task_id)
                         {
                             ESP_LOGI("ElabelFsm", "focus task id changed from %d to %d", 
@@ -386,10 +389,26 @@ void ElabelFsm::HandleInput()
                 if(get_global_data()->m_is_host == 1)
                 {
                     handleFocusStateChange(FocusTaskState::Instance(), FocusTaskState::Instance());
+                    //这里额外处理一下
+                    if(FocusTaskState::Instance()->need_out_focus)
+                    {
+                        ESP_LOGE("ElabelFsm", "deal with stuck");
+                        FocusTaskState::Instance()->Exit(m_pOwner);
+                        get_global_data()->focusing_task_id = get_global_data()->m_focus_state->focus_task_id;
+                        FocusTaskState::Instance()->Enter(m_pOwner);                       
+                    }
                 }
                 else if(get_global_data()->m_is_host == 2)
                 {
                     handleFocusStateChange(SleepFocusState::Instance(), SleepFocusState::Instance());
+                    //这里额外处理一下
+                    if(SleepFocusState::Instance()->need_out_focus)
+                    {
+                        ESP_LOGE("ElabelFsm", "deal with stuck");
+                        SleepFocusState::Instance()->Exit(m_pOwner);
+                        get_global_data()->focusing_task_id = get_global_data()->m_focus_state->focus_task_id;
+                        SleepFocusState::Instance()->Enter(m_pOwner);                       
+                    }
                 }
     
                 if (get_global_data()->m_is_host == 1)
@@ -410,6 +429,30 @@ void ElabelFsm::HandleInput()
                     if (get_global_data()->m_is_host == 1)
                     {
                         EspNowHost::Instance()->Mqtt_out_focus();
+                    }
+                }
+                else if(GetCurrentState() == OperatingRecorderState::Instance())
+                {
+                    if(OperatingRecorderState::Instance()->record_process == finish_record_process)
+                    {
+                        ESP_LOGE("ElabelFsm", "deal with stuck");
+                        ChangeState(ChoosingTaskState::Instance());
+                    }
+                }
+                else if(GetCurrentState() == OperatingTaskState::Instance())
+                {
+                    if(OperatingTaskState::Instance()->task_process == finish_task_process)
+                    {
+                        ESP_LOGE("ElabelFsm", "deal with stuck");
+                        ChangeState(ChoosingTaskState::Instance());
+                    }
+                }
+                else if(GetCurrentState() == OperatingTimeState::Instance())
+                {
+                    if(OperatingTimeState::Instance()->time_process == finish_time_process)
+                    {
+                        ESP_LOGE("ElabelFsm", "deal with stuck");
+                        ChangeState(ChoosingTaskState::Instance());
                     }
                 }
                 else if (GetCurrentState() == ChoosingTaskState::Instance())

@@ -62,7 +62,6 @@ void ui_SlaveActiveScreen_screen_init(void)
     ui_TestConnecting = lv_obj_create(ui_SlaveActiveScreen);
     lv_obj_set_width(ui_TestConnecting, 250);
     lv_obj_set_height(ui_TestConnecting, 122);
-    lv_obj_add_flag(ui_TestConnecting, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_TestConnecting, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_TestConnecting, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_TestConnecting, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -74,7 +73,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_width(ui_ConnectGuide1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_ConnectGuide1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_ConnectGuide1, 0);
-    lv_obj_set_y(ui_ConnectGuide1, -35);
+    lv_obj_set_y(ui_ConnectGuide1, -40);
     lv_obj_set_align(ui_ConnectGuide1, LV_ALIGN_CENTER);
     lv_label_set_text(ui_ConnectGuide1, "Deploy your Reminder");
     lv_obj_set_style_text_font(ui_ConnectGuide1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -87,27 +86,61 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_align(ui_Label10, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label10, "Deploy your Reminder");
 
-    ui_ConnectGuide2 = lv_label_create(ui_TestConnecting);
-    lv_obj_set_width(ui_ConnectGuide2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ConnectGuide2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_ConnectGuide2, 0);
-    lv_obj_set_y(ui_ConnectGuide2, 5);
-    lv_obj_set_align(ui_ConnectGuide2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_ConnectGuide2, "Deplay : 100ms\nLoss : 92%");
-    lv_obj_set_style_text_align(ui_ConnectGuide2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_SlaveActivateAccept = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateAccept, &ui_img_accept_y_png);
+    lv_obj_set_width(ui_SlaveActivateAccept, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateAccept, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_SlaveActivateAccept, 0);
+    lv_obj_set_y(ui_SlaveActivateAccept, 40);
+    lv_obj_set_align(ui_SlaveActivateAccept, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Image14 = lv_img_create(ui_TestConnecting);
-    lv_img_set_src(ui_Image14, &ui_img_accept_y_png);
-    lv_obj_set_width(ui_Image14, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Image14, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_Image14, 0);
-    lv_obj_set_y(ui_Image14, 40);
-    lv_obj_set_align(ui_Image14, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Image14, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Image14, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_SlaveActivateRetry = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateRetry, &ui_img_retry_y_png);
+    lv_obj_set_width(ui_SlaveActivateRetry, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateRetry, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_SlaveActivateRetry, 0);
+    lv_obj_set_y(ui_SlaveActivateRetry, 40);
+    lv_obj_set_align(ui_SlaveActivateRetry, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SlaveActivateBad = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateBad, &ui_img_slaveactivatebad_png);
+    lv_obj_set_width(ui_SlaveActivateBad, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateBad, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SlaveActivateBad, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SlaveActivateGood = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateGood, &ui_img_slaveactivategood_png);
+    lv_obj_set_width(ui_SlaveActivateGood, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateGood, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SlaveActivateGood, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateGood, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateGood, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SlaveActivateTooClose = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateTooClose, &ui_img_slaveactivatetooclose_png);
+    lv_obj_set_width(ui_SlaveActivateTooClose, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateTooClose, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SlaveActivateTooClose, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateTooClose, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateTooClose, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SlaveActivateLoseConnection = lv_img_create(ui_TestConnecting);
+    lv_img_set_src(ui_SlaveActivateLoseConnection, &ui_img_slave_activateloseconnection_png);
+    lv_obj_set_width(ui_SlaveActivateLoseConnection, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SlaveActivateLoseConnection, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SlaveActivateLoseConnection, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     uic_SlaveActiveScreen = ui_SlaveActiveScreen;
     uic_HostActiveCancel = ui_SlaveActiveCancel;
     uic_HostActiveRetry = ui_SlaveActiveConfirm;
+    uic_SlaveActivateLoseConnection = ui_SlaveActivateLoseConnection;
 
 }
