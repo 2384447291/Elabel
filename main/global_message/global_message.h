@@ -16,14 +16,15 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.26"
+#define FIRMWARE_VERSION "3.0.27"
 #define DEVICE_MODEL "R01C_TEST"
 #define LANGUAGE "EN"
 #define EN 
 #define R01C_TEST
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
-typedef struct {
+typedef struct 
+{
     int is_focus; //任务列表中没有focus任务置位0，有focus任务置位1
     int focus_task_id;
 } Focus_state;

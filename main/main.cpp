@@ -65,18 +65,15 @@ extern "C" void app_main(void)
 
     //如果电池电压低于3.3V且没有连接线材，则重启次数+1，清零在后面
     float battery_level = BatteryManager::Instance()->getBatteryLevel();
-    if(BatteryManager::Instance()->is_usb_connected(battery_level))
+    if(!BatteryManager::Instance()->is_usb_connected(battery_level)&&battery_level < 3.3f)
     {
-        get_global_data()->reset_count = 0;
+        get_global_data()->reset_count++;
         set_reset_count(get_global_data()->reset_count);
     }
     else
     {
-        if(battery_level < 3.3f)
-        {
-            get_global_data()->reset_count++;
-            set_reset_count(get_global_data()->reset_count);
-        }
+        get_global_data()->reset_count = 0;
+        set_reset_count(get_global_data()->reset_count);
     }
            
     //初始化gui
