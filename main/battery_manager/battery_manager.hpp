@@ -25,11 +25,8 @@
 #define BATTERY_ADC_CHAN      ADC_CHANNEL_6  // GPIO6 对应 ADC1_CH6
 #define SAMPLE_RATE_TIMES     20
 
-#ifdef R01B_TEST
 #define USB_CONNECT_GPIO GPIO_NUM_3
-#elif defined(R01C_TEST)
-#define USB_CONNECT_GPIO GPIO_NUM_3
-#endif
+
 
 class BatteryManager {
 public:

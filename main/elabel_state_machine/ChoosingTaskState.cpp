@@ -111,6 +111,11 @@ void choose_previous_task()
 
 void delete_task()
 {
+    if(get_global_data()->m_todo_list->size==0)
+    {
+        ESP_LOGE("ChoosingTaskState","No task no need delete task");
+        return;
+    }
     play_finish_task_sound();
     int ChosenTaskId = get_global_data()->m_todo_list->items[ElabelController::Instance()->ChosenTaskNum].id;
     char ChosenTaskId_str[10];
@@ -187,6 +192,8 @@ void ChoosingTaskState::Init(ElabelController* pOwner)
 
 void ChoosingTaskState::Enter(ElabelController* pOwner)
 {
+    guide_page = 0;
+    
     lock_lvgl();
     //加载界面
     switch_screen(ui_TaskScreen);
@@ -195,8 +202,6 @@ void ChoosingTaskState::Enter(ElabelController* pOwner)
     update_progress_bar();
     //更新任务列表ui
     release_lvgl();
-
-    guide_page = 0;
 
     is_jump_to_task_mode = false;
     is_jump_to_record_mode = false;

@@ -8,21 +8,11 @@
 #include "control_driver.hpp"
 
 #define TAG "BUTTON"
-#ifdef R01B_TEST
-#define R_Bais 20.0
-#define R0 20.0
-#define R1 30.0
-#define R2 10.0
-#define R3 3.0
-#elif defined(R01C_TEST)
 #define R_Bais 20.0
 #define R0 10.0
 #define R1 3.0
 #define R2 0.0
 #define R3 30.0
-#endif
-
-
 
 #define V_BUTTON_0 (3.3*(R_Bais/(R_Bais+R0)))
 #define V_BUTTON_1 (3.3*(R_Bais/(R_Bais+R1)))  

@@ -16,11 +16,9 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.27"
-#define DEVICE_MODEL "R01C_TEST"
+#define FIRMWARE_VERSION "3.0.29"
+#define DEVICE_MODEL "R01C"
 #define LANGUAGE "EN"
-#define EN 
-#define R01C_TEST
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct 
