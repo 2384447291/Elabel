@@ -336,6 +336,7 @@ public:
 
     void enter_ota_finish(bool _need_enter_ota)
     {
+        vTaskDelay(pdMS_TO_TICKS(1000));
         m_ota_prepare_process = ota_prepare_ota_finish_process;
         if(_need_enter_ota)
         {

@@ -197,7 +197,8 @@ void OtaPrepareState::Execute(ElabelController* pOwner)
                 lv_obj_clear_state(ui_RetryCheckVersionButtonCancel, LV_STATE_PRESSED );
                 lv_obj_add_state(ui_RetryCheckVersionButtonRetry, LV_STATE_PRESSED );
             }
-            set_text_without_change_font(ui_NewFirmware, "Fail Get Update Data");
+            char* temp_content = lv_label_get_text(ui_NewFirmware);
+            set_text_without_change_font(ui_NewFirmware, temp_content);
             release_lvgl(); 
             need_flash_paper = false;          
         }        
