@@ -63,12 +63,26 @@ public:
             }
             else
             {
-                MCodec::Instance()->play_music("bell");
+                if(get_global_data()->m_device_info.is_strong_wake_up)
+                {
+                    MCodec::Instance()->play_music("bell");
+                }
+                else
+                {
+                    MCodec::Instance()->play_music("tick");
+                }
             }
         }
         else
         {
-            MCodec::Instance()->play_music("bell");
+            if(get_global_data()->m_device_info.is_strong_wake_up)
+            {
+                MCodec::Instance()->play_music("bell");
+            }
+            else
+            {
+                MCodec::Instance()->play_music("tick");
+            }
         }
     }
 

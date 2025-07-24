@@ -109,19 +109,27 @@ void FactoryState::Execute(ElabelController* pOwner)
         {
             lock_lvgl();
             bool is_all_mask_revealed = true;
+            char button_check_str[64] = {0};
+            int pos = 0;
             for(int i = 0; i < 8; i++)
             {
-                //如果没有被按下
+                if(i == 4) button_check_str[pos++] = '\n';
                 if(!Button_mask[i])
                 {
                     is_all_mask_revealed = false;
-                    lv_obj_add_flag(Button_mask_ui[i], LV_OBJ_FLAG_HIDDEN);
+                    button_check_str[pos++] = '1' + i;
                 }
                 else
                 {
-                    lv_obj_clear_flag(Button_mask_ui[i], LV_OBJ_FLAG_HIDDEN);
+                    button_check_str[pos++] = ' ';
+                }
+                if(i != 3 && i != 7) {
+                    button_check_str[pos++] = ' ';
+                    button_check_str[pos++] = ' ';
                 }
             }
+            button_check_str[pos] = '\0';
+            set_text_without_change_font(ui_ButtonCheck, button_check_str);
             release_lvgl();
             if(is_all_mask_revealed) enter_speaker_process();
             need_flash_paper = false;

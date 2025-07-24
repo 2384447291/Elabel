@@ -16,7 +16,7 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.29"
+#define FIRMWARE_VERSION "3.0.31"
 #define DEVICE_MODEL "R01C"
 #define LANGUAGE "EN"
 
@@ -65,6 +65,7 @@ typedef struct {
     uint16_t overtime_alert_time;
     uint8_t sound_volume;
     uint16_t sleep_time;
+    bool is_strong_wake_up;
 } device_info;
 
 typedef struct {

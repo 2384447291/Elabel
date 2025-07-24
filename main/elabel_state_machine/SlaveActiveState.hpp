@@ -57,8 +57,8 @@ public:
                 lv_obj_add_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_HIDDEN);
 
-                lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
                 break;
             case Good:
                 lv_obj_add_flag(ui_SlaveActivateTooClose, LV_OBJ_FLAG_HIDDEN);
@@ -66,8 +66,8 @@ public:
                 lv_obj_add_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_HIDDEN);
 
-                lv_obj_add_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
                 break;
             case Bad:
                 lv_obj_add_flag(ui_SlaveActivateTooClose, LV_OBJ_FLAG_HIDDEN);
@@ -75,8 +75,8 @@ public:
                 lv_obj_clear_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_HIDDEN);
 
-                lv_obj_add_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
                 break;
             case Lose_connect:
                 lv_obj_add_flag(ui_SlaveActivateTooClose, LV_OBJ_FLAG_HIDDEN);
@@ -84,8 +84,8 @@ public:
                 lv_obj_add_flag(ui_SlaveActivateBad, LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_HIDDEN);
 
-                lv_obj_clear_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_add_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(ui_SlaveActivateAccept, LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(ui_SlaveActivateRetry, LV_OBJ_FLAG_HIDDEN);
                 break;
             case default_connect_state:
                 break;

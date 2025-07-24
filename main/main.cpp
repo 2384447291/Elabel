@@ -75,7 +75,7 @@ extern "C" void app_main(void)
         get_global_data()->reset_count = 0;
         set_reset_count(get_global_data()->reset_count);
     }
-           
+    
     //初始化gui
     Gui_init();
     //等待lvgl初始化
@@ -84,12 +84,17 @@ extern "C" void app_main(void)
     //如果5次没有启动成功则不运行
     if(get_global_data()->reset_count >= 5)
     {
+        vTaskDelay(pdMS_TO_TICKS(1000));
         lock_lvgl();
         switch_screen(ui_ShutdownScreen);
         release_lvgl();
         while(1)
         {
             vTaskDelay(1000 / portTICK_PERIOD_MS);
+            if(BatteryManager::Instance()->is_usb_connected(0))
+            {
+                break;
+            }
         }
     }
 

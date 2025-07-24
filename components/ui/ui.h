@@ -304,14 +304,7 @@ extern lv_obj_t * uic_Task;
 void ui_FactoryScreen_screen_init(void);
 extern lv_obj_t * ui_FactoryScreen;
 extern lv_obj_t * ui_ButtonPanel;
-extern lv_obj_t * ui_ButtonMask1;
-extern lv_obj_t * ui_ButtonMask2;
-extern lv_obj_t * ui_ButtonMask3;
-extern lv_obj_t * ui_ButtonMask4;
-extern lv_obj_t * ui_ButtonMask5;
-extern lv_obj_t * ui_ButtonMask6;
-extern lv_obj_t * ui_ButtonMask7;
-extern lv_obj_t * ui_ButtonMask8;
+extern lv_obj_t * ui_ButtonCheck;
 extern lv_obj_t * ui_SpeakerPanel;
 extern lv_obj_t * ui_CharacterName;
 extern lv_obj_t * ui_Label12;
@@ -323,6 +316,7 @@ extern lv_obj_t * ui_Label11;
 extern lv_obj_t * ui_BatteryDescribtion;
 extern lv_obj_t * ui_WireDescribtion;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_ButtonCheck;
 extern lv_obj_t * uic_CharacterName;
 extern lv_obj_t * uic_CharacterName;
 extern lv_obj_t * uic_CharacterName;
@@ -369,8 +363,8 @@ LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
 LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
 LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
 LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
-LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
 LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
+LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Chinese24);

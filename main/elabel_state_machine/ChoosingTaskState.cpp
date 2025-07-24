@@ -160,6 +160,7 @@ void jump_to_time_mode()
 void jump_to_info_mode()
 {
     if(ChoosingTaskState::Instance()->is_jump_to_task_mode || ChoosingTaskState::Instance()->is_jump_to_record_mode || ChoosingTaskState::Instance()->is_jump_to_time_mode || ChoosingTaskState::Instance()->is_jump_to_info_mode || ChoosingTaskState::Instance()->is_jump_to_sleep_mode) return;
+    MCodec::Instance()->play_music("button");
     ChoosingTaskState::Instance()->is_jump_to_info_mode = true;
     ESP_LOGI("ChoosingTaskState","jump to info mode");
 }

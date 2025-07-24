@@ -14,13 +14,26 @@
 #define R2 0.0
 #define R3 30.0
 
-#define V_BUTTON_0 (3.3*(R_Bais/(R_Bais+R0)))
-#define V_BUTTON_1 (3.3*(R_Bais/(R_Bais+R1)))  
-#define V_BUTTON_2 (3.3*(R_Bais/(R_Bais+R2)))  
+//2.2
+#define V_BUTTON_0 (3.3*(R_Bais/(R_Bais+R0))) 
+//1.8--->2.5
+#define V_BUTTON_0_DOWN_RANGE  (V_BUTTON_0 - 0.4)
+#define V_BUTTON_0_UP_RANGE  (V_BUTTON_0 + 0.3)
+//2.87
+#define V_BUTTON_1 (3.3*(R_Bais/(R_Bais+R1)))
+//2.57--->3.17
+#define V_BUTTON_1_DOWN_RANGE  (V_BUTTON_1 - 0.3)
+#define V_BUTTON_1_UP_RANGE  (V_BUTTON_1 + 0.3)
+//3.3
+//3.2---->3.8
+#define V_BUTTON_2 (3.3*(R_Bais/(R_Bais+R2))) 
+#define V_BUTTON_2_DOWN_RANGE  (V_BUTTON_2 - 0.1)
+#define V_BUTTON_2_UP_RANGE  (V_BUTTON_2 + 0.5)
+//1.32
 #define V_BUTTON_3 (3.3*(R_Bais/(R_Bais+R3))) 
- 
-#define ERROR_RANGE 0.2
-
+//0.82---->1.62
+#define V_BUTTON_3_DOWN_RANGE  (V_BUTTON_3 - 0.5)
+#define V_BUTTON_3_UP_RANGE  (V_BUTTON_3 + 0.3)
 
 #define STATE_DURATION_MS 40
 
@@ -106,17 +119,17 @@ void Button_pair_3::update()
     // 临时状态变量,默认都是0
     bool temp_button_state[3] = {false, false, false};
     // 判断当前状态
-    if (voltage > V_BUTTON_0 - ERROR_RANGE && voltage < V_BUTTON_0 + ERROR_RANGE) {  // 都未按下
+    if (voltage > V_BUTTON_0_DOWN_RANGE && voltage < V_BUTTON_0_UP_RANGE) {  // 都未按下
         // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = true;
         temp_button_state[1] = false;
         temp_button_state[2] = false;
-    } else if (voltage > V_BUTTON_1 - ERROR_RANGE && voltage < V_BUTTON_1 + ERROR_RANGE) {  // 按下按键1
+    } else if (voltage > V_BUTTON_1_DOWN_RANGE && voltage < V_BUTTON_1_UP_RANGE) {  // 按下按键1
         // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = false;
         temp_button_state[1] = true;
         temp_button_state[2] = false;
-    } else if (voltage > V_BUTTON_2 - ERROR_RANGE && voltage < V_BUTTON_2 + ERROR_RANGE) {  // 按下按键2
+    } else if (voltage > V_BUTTON_2_DOWN_RANGE && voltage < V_BUTTON_2_UP_RANGE) {  // 按下按键2
         // ESP_LOGI(TAG, "voltage: %f, adc_value: %d", voltage, adc_value);
         temp_button_state[0] = false;
         temp_button_state[1] = false;
@@ -337,22 +350,22 @@ void Button_pair_4::update()
     // 临时状态变量,默认都是0
     bool temp_button_state[4] = {false, false, false, false};
     // 判断当前状态
-    if (voltage > V_BUTTON_0 - ERROR_RANGE && voltage < V_BUTTON_0 + ERROR_RANGE) {  // 按下按键0
+    if (voltage > V_BUTTON_0_DOWN_RANGE && voltage < V_BUTTON_0_UP_RANGE) {  // 按下按键0
         temp_button_state[0] = true;
         temp_button_state[1] = false;
         temp_button_state[2] = false;
         temp_button_state[3] = false;
-    } else if (voltage > V_BUTTON_1 - ERROR_RANGE && voltage < V_BUTTON_1 + ERROR_RANGE) {  // 按下按键1
+    } else if (voltage > V_BUTTON_1_DOWN_RANGE && voltage < V_BUTTON_1_UP_RANGE) {  // 按下按键1
         temp_button_state[0] = false;
         temp_button_state[1] = true;
         temp_button_state[2] = false;
         temp_button_state[3] = false;
-    } else if (voltage > V_BUTTON_2 - ERROR_RANGE && voltage < V_BUTTON_2 + ERROR_RANGE) {  // 按下按键2
+    } else if (voltage > V_BUTTON_2_DOWN_RANGE && voltage < V_BUTTON_2_UP_RANGE) {  // 按下按键2
         temp_button_state[0] = false;
         temp_button_state[1] = false;
         temp_button_state[2] = true;
         temp_button_state[3] = false;
-    } else if (voltage > V_BUTTON_3 - ERROR_RANGE && voltage < V_BUTTON_3 + ERROR_RANGE) {  // 按下按键3
+    } else if (voltage > V_BUTTON_3_DOWN_RANGE && voltage < V_BUTTON_3_UP_RANGE) {  // 按下按键3
         temp_button_state[0] = false;
         temp_button_state[1] = false;
         temp_button_state[2] = false;

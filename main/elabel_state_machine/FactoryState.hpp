@@ -34,7 +34,6 @@ public:
 
     Factory_process factory_process = default_factory_process;
     bool Button_mask[8];
-    lv_obj_t* Button_mask_ui[8] = {ui_ButtonMask1, ui_ButtonMask2, ui_ButtonMask3, ui_ButtonMask4, ui_ButtonMask5, ui_ButtonMask6, ui_ButtonMask7, ui_ButtonMask8};
     bool need_flash_paper = false;
     uint8_t record_voice_countdown = Factory_coutdown;
 
@@ -43,22 +42,11 @@ public:
         static FactoryState instance;
         return &instance;
     }
-    
-    void initialize_button_mask()
-    {
-        Button_mask_ui[0] = ui_ButtonMask1;
-        Button_mask_ui[1] = ui_ButtonMask2;
-        Button_mask_ui[2] = ui_ButtonMask3;
-        Button_mask_ui[3] = ui_ButtonMask4;
-        Button_mask_ui[4] = ui_ButtonMask5;
-        Button_mask_ui[5] = ui_ButtonMask6;
-        Button_mask_ui[6] = ui_ButtonMask7;
-        Button_mask_ui[7] = ui_ButtonMask8;
-    }
+
     void enter_button_process()
     {
         need_flash_paper = false;
-        initialize_button_mask();
+
         for(int i = 0; i < 8; i++)
         {
             Button_mask[i] = false;
@@ -69,10 +57,7 @@ public:
         lv_obj_add_flag(ui_SpeakerPanel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_PowerPanel, LV_OBJ_FLAG_HIDDEN);
         switch_screen(ui_FactoryScreen);
-        for(int i = 0; i < 8; i++)
-        {
-            lv_obj_add_flag(Button_mask_ui[i], LV_OBJ_FLAG_HIDDEN);
-        }
+        set_text_without_change_font(ui_ButtonCheck, "1  2  3  4\n5  6  7  8");
         release_lvgl();
     }
 

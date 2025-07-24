@@ -428,17 +428,20 @@ void EspNowSlave::slave_respense_espnow_mqtt_send_task_list(uint8_t* data, size_
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_device_info(uint8_t* data, size_t size)
 {
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, data: %s", data);
     get_global_data()->m_device_info.default_counter_time = (data[0] << 8) | data[1];
     get_global_data()->m_device_info.overtime_alert_time = (data[2] << 8) | data[3];
     get_global_data()->m_device_info.is_idel_clock_time = data[4] & 0x01;
     get_global_data()->m_device_info.sound_volume = data[5];
     get_global_data()->m_device_info.sleep_time = (data[6] << 8) | data[7];
-    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d, sleep time: %d", 
+    get_global_data()->m_device_info.is_strong_wake_up = data[8] & 0x01;
+    ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d, sleep time: %d, is strong wake up: %d", 
     get_global_data()->m_device_info.default_counter_time, 
     get_global_data()->m_device_info.overtime_alert_time, 
     get_global_data()->m_device_info.is_idel_clock_time, 
     get_global_data()->m_device_info.sound_volume,
-    get_global_data()->m_device_info.sleep_time);
+    get_global_data()->m_device_info.sleep_time,
+    get_global_data()->m_device_info.is_strong_wake_up);
 }
 
 void EspNowSlave::slave_respense_espnow_mqtt_get_time(uint8_t* data, size_t size)

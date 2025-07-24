@@ -30,6 +30,7 @@ bool insert_slave(uint8_t slave_mac[6])
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.default_counter_time = 5;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.overtime_alert_time = 10;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.is_idel_clock_time = 1;
+    get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.is_strong_wake_up = 1;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sound_volume = 80;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.power = 0;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sleep_time = 10;
@@ -253,6 +254,7 @@ Global_data* get_global_data() {
             instance->m_device_info.default_counter_time = 5;
             instance->m_device_info.overtime_alert_time = 10;
             instance->m_device_info.is_idel_clock_time = 1;
+            instance->m_device_info.is_strong_wake_up = 1;
             instance->m_device_info.sound_volume = 80;
             instance->m_device_info.power = 0;
             instance->m_device_info.sleep_time = 0;

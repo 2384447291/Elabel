@@ -361,6 +361,16 @@ void MCodec::play_music(const char *filename)
         audio_data = pikachu;
         audio_size = pikachu_size;
     }
+    else if (strcmp(filename, "reset") == 0)
+    {
+        audio_data = reset;
+        audio_size = reset_size;
+    }
+    else if (strcmp(filename, "tick") == 0)
+    {
+        audio_data = tick;
+        audio_size = tick_size;
+    }
     else
     {
         ESP_LOGE(TAG, "未找到对应的音频文件: %s", filename);

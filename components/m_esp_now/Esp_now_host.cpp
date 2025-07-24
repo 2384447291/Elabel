@@ -61,7 +61,8 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         //-0:不开启默认时钟
         //-000:默认音量0
         //-180:休眠时间180秒
-        http_save_setting(true,"0050100000180",src_addr);
+        //-0:表示不开启强提醒
+        http_save_setting(true,"00501000001800",src_addr);
         http_save_power(true,-1,src_addr);
     }
     //--------------------------------绑定请求--------------------------------//
@@ -405,7 +406,9 @@ void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
             temp_data[6] = (get_global_data()->m_slave_info[i].setting.sleep_time >> 8) & 0xFF;
             temp_data[7] = get_global_data()->m_slave_info[i].setting.sleep_time & 0xFF;
 
-            send_message_ack(temp_data, 8, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
+            temp_data[8] = get_global_data()->m_slave_info[i].setting.is_strong_wake_up;
+
+            send_message_ack(temp_data, 9, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
             return;
         }
     }

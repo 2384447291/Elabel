@@ -50,8 +50,8 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     images/ui_img_otay_png.c
     images/ui_img_rebootn_png.c
     images/ui_img_rebooty_png.c
-    images/ui_img_buttonpanel_png.c
     images/ui_img_accept_n_png.c
+    images/ui_img_buttonpanel_png.c
     fonts/ui_font_Chinese24.c
     fonts/ui_font_Chinese32.c
     REQUIRES lvgl)

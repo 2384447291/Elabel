@@ -38,6 +38,8 @@
 
 void force_reset_elabel()
 {
+    MCodec::Instance()->play_music("reset");
+    vTaskDelay(pdMS_TO_TICKS(1500));
     //如果是主机
     if(get_global_data()->m_is_host == 1)
     {
@@ -55,6 +57,7 @@ void force_reset_elabel()
     else if(get_global_data()->m_is_host == 2)
     {
         //通知主机删除自己
+        
         EspNowSlave::Instance()->slave_send_espnow_http_unbind_device();
         reset_elabel();
     }
