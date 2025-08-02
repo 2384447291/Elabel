@@ -300,29 +300,6 @@ extern lv_obj_t * uic_FocusScreen;
 extern lv_obj_t * uic_TodoNum;
 extern lv_obj_t * uic_Task;
 
-// SCREEN: ui_FactoryScreen
-void ui_FactoryScreen_screen_init(void);
-extern lv_obj_t * ui_FactoryScreen;
-extern lv_obj_t * ui_ButtonPanel;
-extern lv_obj_t * ui_ButtonCheck;
-extern lv_obj_t * ui_SpeakerPanel;
-extern lv_obj_t * ui_CharacterName;
-extern lv_obj_t * ui_Label12;
-extern lv_obj_t * ui_CharacterDescribe;
-extern lv_obj_t * ui_RecordRetryDescribtion;
-extern lv_obj_t * ui_PowerPanel;
-extern lv_obj_t * ui_PowerName;
-extern lv_obj_t * ui_Label11;
-extern lv_obj_t * ui_BatteryDescribtion;
-extern lv_obj_t * ui_WireDescribtion;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_ButtonCheck;
-extern lv_obj_t * uic_CharacterName;
-extern lv_obj_t * uic_CharacterName;
-extern lv_obj_t * uic_CharacterName;
-extern lv_obj_t * uic_CharacterName;
-extern lv_obj_t * uic_CharacterName;
-
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;

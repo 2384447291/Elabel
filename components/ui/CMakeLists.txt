@@ -11,7 +11,6 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     screens/ui_FocusScreen.c
     screens/ui_MessageScreen.c
     screens/ui_SleepClockScreen.c
-    screens/ui_FactoryScreen.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c

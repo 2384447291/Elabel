@@ -305,30 +305,6 @@ lv_obj_t * uic_FocusScreen;
 lv_obj_t * uic_TodoNum;
 lv_obj_t * uic_Task;
 
-
-// SCREEN: ui_FactoryScreen
-void ui_FactoryScreen_screen_init(void);
-lv_obj_t * ui_FactoryScreen;
-lv_obj_t * ui_ButtonPanel;
-lv_obj_t * ui_ButtonCheck;
-lv_obj_t * ui_SpeakerPanel;
-lv_obj_t * ui_CharacterName;
-lv_obj_t * ui_Label12;
-lv_obj_t * ui_CharacterDescribe;
-lv_obj_t * ui_RecordRetryDescribtion;
-lv_obj_t * ui_PowerPanel;
-lv_obj_t * ui_PowerName;
-lv_obj_t * ui_Label11;
-lv_obj_t * ui_BatteryDescribtion;
-lv_obj_t * ui_WireDescribtion;
-// CUSTOM VARIABLES
-lv_obj_t * uic_ButtonCheck;
-lv_obj_t * uic_CharacterName;
-lv_obj_t * uic_CharacterName;
-lv_obj_t * uic_CharacterName;
-lv_obj_t * uic_CharacterName;
-lv_obj_t * uic_CharacterName;
-
 // EVENTS
 lv_obj_t * ui____initial_actions0;
 
@@ -368,7 +344,6 @@ void ui_init(void)
     ui_FocusScreen_screen_init();
     ui_MessageScreen_screen_init();
     ui_SleepClockScreen_screen_init();
-    ui_FactoryScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HalfmindScreen);
 }

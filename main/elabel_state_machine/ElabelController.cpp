@@ -112,7 +112,6 @@ void ElabelFsm::HandleInput()
         if (GetCurrentState() != ActiveState::Instance() 
         && GetCurrentState() != HostActiveState::Instance() 
         && GetCurrentState() != SlaveActiveState::Instance() 
-        && GetCurrentState() != FactoryState::Instance()
         && GetCurrentState() != EasyInfoState::Instance())
         {
             // 等待2秒，确保init刷新出来了
@@ -203,11 +202,7 @@ void ElabelFsm::HandleInput()
     // 如果没有被激活，则进入激活状态
     else if (GetCurrentState() == ActiveState::Instance())
     {
-        if(ActiveState::Instance()->need_enter_factory)
-        {
-            ChangeState(FactoryState::Instance());
-        }
-        else if(ActiveState::Instance()->need_enter_info)
+        if(ActiveState::Instance()->need_enter_info)
         {
             ChangeState(EasyInfoState::Instance());
         }
@@ -237,7 +232,6 @@ void ElabelFsm::HandleInput()
             ChangeState(ActiveState::Instance());
         }
     }
-    else if (GetCurrentState() == FactoryState::Instance()){}
     else if (GetCurrentState() == EasyInfoState::Instance()){}
     //-------------------------------整个激活流程--------------------------------//
 
