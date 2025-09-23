@@ -5,6 +5,7 @@
 #include "cJSON.h"
 #include "http.h"
 #include "global_message.h"
+#include "global_nvs.h"
 #include "esp_mac.h"
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
@@ -178,8 +179,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 const char *setting_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "setting"));
                 uint8_t mac[6];
                 device_info setting_info;
-                if (setting_str != NULL) {
-                    char temp[4] = {0};  // 临时缓冲区
+                if (setting_str != NULL) 
+                {
+                    ESP_LOGI("HTTP", "setting_str is %s", setting_str);
+                    char temp[12] = {0};  // 临时缓冲区
                     // 解析 default_counter (005)
                     snprintf(temp, sizeof(temp), "%.3s", setting_str);
                     setting_info.default_counter_time = atoi(temp);
@@ -203,6 +206,19 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     // 解析 strong_wake_up (1)
                     snprintf(temp, sizeof(temp), "%.1s", setting_str + 13);
                     setting_info.is_strong_wake_up = atoi(temp);
+
+                    // 解析 language (如: 00501010800300-zh)
+                    memset(setting_info.language, 0, sizeof(setting_info.language));
+                    const char *dash = strchr(setting_str, '-');
+                    if (dash != NULL && *(dash + 1) != '\0') {
+                        // 拷贝 "-" 后的内容到 language，最多保留 11 字节并手动结尾
+                        strncpy(setting_info.language, dash + 1, sizeof(setting_info.language) - 1);
+                        setting_info.language[sizeof(setting_info.language) - 1] = '\0';
+                    } else {
+                        ESP_LOGE("HTTP", "No language suffix found, setting default to EN");
+                        strncpy(setting_info.language, "EN", sizeof(setting_info.language) - 1);
+                        setting_info.language[sizeof(setting_info.language) - 1] = '\0';
+                    }
                 }
                 
                 // 获取并转换 sn 为 MAC 地址
@@ -215,7 +231,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                            &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
                 }
 
-                // 属不属于自己的主机
+                // 如果是当前主机的设置
                 if(memcmp(get_global_data()->m_mac_uint, mac, 6) == 0)
                 {
                     Is_get_host_device_Info = true;
@@ -225,16 +241,19 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     get_global_data()->m_device_info.is_strong_wake_up = setting_info.is_strong_wake_up;
                     get_global_data()->m_device_info.sound_volume = setting_info.sound_volume;
                     get_global_data()->m_device_info.sleep_time = setting_info.sleep_time;
-                    ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, is_strong_wake_up is %d, sound_volume is %d, sleep_time is %d", 
+                    memcpy(get_global_data()->m_device_info.language, setting_info.language, sizeof(get_global_data()->m_device_info.language));
+                    set_language_nvs_info(get_global_data()->m_device_info.language);
+                    ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, is_strong_wake_up is %d, sound_volume is %d, sleep_time is %d, language is %s", 
                     MAC2STR(mac), 
                     get_global_data()->m_device_info.default_counter_time, 
                     get_global_data()->m_device_info.overtime_alert_time, 
                     get_global_data()->m_device_info.is_idel_clock_time, 
                     get_global_data()->m_device_info.is_strong_wake_up,
                     get_global_data()->m_device_info.sound_volume, 
-                    get_global_data()->m_device_info.sleep_time);
+                    get_global_data()->m_device_info.sleep_time,
+                    get_global_data()->m_device_info.language);
                 }
-                //属不属于主机序列下的从机
+                // 如果是当前主机下的从机的设置
                 else
                 {
                     for(int i = 0; i < get_global_data()->m_slave_num; i++)
@@ -249,14 +268,16 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                             get_global_data()->m_slave_info[i].setting.sound_volume = setting_info.sound_volume;
                             get_global_data()->m_slave_info[i].setting.sleep_time = setting_info.sleep_time;
                             get_global_data()->m_slave_info[i].setting.is_strong_wake_up = setting_info.is_strong_wake_up;
-                            ESP_LOGI("HTTP", "Save setting to slave " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, is_strong_wake_up is %d, sound_volume is %d, sleep_time is %d", 
+                            memcpy(get_global_data()->m_slave_info[i].setting.language, setting_info.language, sizeof(get_global_data()->m_slave_info[i].setting.language));
+                            ESP_LOGI("HTTP", "Save setting to slave " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, is_strong_wake_up is %d, sound_volume is %d, sleep_time is %d, language is %s", 
                             MAC2STR(mac), 
                             get_global_data()->m_slave_info[i].setting.default_counter_time, 
                             get_global_data()->m_slave_info[i].setting.overtime_alert_time, 
                             get_global_data()->m_slave_info[i].setting.is_idel_clock_time, 
                             get_global_data()->m_slave_info[i].setting.is_strong_wake_up,
                             get_global_data()->m_slave_info[i].setting.sound_volume, 
-                            get_global_data()->m_slave_info[i].setting.sleep_time);
+                            get_global_data()->m_slave_info[i].setting.sleep_time,
+                            get_global_data()->m_slave_info[i].setting.language);
                         }
                     }
                 }

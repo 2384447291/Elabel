@@ -34,6 +34,7 @@ bool insert_slave(uint8_t slave_mac[6])
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sound_volume = 80;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.power = 0;
     get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.sleep_time = 10;
+    memset(get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.language, 0, sizeof(get_global_data()->m_slave_info[get_global_data()->m_slave_num].setting.language));
     get_global_data()->m_slave_num++;
     ESP_LOGI("slave_info", "Add new slave, its mac is "MACSTR" ", MAC2STR(slave_mac));
     return true;
@@ -258,6 +259,7 @@ Global_data* get_global_data() {
             instance->m_device_info.sound_volume = 80;
             instance->m_device_info.power = 0;
             instance->m_device_info.sleep_time = 0;
+            memset(instance->m_device_info.language, 0, sizeof(instance->m_device_info.language));
 
             memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
             memset(instance->m_language, 0, sizeof(instance->m_language));

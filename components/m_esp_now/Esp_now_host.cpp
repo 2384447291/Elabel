@@ -6,6 +6,7 @@
 #include "http.h"
 #include "ElabelController.hpp"
 #include "FocusTaskState.hpp"
+#include "global_nvs.h"
 
 static esp_err_t Host_handle(uint8_t *src_addr, void *data,
                                        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
@@ -62,7 +63,23 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         //-000:默认音量0
         //-180:休眠时间180秒
         //-0:表示不开启强提醒
-        http_save_setting(true,"00501000001800",src_addr);
+        char language[12] = {0};
+        // 如果从机在绑定时上报了 language，则按优先使用从机上报值
+        // 数据格式: [0]=长度N, 后随N字节的language字符串
+        if(size >= 1 && data_ptr[0] > 0 && (size_t)(1 + data_ptr[0]) <= size && data_ptr[0] < sizeof(language))
+        {
+            memcpy(language, &data_ptr[1], data_ptr[0]);
+            language[data_ptr[0]] = '\0';
+            ESP_LOGI(ESP_NOW, "Use slave-reported language on bind: %s", language);
+        }
+        else
+        {
+            get_language_nvs_info(language);
+            ESP_LOGI(ESP_NOW, "Use host default language on bind: %s", language);
+        }
+        char setting_str[40];
+        sprintf(setting_str, "00501000001800-%s", language);
+        http_save_setting(true, setting_str, src_addr);
         http_save_power(true,-1,src_addr);
     }
     //--------------------------------绑定请求--------------------------------//
@@ -387,7 +404,7 @@ void EspNowHost::Mqtt_send_task_list(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
 
 void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
 {
-    uint8_t temp_data[4];
+    uint8_t temp_data[21];
     //如果该地址属于该机器，则发送设备信息
     for(int i = 0; i < get_global_data()->m_slave_num; i++)
     {
@@ -407,8 +424,10 @@ void EspNowHost::Mqtt_send_device_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN]
             temp_data[7] = get_global_data()->m_slave_info[i].setting.sleep_time & 0xFF;
 
             temp_data[8] = get_global_data()->m_slave_info[i].setting.is_strong_wake_up;
+            
+            memcpy(&temp_data[9], get_global_data()->m_slave_info[i].setting.language, 12);
 
-            send_message_ack(temp_data, 9, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
+            send_message_ack(temp_data, 21, Host2Slave_Device_Info_Control_Mqtt, slave_mac);
             return;
         }
     }

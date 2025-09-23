@@ -10,3 +10,6 @@ set(EXTRA_COMPONENT_DIRS ${EXTRA_COMPONENT_DIRS} components/control_driver)
 set(EXTRA_COMPONENT_DIRS ${EXTRA_COMPONENT_DIRS} components/m_esp_now)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(E_lable)
+
+set(NVS_PARTITION_CSV ${CMAKE_CURRENT_SOURCE_DIR}/nvs.csv)
+nvs_create_partition_image(nvs ${NVS_PARTITION_CSV} FLASH_IN_PROJECT)

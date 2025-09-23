@@ -53,7 +53,7 @@ public:
         set_text_without_change_font(ui_Message3, stringFirmware);
 
         char stringLanguage[40] = "Language:";
-        strcat(stringLanguage, LANGUAGE);
+        strcat(stringLanguage, get_global_data()->m_device_info.language);
         set_text_without_change_font(ui_Message4, stringLanguage);
 
         char stringSN[40] = "SN:";

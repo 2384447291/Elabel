@@ -6,6 +6,7 @@
 #include "network.h"
 #include "battery_manager.hpp"
 #include "http.h"
+#include "global_nvs.h"
 #define RECONNECT_COUNT_DOWN 30
 
 typedef enum
@@ -106,7 +107,11 @@ public:
         //绑定设备
         http_bind_device(true,get_global_data()->m_mac_uint);
         //保存设置
-        http_save_setting(true,"0050101080030",get_global_data()->m_mac_uint);
+        char language[12];
+        get_language_nvs_info(language);
+        char setting_str[40];
+        sprintf(setting_str, "00501010800300-%s", language);
+        http_save_setting(true, setting_str, get_global_data()->m_mac_uint);
         //保存电池电量
         int battery_level = BatteryManager::Instance()->getBatteryLevelInt();
         http_save_power(true,battery_level,get_global_data()->m_mac_uint);

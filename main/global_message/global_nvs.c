@@ -14,6 +14,8 @@ void get_nvs_info(void)
         return;
     }
 
+    init_language_nvs();
+
     nvs_handle wificfg_nvs_handler; /* 定义一个NVS操作句柄 */
     ESP_ERROR_CHECK(nvs_open(NVS_HANDLER, NVS_READWRITE, &wificfg_nvs_handler) );//打开一个名叫"Elabel_cfg"的可读可写nvs空间
     //--------------------------从nvs中获取reset_count--------------------------------//
@@ -136,12 +138,31 @@ void erase_nvs(void)
         ESP_LOGE(NVS_TAG,"NVS is not initialized. \n");
         return;
     }
-    // 擦除所有NVS数据
-    ESP_ERROR_CHECK(nvs_flash_erase());
-
-    // 重新初始化NVS
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_LOGI(NVS_TAG,"Erase NVS successfully. \n");
+    
+    nvs_handle wificfg_nvs_handler;
+    esp_err_t err = nvs_open(NVS_HANDLER, NVS_READWRITE, &wificfg_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error opening NVS handle: %s", esp_err_to_name(err));
+        return;
+    }
+    
+    // 只擦除 Elabel_cfg 命名空间下的所有数据
+    err = nvs_erase_all(wificfg_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error erasing NVS namespace: %s", esp_err_to_name(err));
+        nvs_close(wificfg_nvs_handler);
+        return;
+    }
+    
+    // 提交更改
+    err = nvs_commit(wificfg_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error committing NVS changes: %s", esp_err_to_name(err));
+    } else {
+        ESP_LOGI(NVS_TAG, "Erase Elabel_cfg namespace successfully. \n");
+    }
+    
+    nvs_close(wificfg_nvs_handler);
 }
 
 void nvs_init(void)
@@ -254,4 +275,111 @@ void reset_elabel()
 {
     erase_nvs();
     esp_restart();
+}
+
+// Language NVS functions
+void get_language_nvs_info(char *language)
+{
+    if(!is_nvs_init)
+    {
+        ESP_LOGE(NVS_TAG,"NVS is not initialized. \n");
+        return;
+    }
+
+    nvs_handle language_nvs_handler;
+    esp_err_t err = nvs_open("language", NVS_READONLY, &language_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error opening language NVS handle: %s", esp_err_to_name(err));
+        return;
+    }
+
+    // 从NVS中获取language值
+    size_t len = 10; // 假设语言代码最大长度为10
+    char language_value[len];
+    esp_err_t language_err = nvs_get_str(language_nvs_handler, "language", language_value, &len);
+
+    
+    
+    if(language_err != ESP_OK) {
+        ESP_LOGE(NVS_TAG,"No language found in NVS. \n");
+    } else {
+        ESP_LOGI(NVS_TAG,"Language found: %s. \n", language_value);
+        strcpy(language, language_value);
+    }
+
+    nvs_close(language_nvs_handler);
+}
+
+void set_language_nvs_info(const char *language)
+{
+    if(!is_nvs_init)
+    {
+        ESP_LOGE(NVS_TAG,"NVS is not initialized. \n");
+        return;
+    }
+    
+    nvs_handle language_nvs_handler;
+    esp_err_t err = nvs_open("language", NVS_READWRITE, &language_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error opening language NVS handle: %s", esp_err_to_name(err));
+        return;
+    }
+    
+    err = nvs_set_str(language_nvs_handler, "language", language);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error setting language: %s", esp_err_to_name(err));
+        nvs_close(language_nvs_handler);
+        return;
+    }
+    
+    err = nvs_commit(language_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error committing language changes: %s", esp_err_to_name(err));
+    } else {
+        ESP_LOGI(NVS_TAG,"Language saved to NVS: %s. \n", language);
+    }
+    
+    nvs_close(language_nvs_handler);
+}
+
+void init_language_nvs(void)
+{
+    if(!is_nvs_init)
+    {
+        ESP_LOGE(NVS_TAG,"NVS is not initialized. \n");
+        return;
+    }
+    
+    nvs_handle language_nvs_handler;
+    esp_err_t err = nvs_open("language", NVS_READWRITE, &language_nvs_handler);
+    if (err != ESP_OK) {
+        ESP_LOGE(NVS_TAG, "Error opening language NVS handle: %s", esp_err_to_name(err));
+        return;
+    }
+    
+    // 检查language键是否存在
+    size_t len = 12;
+    char language_value[len];
+    esp_err_t language_err = nvs_get_str(language_nvs_handler, "language", language_value, &len);
+    
+    if(language_err == ESP_ERR_NVS_NOT_FOUND) {
+        // 如果language不存在，设置默认值为"EN"
+        err = nvs_set_str(language_nvs_handler, "language", "EN");
+        if (err != ESP_OK) {
+            ESP_LOGE(NVS_TAG, "Error setting default language: %s", esp_err_to_name(err));
+        } else {
+            err = nvs_commit(language_nvs_handler);
+            if (err != ESP_OK) {
+                ESP_LOGE(NVS_TAG, "Error committing default language: %s", esp_err_to_name(err));
+            } else {
+                ESP_LOGI(NVS_TAG, "Default language 'EN' initialized successfully. \n");
+            }
+        }
+    } else if (language_err == ESP_OK) {
+        ESP_LOGI(NVS_TAG, "Language already exists: %s. \n", language_value);
+    } else {
+        ESP_LOGE(NVS_TAG, "Error reading language: %s", esp_err_to_name(language_err));
+    }
+    
+    nvs_close(language_nvs_handler);
 }

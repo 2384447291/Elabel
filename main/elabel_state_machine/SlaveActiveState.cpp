@@ -109,10 +109,16 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
     {
         EspNowClient::Instance()->stop_test_connecting_task();
         espnow_add_peer(get_global_data()->m_host_mac, NULL);
-        uint8_t temp_data = 0;
         esp_err_t ret; 
         do{
-            ret = EspNowClient::Instance()->send_message(&temp_data, 1, Slave2Host_Bind_Request_Http, get_global_data()->m_host_mac);
+            char language[12] = {0};
+            get_language_nvs_info(language);
+            uint8_t lang_len = strlen(language);
+            if(lang_len > 11) lang_len = 11; // 预留结尾符
+            uint8_t temp_data[1 + 12] = {0};
+            temp_data[0] = lang_len;
+            if(lang_len > 0) memcpy(&temp_data[1], language, lang_len);
+            ret = EspNowClient::Instance()->send_message(temp_data, 1 + lang_len, Slave2Host_Bind_Request_Http, get_global_data()->m_host_mac);
         }while(ret!=ESP_OK);
         
         vTaskDelay(1000 / portTICK_PERIOD_MS);

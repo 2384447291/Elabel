@@ -206,7 +206,7 @@ esp_err_t http_send(http_task_struct* m_task_struct)
             "%s\r\n"
 
             "--%s--\r\n",
-            m_boundary, DEVICE_MODEL, m_boundary, LANGUAGE, m_boundary);
+            m_boundary, DEVICE_MODEL, m_boundary, get_global_data()->m_device_info.language, m_boundary);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求

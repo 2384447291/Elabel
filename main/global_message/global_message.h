@@ -16,9 +16,8 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.34"
+#define FIRMWARE_VERSION "3.0.35"
 #define DEVICE_MODEL "R01C"
-#define LANGUAGE "EN"
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct 
@@ -66,6 +65,7 @@ typedef struct {
     uint8_t sound_volume;
     uint16_t sleep_time;
     bool is_strong_wake_up;
+    char language[12];
 } device_info;
 
 typedef struct {

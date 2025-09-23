@@ -116,6 +116,8 @@ void InitState::Execute(ElabelController* pOwner)
         if(!check_firmware_once)
         {
             check_firmware_once = true;
+            //获取设备设置项
+            http_find_device(true);
             //获取最新版本固件
             bool get_firmware_need_update = http_get_latest_version(true);
 
@@ -144,9 +146,6 @@ void InitState::Execute(ElabelController* pOwner)
 
         //获取任务列表  
         http_get_todo_list(true);
-
-        //获取设备设置项
-        http_find_device(true);
 
         //保存电源设置
         http_save_power(true,BatteryManager::Instance()->getBatteryLevelInt(),get_global_data()->m_mac_uint);
