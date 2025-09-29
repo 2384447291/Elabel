@@ -210,11 +210,23 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     // 解析 language (如: 00501010800300-zh)
                     memset(setting_info.language, 0, sizeof(setting_info.language));
                     const char *dash = strchr(setting_str, '-');
-                    if (dash != NULL && *(dash + 1) != '\0') {
+                    if (dash != NULL && *(dash + 1) != '\0') 
+                    {
                         // 拷贝 "-" 后的内容到 language，最多保留 11 字节并手动结尾
                         strncpy(setting_info.language, dash + 1, sizeof(setting_info.language) - 1);
                         setting_info.language[sizeof(setting_info.language) - 1] = '\0';
-                    } else {
+                        
+                        // 转换为大写 (en -> EN, En -> EN, EN -> EN)
+                        for (int i = 0; setting_info.language[i] != '\0'; i++) 
+                        {
+                            if (setting_info.language[i] >= 'a' && setting_info.language[i] <= 'z')
+                            {
+                                setting_info.language[i] = setting_info.language[i] - 'a' + 'A';
+                            }
+                        }
+                    } 
+                    else 
+                    {
                         ESP_LOGE("HTTP", "No language suffix found, setting default to EN");
                         strncpy(setting_info.language, "EN", sizeof(setting_info.language) - 1);
                         setting_info.language[sizeof(setting_info.language) - 1] = '\0';

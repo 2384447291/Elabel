@@ -362,7 +362,8 @@ void init_language_nvs(void)
     char language_value[len];
     esp_err_t language_err = nvs_get_str(language_nvs_handler, "language", language_value, &len);
     
-    if(language_err == ESP_ERR_NVS_NOT_FOUND) {
+    if(language_err == ESP_ERR_NVS_NOT_FOUND) 
+    {
         // 如果language不存在，设置默认值为"EN"
         err = nvs_set_str(language_nvs_handler, "language", "EN");
         if (err != ESP_OK) {
