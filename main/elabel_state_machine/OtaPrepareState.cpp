@@ -151,7 +151,10 @@ void OtaPrepareState::Execute(ElabelController* pOwner)
             reconnect_count_down-=5;
             lock_lvgl();
             char time_str[40];
-            sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+            lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+            sprintf(time_str, "%d", reconnect_count_down);
             set_text_without_change_font(ui_HostActiveAutoTime, time_str);
             release_lvgl();
         }
@@ -197,8 +200,11 @@ void OtaPrepareState::Execute(ElabelController* pOwner)
                 lv_obj_clear_state(ui_RetryCheckVersionButtonCancel, LV_STATE_PRESSED );
                 lv_obj_add_state(ui_RetryCheckVersionButtonRetry, LV_STATE_PRESSED );
             }
-            char* temp_content = lv_label_get_text(ui_NewFirmware);
-            set_text_without_change_font(ui_NewFirmware, temp_content);
+            //两种不需要ota的形式
+            char* temp_content1 = lv_label_get_text(ui_UpToDate);
+            set_text_without_change_font(ui_UpToDate, temp_content1);
+            char* temp_content2 = lv_label_get_text(ui_FailGetMsg);
+            set_text_without_change_font(ui_FailGetMsg, temp_content2);
             release_lvgl(); 
             need_flash_paper = false;          
         }        

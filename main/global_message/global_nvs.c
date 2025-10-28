@@ -296,7 +296,7 @@ void get_language_nvs_info(char *language)
     // 从NVS中获取language值
     size_t len = 10; // 假设语言代码最大长度为10
     char language_value[len];
-    esp_err_t language_err = nvs_get_str(language_nvs_handler, "language", language_value, &len);
+    esp_err_t language_err = nvs_get_str(language_nvs_handler, "m_language", language_value, &len);
 
     
     
@@ -325,7 +325,7 @@ void set_language_nvs_info(const char *language)
         return;
     }
     
-    err = nvs_set_str(language_nvs_handler, "language", language);
+    err = nvs_set_str(language_nvs_handler, "m_language", language);
     if (err != ESP_OK) {
         ESP_LOGE(NVS_TAG, "Error setting language: %s", esp_err_to_name(err));
         nvs_close(language_nvs_handler);
@@ -342,6 +342,7 @@ void set_language_nvs_info(const char *language)
     nvs_close(language_nvs_handler);
 }
 
+//这里和上面的resetnumber一样一般log不会跑到Language not found. Initialize to %s and write to NVS.因为所有烧代码都会跑两次才会到log阶段
 void init_language_nvs(void)
 {
     if(!is_nvs_init)
@@ -356,31 +357,31 @@ void init_language_nvs(void)
         ESP_LOGE(NVS_TAG, "Error opening language NVS handle: %s", esp_err_to_name(err));
         return;
     }
-    
-    // 检查language键是否存在
-    size_t len = 12;
-    char language_value[len];
-    esp_err_t language_err = nvs_get_str(language_nvs_handler, "language", language_value, &len);
-    
-    if(language_err == ESP_ERR_NVS_NOT_FOUND) 
+
+    char language_value[sizeof(get_global_data()->m_device_info.language)] = {0};
+    size_t len = sizeof(language_value);
+    err = nvs_get_str(language_nvs_handler, "m_language", language_value, &len);
+
+    if (err != ESP_OK) 
     {
-        // 如果language不存在，设置默认值为"EN"
-        err = nvs_set_str(language_nvs_handler, "language", "EN");
-        if (err != ESP_OK) {
-            ESP_LOGE(NVS_TAG, "Error setting default language: %s", esp_err_to_name(err));
-        } else {
-            err = nvs_commit(language_nvs_handler);
-            if (err != ESP_OK) {
-                ESP_LOGE(NVS_TAG, "Error committing default language: %s", esp_err_to_name(err));
-            } else {
-                ESP_LOGI(NVS_TAG, "Default language 'EN' initialized successfully. \n");
-            }
+        strcpy(get_global_data()->m_device_info.language, LANGUAGE);
+        ESP_LOGE(NVS_TAG, "Language not found. Initialize to %s and write to NVS. \n", LANGUAGE);
+        esp_err_t set_err = nvs_set_str(language_nvs_handler, "m_language", LANGUAGE);
+        if (set_err == ESP_OK) 
+        {
+            (void)nvs_commit(language_nvs_handler);
+        } 
+        else 
+        {
+            ESP_LOGE(NVS_TAG, "Error setting language to NVS: %s", esp_err_to_name(set_err));
         }
-    } else if (language_err == ESP_OK) {
-        ESP_LOGI(NVS_TAG, "Language already exists: %s. \n", language_value);
-    } else {
-        ESP_LOGE(NVS_TAG, "Error reading language: %s", esp_err_to_name(language_err));
-    }
-    
+    } 
+    else 
+    {
+        strncpy(get_global_data()->m_device_info.language, language_value, sizeof(get_global_data()->m_device_info.language) - 1);
+        get_global_data()->m_device_info.language[sizeof(get_global_data()->m_device_info.language) - 1] = '\0';
+        ESP_LOGI(NVS_TAG, "Language loaded from NVS: %s. \n", get_global_data()->m_device_info.language);
+    } 
+
     nvs_close(language_nvs_handler);
 }

@@ -150,11 +150,17 @@ public:
         
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
+        //可视化组件
+        lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
         set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
         char time_str[40];
-        sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+        sprintf(time_str, "%d", reconnect_count_down);
         set_text_without_change_font(ui_HostActiveAutoTime, time_str);
         release_lvgl();
     }
@@ -169,6 +175,8 @@ public:
         lock_lvgl();
 
         switch_screen(ui_HostActiveScreen);
+        lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
         set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
 
         button_ota_prepare_choose_left = true;
@@ -186,7 +194,12 @@ public:
         m_ota_prepare_process = ota_prepare_success_connect_wifi_process;
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
-        set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
+        lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+
+        lv_obj_clear_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
         release_lvgl();
         enter_decide_ota();
     }
@@ -210,9 +223,12 @@ public:
         //显示提示字
         lv_obj_clear_flag(ui_OTAWaitingGuide, LV_OBJ_FLAG_HIDDEN);
 
-        set_text_without_change_font(ui_NewFirmware, "Checking Update ...");
+        //显示正在检测更新
+        lv_obj_add_flag(ui_UpdAvailable, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_FailGetMsg, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_UpToDate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);  
 
-        set_text_without_change_font(ui_OTAWaitingGuide, "Please Waiting");
 
         char version_str[150];
         sprintf(version_str, "V %s--------->V ???", FIRMWARE_VERSION);
@@ -222,7 +238,7 @@ public:
 
         bool get_firmware_need_update = http_get_latest_version(true);
 
-        if(get_firmware_need_update && strlen(get_global_data()->m_newest_firmware_url) != 0)
+        if(get_firmware_need_update)
         {
             //如果firmware需要更新
             if(strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
@@ -252,8 +268,12 @@ public:
             lock_lvgl();
 
             switch_screen(ui_OTAScreen);
-
-            set_text_without_change_font(ui_NewFirmware, "Up to date");
+            
+            //显示已经是最新版本
+            lv_obj_add_flag(ui_UpdAvailable, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_FailGetMsg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_UpToDate, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
             char version_str[150];
             sprintf(version_str, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
@@ -279,7 +299,11 @@ public:
 
             switch_screen(ui_OTAScreen);
 
-            set_text_without_change_font(ui_NewFirmware, "Fail Get Update Data");
+            //显示获取更新数据失败
+            lv_obj_add_flag(ui_UpdAvailable, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_FailGetMsg, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_UpToDate, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
             char version_str[150];
             sprintf(version_str, "V %s--------->V ???", FIRMWARE_VERSION);
@@ -312,7 +336,11 @@ public:
 
         switch_screen(ui_OTAScreen);
 
-        set_text_without_change_font(ui_NewFirmware, "Update Available");
+        //显示更新可用
+        lv_obj_clear_flag(ui_UpdAvailable, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_FailGetMsg, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_UpToDate, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
         char version_change[150];
         sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);

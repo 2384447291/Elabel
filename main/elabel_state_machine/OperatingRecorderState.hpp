@@ -62,6 +62,7 @@ public:
 
         //中间文字显示
         lv_obj_clear_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         lv_obj_add_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
@@ -73,9 +74,10 @@ public:
         lv_obj_clear_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_RecordOperateDownText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_RecordOperateDownTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         char time_str[20];
-        sprintf(time_str, "%ds left", record_voice_countdown);
+        sprintf(time_str, "%d", record_voice_countdown);
         set_text_without_change_font(ui_RecordOperateMiddleText, time_str);
 
         release_lvgl();
@@ -106,6 +108,7 @@ public:
 
         //中间文字显示
         lv_obj_add_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         lv_obj_clear_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
@@ -117,6 +120,7 @@ public:
         lv_obj_add_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_RecordOperateDownText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_RecordOperateDownTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         //设置设定的时间
         char timestr[10] = "00:00";
@@ -150,6 +154,7 @@ public:
 
         //中间文字显示
         lv_obj_add_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         lv_obj_clear_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
@@ -161,10 +166,12 @@ public:
         lv_obj_clear_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
 
         lv_obj_clear_flag(ui_RecordOperateDownText, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_RecordOperateDownTextPadding, LV_OBJ_FLAG_HIDDEN);
 
         char time_str[30];
-        sprintf(time_str, "Auto start in %d secs", reconfirm_process_countdown);
+        sprintf(time_str, "%d", reconfirm_process_countdown);
         set_text_without_change_font(ui_RecordOperateDownText, time_str);
+        
 
         release_lvgl();
     }

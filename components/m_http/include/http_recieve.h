@@ -9,7 +9,7 @@
 #include "esp_mac.h"
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
-    // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
+    ESP_LOGI(HTTP_TAG, "Full response: %s", response);
     // 解析 JSON
     cJSON *json = cJSON_Parse(response);
     if (json == NULL) {
@@ -115,7 +115,8 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {   
        // 获取嵌套的 data 对象
         cJSON *data = cJSON_GetObjectItem(json, "data");
-        if (data != NULL && !cJSON_IsNull(data)) {
+        if (data != NULL && !cJSON_IsNull(data)) 
+        {
             const char *version = cJSON_GetStringValue(cJSON_GetObjectItem(data, "version"));
             const char *deviceModel = cJSON_GetStringValue(cJSON_GetObjectItem(data, "deviceModel"));
             const char *newest_firmware_url = cJSON_GetStringValue(cJSON_GetObjectItem(data, "firmwareUrl"));
@@ -126,7 +127,6 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             if (deviceModel) memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
             if (newest_firmware_url) memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
             if (createTime) memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-            if (language) memcpy(get_global_data()->m_language, language, strlen(language));
             if (content) memcpy(get_global_data()->m_content, content, strlen(content));
             ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION," 
                         "version is %s," 

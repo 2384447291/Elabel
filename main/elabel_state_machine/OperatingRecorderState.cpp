@@ -144,7 +144,7 @@ void OperatingRecorderState::Execute(ElabelController* pOwner)
                 record_voice_countdown--;
                 lock_lvgl();
                 char time_str[20];
-                sprintf(time_str, "%ds left", record_voice_countdown);
+                sprintf(time_str, "%d", record_voice_countdown);
                 set_text_without_change_font(ui_RecordOperateMiddleText, time_str);
                 release_lvgl();
             }
@@ -197,7 +197,7 @@ void OperatingRecorderState::Execute(ElabelController* pOwner)
             reconfirm_process_countdown--;
             lock_lvgl();
             char time_str[30];
-            sprintf(time_str, "Auto start in %d secs", reconfirm_process_countdown);
+            sprintf(time_str, "%d", reconfirm_process_countdown);
             set_text_without_change_font(ui_RecordOperateDownText, time_str);
             release_lvgl();
         }

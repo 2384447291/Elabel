@@ -22,16 +22,10 @@ public:
     void show_info()
     {
         //隐藏按键
-        lv_obj_add_flag(ui_OTA, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_Reboot, LV_OBJ_FLAG_HIDDEN);
-
-        //显示被按键遮挡的页表
-        lv_obj_clear_flag(ui_Messageguide, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_Message1, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_Message2, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_Message3, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_Message4, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(ui_Message5, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_ConnectionHost, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_ConnectionSlave, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_Power, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_Device, LV_OBJ_FLAG_HIDDEN);
 
         lv_arc_set_value(ui_Arc3, 100);
         lv_arc_set_bg_angles(ui_Arc3,0,36);
@@ -40,23 +34,22 @@ public:
     void flush_device_info()
     {
         show_info();
-        set_text_without_change_font(ui_Messageguide, "Device Info");
 
-        set_text_without_change_font(ui_Message1, "Name:Halfmind Reminder");
+        set_text_without_change_font(ui_Message1, "Halfmind Reminder");
 
-        char stringModel[40] = "Model:";
+        char stringModel[40] = "";
         strcat(stringModel, DEVICE_MODEL);
         set_text_without_change_font(ui_Message2, stringModel);
 
-        char stringFirmware[40] = "Firmware:";
+        char stringFirmware[40] = "";
         strcat(stringFirmware, FIRMWARE_VERSION);
         set_text_without_change_font(ui_Message3, stringFirmware);
 
-        char stringLanguage[40] = "Language:";
-        strcat(stringLanguage, get_global_data()->m_device_info.language);
+        char stringLanguage[40] = "";
+        strcat(stringLanguage, LANGUAGE);
         set_text_without_change_font(ui_Message4, stringLanguage);
 
-        char stringSN[40] = "SN:";
+        char stringSN[40] = "";
         strcat(stringSN, get_global_data()->m_mac_str);
         set_text_without_change_font(ui_Message5, stringSN);
     }

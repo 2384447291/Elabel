@@ -29,7 +29,6 @@ extern lv_obj_t * ui_ActiveScreen;
 extern lv_obj_t * ui_Panel2;
 extern lv_obj_t * ui_Activate1;
 extern lv_obj_t * ui_Activate2;
-extern lv_obj_t * ui_Activate3;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_ActiveScreen;
 
@@ -37,8 +36,6 @@ extern lv_obj_t * uic_ActiveScreen;
 void ui_OTAScreen_screen_init(void);
 extern lv_obj_t * ui_OTAScreen;
 extern lv_obj_t * ui_Container2;
-extern lv_obj_t * ui_NewFirmware;
-extern lv_obj_t * ui_NewFirmware2;
 extern lv_obj_t * ui_VersionChange;
 extern lv_obj_t * ui_OTAWaitingGuide;
 extern lv_obj_t * ui_scrollbar3;
@@ -50,9 +47,15 @@ extern lv_obj_t * ui_OTAButtonStart;
 extern lv_obj_t * ui_RetryCheckVersionButton;
 extern lv_obj_t * ui_RetryCheckVersionButtonCancel;
 extern lv_obj_t * ui_RetryCheckVersionButtonRetry;
+extern lv_obj_t * ui_UpToDate;
+extern lv_obj_t * ui_UpToDate1;
+extern lv_obj_t * ui_FailGetMsg;
+extern lv_obj_t * ui_FailGetMsg1;
+extern lv_obj_t * ui_CheckingUpd;
+extern lv_obj_t * ui_UpToDate2;
+extern lv_obj_t * ui_UpdAvailable;
+extern lv_obj_t * ui_UpdAvailable1;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_NewFirmware;
-extern lv_obj_t * uic_NewFirmware2;
 extern lv_obj_t * uic_VersionChange;
 extern lv_obj_t * uic_OTAWaitingGuide;
 extern lv_obj_t * uic_VersionChange;
@@ -60,6 +63,14 @@ extern lv_obj_t * uic_OTAButtonStart;
 extern lv_obj_t * uic_RetryCheckVersionButton;
 extern lv_obj_t * uic_HostActiveCancel;
 extern lv_obj_t * uic_RetryCheckVersionButtonRetry;
+extern lv_obj_t * uic_NewFirmware;
+extern lv_obj_t * uic_UpToDate2;
+extern lv_obj_t * uic_NewFirmware;
+extern lv_obj_t * uic_UpToDate2;
+extern lv_obj_t * uic_NewFirmware;
+extern lv_obj_t * uic_UpToDate2;
+extern lv_obj_t * uic_NewFirmware;
+extern lv_obj_t * uic_UpToDate2;
 
 // SCREEN: ui_TaskScreen
 void ui_TaskScreen_screen_init(void);
@@ -99,6 +110,7 @@ extern lv_obj_t * ui_NoOperateChooseButton;
 extern lv_obj_t * ui_NoOperateChooseCancel;
 extern lv_obj_t * ui_NoOperateChooseStart;
 extern lv_obj_t * ui_NoOperateAutoGuide;
+extern lv_obj_t * ui_NoOperateAutoGuidePading;
 extern lv_obj_t * ui_RecordOperate;
 extern lv_obj_t * ui_RecordOperateUpText;
 extern lv_obj_t * ui_Label9;
@@ -112,6 +124,8 @@ extern lv_obj_t * ui_RecordComfirmButton;
 extern lv_obj_t * ui_RecordComfirmCancel;
 extern lv_obj_t * ui_RecordComfirmFinish;
 extern lv_obj_t * ui_RecordOperateDownText;
+extern lv_obj_t * ui_RecordOperateMiddleTextPadding;
+extern lv_obj_t * ui_RecordOperateDownTextPadding;
 extern lv_obj_t * ui_TaskOperate;
 extern lv_obj_t * ui_TaskName;
 extern lv_obj_t * ui_Label3;
@@ -121,11 +135,13 @@ extern lv_obj_t * ui_TaskOperateAutoGuide;
 extern lv_obj_t * ui_TaskOperateButton;
 extern lv_obj_t * ui_TaskOperateCancel;
 extern lv_obj_t * ui_TaskOperateStart;
+extern lv_obj_t * ui_TaskOperateAutoGuidePading;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_OperatingScreen;
 extern lv_obj_t * uic_RecordOperateTime;
 extern lv_obj_t * uic_RecordOperateTime;
 extern lv_obj_t * uic_RecordComfirmFinish;
+extern lv_obj_t * uic_RecordOperateDownText;
 extern lv_obj_t * uic_RecordOperateDownText;
 
 // SCREEN: ui_UpdateScreen
@@ -133,11 +149,19 @@ void ui_UpdateScreen_screen_init(void);
 extern lv_obj_t * ui_UpdateScreen;
 extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_VersionnNmber;
-extern lv_obj_t * ui_Updating;
-extern lv_obj_t * ui_Updating2;
+extern lv_obj_t * ui_OTAUpdating;
+extern lv_obj_t * ui_OTAUpdating1;
+extern lv_obj_t * ui_OTASuccess;
+extern lv_obj_t * ui_OTASuccess1;
+extern lv_obj_t * ui_OTAFail;
+extern lv_obj_t * ui_OTAFail1;
 extern lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_VersionnNmber;
+extern lv_obj_t * uic_Updating;
+extern lv_obj_t * uic_Updating2;
+extern lv_obj_t * uic_Updating;
+extern lv_obj_t * uic_Updating2;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
 
@@ -157,10 +181,13 @@ extern lv_obj_t * uic_ShutdownGuide;
 void ui_HostActiveScreen_screen_init(void);
 extern lv_obj_t * ui_HostActiveScreen;
 extern lv_obj_t * ui_ConnectingWIFI;
-extern lv_obj_t * ui_HostActiveGuide1;
+extern lv_obj_t * ui_HostActiveGuide;
 extern lv_obj_t * ui_WIFIname;
 extern lv_obj_t * ui_Label2;
 extern lv_obj_t * ui_HostActiveAutoTime;
+extern lv_obj_t * ui_HostActiveAutoTimePanding;
+extern lv_obj_t * ui_HostActivateSuccess;
+extern lv_obj_t * ui_SlaveActiveGuide;
 extern lv_obj_t * ui_DisconnectWIFI;
 extern lv_obj_t * ui_HostActiveCancel;
 extern lv_obj_t * ui_Disconnectwifiname;
@@ -168,6 +195,8 @@ extern lv_obj_t * ui_Label4;
 extern lv_obj_t * ui_HostActiveRetry;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HostActiveScreen;
+extern lv_obj_t * uic_HostActiveAutoTime;
+extern lv_obj_t * uic_HostActiveAutoTime;
 extern lv_obj_t * uic_HostActiveAutoTime;
 extern lv_obj_t * uic_HostActiveCancel;
 extern lv_obj_t * uic_HostActiveRetry;
@@ -263,22 +292,41 @@ extern lv_obj_t * uic_NoFocusWarning;
 // SCREEN: ui_MessageScreen
 void ui_MessageScreen_screen_init(void);
 extern lv_obj_t * ui_MessageScreen;
-extern lv_obj_t * ui_Container1;
-extern lv_obj_t * ui_Messageguide;
-extern lv_obj_t * ui_Messageguide2;
 extern lv_obj_t * ui_scrollbar2;
 extern lv_obj_t * ui_Arc3;
+extern lv_obj_t * ui_Device;
 extern lv_obj_t * ui_Message1;
 extern lv_obj_t * ui_Message2;
 extern lv_obj_t * ui_Message3;
 extern lv_obj_t * ui_Message4;
-extern lv_obj_t * ui_OTA;
-extern lv_obj_t * ui_Reboot;
 extern lv_obj_t * ui_Message5;
+extern lv_obj_t * ui_Devideinfo;
+extern lv_obj_t * ui_ConnectionHost;
+extern lv_obj_t * ui_Message11;
+extern lv_obj_t * ui_Message12;
+extern lv_obj_t * ui_Message13;
+extern lv_obj_t * ui_Message14;
+extern lv_obj_t * ui_Message15;
+extern lv_obj_t * ui_ConnectionInfoHost;
+extern lv_obj_t * ui_ConnectionSlave;
+extern lv_obj_t * ui_Message111;
+extern lv_obj_t * ui_Message121;
+extern lv_obj_t * ui_Message131;
+extern lv_obj_t * ui_Message141;
+extern lv_obj_t * ui_Message151;
+extern lv_obj_t * ui_ConnectionInfoSlave;
+extern lv_obj_t * ui_Power;
+extern lv_obj_t * ui_Message21;
+extern lv_obj_t * ui_Message22;
+extern lv_obj_t * ui_Reboot;
+extern lv_obj_t * ui_OTA;
+extern lv_obj_t * ui_PowerInfo;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HalfmindScreen;
-extern lv_obj_t * uic_MessageGuide;
-extern lv_obj_t * uic_MessageGuide;
+extern lv_obj_t * uic_MessageFirmware;
+extern lv_obj_t * uic_MessageLanguage;
+extern lv_obj_t * uic_MessageFirmware;
+extern lv_obj_t * uic_MessageLanguage;
 extern lv_obj_t * uic_MessageFirmware;
 extern lv_obj_t * uic_MessageLanguage;
 extern lv_obj_t * uic_HostActiveCancel;
@@ -306,42 +354,74 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_halfmind_png);    // assets/halfmind.png
-LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
-LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
-LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
+LV_IMG_DECLARE(ui_img_activate1_ch_png);    // assets/Activate1_CH.png
+LV_IMG_DECLARE(ui_img_activate2_ch_png);    // assets/Activate2_CH.png
 LV_IMG_DECLARE(ui_img_scollarbar_png);    // assets/scollarbar.png
-LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
-LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
-LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
-LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
-LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
-LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
-LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
+LV_IMG_DECLARE(ui_img_cancel_n_ch_png);    // assets/cancel_n_CH.png
+LV_IMG_DECLARE(ui_img_cancel_y_ch_png);    // assets/cancel_y_CH.png
+LV_IMG_DECLARE(ui_img_start_n_ch_png);    // assets/start_n_CH.png
+LV_IMG_DECLARE(ui_img_start_y_ch_png);    // assets/start_y_CH.png
+LV_IMG_DECLARE(ui_img_retry_n_ch_png);    // assets/retry_n_CH.png
+LV_IMG_DECLARE(ui_img_retry_y_ch_png);    // assets/retry_y_CH.png
+LV_IMG_DECLARE(ui_img_seeyounexttime_ch_png);    // assets/seeyounexttime_CH.png
 LV_IMG_DECLARE(ui_img_tips1_png);    // assets/Tips1.png
 LV_IMG_DECLARE(ui_img_tips2_png);    // assets/Tips2.png
 LV_IMG_DECLARE(ui_img_tips3_png);    // assets/Tips3.png
-LV_IMG_DECLARE(ui_img_recordagain_png);    // assets/recordagain.png
-LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
-LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
+LV_IMG_DECLARE(ui_img_recordagain_ch_png);    // assets/recordagain_CH.png
+LV_IMG_DECLARE(ui_img_finish_y_ch_png);    // assets/finish_y_CH.png
+LV_IMG_DECLARE(ui_img_finish_n_ch_png);    // assets/finish_n_CH.png
 LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
-LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
-LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
-LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
-LV_IMG_DECLARE(ui_img_slaveactivatebad_png);    // assets/SlaveActivateBad.png
-LV_IMG_DECLARE(ui_img_slaveactivategood_png);    // assets/SlaveActivateGood.png
-LV_IMG_DECLARE(ui_img_slaveactivatetooclose_png);    // assets/SlaveActivateTooClose.png
-LV_IMG_DECLARE(ui_img_slave_activateloseconnection_png);    // assets/Slave ActivateLoseConnection.png
+LV_IMG_DECLARE(ui_img_disconnectwifi_ch_png);    // assets/disconnectwifi_CH.png
+LV_IMG_DECLARE(ui_img_hostactive_ch_png);    // assets/HostActive_CH.png
+LV_IMG_DECLARE(ui_img_accept_y_ch_png);    // assets/accept_y_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivatebad_ch_png);    // assets/SlaveActivateBad_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivategood_ch_png);    // assets/SlaveActivateGood_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivatetooclose_ch_png);    // assets/SlaveActivateTooClose_CH.png
+LV_IMG_DECLARE(ui_img_slave_activateloseconnection_ch_png);    // assets/Slave ActivateLoseConnection_CH.png
 LV_IMG_DECLARE(ui_img_timebar_png);    // assets/TimeBar.png
 LV_IMG_DECLARE(ui_img_fullbar_png);    // assets/FullBar.png
 LV_IMG_DECLARE(ui_img_record_slave_png);    // assets/record_slave.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
+LV_IMG_DECLARE(ui_img_devide_info_ch_png);    // assets/Devide_info_CH.png
+LV_IMG_DECLARE(ui_img_connecation_info_host_ch_png);    // assets/Connecation_info_host_CH.png
+LV_IMG_DECLARE(ui_img_connection_info_slave_ch_png);    // assets/Connection_Info_slave_CH.png
+LV_IMG_DECLARE(ui_img_rebootn_ch_png);    // assets/RebootN_CH.png
+LV_IMG_DECLARE(ui_img_rebooty_ch_png);    // assets/RebootY_CH.png
+LV_IMG_DECLARE(ui_img_otan_ch_png);    // assets/OTAN_CH.png
+LV_IMG_DECLARE(ui_img_otay_ch_png);    // assets/OTAY_CH.png
+LV_IMG_DECLARE(ui_img_power_info_ch_png);    // assets/Power_info_CH.png
+LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
+LV_IMG_DECLARE(ui_img_accept_n_ch_png);    // assets/accept_n_CH.png
+LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
+LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
+LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
+LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
+LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
+LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
+LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
+LV_IMG_DECLARE(ui_img_connecation_info_host_png);    // assets/Connecation_info_host.png
+LV_IMG_DECLARE(ui_img_connection_info_slave_png);    // assets/Connection_Info_slave.png
+LV_IMG_DECLARE(ui_img_devide_info_png);    // assets/Devide_info.png
+LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
+LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
+LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
+LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
 LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
+LV_IMG_DECLARE(ui_img_power_info_png);    // assets/Power_info.png
 LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
 LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
-LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
-LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
+LV_IMG_DECLARE(ui_img_recordagain_png);    // assets/recordagain.png
+LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
+LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
+LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
+LV_IMG_DECLARE(ui_img_slave_activateloseconnection_png);    // assets/Slave ActivateLoseConnection.png
+LV_IMG_DECLARE(ui_img_slaveactivatebad_png);    // assets/SlaveActivateBad.png
+LV_IMG_DECLARE(ui_img_slaveactivategood_png);    // assets/SlaveActivateGood.png
+LV_IMG_DECLARE(ui_img_slaveactivatetooclose_png);    // assets/SlaveActivateTooClose.png
+LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
+LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Chinese24);

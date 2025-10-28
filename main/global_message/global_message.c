@@ -259,10 +259,8 @@ Global_data* get_global_data() {
             instance->m_device_info.sound_volume = 80;
             instance->m_device_info.power = 0;
             instance->m_device_info.sleep_time = 0;
-            memset(instance->m_device_info.language, 0, sizeof(instance->m_device_info.language));
 
             memset(instance->m_newest_firmware_url, 0, sizeof(instance->m_newest_firmware_url));    
-            memset(instance->m_language, 0, sizeof(instance->m_language));
             memset(instance->m_content, 0, sizeof(instance->m_content));
             memset(instance->m_version, 0, sizeof(instance->m_version));
             memset(instance->m_deviceModel, 0, sizeof(instance->m_deviceModel));

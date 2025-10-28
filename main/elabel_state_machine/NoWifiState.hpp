@@ -46,9 +46,13 @@ public:
         lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
 
+        lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+
         set_text_without_change_font(ui_WIFIname, get_global_data()->m_wifi_ssid);
         char time_str[40];
-        sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+        sprintf(time_str, "%d", reconnect_count_down);
         set_text_without_change_font(ui_HostActiveAutoTime, time_str);
         release_lvgl();
     }
@@ -79,7 +83,11 @@ public:
     {
         no_wifi_process = No_wifi_success_connect_wifi_process;
         lock_lvgl();
-        set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
+
+        lv_obj_add_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+
         release_lvgl();
         need_forward = true;
     }

@@ -162,7 +162,7 @@ void OperatingTaskState::Execute(ElabelController* pOwner)
             task_reconfirm_countdown--;
             lock_lvgl();
             char time_str[30];
-            sprintf(time_str, "Auto start in %d secs", task_reconfirm_countdown);
+            sprintf(time_str, "%d", task_reconfirm_countdown);
             set_text_without_change_font(ui_TaskOperateAutoGuide, time_str);
             release_lvgl();
         }

@@ -43,9 +43,15 @@ public:
         no_host_process = No_host_connecting_host_process;
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_add_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
+
         lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
-        set_text_without_change_font(ui_HostActiveGuide1, "Connect to HOST");
+
+        lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
 
         char mac_str[18];
         uint8_t* mac = get_global_data()->m_host_mac;
@@ -53,7 +59,7 @@ public:
                 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         
         set_text_without_change_font(ui_WIFIname, mac_str);
-        set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
+        set_text_without_change_font(ui_HostActiveAutoTime, "30");
         reconnect_count_down = RECONNECT_COUNT_DOWN;
         release_lvgl();
     }
@@ -69,6 +75,8 @@ public:
 
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_add_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
         char mac_str[18];
         uint8_t* mac = get_global_data()->m_host_mac;
         snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X",
@@ -94,7 +102,11 @@ public:
         ESP_LOGI(ESP_NOW, "Get Host, set espnow channel to %d", actual_wifi_channel);
         no_host_process = No_host_success_connect_host_process;
         lock_lvgl();
-        set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
+
+        lv_obj_add_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+
         release_lvgl();
         need_forward = true;
     }

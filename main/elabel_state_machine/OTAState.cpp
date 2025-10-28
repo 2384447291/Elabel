@@ -24,7 +24,11 @@ void OTAState::Execute(ElabelController* pOwner)
         ESP_LOGI("OTA", "ESP_HTTPS_OTA upgrade successful. Rebooting ...");
         lock_lvgl();
         lv_bar_set_value(ui_Bar, 100, LV_ANIM_OFF);
-        set_text_without_change_font(ui_Updating,"OTA Success,Restart...");
+
+        lv_obj_clear_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_OTAUpdating, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_OTAFail, LV_OBJ_FLAG_HIDDEN);
+
         release_lvgl();        
         //等4s把字刷出来
         vTaskDelay(4000 / portTICK_PERIOD_MS);
@@ -34,7 +38,11 @@ void OTAState::Execute(ElabelController* pOwner)
     {
         lock_lvgl();
         lv_bar_set_value(ui_Bar, 0, LV_ANIM_OFF);
-        set_text_without_change_font(ui_Updating,"OTA Fail,Restart...");
+        
+        lv_obj_add_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_OTAUpdating, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_OTAFail, LV_OBJ_FLAG_HIDDEN);
+
         release_lvgl();
         //等4s把字刷出来
         vTaskDelay(4000 / portTICK_PERIOD_MS);
@@ -45,6 +53,9 @@ void OTAState::Execute(ElabelController* pOwner)
         if(elabelUpdateTick % 2000 == 0)
         {
             lock_lvgl();
+            lv_obj_add_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_OTAUpdating, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_OTAFail, LV_OBJ_FLAG_HIDDEN);
             lv_bar_set_value(ui_Bar, (int)get_ota_progress(), LV_ANIM_OFF);
             release_lvgl();
         }
