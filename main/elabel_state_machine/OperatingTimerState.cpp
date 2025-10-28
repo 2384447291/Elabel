@@ -169,7 +169,7 @@ void OperatingTimeState::Execute(ElabelController* pOwner)
             time_reconfirm_countdown--;
             lock_lvgl();
             char time_str[30];
-            sprintf(time_str, "Auto start in %d secs", time_reconfirm_countdown);
+            sprintf(time_str, "%d", time_reconfirm_countdown);
             set_text_without_change_font(ui_NoOperateAutoGuide, time_str);
             release_lvgl();
         }

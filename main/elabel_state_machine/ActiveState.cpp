@@ -10,8 +10,6 @@ void change_guide_page(uint8_t page)
     lock_lvgl();
     lv_obj_add_flag(ui_Activate1, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(ui_Activate2, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(ui_Activate3, LV_OBJ_FLAG_HIDDEN);
-    
     switch(page)    
     {
         case 0:
@@ -20,9 +18,7 @@ void change_guide_page(uint8_t page)
         case 1:
             lv_obj_clear_flag(ui_Activate2, LV_OBJ_FLAG_HIDDEN);
             break;
-        case 2:
-            lv_obj_clear_flag(ui_Activate3, LV_OBJ_FLAG_HIDDEN);
-            break;
+
         default:
             break;
     }
@@ -31,14 +27,14 @@ void change_guide_page(uint8_t page)
 
 void move_to_next_page()
 {
-    ActiveState::Instance()->m_active_page = (ActiveState::Instance()->m_active_page + 1) % 3;
+    ActiveState::Instance()->m_active_page = (ActiveState::Instance()->m_active_page + 1) % 2;
     change_guide_page(ActiveState::Instance()->m_active_page);
 }
 
 void move_to_previous_page()
 {
     
-    ActiveState::Instance()->m_active_page = (ActiveState::Instance()->m_active_page - 1 + 3) % 3;
+    ActiveState::Instance()->m_active_page = (ActiveState::Instance()->m_active_page - 1 + 2) % 2;
     change_guide_page(ActiveState::Instance()->m_active_page);
 }
 

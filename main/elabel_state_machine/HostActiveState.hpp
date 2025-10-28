@@ -43,6 +43,8 @@ public:
 
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
 
         lv_obj_clear_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
@@ -50,9 +52,14 @@ public:
         lv_obj_add_state(ui_HostActiveCancel, LV_STATE_PRESSED );
         lv_obj_clear_state(ui_HostActiveRetry, LV_STATE_PRESSED );
 
-        set_text_without_change_font(ui_WIFIname, "Waiting...");
-        set_text_without_change_font(ui_Disconnectwifiname, "Waiting...");
-        set_text_without_change_font(ui_HostActiveAutoTime, "Timeout in 30 secs");
+        set_text_without_change_font(ui_WIFIname, ".  .  .  .  .  .");
+        set_text_without_change_font(ui_Disconnectwifiname, ".  .  .  .  .  .");
+
+        lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+
+        set_text_without_change_font(ui_HostActiveAutoTime, "30");
 
         release_lvgl();
     }
@@ -78,6 +85,9 @@ public:
 
         lock_lvgl();
         switch_screen(ui_HostActiveScreen);
+        lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
+        
         set_text_without_change_font(ui_Disconnectwifiname, get_global_data()->m_wifi_ssid);
         lv_obj_add_flag(ui_ConnectingWIFI, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_DisconnectWIFI, LV_OBJ_FLAG_HIDDEN);
@@ -91,7 +101,9 @@ public:
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         host_active_process = Hostactive_success_connect_wifi_process;
         lock_lvgl();
-        set_text_without_change_font(ui_HostActiveAutoTime, "Success!!!");
+        lv_obj_add_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
         release_lvgl();
         //等待2000ms连接稳定和token接收
         vTaskDelay(2000 / portTICK_PERIOD_MS);

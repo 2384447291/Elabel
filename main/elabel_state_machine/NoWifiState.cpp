@@ -35,6 +35,8 @@ void NoWifiState::Enter(ElabelController* pOwner)
 {
     lock_lvgl();
     switch_screen(ui_HostActiveScreen);
+    lv_obj_clear_flag(ui_HostActiveGuide, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_SlaveActiveGuide, LV_OBJ_FLAG_HIDDEN);
     release_lvgl();
 
     no_wifi_process = default_No_wifi_process;
@@ -63,7 +65,10 @@ void NoWifiState::Execute(ElabelController* pOwner)
             reconnect_count_down-=5;
             lock_lvgl();
             char time_str[40];
-            sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+            lv_obj_clear_flag(ui_HostActiveAutoTime, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_HostActiveAutoTimePanding, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_HostActivateSuccess, LV_OBJ_FLAG_HIDDEN);
+            sprintf(time_str, "%d", reconnect_count_down);
             set_text_without_change_font(ui_HostActiveAutoTime, time_str);
             release_lvgl();
         }

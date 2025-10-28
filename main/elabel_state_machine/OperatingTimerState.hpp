@@ -60,6 +60,7 @@ public:
         lv_obj_add_state(ui_NoOperateChooseStart, LV_STATE_PRESSED );
 
         lv_obj_add_flag(ui_NoOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_NoOperateAutoGuidePading, LV_OBJ_FLAG_HIDDEN);
 
         //设置设定的时间
         char timestr[10] = "00:00";
@@ -89,9 +90,10 @@ public:
         lv_obj_clear_state(ui_NoOperateChooseStart, LV_STATE_PRESSED );
 
         lv_obj_clear_flag(ui_NoOperateAutoGuide, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_NoOperateAutoGuidePading, LV_OBJ_FLAG_HIDDEN);
 
         char time_str[30];
-        sprintf(time_str, "Auto start in %d secs", time_reconfirm_countdown);
+        sprintf(time_str, "%d", time_reconfirm_countdown);
         set_text_without_change_font(ui_NoOperateAutoGuide, time_str);
         release_lvgl();
     }

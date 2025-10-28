@@ -16,8 +16,9 @@
 #define MQTT_PASSWORD "dspro123.." 
 
 #define MAX_SLAVE_NUM 6
-#define FIRMWARE_VERSION "3.0.35"
+#define FIRMWARE_VERSION "3.0.36"
 #define DEVICE_MODEL "R01C"
+#define LANGUAGE "CH"
 
 //--------------------------------------Focus 对应的结构体--------------------------------------//
 typedef struct 
@@ -139,7 +140,6 @@ typedef struct
 
     //查询的最新版本号
     char m_newest_firmware_url[100];
-    char m_language[100];
     char m_content[1024];
     char m_version[100];
     char m_deviceModel[100];

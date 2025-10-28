@@ -116,7 +116,6 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_width(ui_RecordFocus, 250);
     lv_obj_set_height(ui_RecordFocus, 122);
     lv_obj_set_align(ui_RecordFocus, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_RecordFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_RecordFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_RecordFocus1 = lv_obj_create(ui_RecordFocus);
@@ -204,7 +203,6 @@ void ui_FocusScreen_screen_init(void)
     lv_obj_set_width(ui_NoFocus, 250);
     lv_obj_set_height(ui_NoFocus, 122);
     lv_obj_set_align(ui_NoFocus, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoFocus, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoFocus, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_NoFocusTime = lv_label_create(ui_NoFocus);

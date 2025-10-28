@@ -24,7 +24,7 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_Panel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Activate1 = lv_img_create(ui_Panel2);
-    lv_img_set_src(ui_Activate1, &ui_img_activate1_png);
+    lv_img_set_src(ui_Activate1, &ui_img_activate1_ch_png);
     lv_obj_set_width(ui_Activate1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Activate1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Activate1, LV_ALIGN_CENTER);
@@ -32,20 +32,12 @@ void ui_ActiveScreen_screen_init(void)
     lv_obj_clear_flag(ui_Activate1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Activate2 = lv_img_create(ui_Panel2);
-    lv_img_set_src(ui_Activate2, &ui_img_activate2_png);
+    lv_img_set_src(ui_Activate2, &ui_img_activate2_ch_png);
     lv_obj_set_width(ui_Activate2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Activate2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Activate2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Activate2, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_Activate2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
-    ui_Activate3 = lv_img_create(ui_Panel2);
-    lv_img_set_src(ui_Activate3, &ui_img_activate3_png);
-    lv_obj_set_width(ui_Activate3, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Activate3, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Activate3, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_Activate3, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
-    lv_obj_clear_flag(ui_Activate3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     uic_ActiveScreen = ui_ActiveScreen;
 
