@@ -119,10 +119,13 @@ void InitState::Execute(ElabelController* pOwner)
             //获取设备设置项
             http_find_device(true);
             //获取最新版本固件
-            bool get_firmware_need_update = http_get_latest_version(true);
+            bool get_firmware_need_update = http_get_latest_version(DEVICE_MODEL, get_global_data()->m_device_info.language, true);
 
             //如果判断为需要OTA
-            if(get_firmware_need_update && strlen(get_global_data()->m_newest_firmware_url) != 0 && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+            if(get_firmware_need_update 
+                && strlen(get_global_data()->m_newest_firmware_url) != 0 
+                && strcmp(get_global_data()->m_device_info.language, LANGUAGE) == 0
+                && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
             {
                 need_enter_ota = true;
             }
@@ -176,13 +179,13 @@ void InitState::Execute(ElabelController* pOwner)
         {
             check_firmware_once = true;
 
-            //获取wifi
+            //获取设备设置项
+            EspNowSlave::Instance()->slave_send_espnow_http_get_device_info();
+            //获取最新版本固件
             esp_err_t ret = EspNowSlave::Instance()->slave_send_espnow_http_get_wifi_info();
             //等待2s收到反馈
             vTaskDelay(2000 / portTICK_PERIOD_MS);
-            //如果判断为需要OTA
 
-            // 复制并准备版本字符串
             char version_str[32] = {0};
             char firmware_str[32] = {0};
 
@@ -193,7 +196,8 @@ void InitState::Execute(ElabelController* pOwner)
 
             int cmp = compare_version_str(version_str, firmware_str);
             
-            if(ret == ESP_OK && cmp < 0)
+            if((ret == ESP_OK && cmp < 0) 
+            || (strcmp(get_global_data()->m_device_info.language, LANGUAGE) != 0))
             {
                 need_enter_ota = true;
             }
@@ -214,9 +218,6 @@ void InitState::Execute(ElabelController* pOwner)
         
         //获取任务列表
         EspNowSlave::Instance()->slave_send_espnow_http_get_todo_list();
-
-        //获取设备设置项
-        EspNowSlave::Instance()->slave_send_espnow_http_get_device_info();
 
         //获取挂墙时间
         EspNowSlave::Instance()->slave_send_espnow_http_get_time();

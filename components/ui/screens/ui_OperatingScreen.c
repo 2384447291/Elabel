@@ -80,7 +80,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_width(ui_NoOperateAutoGuide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoOperateAutoGuide, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_NoOperateAutoGuide, -71);
-    lv_obj_set_y(ui_NoOperateAutoGuide, 24);
+    lv_obj_set_y(ui_NoOperateAutoGuide, 28);
     lv_obj_set_align(ui_NoOperateAutoGuide, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NoOperateAutoGuide, "3 ");
     lv_obj_set_style_text_font(ui_NoOperateAutoGuide, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -88,8 +88,8 @@ void ui_OperatingScreen_screen_init(void)
     ui_NoOperateAutoGuidePading = lv_label_create(ui_NoOperate);
     lv_obj_set_width(ui_NoOperateAutoGuidePading, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoOperateAutoGuidePading, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_NoOperateAutoGuidePading, 13);
-    lv_obj_set_y(ui_NoOperateAutoGuidePading, 24);
+    lv_obj_set_x(ui_NoOperateAutoGuidePading, 11);
+    lv_obj_set_y(ui_NoOperateAutoGuidePading, 29);
     lv_obj_set_align(ui_NoOperateAutoGuidePading, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NoOperateAutoGuidePading, "秒后自动开始");
     lv_obj_set_style_text_font(ui_NoOperateAutoGuidePading, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -163,12 +163,13 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_RecordOperateButton, 0);
     lv_obj_set_y(ui_RecordOperateButton, 40);
     lv_obj_set_align(ui_RecordOperateButton, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_RecordOperateButton, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_RecordOperateButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_border_color(ui_RecordOperateButton, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_RecordOperateButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Image8 = lv_img_create(ui_RecordOperateButton);
-    lv_img_set_src(ui_Image8, &ui_img_finish_y_ch_png);
+    lv_img_set_src(ui_Image8, &ui_img_finish_y_png);
     lv_obj_set_width(ui_Image8, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Image8, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Image8, LV_ALIGN_CENTER);

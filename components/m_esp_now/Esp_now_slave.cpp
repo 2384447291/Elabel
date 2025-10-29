@@ -302,8 +302,12 @@ esp_err_t EspNowSlave::slave_send_espnow_http_out_focus_task(focus_message_t foc
 
 esp_err_t EspNowSlave::slave_send_espnow_http_get_wifi_info()
 {
-    uint8_t temp_data = 0;
-    esp_err_t ret = send_message(&temp_data, 1, Slave2Host_Get_Wifi_Info_Request_Http);
+    uint8_t lang_len = strlen(get_global_data()->m_device_info.language);
+    uint8_t temp_data[1 +  lang_len];
+    temp_data[0] = lang_len;
+    memcpy(&temp_data[1], get_global_data()->m_device_info.language, lang_len);
+
+    esp_err_t ret = send_message(temp_data, sizeof(temp_data), Slave2Host_Get_Wifi_Info_Request_Http);
     if(ret != ESP_OK)
     {
         ESP_LOGE(ESP_NOW, "Slave send get wifi info request message failed");

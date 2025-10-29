@@ -68,19 +68,19 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_clear_flag(ui_Device, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Message1 = lv_label_create(ui_Device);
-    lv_obj_set_height(ui_Message1, 15);
     lv_obj_set_width(ui_Message1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_x(ui_Message1, 79);
-    lv_obj_set_y(ui_Message1, -27);
+    lv_obj_set_height(ui_Message1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message1, 51);
+    lv_obj_set_y(ui_Message1, -26);
     lv_obj_set_align(ui_Message1, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message1, "Halfmind Reminder");
     lv_obj_set_style_text_align(ui_Message1, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message2 = lv_label_create(ui_Device);
-    lv_obj_set_width(ui_Message2, 133);
-    lv_obj_set_height(ui_Message2, 15);
-    lv_obj_set_x(ui_Message2, 79);
+    lv_obj_set_width(ui_Message2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message2, 47);
     lv_obj_set_y(ui_Message2, -9);
     lv_obj_set_align(ui_Message2, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message2, "R01A");
@@ -88,29 +88,29 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_Message2, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message3 = lv_label_create(ui_Device);
-    lv_obj_set_width(ui_Message3, 133);
-    lv_obj_set_height(ui_Message3, 15);
-    lv_obj_set_x(ui_Message3, 79);
-    lv_obj_set_y(ui_Message3, 7);
+    lv_obj_set_width(ui_Message3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message3, 48);
+    lv_obj_set_y(ui_Message3, 8);
     lv_obj_set_align(ui_Message3, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message3, "1.0.4");
     lv_obj_set_style_text_align(ui_Message3, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message3, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message4 = lv_label_create(ui_Device);
-    lv_obj_set_width(ui_Message4, 133);
-    lv_obj_set_height(ui_Message4, 15);
-    lv_obj_set_x(ui_Message4, 79);
-    lv_obj_set_y(ui_Message4, 24);
+    lv_obj_set_width(ui_Message4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message4, 52);
+    lv_obj_set_y(ui_Message4, 25);
     lv_obj_set_align(ui_Message4, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message4, "English");
     lv_obj_set_style_text_align(ui_Message4, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message4, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message5 = lv_label_create(ui_Device);
-    lv_obj_set_width(ui_Message5, 133);
-    lv_obj_set_height(ui_Message5, 15);
-    lv_obj_set_x(ui_Message5, 79);
+    lv_obj_set_width(ui_Message5, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message5, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message5, 51);
     lv_obj_set_y(ui_Message5, 41);
     lv_obj_set_align(ui_Message5, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message5, "12:34:56:78:90");
@@ -138,50 +138,50 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_clear_flag(ui_ConnectionHost, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Message11 = lv_label_create(ui_ConnectionHost);
-    lv_obj_set_width(ui_Message11, 133);
-    lv_obj_set_height(ui_Message11, 15);
-    lv_obj_set_x(ui_Message11, 80);
-    lv_obj_set_y(ui_Message11, -28);
+    lv_obj_set_width(ui_Message11, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message11, 65);
+    lv_obj_set_y(ui_Message11, -26);
     lv_obj_set_align(ui_Message11, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message11, "Ethan");
     lv_obj_set_style_text_align(ui_Message11, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message11, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message12 = lv_label_create(ui_ConnectionHost);
-    lv_obj_set_width(ui_Message12, 133);
-    lv_obj_set_height(ui_Message12, 15);
-    lv_obj_set_x(ui_Message12, 79);
-    lv_obj_set_y(ui_Message12, -10);
+    lv_obj_set_width(ui_Message12, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message12, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message12, 47);
+    lv_obj_set_y(ui_Message12, -8);
     lv_obj_set_align(ui_Message12, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message12, "HUAWEI-AX3");
     lv_obj_set_style_text_align(ui_Message12, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message12, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message13 = lv_label_create(ui_ConnectionHost);
-    lv_obj_set_width(ui_Message13, 133);
-    lv_obj_set_height(ui_Message13, 15);
-    lv_obj_set_x(ui_Message13, 79);
-    lv_obj_set_y(ui_Message13, 6);
+    lv_obj_set_width(ui_Message13, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message13, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message13, 75);
+    lv_obj_set_y(ui_Message13, 8);
     lv_obj_set_align(ui_Message13, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message13, "3D 2H 12M");
     lv_obj_set_style_text_align(ui_Message13, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message13, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message14 = lv_label_create(ui_ConnectionHost);
-    lv_obj_set_width(ui_Message14, 133);
-    lv_obj_set_height(ui_Message14, 15);
-    lv_obj_set_x(ui_Message14, 79);
-    lv_obj_set_y(ui_Message14, 24);
+    lv_obj_set_width(ui_Message14, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message14, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message14, 51);
+    lv_obj_set_y(ui_Message14, 26);
     lv_obj_set_align(ui_Message14, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message14, "Host");
     lv_obj_set_style_text_align(ui_Message14, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message14, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message15 = lv_label_create(ui_ConnectionHost);
-    lv_obj_set_width(ui_Message15, 133);
-    lv_obj_set_height(ui_Message15, 15);
-    lv_obj_set_x(ui_Message15, 79);
-    lv_obj_set_y(ui_Message15, 41);
+    lv_obj_set_width(ui_Message15, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message15, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message15, 87);
+    lv_obj_set_y(ui_Message15, 43);
     lv_obj_set_align(ui_Message15, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message15, "3");
     lv_obj_set_style_text_align(ui_Message15, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -207,50 +207,50 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_clear_flag(ui_ConnectionSlave, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Message111 = lv_label_create(ui_ConnectionSlave);
-    lv_obj_set_width(ui_Message111, 133);
-    lv_obj_set_height(ui_Message111, 15);
-    lv_obj_set_x(ui_Message111, 80);
-    lv_obj_set_y(ui_Message111, -28);
+    lv_obj_set_width(ui_Message111, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message111, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message111, 65);
+    lv_obj_set_y(ui_Message111, -26);
     lv_obj_set_align(ui_Message111, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message111, "Ethan");
     lv_obj_set_style_text_align(ui_Message111, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message111, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message121 = lv_label_create(ui_ConnectionSlave);
-    lv_obj_set_width(ui_Message121, 133);
-    lv_obj_set_height(ui_Message121, 15);
-    lv_obj_set_x(ui_Message121, 79);
-    lv_obj_set_y(ui_Message121, -10);
+    lv_obj_set_width(ui_Message121, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message121, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message121, 47);
+    lv_obj_set_y(ui_Message121, -8);
     lv_obj_set_align(ui_Message121, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message121, "HUAWEI-AX3");
     lv_obj_set_style_text_align(ui_Message121, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message121, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message131 = lv_label_create(ui_ConnectionSlave);
-    lv_obj_set_width(ui_Message131, 133);
-    lv_obj_set_height(ui_Message131, 15);
-    lv_obj_set_x(ui_Message131, 79);
-    lv_obj_set_y(ui_Message131, 6);
+    lv_obj_set_width(ui_Message131, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message131, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message131, 75);
+    lv_obj_set_y(ui_Message131, 8);
     lv_obj_set_align(ui_Message131, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message131, "3D 2H 12M");
     lv_obj_set_style_text_align(ui_Message131, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message131, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message141 = lv_label_create(ui_ConnectionSlave);
-    lv_obj_set_width(ui_Message141, 133);
-    lv_obj_set_height(ui_Message141, 15);
-    lv_obj_set_x(ui_Message141, 79);
-    lv_obj_set_y(ui_Message141, 24);
+    lv_obj_set_width(ui_Message141, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message141, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message141, 51);
+    lv_obj_set_y(ui_Message141, 26);
     lv_obj_set_align(ui_Message141, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message141, "Host");
     lv_obj_set_style_text_align(ui_Message141, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message141, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message151 = lv_label_create(ui_ConnectionSlave);
-    lv_obj_set_width(ui_Message151, 133);
-    lv_obj_set_height(ui_Message151, 15);
-    lv_obj_set_x(ui_Message151, 79);
-    lv_obj_set_y(ui_Message151, 41);
+    lv_obj_set_width(ui_Message151, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message151, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message151, 87);
+    lv_obj_set_y(ui_Message151, 43);
     lv_obj_set_align(ui_Message151, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message151, "3");
     lv_obj_set_style_text_align(ui_Message151, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -277,20 +277,20 @@ void ui_MessageScreen_screen_init(void)
     lv_obj_clear_flag(ui_Power, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_Message21 = lv_label_create(ui_Power);
-    lv_obj_set_width(ui_Message21, 133);
-    lv_obj_set_height(ui_Message21, 15);
+    lv_obj_set_width(ui_Message21, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message21, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Message21, 79);
-    lv_obj_set_y(ui_Message21, -26);
+    lv_obj_set_y(ui_Message21, -25);
     lv_obj_set_align(ui_Message21, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message21, "Disconnected");
     lv_obj_set_style_text_align(ui_Message21, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Message21, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Message22 = lv_label_create(ui_Power);
-    lv_obj_set_width(ui_Message22, 133);
-    lv_obj_set_height(ui_Message22, 15);
-    lv_obj_set_x(ui_Message22, 79);
-    lv_obj_set_y(ui_Message22, -9);
+    lv_obj_set_width(ui_Message22, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Message22, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Message22, 78);
+    lv_obj_set_y(ui_Message22, -8);
     lv_obj_set_align(ui_Message22, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_Message22, "32%");
     lv_obj_set_style_text_align(ui_Message22, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);

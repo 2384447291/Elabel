@@ -70,7 +70,7 @@ extern "C" {
 
 void http_client_init(void);
 
-bool http_get_latest_version(bool need_stuck);
+bool http_get_latest_version(char* deviceModel,char* language,bool need_stuck);
 
 bool http_add_to_do(char *title, char*todoType, bool need_stuck);
 

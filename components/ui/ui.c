@@ -149,18 +149,18 @@ lv_obj_t * ui_Panel8;
 lv_obj_t * ui_VersionnNmber;
 lv_obj_t * ui_OTAUpdating;
 lv_obj_t * ui_OTAUpdating1;
+lv_obj_t * ui_Bar;
 lv_obj_t * ui_OTASuccess;
 lv_obj_t * ui_OTASuccess1;
 lv_obj_t * ui_OTAFail;
 lv_obj_t * ui_OTAFail1;
-lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 lv_obj_t * uic_VersionnNmber;
 lv_obj_t * uic_Updating;
 lv_obj_t * uic_Updating2;
 lv_obj_t * uic_Updating;
 lv_obj_t * uic_Updating2;
-lv_obj_t * uic_Updating;
+lv_obj_t * uic_OTAFail;
 lv_obj_t * uic_Updating2;
 
 
@@ -211,7 +211,7 @@ lv_obj_t * ui_Label6;
 lv_obj_t * ui_SlaveActiveCancel;
 lv_obj_t * ui_SlaveActiveConfirm;
 lv_obj_t * ui_TestConnecting;
-lv_obj_t * ui_ConnectGuide1;
+lv_obj_t * ui_ConnectGuide;
 lv_obj_t * ui_Label10;
 lv_obj_t * ui_SlaveActivateAccept;
 lv_obj_t * ui_SlaveActivateRetry;
@@ -219,6 +219,8 @@ lv_obj_t * ui_SlaveActivateBad;
 lv_obj_t * ui_SlaveActivateGood;
 lv_obj_t * ui_SlaveActivateTooClose;
 lv_obj_t * ui_SlaveActivateLoseConnection;
+lv_obj_t * ui_ConnectSuccess;
+lv_obj_t * ui_Label11;
 // CUSTOM VARIABLES
 lv_obj_t * uic_SlaveActiveScreen;
 lv_obj_t * uic_HostActiveCancel;

@@ -15,6 +15,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_height(ui_ConnectingHost, 122);
     lv_obj_set_x(ui_ConnectingHost, 0);
     lv_obj_set_y(ui_ConnectingHost, -1);
+    lv_obj_add_flag(ui_ConnectingHost, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_ConnectingHost, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_ConnectingHost, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_ConnectingHost, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -30,7 +31,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_y(ui_Username, -12);
     lv_obj_set_align(ui_Username, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Username, "FUCK");
-    lv_obj_set_style_text_font(ui_Username, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Username, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label6 = lv_label_create(ui_Username);
     lv_obj_set_width(ui_Label6, LV_SIZE_CONTENT);   /// 1
@@ -39,6 +40,7 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_y(ui_Label6, 0);
     lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label6, "FUCK");
+    lv_obj_set_style_text_font(ui_Label6, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SlaveActiveCancel = lv_imgbtn_create(ui_ConnectingHost);
     lv_imgbtn_set_src(ui_SlaveActiveCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
@@ -62,7 +64,6 @@ void ui_SlaveActiveScreen_screen_init(void)
     ui_TestConnecting = lv_obj_create(ui_SlaveActiveScreen);
     lv_obj_set_width(ui_TestConnecting, 250);
     lv_obj_set_height(ui_TestConnecting, 122);
-    lv_obj_add_flag(ui_TestConnecting, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_TestConnecting, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_TestConnecting, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_TestConnecting, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -70,16 +71,17 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_style_border_color(ui_TestConnecting, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_TestConnecting, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ConnectGuide1 = lv_label_create(ui_TestConnecting);
-    lv_obj_set_width(ui_ConnectGuide1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ConnectGuide1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_ConnectGuide1, 0);
-    lv_obj_set_y(ui_ConnectGuide1, -40);
-    lv_obj_set_align(ui_ConnectGuide1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_ConnectGuide1, "部署你的Reminder");
-    lv_obj_set_style_text_font(ui_ConnectGuide1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_ConnectGuide = lv_label_create(ui_TestConnecting);
+    lv_obj_set_width(ui_ConnectGuide, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ConnectGuide, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ConnectGuide, 0);
+    lv_obj_set_y(ui_ConnectGuide, -40);
+    lv_obj_set_align(ui_ConnectGuide, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ConnectGuide, "部署你的Reminder");
+    lv_obj_add_flag(ui_ConnectGuide, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_set_style_text_font(ui_ConnectGuide, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label10 = lv_label_create(ui_ConnectGuide1);
+    ui_Label10 = lv_label_create(ui_ConnectGuide);
     lv_obj_set_width(ui_Label10, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label10, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label10, 1);
@@ -139,6 +141,24 @@ void ui_SlaveActiveScreen_screen_init(void)
     lv_obj_set_align(ui_SlaveActivateLoseConnection, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_SlaveActivateLoseConnection, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_ConnectSuccess = lv_label_create(ui_TestConnecting);
+    lv_obj_set_width(ui_ConnectSuccess, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ConnectSuccess, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ConnectSuccess, 0);
+    lv_obj_set_y(ui_ConnectSuccess, -40);
+    lv_obj_set_align(ui_ConnectSuccess, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ConnectSuccess, "成功部署,重启中");
+    lv_obj_set_style_text_font(ui_ConnectSuccess, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label11 = lv_label_create(ui_ConnectSuccess);
+    lv_obj_set_width(ui_Label11, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label11, 1);
+    lv_obj_set_y(ui_Label11, 0);
+    lv_obj_set_align(ui_Label11, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label11, "成功部署,重启中");
+    lv_obj_set_style_text_font(ui_Label11, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_SlaveActiveScreen = ui_SlaveActiveScreen;
     uic_HostActiveCancel = ui_SlaveActiveCancel;

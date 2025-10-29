@@ -29,8 +29,9 @@ images/ui_img_tips1_png.c
 images/ui_img_tips2_png.c
 images/ui_img_tips3_png.c
 images/ui_img_recordagain_ch_png.c
-images/ui_img_finish_y_ch_png.c
+images/ui_img_finish_y_png.c
 images/ui_img_finish_n_ch_png.c
+images/ui_img_finish_y_ch_png.c
 images/ui_img_battery_png.c
 images/ui_img_disconnectwifi_ch_png.c
 images/ui_img_hostactive_ch_png.c
@@ -66,7 +67,6 @@ images/ui_img_connection_info_slave_png.c
 images/ui_img_devide_info_png.c
 images/ui_img_disconnectwifi_png.c
 images/ui_img_finish_n_png.c
-images/ui_img_finish_y_png.c
 images/ui_img_hostactive_png.c
 images/ui_img_otan_png.c
 images/ui_img_otay_png.c

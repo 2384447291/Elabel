@@ -151,18 +151,18 @@ extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_VersionnNmber;
 extern lv_obj_t * ui_OTAUpdating;
 extern lv_obj_t * ui_OTAUpdating1;
+extern lv_obj_t * ui_Bar;
 extern lv_obj_t * ui_OTASuccess;
 extern lv_obj_t * ui_OTASuccess1;
 extern lv_obj_t * ui_OTAFail;
 extern lv_obj_t * ui_OTAFail1;
-extern lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_VersionnNmber;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
-extern lv_obj_t * uic_Updating;
+extern lv_obj_t * uic_OTAFail;
 extern lv_obj_t * uic_Updating2;
 
 // SCREEN: ui_ShutdownScreen
@@ -210,7 +210,7 @@ extern lv_obj_t * ui_Label6;
 extern lv_obj_t * ui_SlaveActiveCancel;
 extern lv_obj_t * ui_SlaveActiveConfirm;
 extern lv_obj_t * ui_TestConnecting;
-extern lv_obj_t * ui_ConnectGuide1;
+extern lv_obj_t * ui_ConnectGuide;
 extern lv_obj_t * ui_Label10;
 extern lv_obj_t * ui_SlaveActivateAccept;
 extern lv_obj_t * ui_SlaveActivateRetry;
@@ -218,6 +218,8 @@ extern lv_obj_t * ui_SlaveActivateBad;
 extern lv_obj_t * ui_SlaveActivateGood;
 extern lv_obj_t * ui_SlaveActivateTooClose;
 extern lv_obj_t * ui_SlaveActivateLoseConnection;
+extern lv_obj_t * ui_ConnectSuccess;
+extern lv_obj_t * ui_Label11;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_SlaveActiveScreen;
 extern lv_obj_t * uic_HostActiveCancel;
@@ -368,8 +370,9 @@ LV_IMG_DECLARE(ui_img_tips1_png);    // assets/Tips1.png
 LV_IMG_DECLARE(ui_img_tips2_png);    // assets/Tips2.png
 LV_IMG_DECLARE(ui_img_tips3_png);    // assets/Tips3.png
 LV_IMG_DECLARE(ui_img_recordagain_ch_png);    // assets/recordagain_CH.png
-LV_IMG_DECLARE(ui_img_finish_y_ch_png);    // assets/finish_y_CH.png
+LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
 LV_IMG_DECLARE(ui_img_finish_n_ch_png);    // assets/finish_n_CH.png
+LV_IMG_DECLARE(ui_img_finish_y_ch_png);    // assets/finish_y_CH.png
 LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
 LV_IMG_DECLARE(ui_img_disconnectwifi_ch_png);    // assets/disconnectwifi_CH.png
 LV_IMG_DECLARE(ui_img_hostactive_ch_png);    // assets/HostActive_CH.png
@@ -405,7 +408,6 @@ LV_IMG_DECLARE(ui_img_connection_info_slave_png);    // assets/Connection_Info_s
 LV_IMG_DECLARE(ui_img_devide_info_png);    // assets/Devide_info.png
 LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
 LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
-LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
 LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
 LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
 LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png

@@ -138,6 +138,8 @@ public:
         switch_screen(ui_SlaveActiveScreen);
         lv_obj_add_flag(ui_ConnectingHost, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_TestConnecting, LV_OBJ_FLAG_HIDDEN);   
+        lv_obj_add_flag(ui_ConnectSuccess, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ui_ConnectGuide, LV_OBJ_FLAG_HIDDEN);
         slave_connect_state = Too_close;
         set_connect_state(slave_connect_state); 
         release_lvgl();

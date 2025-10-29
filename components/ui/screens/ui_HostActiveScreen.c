@@ -116,7 +116,7 @@ void ui_HostActiveScreen_screen_init(void)
     lv_obj_set_height(ui_Disconnectwifiname, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Disconnectwifiname, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Disconnectwifiname, "ROMA");
-    lv_obj_set_style_text_font(ui_Disconnectwifiname, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Disconnectwifiname, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label4 = lv_label_create(ui_Disconnectwifiname);
     lv_obj_set_width(ui_Label4, LV_SIZE_CONTENT);   /// 1
@@ -125,7 +125,7 @@ void ui_HostActiveScreen_screen_init(void)
     lv_obj_set_y(ui_Label4, 0);
     lv_obj_set_align(ui_Label4, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label4, "ROMA");
-    lv_obj_set_style_text_font(ui_Label4, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label4, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_HostActiveRetry = lv_imgbtn_create(ui_DisconnectWIFI);
     lv_imgbtn_set_src(ui_HostActiveRetry, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_retry_n_ch_png, NULL);

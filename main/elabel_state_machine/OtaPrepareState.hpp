@@ -236,7 +236,7 @@ public:
 
         release_lvgl();
 
-        bool get_firmware_need_update = http_get_latest_version(true);
+        bool get_firmware_need_update = http_get_latest_version(DEVICE_MODEL, get_global_data()->m_device_info.language, true);
 
         if(get_firmware_need_update)
         {

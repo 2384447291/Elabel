@@ -557,9 +557,11 @@ bool http_delet_todo(char *id,bool need_stuck)
     return _send_task(m_task, need_stuck);
 }
 
-bool http_get_latest_version(bool need_stuck)
+bool http_get_latest_version(char* deviceModel,char* language,bool need_stuck)
 {
-    http_task_struct *m_task = create_http_task_struct(FINDLATESTVERSION, NULL, 0 ,need_stuck);
+    char *params[] = {deviceModel, language};  // 示例参数
+    int param_count = 2;
+    http_task_struct *m_task = create_http_task_struct(FINDLATESTVERSION, params, param_count, need_stuck);
     return _send_task(m_task, need_stuck);
 }
 

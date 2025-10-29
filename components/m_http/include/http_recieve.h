@@ -9,7 +9,7 @@
 #include "esp_mac.h"
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
-    ESP_LOGI(HTTP_TAG, "Full response: %s", response);
+    // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
     // 解析 JSON
     cJSON *json = cJSON_Parse(response);
     if (json == NULL) {

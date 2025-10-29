@@ -180,7 +180,11 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
         if(!EspNowHost::Instance()->recieve_from_unbind_device(src_addr))
         {
             ESP_LOGI(ESP_NOW, "Receive Slave2Host_Get_Wifi_Info_Request_Http from " MACSTR, MAC2STR(src_addr));
-            EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr);
+            int language_length = data_ptr[0];
+            char language[language_length + 1];
+            memcpy(language, &data_ptr[1], language_length);
+            language[language_length] = '\0';
+            EspNowHost::Instance()->Mqtt_send_wifi_info(src_addr, language);
         }
     }
     else if(m_message_type == Slave2Host_Get_UserToken_Request_Http)
@@ -543,11 +547,30 @@ void EspNowHost::Mqtt_send_usertoken(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     send_message_ack(temp_data, user_token_len + 1, Host2Slave_Get_UserToken_Control_Mqtt, slave_mac);
 }
 
-void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
+void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN], char* language)
 {
     uint8_t wifi_name_len = strlen(get_global_data()->m_wifi_ssid);
     uint8_t wifi_password_len = strlen(get_global_data()->m_wifi_password);
-    uint8_t firmware_version_len = strlen(FIRMWARE_VERSION);
+
+    //暂存之前firmware信息免得被http_get_latest_version覆盖
+    char temp_version[100] = {0};
+    char temp_deviceModel[100] = {0};
+    char temp_newest_firmware_url[100] = {0};
+    char temp_createTime[100] = {0};
+    char temp_content[1024] = {0};
+    
+    memcpy(temp_version, get_global_data()->m_version, sizeof(temp_version));
+    memcpy(temp_deviceModel, get_global_data()->m_deviceModel, sizeof(temp_deviceModel));
+    memcpy(temp_newest_firmware_url, get_global_data()->m_newest_firmware_url, sizeof(temp_newest_firmware_url));
+    memcpy(temp_createTime, get_global_data()->m_createTime, sizeof(temp_createTime));
+    memcpy(temp_content, get_global_data()->m_content, sizeof(temp_content));
+    
+    bool get_firmware_need_update = http_get_latest_version(DEVICE_MODEL, language, true);
+    uint8_t firmware_version_len = 0;
+    if(get_firmware_need_update)
+    {
+        firmware_version_len = strlen(get_global_data()->m_version);
+    }
     
     uint8_t total_len = wifi_name_len + wifi_password_len + firmware_version_len + 3;
     uint8_t temp_data[total_len];
@@ -559,7 +582,14 @@ void EspNowHost::Mqtt_send_wifi_info(const uint8_t slave_mac[ESP_NOW_ETH_ALEN])
     memcpy(2 + temp_data + wifi_name_len, get_global_data()->m_wifi_password, wifi_password_len);
 
     temp_data[2 + wifi_name_len + wifi_password_len] = firmware_version_len;
-    memcpy(3 + temp_data + wifi_name_len + wifi_password_len, FIRMWARE_VERSION, firmware_version_len);
+    memcpy(3 + temp_data + wifi_name_len + wifi_password_len, get_global_data()->m_version, firmware_version_len);
+
+    //恢复之前的firmware信息
+    memcpy(get_global_data()->m_version, temp_version, sizeof(temp_version));
+    memcpy(get_global_data()->m_deviceModel, temp_deviceModel, sizeof(temp_deviceModel));
+    memcpy(get_global_data()->m_newest_firmware_url, temp_newest_firmware_url, sizeof(temp_newest_firmware_url));
+    memcpy(get_global_data()->m_createTime, temp_createTime, sizeof(temp_createTime));
+    memcpy(get_global_data()->m_content, temp_content, sizeof(temp_content));
 
     send_message_ack(temp_data, total_len, Host2Slave_Get_Wifi_Info_Control_Mqtt, slave_mac);
 }

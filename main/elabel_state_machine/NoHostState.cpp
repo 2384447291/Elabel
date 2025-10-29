@@ -64,7 +64,7 @@ void NoHostState::Execute(ElabelController* pOwner)
                 reconnect_count_down-=5;
                 lock_lvgl();
                 char time_str[40];
-                sprintf(time_str, "Timeout in %d secs", reconnect_count_down);
+                sprintf(time_str, "%d", reconnect_count_down);
                 set_text_without_change_font(ui_HostActiveAutoTime, time_str);
                 release_lvgl();
             }

@@ -206,7 +206,8 @@ esp_err_t http_send(http_task_struct* m_task_struct)
             "%s\r\n"
 
             "--%s--\r\n",
-            m_boundary, DEVICE_MODEL, m_boundary, get_global_data()->m_device_info.language, m_boundary);
+            m_boundary, m_task_struct->parament[0], m_boundary, m_task_struct->parament[1], m_boundary);
+        ESP_LOGI(HTTP_TAG, "Find Latest Firmware with deviceModel: %s, language: %s", m_task_struct->parament[0], m_task_struct->parament[1]);
         // 发送请求体
         esp_http_client_set_post_field(client, body, strlen(body));
         // 发送请求

@@ -128,7 +128,8 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
         set_nvs_info_uint8_t_array("is_host",&get_global_data()->m_is_host,1);
         SlaveActiveState::Instance()->slave_active_process = Slaveactive_success_connect_process;
         lock_lvgl();
-        set_text_without_change_font(ui_ConnectGuide1, "Success Deployed Restart");
+        lv_obj_clear_flag(ui_ConnectSuccess, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_ConnectGuide, LV_OBJ_FLAG_HIDDEN);
         release_lvgl();
         vTaskDelay(2000 / portTICK_PERIOD_MS);
         esp_restart();

@@ -57,18 +57,15 @@ public:
         lv_obj_add_flag(ui_NoOperate, LV_OBJ_FLAG_HIDDEN);
         //上层文字显示
         lv_obj_clear_flag(ui_RecordOperateUpText, LV_OBJ_FLAG_HIDDEN);
-
         lv_obj_add_flag(ui_RecordOperateTime, LV_OBJ_FLAG_HIDDEN);   
 
         //中间文字显示
         lv_obj_clear_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
-
         lv_obj_add_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
         //下层文字显示
         lv_obj_clear_flag(ui_RecordOperateButton, LV_OBJ_FLAG_HIDDEN);
-
         lv_obj_add_flag(ui_RecordComfirmButton, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_state(ui_RecordComfirmCancel, LV_STATE_PRESSED );
         lv_obj_clear_state(ui_RecordComfirmFinish, LV_STATE_PRESSED );
@@ -103,13 +100,11 @@ public:
         lv_obj_add_flag(ui_NoOperate, LV_OBJ_FLAG_HIDDEN);
         //上层文字显示
         lv_obj_add_flag(ui_RecordOperateUpText, LV_OBJ_FLAG_HIDDEN);
-
         lv_obj_clear_flag(ui_RecordOperateTime, LV_OBJ_FLAG_HIDDEN);   
 
         //中间文字显示
         lv_obj_add_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
-
         lv_obj_clear_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
         //下层文字显示
@@ -155,8 +150,7 @@ public:
         //中间文字显示
         lv_obj_add_flag(ui_RecordOperateMiddleText, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_RecordOperateMiddleTextPadding, LV_OBJ_FLAG_HIDDEN);
-
-        lv_obj_clear_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN);
 
         //下层文字显示
         lv_obj_add_flag(ui_RecordOperateButton, LV_OBJ_FLAG_HIDDEN);
