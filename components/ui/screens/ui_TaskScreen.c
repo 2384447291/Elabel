@@ -224,7 +224,7 @@ void ui_TaskScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_NoTaskContainer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Notask = lv_img_create(ui_NoTaskContainer);
-    lv_img_set_src(ui_Notask, &ui_img_seeyounexttime_ch_png);
+    lv_img_set_src(ui_Notask, &ui_img_seeyounexttime_png);
     lv_obj_set_width(ui_Notask, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Notask, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Notask, LV_ALIGN_CENTER);
