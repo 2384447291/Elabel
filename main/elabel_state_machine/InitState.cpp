@@ -124,8 +124,8 @@ void InitState::Execute(ElabelController* pOwner)
             //如果判断为需要OTA
             if(get_firmware_need_update 
                 && strlen(get_global_data()->m_newest_firmware_url) != 0 
-                && strcmp(get_global_data()->m_device_info.language, LANGUAGE) == 0
-                && strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+                //如果版本不同或者语言不同
+                && (strcmp(get_global_data()->m_device_info.language, LANGUAGE) != 0 || strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0))
             {
                 need_enter_ota = true;
             }

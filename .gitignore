@@ -1,3 +1,4 @@
 build/
 .vscode/
 components/ui/
+main/global_message/global_version.h

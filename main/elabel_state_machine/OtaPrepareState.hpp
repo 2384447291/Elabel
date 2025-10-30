@@ -241,7 +241,7 @@ public:
         if(get_firmware_need_update)
         {
             //如果firmware需要更新
-            if(strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0)
+            if(strcmp(get_global_data()->m_version, FIRMWARE_VERSION) != 0 || strcmp(get_global_data()->m_device_info.language, LANGUAGE) != 0)
             {
                 enter_need_to_ota();
             }
