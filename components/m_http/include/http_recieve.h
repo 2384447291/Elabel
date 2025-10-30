@@ -254,7 +254,6 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     get_global_data()->m_device_info.sound_volume = setting_info.sound_volume;
                     get_global_data()->m_device_info.sleep_time = setting_info.sleep_time;
                     memcpy(get_global_data()->m_device_info.language, setting_info.language, sizeof(get_global_data()->m_device_info.language));
-                    set_language_nvs_info(get_global_data()->m_device_info.language);
                     ESP_LOGI("HTTP", "Save setting to host " MACSTR ", default_counter_time is %d, overtime_alert_time is %d, is_idel_clock_time is %d, is_strong_wake_up is %d, sound_volume is %d, sleep_time is %d, language is %s", 
                     MAC2STR(mac), 
                     get_global_data()->m_device_info.default_counter_time, 

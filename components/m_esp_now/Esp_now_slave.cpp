@@ -441,8 +441,6 @@ void EspNowSlave::slave_respense_espnow_mqtt_get_device_info(uint8_t* data, size
     get_global_data()->m_device_info.is_strong_wake_up = data[8] & 0x01;
     memset(get_global_data()->m_device_info.language, 0, 12);
     memcpy(get_global_data()->m_device_info.language, data + 9, 12);
-    // 将 language 写入 NVS，保证掉电保存
-    set_language_nvs_info(get_global_data()->m_device_info.language);
     ESP_LOGI(ESP_NOW, "Receive Host2Slave_Device_Info_Control_Mqtt message, default counter time: %d, overtime alert time: %d, is idle clock time: %d, sound volume: %d, sleep time: %d, is strong wake up: %d, language: %s", 
     get_global_data()->m_device_info.default_counter_time, 
     get_global_data()->m_device_info.overtime_alert_time, 

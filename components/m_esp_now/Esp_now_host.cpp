@@ -72,11 +72,6 @@ static esp_err_t Host_handle(uint8_t *src_addr, void *data,
             language[data_ptr[0]] = '\0';
             ESP_LOGI(ESP_NOW, "Use slave-reported language on bind: %s", language);
         }
-        else
-        {
-            get_language_nvs_info(language);
-            ESP_LOGI(ESP_NOW, "Use host default language on bind: %s", language);
-        }
         char setting_str[40];
         sprintf(setting_str, "00501000001800-%s", language);
         http_save_setting(true, setting_str, src_addr);

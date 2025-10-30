@@ -112,7 +112,7 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
         esp_err_t ret; 
         do{
             char language[12] = {0};
-            get_language_nvs_info(language);
+            memcpy(language, get_global_data()->m_device_info.language, 12);
             uint8_t lang_len = strlen(language);
             if(lang_len > 11) lang_len = 11; // 预留结尾符
             uint8_t temp_data[1 + 12] = {0};

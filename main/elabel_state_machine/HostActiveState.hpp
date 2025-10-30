@@ -119,10 +119,8 @@ public:
         //绑定设备
         http_bind_device(true,get_global_data()->m_mac_uint);
         //保存设置
-        char language[12];
-        get_language_nvs_info(language);
         char setting_str[40];
-        sprintf(setting_str, "00501010800300-%s", language);
+        sprintf(setting_str, "00501010800300-%s", LANGUAGE);
         http_save_setting(true, setting_str, get_global_data()->m_mac_uint);
         //保存电池电量
         int battery_level = BatteryManager::Instance()->getBatteryLevelInt();

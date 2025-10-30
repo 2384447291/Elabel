@@ -37,8 +37,7 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_x(ui_OTAUpdating, 0);
     lv_obj_set_y(ui_OTAUpdating, -37);
     lv_obj_set_align(ui_OTAUpdating, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTAUpdating, "OTA Updating");
-    lv_obj_add_flag(ui_OTAUpdating, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_label_set_text(ui_OTAUpdating, "正在更新");
     lv_obj_set_style_text_font(ui_OTAUpdating, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_OTAUpdating1 = lv_label_create(ui_OTAUpdating);
@@ -47,45 +46,8 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_x(ui_OTAUpdating1, -1);
     lv_obj_set_y(ui_OTAUpdating1, 0);
     lv_obj_set_align(ui_OTAUpdating1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTAUpdating1, "OTA Updating");
+    lv_label_set_text(ui_OTAUpdating1, "正在更新");
     lv_obj_set_style_text_font(ui_OTAUpdating1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_OTASuccess = lv_label_create(ui_Panel8);
-    lv_obj_set_width(ui_OTASuccess, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_OTASuccess, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OTASuccess, 0);
-    lv_obj_set_y(ui_OTASuccess, -37);
-    lv_obj_set_align(ui_OTASuccess, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTASuccess, "OTA Success");
-    lv_obj_add_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);     /// Flags
-    lv_obj_set_style_text_font(ui_OTASuccess, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_OTASuccess1 = lv_label_create(ui_OTASuccess);
-    lv_obj_set_width(ui_OTASuccess1, LV_SIZE_CONTENT);   /// 12
-    lv_obj_set_height(ui_OTASuccess1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OTASuccess1, -1);
-    lv_obj_set_y(ui_OTASuccess1, 0);
-    lv_obj_set_align(ui_OTASuccess1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTASuccess1, "OTA Success");
-    lv_obj_set_style_text_font(ui_OTASuccess1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_OTAFail = lv_label_create(ui_Panel8);
-    lv_obj_set_width(ui_OTAFail, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_OTAFail, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OTAFail, 0);
-    lv_obj_set_y(ui_OTAFail, -37);
-    lv_obj_set_align(ui_OTAFail, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTAFail, "OTA Fail");
-    lv_obj_set_style_text_font(ui_OTAFail, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_OTAFail1 = lv_label_create(ui_OTAFail);
-    lv_obj_set_width(ui_OTAFail1, LV_SIZE_CONTENT);   /// 12
-    lv_obj_set_height(ui_OTAFail1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_OTAFail1, -1);
-    lv_obj_set_y(ui_OTAFail1, 0);
-    lv_obj_set_align(ui_OTAFail1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTAFail1, "OTA Fail");
-    lv_obj_set_style_text_font(ui_OTAFail1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Bar = lv_bar_create(ui_Panel8);
     lv_bar_set_value(ui_Bar, 25, LV_ANIM_OFF);
@@ -101,12 +63,49 @@ void ui_UpdateScreen_screen_init(void)
     lv_obj_set_style_bg_color(ui_Bar, lv_color_hex(0x000000), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Bar, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
+    ui_OTASuccess = lv_label_create(ui_Panel8);
+    lv_obj_set_width(ui_OTASuccess, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_OTASuccess, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_OTASuccess, 0);
+    lv_obj_set_y(ui_OTASuccess, -37);
+    lv_obj_set_align(ui_OTASuccess, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_OTASuccess, "更新成功,重启");
+    lv_obj_add_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_set_style_text_font(ui_OTASuccess, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_OTASuccess1 = lv_label_create(ui_OTASuccess);
+    lv_obj_set_width(ui_OTASuccess1, LV_SIZE_CONTENT);   /// 12
+    lv_obj_set_height(ui_OTASuccess1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_OTASuccess1, -1);
+    lv_obj_set_y(ui_OTASuccess1, 0);
+    lv_obj_set_align(ui_OTASuccess1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_OTASuccess1, "更新成功,重启");
+    lv_obj_set_style_text_font(ui_OTASuccess1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_OTAFail = lv_label_create(ui_Panel8);
+    lv_obj_set_width(ui_OTAFail, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_OTAFail, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_OTAFail, 0);
+    lv_obj_set_y(ui_OTAFail, -37);
+    lv_obj_set_align(ui_OTAFail, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_OTAFail, "更新失败,重启");
+    lv_obj_set_style_text_font(ui_OTAFail, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_OTAFail1 = lv_label_create(ui_OTAFail);
+    lv_obj_set_width(ui_OTAFail1, LV_SIZE_CONTENT);   /// 12
+    lv_obj_set_height(ui_OTAFail1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_OTAFail1, -1);
+    lv_obj_set_y(ui_OTAFail1, 0);
+    lv_obj_set_align(ui_OTAFail1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_OTAFail1, "更新失败,重启");
+    lv_obj_set_style_text_font(ui_OTAFail1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     uic_VersionnNmber = ui_VersionnNmber;
     uic_Updating = ui_OTAUpdating;
     uic_Updating2 = ui_OTAUpdating1;
     uic_Updating = ui_OTASuccess;
     uic_Updating2 = ui_OTASuccess1;
-    uic_Updating = ui_OTAFail;
+    uic_OTAFail = ui_OTAFail;
     uic_Updating2 = ui_OTAFail1;
 
 }
