@@ -231,7 +231,7 @@ public:
 
 
         char version_str[150];
-        sprintf(version_str, "V %s--------->V ???", FIRMWARE_VERSION);
+        sprintf(version_str, "%s V %s-------> %s V ???", LANGUAGE, FIRMWARE_VERSION, get_global_data()->m_device_info.language);
         set_text_without_change_font(ui_VersionChange, version_str);
 
         release_lvgl();
@@ -276,7 +276,7 @@ public:
             lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
             char version_str[150];
-            sprintf(version_str, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
+            sprintf(version_str, "%s V %s-------> %s V %s", LANGUAGE, FIRMWARE_VERSION, get_global_data()->m_device_info.language, get_global_data()->m_version);
             set_text_without_change_font(ui_VersionChange, version_str);
 
             //隐藏ota按钮
@@ -306,7 +306,7 @@ public:
             lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
             char version_str[150];
-            sprintf(version_str, "V %s--------->V ???", FIRMWARE_VERSION);
+            sprintf(version_str, "%s V %s-------> %s V ???", LANGUAGE, FIRMWARE_VERSION, get_global_data()->m_device_info.language);
             set_text_without_change_font(ui_VersionChange, version_str);
 
             //隐藏ota按钮
@@ -343,7 +343,7 @@ public:
         lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);
 
         char version_change[150];
-        sprintf(version_change, "V %s--------->V %s", FIRMWARE_VERSION, get_global_data()->m_version);
+        sprintf(version_change, "%s V %s-------> %s V %s", LANGUAGE, FIRMWARE_VERSION, get_global_data()->m_device_info.language, get_global_data()->m_version);
         set_text_without_change_font(ui_VersionChange, version_change);
 
         update_ota_describtion();

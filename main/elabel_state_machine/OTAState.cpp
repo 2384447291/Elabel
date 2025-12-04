@@ -10,6 +10,9 @@ void OTAState::Enter(ElabelController* pOwner)
 {
     lock_lvgl();
     set_text_without_change_font(ui_VersionnNmber, get_global_data()->m_version);
+    lv_obj_add_flag(ui_OTASuccess, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_OTAUpdating, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_OTAFail, LV_OBJ_FLAG_HIDDEN);
     switch_screen(ui_UpdateScreen);
     lv_bar_set_value(ui_Bar, 0, LV_ANIM_OFF);
     release_lvgl();

@@ -77,6 +77,21 @@ def main():
         shutil.move(build_filepath, bin_filepath)
         print(f"\n已生成合并文件: {bin_filepath}")
         
+        # 复制 E_lable.bin 作为 OTA 文件
+        ota_filename = f"{version}_{model}_{lang}_ota.bin"
+        ota_filepath = os.path.join(bin_dir, ota_filename)
+        elable_bin_path = os.path.join("build", "E_lable.bin")
+        
+        if not os.path.isfile(elable_bin_path):
+            raise FileNotFoundError(f"E_lable.bin 文件不存在: {elable_bin_path}")
+        
+        if os.path.isfile(ota_filepath):
+            print(f"\nOTA 文件 {ota_filepath} 已存在，将被覆盖")
+            os.remove(ota_filepath)
+        
+        shutil.copy2(elable_bin_path, ota_filepath)
+        print(f"\n已生成 OTA 文件: {ota_filepath}")
+        
         # 执行烧录
         print("\n开始烧录到设备...")
         flash_cmd = (
@@ -91,7 +106,8 @@ def main():
         
         print("\n" + "=" * 60)
         print("烧录完成！")
-        print(f"固件文件: {bin_filepath}")
+        print(f"完整固件文件: {bin_filepath}")
+        print(f"OTA 固件文件: {ota_filepath}")
         
     except Exception as e:
         print(f"\n错误: {e}")
