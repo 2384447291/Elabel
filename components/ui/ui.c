@@ -149,18 +149,18 @@ lv_obj_t * ui_Panel8;
 lv_obj_t * ui_VersionnNmber;
 lv_obj_t * ui_OTAUpdating;
 lv_obj_t * ui_OTAUpdating1;
+lv_obj_t * ui_Bar;
 lv_obj_t * ui_OTASuccess;
 lv_obj_t * ui_OTASuccess1;
 lv_obj_t * ui_OTAFail;
 lv_obj_t * ui_OTAFail1;
-lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 lv_obj_t * uic_VersionnNmber;
 lv_obj_t * uic_Updating;
 lv_obj_t * uic_Updating2;
 lv_obj_t * uic_Updating;
 lv_obj_t * uic_Updating2;
-lv_obj_t * uic_Updating;
+lv_obj_t * uic_OTAFail;
 lv_obj_t * uic_Updating2;
 
 

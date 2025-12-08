@@ -1,7 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+完整构建和烧录脚本 - 自动构建、合并bin文件并烧录到设备
+用法: python full_flash.py [--port 端口] [--baudrate 波特率]
+示例: python full_flash.py
+      python full_flash.py --port COM3
+      python full_flash.py --port COM10 --baudrate 460800
+"""
+
 import subprocess
 import re
 import os
 import shutil
+import argparse
 
 # 读取版本信息
 def read_version_info():
@@ -40,6 +51,33 @@ def run_command(cmd, check=True):
     return result
 
 def main():
+    parser = argparse.ArgumentParser(
+        description='ESP32C6 完整构建和烧录工具',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+示例:
+  python full_flash.py
+  python full_flash.py --port COM3
+  python full_flash.py --port COM10 --baudrate 460800
+        """
+    )
+    
+    parser.add_argument(
+        '--port',
+        type=str,
+        default='COM10',
+        help='串口端口（默认: COM10）'
+    )
+    
+    parser.add_argument(
+        '--baudrate',
+        type=int,
+        default=2000000,
+        help='波特率（默认: 2000000）'
+    )
+    
+    args = parser.parse_args()
+    
     try:
         # 读取版本信息
         print("正在读取版本信息...")
@@ -94,8 +132,9 @@ def main():
         
         # 执行烧录
         print("\n开始烧录到设备...")
+        print(f"端口: {args.port}, 波特率: {args.baudrate}")
         flash_cmd = (
-            "python -m esptool -p COM3 -b 2000000 "
+            f"python -m esptool -p {args.port} -b {args.baudrate} "
             "--before default_reset --after hard_reset "
             "--chip esp32c6 "
             "write_flash "

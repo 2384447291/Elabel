@@ -112,11 +112,11 @@ void SlaveActiveState::Execute(ElabelController* pOwner)
         esp_err_t ret; 
         do{
             char language[12] = {0};
-            memcpy(language, get_global_data()->m_device_info.language, 12);
+            memcpy(language, LANGUAGE, sizeof(LANGUAGE));
             uint8_t lang_len = strlen(language);
             if(lang_len > 11) lang_len = 11; // 预留结尾符
             uint8_t temp_data[1 + 12] = {0};
-            temp_data[0] = lang_len;
+            temp_data[0] = lang_len;    
             if(lang_len > 0) memcpy(&temp_data[1], language, lang_len);
             ret = EspNowClient::Instance()->send_message(temp_data, 1 + lang_len, Slave2Host_Bind_Request_Http, get_global_data()->m_host_mac);
         }while(ret!=ESP_OK);

@@ -151,18 +151,18 @@ extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_VersionnNmber;
 extern lv_obj_t * ui_OTAUpdating;
 extern lv_obj_t * ui_OTAUpdating1;
+extern lv_obj_t * ui_Bar;
 extern lv_obj_t * ui_OTASuccess;
 extern lv_obj_t * ui_OTASuccess1;
 extern lv_obj_t * ui_OTAFail;
 extern lv_obj_t * ui_OTAFail1;
-extern lv_obj_t * ui_Bar;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_VersionnNmber;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
 extern lv_obj_t * uic_Updating;
 extern lv_obj_t * uic_Updating2;
-extern lv_obj_t * uic_Updating;
+extern lv_obj_t * uic_OTAFail;
 extern lv_obj_t * uic_Updating2;
 
 // SCREEN: ui_ShutdownScreen
@@ -356,74 +356,74 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_halfmind_png);    // assets/halfmind.png
-LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
-LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
+LV_IMG_DECLARE(ui_img_activate1_ch_png);    // assets/Activate1_CH.png
+LV_IMG_DECLARE(ui_img_activate2_ch_png);    // assets/Activate2_CH.png
 LV_IMG_DECLARE(ui_img_scollarbar_png);    // assets/scollarbar.png
-LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
-LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
-LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
-LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
-LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
-LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
-LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
+LV_IMG_DECLARE(ui_img_cancel_n_ch_png);    // assets/cancel_n_CH.png
+LV_IMG_DECLARE(ui_img_cancel_y_ch_png);    // assets/cancel_y_CH.png
+LV_IMG_DECLARE(ui_img_start_n_ch_png);    // assets/start_n_CH.png
+LV_IMG_DECLARE(ui_img_start_y_ch_png);    // assets/start_y_CH.png
+LV_IMG_DECLARE(ui_img_retry_n_ch_png);    // assets/retry_n_CH.png
+LV_IMG_DECLARE(ui_img_retry_y_ch_png);    // assets/retry_y_CH.png
+LV_IMG_DECLARE(ui_img_seeyounexttime_ch_png);    // assets/seeyounexttime_CH.png
 LV_IMG_DECLARE(ui_img_tips1_png);    // assets/Tips1.png
 LV_IMG_DECLARE(ui_img_tips2_png);    // assets/Tips2.png
 LV_IMG_DECLARE(ui_img_tips3_png);    // assets/Tips3.png
-LV_IMG_DECLARE(ui_img_recordagain_png);    // assets/recordagain.png
+LV_IMG_DECLARE(ui_img_recordagain_ch_png);    // assets/recordagain_CH.png
 LV_IMG_DECLARE(ui_img_finish_y_png);    // assets/finish_y.png
-LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
+LV_IMG_DECLARE(ui_img_finish_n_ch_png);    // assets/finish_n_CH.png
+LV_IMG_DECLARE(ui_img_finish_y_ch_png);    // assets/finish_y_CH.png
 LV_IMG_DECLARE(ui_img_battery_png);    // assets/Battery.png
-LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
-LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
-LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
-LV_IMG_DECLARE(ui_img_slaveactivatebad_png);    // assets/SlaveActivateBad.png
-LV_IMG_DECLARE(ui_img_slaveactivategood_png);    // assets/SlaveActivateGood.png
-LV_IMG_DECLARE(ui_img_slaveactivatetooclose_png);    // assets/SlaveActivateTooClose.png
-LV_IMG_DECLARE(ui_img_slave_activateloseconnection_png);    // assets/Slave ActivateLoseConnection.png
+LV_IMG_DECLARE(ui_img_disconnectwifi_ch_png);    // assets/disconnectwifi_CH.png
+LV_IMG_DECLARE(ui_img_hostactive_ch_png);    // assets/HostActive_CH.png
+LV_IMG_DECLARE(ui_img_accept_y_ch_png);    // assets/accept_y_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivatebad_ch_png);    // assets/SlaveActivateBad_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivategood_ch_png);    // assets/SlaveActivateGood_CH.png
+LV_IMG_DECLARE(ui_img_slaveactivatetooclose_ch_png);    // assets/SlaveActivateTooClose_CH.png
+LV_IMG_DECLARE(ui_img_slave_activateloseconnection_ch_png);    // assets/Slave ActivateLoseConnection_CH.png
 LV_IMG_DECLARE(ui_img_timebar_png);    // assets/TimeBar.png
 LV_IMG_DECLARE(ui_img_fullbar_png);    // assets/FullBar.png
 LV_IMG_DECLARE(ui_img_record_slave_png);    // assets/record_slave.png
 LV_IMG_DECLARE(ui_img_warning_amber_png);    // assets/Warning amber.png
 LV_IMG_DECLARE(ui_img_player_png);    // assets/player.png
-LV_IMG_DECLARE(ui_img_devide_info_png);    // assets/Devide_info.png
-LV_IMG_DECLARE(ui_img_connecation_info_host_png);    // assets/Connecation_info_host.png
-LV_IMG_DECLARE(ui_img_connection_info_slave_png);    // assets/Connection_Info_slave.png
-LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
-LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
-LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
-LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
-LV_IMG_DECLARE(ui_img_power_info_png);    // assets/Power_info.png
-LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
-LV_IMG_DECLARE(ui_img_accept_n_ch_png);    // assets/accept_n_CH.png
-LV_IMG_DECLARE(ui_img_accept_y_ch_png);    // assets/accept_y_CH.png
-LV_IMG_DECLARE(ui_img_activate1_ch_png);    // assets/Activate1_CH.png
-LV_IMG_DECLARE(ui_img_activate2_ch_png);    // assets/Activate2_CH.png
-LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
-LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
-LV_IMG_DECLARE(ui_img_cancel_n_ch_png);    // assets/cancel_n_CH.png
-LV_IMG_DECLARE(ui_img_cancel_y_ch_png);    // assets/cancel_y_CH.png
+LV_IMG_DECLARE(ui_img_devide_info_ch_png);    // assets/Devide_info_CH.png
 LV_IMG_DECLARE(ui_img_connecation_info_host_ch_png);    // assets/Connecation_info_host_CH.png
 LV_IMG_DECLARE(ui_img_connection_info_slave_ch_png);    // assets/Connection_Info_slave_CH.png
-LV_IMG_DECLARE(ui_img_devide_info_ch_png);    // assets/Devide_info_CH.png
-LV_IMG_DECLARE(ui_img_disconnectwifi_ch_png);    // assets/disconnectwifi_CH.png
-LV_IMG_DECLARE(ui_img_finish_n_ch_png);    // assets/finish_n_CH.png
-LV_IMG_DECLARE(ui_img_finish_y_ch_png);    // assets/finish_y_CH.png
-LV_IMG_DECLARE(ui_img_hostactive_ch_png);    // assets/HostActive_CH.png
+LV_IMG_DECLARE(ui_img_rebootn_ch_png);    // assets/RebootN_CH.png
+LV_IMG_DECLARE(ui_img_rebooty_ch_png);    // assets/RebootY_CH.png
 LV_IMG_DECLARE(ui_img_otan_ch_png);    // assets/OTAN_CH.png
 LV_IMG_DECLARE(ui_img_otay_ch_png);    // assets/OTAY_CH.png
 LV_IMG_DECLARE(ui_img_power_info_ch_png);    // assets/Power_info_CH.png
-LV_IMG_DECLARE(ui_img_rebootn_ch_png);    // assets/RebootN_CH.png
-LV_IMG_DECLARE(ui_img_rebooty_ch_png);    // assets/RebootY_CH.png
-LV_IMG_DECLARE(ui_img_recordagain_ch_png);    // assets/recordagain_CH.png
-LV_IMG_DECLARE(ui_img_retry_n_ch_png);    // assets/retry_n_CH.png
-LV_IMG_DECLARE(ui_img_retry_y_ch_png);    // assets/retry_y_CH.png
-LV_IMG_DECLARE(ui_img_seeyounexttime_ch_png);    // assets/seeyounexttime_CH.png
-LV_IMG_DECLARE(ui_img_slave_activateloseconnection_ch_png);    // assets/Slave ActivateLoseConnection_CH.png
-LV_IMG_DECLARE(ui_img_slaveactivatebad_ch_png);    // assets/SlaveActivateBad_CH.png
-LV_IMG_DECLARE(ui_img_slaveactivategood_ch_png);    // assets/SlaveActivateGood_CH.png
-LV_IMG_DECLARE(ui_img_slaveactivatetooclose_ch_png);    // assets/SlaveActivateTooClose_CH.png
-LV_IMG_DECLARE(ui_img_start_n_ch_png);    // assets/start_n_CH.png
-LV_IMG_DECLARE(ui_img_start_y_ch_png);    // assets/start_y_CH.png
+LV_IMG_DECLARE(ui_img_accept_n_png);    // assets/accept_n.png
+LV_IMG_DECLARE(ui_img_accept_n_ch_png);    // assets/accept_n_CH.png
+LV_IMG_DECLARE(ui_img_accept_y_png);    // assets/accept_y.png
+LV_IMG_DECLARE(ui_img_activate1_png);    // assets/Activate1.png
+LV_IMG_DECLARE(ui_img_activate2_png);    // assets/Activate2.png
+LV_IMG_DECLARE(ui_img_activate3_png);    // assets/Activate3.png
+LV_IMG_DECLARE(ui_img_buttonpanel_png);    // assets/ButtonPanel.png
+LV_IMG_DECLARE(ui_img_cancel_n_png);    // assets/cancel_n.png
+LV_IMG_DECLARE(ui_img_cancel_y_png);    // assets/cancel_y.png
+LV_IMG_DECLARE(ui_img_connecation_info_host_png);    // assets/Connecation_info_host.png
+LV_IMG_DECLARE(ui_img_connection_info_slave_png);    // assets/Connection_Info_slave.png
+LV_IMG_DECLARE(ui_img_devide_info_png);    // assets/Devide_info.png
+LV_IMG_DECLARE(ui_img_disconnectwifi_png);    // assets/disconnectwifi.png
+LV_IMG_DECLARE(ui_img_finish_n_png);    // assets/finish_n.png
+LV_IMG_DECLARE(ui_img_hostactive_png);    // assets/HostActive.png
+LV_IMG_DECLARE(ui_img_otan_png);    // assets/OTAN.png
+LV_IMG_DECLARE(ui_img_otay_png);    // assets/OTAY.png
+LV_IMG_DECLARE(ui_img_power_info_png);    // assets/Power_info.png
+LV_IMG_DECLARE(ui_img_rebootn_png);    // assets/RebootN.png
+LV_IMG_DECLARE(ui_img_rebooty_png);    // assets/RebootY.png
+LV_IMG_DECLARE(ui_img_recordagain_png);    // assets/recordagain.png
+LV_IMG_DECLARE(ui_img_retry_n_png);    // assets/retry_n.png
+LV_IMG_DECLARE(ui_img_retry_y_png);    // assets/retry_y.png
+LV_IMG_DECLARE(ui_img_seeyounexttime_png);    // assets/seeyounexttime.png
+LV_IMG_DECLARE(ui_img_slave_activateloseconnection_png);    // assets/Slave ActivateLoseConnection.png
+LV_IMG_DECLARE(ui_img_slaveactivatebad_png);    // assets/SlaveActivateBad.png
+LV_IMG_DECLARE(ui_img_slaveactivategood_png);    // assets/SlaveActivateGood.png
+LV_IMG_DECLARE(ui_img_slaveactivatetooclose_png);    // assets/SlaveActivateTooClose.png
+LV_IMG_DECLARE(ui_img_start_n_png);    // assets/start_n.png
+LV_IMG_DECLARE(ui_img_start_y_png);    // assets/start_y.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Chinese24);

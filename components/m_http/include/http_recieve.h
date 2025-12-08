@@ -216,7 +216,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                         strncpy(setting_info.language, dash + 1, sizeof(setting_info.language) - 1);
                         setting_info.language[sizeof(setting_info.language) - 1] = '\0';
                         
-                        // 转换为大写 (en -> EN, En -> EN, EN -> EN)
+                        // 转换为大写 (en -> EN, En -> EN, EN -> EN)，ota部分请求为大写，后端改的是小写，我这边上传的是大写
                         for (int i = 0; setting_info.language[i] != '\0'; i++) 
                         {
                             if (setting_info.language[i] >= 'a' && setting_info.language[i] <= 'z')

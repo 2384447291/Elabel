@@ -34,7 +34,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_OTAWaitingGuide, 0);
     lv_obj_set_y(ui_OTAWaitingGuide, 30);
     lv_obj_set_align(ui_OTAWaitingGuide, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_OTAWaitingGuide, "Waiting");
+    lv_label_set_text(ui_OTAWaitingGuide, "请等待");
     lv_obj_set_style_text_font(ui_OTAWaitingGuide, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_scrollbar3 = lv_obj_create(ui_Container2);
@@ -103,8 +103,8 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_OTAButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_OTAButtonCancel = lv_imgbtn_create(ui_OTAButton);
-    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
-    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_ch_png, NULL);
     lv_obj_set_height(ui_OTAButtonCancel, 19);
     lv_obj_set_width(ui_OTAButtonCancel, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_OTAButtonCancel, -47);
@@ -116,8 +116,8 @@ void ui_OTAScreen_screen_init(void)
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
 
     ui_OTAButtonStart = lv_imgbtn_create(ui_OTAButton);
-    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_png, NULL);
-    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_OTAButtonStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_ch_png, NULL);
     lv_obj_set_height(ui_OTAButtonStart, 19);
     lv_obj_set_width(ui_OTAButtonStart, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_OTAButtonStart, 47);
@@ -138,8 +138,8 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_RetryCheckVersionButton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RetryCheckVersionButtonCancel = lv_imgbtn_create(ui_RetryCheckVersionButton);
-    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
-    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_ch_png, NULL);
     lv_obj_set_height(ui_RetryCheckVersionButtonCancel, 19);
     lv_obj_set_width(ui_RetryCheckVersionButtonCancel, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_RetryCheckVersionButtonCancel, -47);
@@ -148,8 +148,8 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_add_state(ui_RetryCheckVersionButtonCancel, LV_STATE_PRESSED);       /// States
 
     ui_RetryCheckVersionButtonRetry = lv_imgbtn_create(ui_RetryCheckVersionButton);
-    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_retry_n_png, NULL);
-    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_retry_y_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_retry_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_RetryCheckVersionButtonRetry, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_retry_y_ch_png, NULL);
     lv_obj_set_height(ui_RetryCheckVersionButtonRetry, 19);
     lv_obj_set_width(ui_RetryCheckVersionButtonRetry, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_RetryCheckVersionButtonRetry, 47);
@@ -162,8 +162,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_UpToDate, 0);
     lv_obj_set_y(ui_UpToDate, -45);
     lv_obj_set_align(ui_UpToDate, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_UpToDate, "Up to date");
-    lv_obj_add_flag(ui_UpToDate, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_label_set_text(ui_UpToDate, "最新版本");
     lv_obj_set_style_text_font(ui_UpToDate, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_UpToDate1 = lv_label_create(ui_UpToDate);
@@ -172,7 +171,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_UpToDate1, -1);
     lv_obj_set_y(ui_UpToDate1, 0);
     lv_obj_set_align(ui_UpToDate1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_UpToDate1, "Up to date");
+    lv_label_set_text(ui_UpToDate1, "最新版本");
     lv_obj_set_style_text_font(ui_UpToDate1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_FailGetMsg = lv_label_create(ui_Container2);
@@ -181,7 +180,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_FailGetMsg, 0);
     lv_obj_set_y(ui_FailGetMsg, -45);
     lv_obj_set_align(ui_FailGetMsg, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_FailGetMsg, "Fail to Connect");
+    lv_label_set_text(ui_FailGetMsg, "未获取到更新信息");
     lv_obj_set_style_text_font(ui_FailGetMsg, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_FailGetMsg1 = lv_label_create(ui_FailGetMsg);
@@ -190,7 +189,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_FailGetMsg1, -1);
     lv_obj_set_y(ui_FailGetMsg1, 0);
     lv_obj_set_align(ui_FailGetMsg1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_FailGetMsg1, "Fail to Connect");
+    lv_label_set_text(ui_FailGetMsg1, "未获取到更新信息");
     lv_obj_set_style_text_font(ui_FailGetMsg1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CheckingUpd = lv_label_create(ui_Container2);
@@ -199,7 +198,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_CheckingUpd, 0);
     lv_obj_set_y(ui_CheckingUpd, -45);
     lv_obj_set_align(ui_CheckingUpd, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_CheckingUpd, "Checking update");
+    lv_label_set_text(ui_CheckingUpd, "检查固件中...");
     lv_obj_add_flag(ui_CheckingUpd, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_font(ui_CheckingUpd, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -209,7 +208,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_UpToDate2, -1);
     lv_obj_set_y(ui_UpToDate2, 0);
     lv_obj_set_align(ui_UpToDate2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_UpToDate2, "Checking update");
+    lv_label_set_text(ui_UpToDate2, "检查固件中...");
     lv_obj_set_style_text_font(ui_UpToDate2, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_UpdAvailable = lv_label_create(ui_Container2);
@@ -218,7 +217,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_UpdAvailable, 0);
     lv_obj_set_y(ui_UpdAvailable, -45);
     lv_obj_set_align(ui_UpdAvailable, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_UpdAvailable, "Update available");
+    lv_label_set_text(ui_UpdAvailable, "检测到新固件");
     lv_obj_add_flag(ui_UpdAvailable, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_set_style_text_font(ui_UpdAvailable, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -228,7 +227,7 @@ void ui_OTAScreen_screen_init(void)
     lv_obj_set_x(ui_UpdAvailable1, -1);
     lv_obj_set_y(ui_UpdAvailable1, 0);
     lv_obj_set_align(ui_UpdAvailable1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_UpdAvailable1, "Update available");
+    lv_label_set_text(ui_UpdAvailable1, "检测到新固件");
     lv_obj_set_style_text_font(ui_UpdAvailable1, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_VersionChange = ui_VersionChange;

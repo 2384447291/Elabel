@@ -27,6 +27,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_width(ui_NoOperate, 250);
     lv_obj_set_height(ui_NoOperate, 122);
     lv_obj_set_align(ui_NoOperate, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_NoOperate, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoOperate, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_NoOperatetTime = lv_label_create(ui_NoOperate);
@@ -53,14 +54,13 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_NoOperateChooseButton, 0);
     lv_obj_set_y(ui_NoOperateChooseButton, 20);
     lv_obj_set_align(ui_NoOperateChooseButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_NoOperateChooseButton, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_NoOperateChooseButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_border_color(ui_NoOperateChooseButton, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_NoOperateChooseButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_NoOperateChooseCancel = lv_imgbtn_create(ui_NoOperateChooseButton);
-    lv_imgbtn_set_src(ui_NoOperateChooseCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
-    lv_imgbtn_set_src(ui_NoOperateChooseCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_imgbtn_set_src(ui_NoOperateChooseCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_NoOperateChooseCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_ch_png, NULL);
     lv_obj_set_height(ui_NoOperateChooseCancel, 19);
     lv_obj_set_width(ui_NoOperateChooseCancel, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_NoOperateChooseCancel, -50);
@@ -68,8 +68,8 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_align(ui_NoOperateChooseCancel, LV_ALIGN_CENTER);
 
     ui_NoOperateChooseStart = lv_imgbtn_create(ui_NoOperateChooseButton);
-    lv_imgbtn_set_src(ui_NoOperateChooseStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_png, NULL);
-    lv_imgbtn_set_src(ui_NoOperateChooseStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
+    lv_imgbtn_set_src(ui_NoOperateChooseStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_NoOperateChooseStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_ch_png, NULL);
     lv_obj_set_height(ui_NoOperateChooseStart, 19);
     lv_obj_set_width(ui_NoOperateChooseStart, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_NoOperateChooseStart, 50);
@@ -79,8 +79,8 @@ void ui_OperatingScreen_screen_init(void)
     ui_NoOperateAutoGuide = lv_label_create(ui_NoOperate);
     lv_obj_set_width(ui_NoOperateAutoGuide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoOperateAutoGuide, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_NoOperateAutoGuide, 42);
-    lv_obj_set_y(ui_NoOperateAutoGuide, 25);
+    lv_obj_set_x(ui_NoOperateAutoGuide, -71);
+    lv_obj_set_y(ui_NoOperateAutoGuide, 28);
     lv_obj_set_align(ui_NoOperateAutoGuide, LV_ALIGN_CENTER);
     lv_label_set_text(ui_NoOperateAutoGuide, "3 ");
     lv_obj_set_style_text_font(ui_NoOperateAutoGuide, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -88,10 +88,10 @@ void ui_OperatingScreen_screen_init(void)
     ui_NoOperateAutoGuidePading = lv_label_create(ui_NoOperate);
     lv_obj_set_width(ui_NoOperateAutoGuidePading, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_NoOperateAutoGuidePading, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_NoOperateAutoGuidePading, 2);
-    lv_obj_set_y(ui_NoOperateAutoGuidePading, 24);
+    lv_obj_set_x(ui_NoOperateAutoGuidePading, 11);
+    lv_obj_set_y(ui_NoOperateAutoGuidePading, 29);
     lv_obj_set_align(ui_NoOperateAutoGuidePading, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_NoOperateAutoGuidePading, "Auto start in    secs");
+    lv_label_set_text(ui_NoOperateAutoGuidePading, "秒后自动开始");
     lv_obj_set_style_text_font(ui_NoOperateAutoGuidePading, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordOperate = lv_obj_create(ui_Panel10);
@@ -99,7 +99,6 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_width(ui_RecordOperate, 250);
     lv_obj_set_height(ui_RecordOperate, 122);
     lv_obj_set_align(ui_RecordOperate, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_RecordOperate, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_RecordOperate, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_RecordOperateUpText = lv_label_create(ui_RecordOperate);
@@ -108,7 +107,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_RecordOperateUpText, 0);
     lv_obj_set_y(ui_RecordOperateUpText, -35);
     lv_obj_set_align(ui_RecordOperateUpText, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_RecordOperateUpText, "Recording");
+    lv_label_set_text(ui_RecordOperateUpText, "录音中");
     lv_obj_set_style_text_font(ui_RecordOperateUpText, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label9 = lv_label_create(ui_RecordOperateUpText);
@@ -117,7 +116,7 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_x(ui_Label9, 1);
     lv_obj_set_y(ui_Label9, 0);
     lv_obj_set_align(ui_Label9, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label9, "Recording");
+    lv_label_set_text(ui_Label9, "录音中");
     lv_obj_set_style_text_font(ui_Label9, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordOperateTime = lv_label_create(ui_RecordOperate);
@@ -140,20 +139,20 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_Label7, &lv_font_montserrat_32, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordAgain = lv_img_create(ui_RecordOperate);
-    lv_img_set_src(ui_RecordAgain, &ui_img_recordagain_png);
+    lv_img_set_src(ui_RecordAgain, &ui_img_recordagain_ch_png);
     lv_obj_set_width(ui_RecordAgain, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_RecordAgain, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_RecordAgain, 0);
     lv_obj_set_y(ui_RecordAgain, 5);
     lv_obj_set_align(ui_RecordAgain, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_RecordAgain, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_add_flag(ui_RecordAgain, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_RecordAgain, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_RecordOperateMiddleText = lv_label_create(ui_RecordOperate);
     lv_obj_set_width(ui_RecordOperateMiddleText, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_RecordOperateMiddleText, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_RecordOperateMiddleText, -48);
-    lv_obj_set_y(ui_RecordOperateMiddleText, 3);
+    lv_obj_set_x(ui_RecordOperateMiddleText, 11);
+    lv_obj_set_y(ui_RecordOperateMiddleText, 5);
     lv_obj_set_align(ui_RecordOperateMiddleText, LV_ALIGN_CENTER);
     lv_label_set_text(ui_RecordOperateMiddleText, "5");
     lv_obj_set_style_text_font(ui_RecordOperateMiddleText, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -189,8 +188,8 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_RecordComfirmButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordComfirmCancel = lv_imgbtn_create(ui_RecordComfirmButton);
-    lv_imgbtn_set_src(ui_RecordComfirmCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
-    lv_imgbtn_set_src(ui_RecordComfirmCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_imgbtn_set_src(ui_RecordComfirmCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_RecordComfirmCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_ch_png, NULL);
     lv_obj_set_height(ui_RecordComfirmCancel, 19);
     lv_obj_set_width(ui_RecordComfirmCancel, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_RecordComfirmCancel, -50);
@@ -202,8 +201,8 @@ void ui_OperatingScreen_screen_init(void)
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
 
     ui_RecordComfirmFinish = lv_imgbtn_create(ui_RecordComfirmButton);
-    lv_imgbtn_set_src(ui_RecordComfirmFinish, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_finish_n_png, NULL);
-    lv_imgbtn_set_src(ui_RecordComfirmFinish, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_finish_y_png, NULL);
+    lv_imgbtn_set_src(ui_RecordComfirmFinish, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_finish_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_RecordComfirmFinish, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_finish_y_ch_png, NULL);
     lv_obj_set_height(ui_RecordComfirmFinish, 19);
     lv_obj_set_width(ui_RecordComfirmFinish, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_RecordComfirmFinish, 50);
@@ -213,7 +212,7 @@ void ui_OperatingScreen_screen_init(void)
     ui_RecordOperateDownText = lv_label_create(ui_RecordOperate);
     lv_obj_set_width(ui_RecordOperateDownText, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_RecordOperateDownText, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_RecordOperateDownText, 44);
+    lv_obj_set_x(ui_RecordOperateDownText, -68);
     lv_obj_set_y(ui_RecordOperateDownText, 39);
     lv_obj_set_align(ui_RecordOperateDownText, LV_ALIGN_CENTER);
     lv_label_set_text(ui_RecordOperateDownText, "3");
@@ -222,19 +221,19 @@ void ui_OperatingScreen_screen_init(void)
     ui_RecordOperateMiddleTextPadding = lv_label_create(ui_RecordOperate);
     lv_obj_set_width(ui_RecordOperateMiddleTextPadding, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_RecordOperateMiddleTextPadding, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_RecordOperateMiddleTextPadding, 10);
-    lv_obj_set_y(ui_RecordOperateMiddleTextPadding, 2);
+    lv_obj_set_x(ui_RecordOperateMiddleTextPadding, 0);
+    lv_obj_set_y(ui_RecordOperateMiddleTextPadding, 5);
     lv_obj_set_align(ui_RecordOperateMiddleTextPadding, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_RecordOperateMiddleTextPadding, "secs left");
+    lv_label_set_text(ui_RecordOperateMiddleTextPadding, "剩余   秒");
     lv_obj_set_style_text_font(ui_RecordOperateMiddleTextPadding, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RecordOperateDownTextPadding = lv_label_create(ui_RecordOperate);
     lv_obj_set_width(ui_RecordOperateDownTextPadding, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_RecordOperateDownTextPadding, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_RecordOperateDownTextPadding, 5);
-    lv_obj_set_y(ui_RecordOperateDownTextPadding, 38);
+    lv_obj_set_x(ui_RecordOperateDownTextPadding, 18);
+    lv_obj_set_y(ui_RecordOperateDownTextPadding, 39);
     lv_obj_set_align(ui_RecordOperateDownTextPadding, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_RecordOperateDownTextPadding, "Auto start in    secs");
+    lv_label_set_text(ui_RecordOperateDownTextPadding, "秒后自动开始");
     lv_obj_set_style_text_font(ui_RecordOperateDownTextPadding, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TaskOperate = lv_obj_create(ui_Panel10);
@@ -286,8 +285,8 @@ void ui_OperatingScreen_screen_init(void)
     ui_TaskOperateAutoGuide = lv_label_create(ui_TaskOperate);
     lv_obj_set_width(ui_TaskOperateAutoGuide, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_TaskOperateAutoGuide, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_TaskOperateAutoGuide, 42);
-    lv_obj_set_y(ui_TaskOperateAutoGuide, 34);
+    lv_obj_set_x(ui_TaskOperateAutoGuide, -72);
+    lv_obj_set_y(ui_TaskOperateAutoGuide, 35);
     lv_obj_set_align(ui_TaskOperateAutoGuide, LV_ALIGN_CENTER);
     lv_label_set_text(ui_TaskOperateAutoGuide, "3");
     lv_obj_set_style_text_font(ui_TaskOperateAutoGuide, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -304,8 +303,8 @@ void ui_OperatingScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_TaskOperateButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_TaskOperateCancel = lv_imgbtn_create(ui_TaskOperateButton);
-    lv_imgbtn_set_src(ui_TaskOperateCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_png, NULL);
-    lv_imgbtn_set_src(ui_TaskOperateCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_png, NULL);
+    lv_imgbtn_set_src(ui_TaskOperateCancel, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_cancel_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_TaskOperateCancel, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_cancel_y_ch_png, NULL);
     lv_obj_set_height(ui_TaskOperateCancel, 19);
     lv_obj_set_width(ui_TaskOperateCancel, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_TaskOperateCancel, -50);
@@ -317,8 +316,8 @@ void ui_OperatingScreen_screen_init(void)
                       LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
 
     ui_TaskOperateStart = lv_imgbtn_create(ui_TaskOperateButton);
-    lv_imgbtn_set_src(ui_TaskOperateStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_png, NULL);
-    lv_imgbtn_set_src(ui_TaskOperateStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_png, NULL);
+    lv_imgbtn_set_src(ui_TaskOperateStart, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_start_n_ch_png, NULL);
+    lv_imgbtn_set_src(ui_TaskOperateStart, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_start_y_ch_png, NULL);
     lv_obj_set_height(ui_TaskOperateStart, 19);
     lv_obj_set_width(ui_TaskOperateStart, LV_SIZE_CONTENT);   /// 87
     lv_obj_set_x(ui_TaskOperateStart, 50);
@@ -328,10 +327,10 @@ void ui_OperatingScreen_screen_init(void)
     ui_TaskOperateAutoGuidePading = lv_label_create(ui_TaskOperate);
     lv_obj_set_width(ui_TaskOperateAutoGuidePading, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_TaskOperateAutoGuidePading, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_TaskOperateAutoGuidePading, 2);
-    lv_obj_set_y(ui_TaskOperateAutoGuidePading, 33);
+    lv_obj_set_x(ui_TaskOperateAutoGuidePading, 15);
+    lv_obj_set_y(ui_TaskOperateAutoGuidePading, 35);
     lv_obj_set_align(ui_TaskOperateAutoGuidePading, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_TaskOperateAutoGuidePading, "Auto start in    secs");
+    lv_label_set_text(ui_TaskOperateAutoGuidePading, "秒后自动开始");
     lv_obj_set_style_text_font(ui_TaskOperateAutoGuidePading, &ui_font_Chinese24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     uic_OperatingScreen = ui_OperatingScreen;

@@ -125,7 +125,7 @@ void FocusTaskState::Execute(ElabelController* pOwner)
         {
             post_music_info();
         }
-        else if(inner_time_countup_ms == 5000)
+        else if(inner_time_countup_ms == 15000)
         {
             get_music_info();
         }
