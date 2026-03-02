@@ -47,6 +47,10 @@ esp_err_t http_post_music_data(int32_t id)
 
     esp_http_client_handle_t client = *get_client();
     esp_err_t err = ESP_FAIL;
+    esp_err_t result = ESP_FAIL;
+    bool client_opened = false;
+    FILE *play_file = NULL;
+    cJSON *json = NULL;
 
     // 1. 设置请求方法
     esp_http_client_set_method(client,HTTP_METHOD_POST);
@@ -61,10 +65,10 @@ esp_err_t http_post_music_data(int32_t id)
     esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
 
     //4. 打开音频文件只可读
-    FILE *play_file = fopen("/fat/mic.raw", "rb");
+    play_file = fopen("/fat/mic.raw", "rb");
     if (play_file == NULL) {
         ESP_LOGE("fuck", "无法打开音频文件");
-        return ESP_FAIL;
+        goto cleanup;
     }
     fseek(play_file, 0, SEEK_END);
     size_t size = ftell(play_file);
@@ -96,11 +100,15 @@ esp_err_t http_post_music_data(int32_t id)
     if (err != ESP_OK) 
     {
         ESP_LOGE(HTTP_TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
-        return ESP_FAIL;
+        goto cleanup;
     }
+    client_opened = true;
 
     // 7. 写入partbegin
-    esp_http_client_write(client, partbegin, len1);
+    if (esp_http_client_write(client, partbegin, len1) < 0) {
+        ESP_LOGE(HTTP_TAG, "Failed to write multipart header");
+        goto cleanup;
+    }
 
     size_t bytes_written = 0;
     // 8. 写入音频数据
@@ -108,36 +116,41 @@ esp_err_t http_post_music_data(int32_t id)
     {
         size_t bytes_to_play = 0;
         bytes_to_play = fread(music_buffer, 1, MUSIC_BLOCK, play_file);
-        esp_http_client_write(client, music_buffer, bytes_to_play);
+        if (bytes_to_play > 0 && esp_http_client_write(client, music_buffer, bytes_to_play) < 0) {
+            ESP_LOGE(HTTP_TAG, "Failed to write music payload");
+            goto cleanup;
+        }
         if(bytes_to_play == 0) break; 
         //每传输大于10%打印一次
         progress_update(bytes_written, bytes_written + bytes_to_play, size);
         bytes_written += bytes_to_play;
     }
     // 9. 写入partend
-    esp_http_client_write(client, partend, len2);
+    if (esp_http_client_write(client, partend, len2) < 0) {
+        ESP_LOGE(HTTP_TAG, "Failed to write multipart tail");
+        goto cleanup;
+    }
 
     // 10. 获取响应头
     int content_length = esp_http_client_fetch_headers(client);
     if (content_length < 0) 
     {
         ESP_LOGE("music", "HTTP client fetch headers failed");
-        return ESP_FAIL;
+        goto cleanup;
     } 
 
     char response[256];
-    int data_read = esp_http_client_read_response(client, response, 256);
+    int data_read = esp_http_client_read_response(client, response, sizeof(response) - 1);
     if (data_read >= 0) 
     {
+        response[data_read] = '\0';
         // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
         // 解析 JSON
-        cJSON *json = cJSON_Parse(response);
+        json = cJSON_Parse(response);
         if (json == NULL) {
-            // 释放 JSON 对象
-            cJSON_Delete(json);
             ESP_LOGE(HTTP_TAG, "Full response: %s", response);
             ESP_LOGE("HTTP","JSON parse error!\n");
-            return ESP_FAIL;
+            goto cleanup;
         }
 
 
@@ -147,20 +160,29 @@ esp_err_t http_post_music_data(int32_t id)
         {
             if(code->valueint != 200)
             {
-                // 释放 JSON 对象
-                cJSON_Delete(json);
                 ESP_LOGE(HTTP_TAG, "Full response: %s", response);
-                return ESP_FAIL;
+                goto cleanup;
             }
             else
             {
                 ESP_LOGI("music", "传输给任务%ld, 了%d/%d, 完成了%f", id, bytes_written, size, (float)bytes_written / size * 100);
-                return ESP_OK;
+                result = ESP_OK;
+                goto cleanup;
             }
         }
     }
 
-    return ESP_FAIL;
+cleanup:
+    if (json != NULL) {
+        cJSON_Delete(json);
+    }
+    if (play_file != NULL) {
+        fclose(play_file);
+    }
+    if (client_opened) {
+        esp_http_client_close(client);
+    }
+    return result;
 }
 
 esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_unique_id, uint32_t success_record_message_unique_id)
@@ -170,6 +192,9 @@ esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_un
 
     esp_http_client_handle_t client = *get_client();
     esp_err_t err = ESP_FAIL;
+    esp_err_t result = ESP_FAIL;
+    bool client_opened = false;
+    FILE *play_file = NULL;
 
     // 1. 设置请求方法
     esp_http_client_set_method(client,HTTP_METHOD_POST);
@@ -184,10 +209,10 @@ esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_un
     esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
 
     // 4. 打开音频文件只可写
-    FILE *play_file = fopen("/fat/mic.raw", "wb");
+    play_file = fopen("/fat/mic.raw", "wb");
     if (play_file == NULL) {
         ESP_LOGE("fuck", "无法打开音频文件");
-        return ESP_FAIL;
+        goto cleanup;
     }
 
     // 5. 构造请求体
@@ -205,18 +230,22 @@ esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_un
     if (err != ESP_OK) 
     {
         ESP_LOGE(HTTP_TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
-        return ESP_FAIL;
+        goto cleanup;
     }
+    client_opened = true;
 
     // 7. 写入请求体
-    esp_http_client_write(client, body, strlen(body));
+    if (esp_http_client_write(client, body, strlen(body)) < 0) {
+        ESP_LOGE(HTTP_TAG, "Failed to write getAudio request body");
+        goto cleanup;
+    }
     
     // 8. 获取响应头
     int content_length = esp_http_client_fetch_headers(client);
     if (content_length < 0) 
     {
         ESP_LOGE("fuck", "HTTP client fetch headers failed");
-        return ESP_FAIL;
+        goto cleanup;
     } 
     size_t total_bytes_write = 0;
     // 9. 读取响应体
@@ -227,17 +256,25 @@ esp_err_t http_get_music_data(int32_t id, uint32_t* ptr_mcodec_record_message_un
         if(data_read == 0 && total_bytes_write == 0)
         {
             ESP_LOGE("fuck", "错误的请求");
-            return ESP_FAIL;
+            goto cleanup;
         }
         if (data_read <= 0) break; 
         fwrite(music_buffer, 1, data_read, play_file);
         total_bytes_write += data_read;
     }
-    fclose(play_file);
     ESP_LOGI("music", "接收到了%d字节的音频数据", total_bytes_write);
     //如果是接收端收到全部数据才赋值
     *ptr_mcodec_record_message_unique_id = success_record_message_unique_id;
-    return ESP_OK;
+    result = ESP_OK;
+
+cleanup:
+    if (play_file != NULL) {
+        fclose(play_file);
+    }
+    if (client_opened) {
+        esp_http_client_close(client);
+    }
+    return result;
 }
 
 void post_music_task(void *pvParameters)
@@ -264,8 +301,14 @@ void post_music_task(void *pvParameters)
         ESP_LOGE(HTTP_TAG, "MUSIC Post request failed (attempt %d/%d)", retry_count + 1, 3);
         retry_count++;
     }
-    esp_http_client_cleanup(*get_client());
+    if (*get_client() != NULL) {
+        esp_http_client_cleanup(*get_client());
+    }
     *get_client() = esp_http_client_init(get_config());
+    if (*get_client() == NULL) {
+        ESP_LOGE(HTTP_TAG, "Re-init HTTP client failed after post music");
+    }
+    dealing_with_music = false;
     set_need_deal_with_music(false);
     post_music_task_handle = NULL;
     vTaskDelete(NULL);
@@ -298,8 +341,14 @@ void get_music_task(void *pvParameters)
         ESP_LOGE(HTTP_TAG, "MUSIC Get request failed (attempt %d/%d)", retry_count + 1, 3);
         retry_count++;
     }
-    esp_http_client_cleanup(*get_client());
+    if (*get_client() != NULL) {
+        esp_http_client_cleanup(*get_client());
+    }
     *get_client() = esp_http_client_init(get_config());
+    if (*get_client() == NULL) {
+        ESP_LOGE(HTTP_TAG, "Re-init HTTP client failed after get music");
+    }
+    dealing_with_music = false;
     set_need_deal_with_music(false);
     get_music_task_handle = NULL;
     vTaskDelete(NULL);

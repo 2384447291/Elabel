@@ -120,6 +120,13 @@ public:
         http_bind_device(true,get_global_data()->m_mac_uint);
         //保存设置
         char setting_str[40];
+        //主机的基础设置
+        //-005:默认计时5分钟
+        //-010：超时提示10s间隔
+        //-1:开启默认时钟
+        //-080:默认音量80
+        //-030:休眠时间180秒
+        //-0:表示不开启强提醒
         sprintf(setting_str, "00501010800300-%s", LANGUAGE);
         http_save_setting(true, setting_str, get_global_data()->m_mac_uint);
         //保存电池电量

@@ -9,7 +9,7 @@ esp_http_client_handle_t client;              //http客户端句柄
 http_state m_http_state;
 TaskQueue m_taskqueue;
 http_task_struct* m_dealing_task;
-TaskHandle_t* phttp_Task_state = NULL;  // 修改这里，添加初始化为NULL
+TaskHandle_t phttp_Task_state = NULL;
 esp_err_t http_client_event_handler(esp_http_client_event_t *evt);
 esp_http_client_config_t config = {
     .url = HTTP_URL,
@@ -53,6 +53,33 @@ bool get_need_deal_with_music(void)
 
 SemaphoreHandle_t Task_list_Mutex;
 uint64_t id = 0;
+
+// 定义一个静态缓冲区来存储接收的数据
+static char *response_buffer = NULL;
+static int response_buffer_len = 0;
+
+static void clear_response_buffer(void)
+{
+    if (response_buffer != NULL) {
+        free(response_buffer);
+        response_buffer = NULL;
+    }
+    response_buffer_len = 0;
+}
+
+static void destroy_http_task_struct(http_task_struct *task)
+{
+    if (task == NULL) {
+        return;
+    }
+    for (int i = 0; i < MAX_PARA; ++i) {
+        if (task->parament[i] != NULL) {
+            free(task->parament[i]);
+            task->parament[i] = NULL;
+        }
+    }
+    free(task);
+}
 //--------------------------------------http中控使用的参数--------------------------------------//
 
 //--------------------------------------TaskQueue--------------------------------------//
@@ -100,6 +127,7 @@ http_task_struct *create_http_task_struct(http_task_t task_type, char *params[],
         printf("new_task Memory allocation failed!\n");
         return NULL;
     }
+    memset(new_task, 0, sizeof(http_task_struct));
 
     // 初始化任务的成员变量
     new_task->task = task_type;
@@ -144,27 +172,23 @@ bool isFull(TaskQueue *q) {
 // 入队操作
 bool enqueue(TaskQueue *q, http_task_struct *task) 
 {
-    if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
-    {
-        if (isFull(q)) {
-            printf("Queue is full!\n");
-            xSemaphoreGive(Task_list_Mutex);
-            return false;
-        }
-        // 释放原来位置中的内存
-        if(q->data[q->rear]!=NULL)
-        {
-            for (int i = 0; i < MAX_PARA; ++i) {
-                if (q->data[q->rear]->parament[i] != NULL) {
-                    free(q->data[q->rear]->parament[i]);
-                    q->data[q->rear]->parament[i] = NULL;
-                }
-            }
-        }
-        q->data[q->rear] = task; // 将任务加入队列
-        q->rear = (q->rear + 1) % MAX_TASK_SIZE; // 循环更新队尾索引
-        xSemaphoreGive(Task_list_Mutex);
+    if (Task_list_Mutex == NULL || xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) != pdTRUE) {
+        return false;
     }
+    if (isFull(q)) {
+        printf("Queue is full!\n");
+        xSemaphoreGive(Task_list_Mutex);
+        return false;
+    }
+    // 释放原来位置中的内存
+    if(q->data[q->rear]!=NULL)
+    {
+        destroy_http_task_struct(q->data[q->rear]);
+        q->data[q->rear] = NULL;
+    }
+    q->data[q->rear] = task; // 将任务加入队列
+    q->rear = (q->rear + 1) % MAX_TASK_SIZE; // 循环更新队尾索引
+    xSemaphoreGive(Task_list_Mutex);
     ESP_LOGI("http_task_list","enqueue:");
     printTaskList(q);
     return true;
@@ -172,32 +196,27 @@ bool enqueue(TaskQueue *q, http_task_struct *task)
 
 bool enqueue_front(TaskQueue *q, http_task_struct *task) 
 {
-    if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
-    {
-        if (isFull(q)) {
-            printf("Queue is full!\n");
-            xSemaphoreGive(Task_list_Mutex);
-            return false;
-        }
-
-        // 更新队头索引到前一个位置
-        q->front = (q->front - 1 + MAX_TASK_SIZE) % MAX_TASK_SIZE;
-
-        // 释放原来位置中的内存,巨抽象，由于出列入列，会把我的正在用的内存释放掉
-        if(q->data[q->front]!=NULL)
-        {
-            for (int i = 0; i < MAX_PARA; ++i) 
-            {
-                if (q->data[q->front]->parament[i] != NULL) {
-                    free(q->data[q->front]->parament[i]);
-                    q->data[q->front]->parament[i] = NULL;
-                }
-            }
-        }
-
-        q->data[q->front] = task; // 将任务插入到新的队头位置
-        xSemaphoreGive(Task_list_Mutex);
+    if (Task_list_Mutex == NULL || xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) != pdTRUE) {
+        return false;
     }
+    if (isFull(q)) {
+        printf("Queue is full!\n");
+        xSemaphoreGive(Task_list_Mutex);
+        return false;
+    }
+
+    // 更新队头索引到前一个位置
+    q->front = (q->front - 1 + MAX_TASK_SIZE) % MAX_TASK_SIZE;
+
+    // 释放原来位置中的内存,巨抽象，由于出列入列，会把我的正在用的内存释放掉
+    if(q->data[q->front]!=NULL)
+    {
+        destroy_http_task_struct(q->data[q->front]);
+        q->data[q->front] = NULL;
+    }
+
+    q->data[q->front] = task; // 将任务插入到新的队头位置
+    xSemaphoreGive(Task_list_Mutex);
     // ESP_LOGI("http_task_list","enqueue_front:");
     printTaskList(q);
     return true;
@@ -206,55 +225,61 @@ bool enqueue_front(TaskQueue *q, http_task_struct *task)
 // 出队操作
 bool dequeue(TaskQueue* q, http_task_struct* dealing_task) 
 {
-    if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
-    {
-        if (isEmpty(q)) 
-        {
-            printf("Queue is empty!\n");
-            xSemaphoreGive(Task_list_Mutex);
-            return false;
-        }
-        http_task_struct* _task = q->data[q->front]; // 返回队头任务的指针
-        // 将出列任务的信息复制到 dealing_task
-        dealing_task->unique_id = _task->unique_id;
-        dealing_task->need_stuck = _task->need_stuck;
-        dealing_task->task = _task->task;
-
-        //清零释放参数数组
-        for (int i = 0; i < MAX_PARA; ++i) 
-        {
-            if(dealing_task->parament[i]!= NULL) 
-            {
-                free(dealing_task->parament[i]);
-                dealing_task->parament[i] = NULL;
-            }
-        }
-
-        // 复制参数数组
-        for (int i = 0; i < MAX_PARA; ++i) 
-        {
-            if (_task->parament[i] != NULL) 
-            {
-                dealing_task->parament[i] = strdup(_task->parament[i]); // 复制字符串
-                if (dealing_task->parament[i] == NULL) 
-                {
-                    printf("Memory allocation failed while copying task parameters!\n");
-                    // 如果内存分配失败，需要释放已分配的内存，避免内存泄漏
-                    for (int j = 0; j < i; ++j) 
-                    {
-                        free(dealing_task->parament[j]);
-                        dealing_task->parament[j] = NULL;
-                    }
-                    xSemaphoreGive(Task_list_Mutex);
-                    return false;
-                }
-            } 
-        }
-        q->front = (q->front + 1) % MAX_TASK_SIZE; // 循环更新队头索引
-        xSemaphoreGive(Task_list_Mutex);
-        // ESP_LOGI("http_task_list","dequeue:");
-        printTaskList(q);
+    if (Task_list_Mutex == NULL || xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) != pdTRUE) {
+        return false;
     }
+    if (isEmpty(q)) 
+    {
+        xSemaphoreGive(Task_list_Mutex);
+        return false;
+    }
+    http_task_struct* _task = q->data[q->front]; // 返回队头任务的指针
+    if (_task == NULL) {
+        q->front = (q->front + 1) % MAX_TASK_SIZE;
+        xSemaphoreGive(Task_list_Mutex);
+        return false;
+    }
+    // 将出列任务的信息复制到 dealing_task
+    dealing_task->unique_id = _task->unique_id;
+    dealing_task->need_stuck = _task->need_stuck;
+    dealing_task->task = _task->task;
+
+    //清零释放参数数组
+    for (int i = 0; i < MAX_PARA; ++i) 
+    {
+        if(dealing_task->parament[i]!= NULL) 
+        {
+            free(dealing_task->parament[i]);
+            dealing_task->parament[i] = NULL;
+        }
+    }
+
+    // 复制参数数组
+    for (int i = 0; i < MAX_PARA; ++i) 
+    {
+        if (_task->parament[i] != NULL) 
+        {
+            dealing_task->parament[i] = strdup(_task->parament[i]); // 复制字符串
+            if (dealing_task->parament[i] == NULL) 
+            {
+                printf("Memory allocation failed while copying task parameters!\n");
+                // 如果内存分配失败，需要释放已分配的内存，避免内存泄漏
+                for (int j = 0; j < i; ++j) 
+                {
+                    free(dealing_task->parament[j]);
+                    dealing_task->parament[j] = NULL;
+                }
+                xSemaphoreGive(Task_list_Mutex);
+                return false;
+            }
+        } 
+    }
+    destroy_http_task_struct(_task);
+    q->data[q->front] = NULL;
+    q->front = (q->front + 1) % MAX_TASK_SIZE; // 循环更新队头索引
+    xSemaphoreGive(Task_list_Mutex);
+    // ESP_LOGI("http_task_list","dequeue:");
+    printTaskList(q);
     return true;
 }
 
@@ -262,6 +287,9 @@ bool dequeue(TaskQueue* q, http_task_struct* dealing_task)
 bool have_task_find_task_list(TaskQueue* q)
 {
     bool is_have = false;
+    if (Task_list_Mutex == NULL) {
+        return false;
+    }
     if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
     {
         if (isEmpty(q)) 
@@ -270,7 +298,7 @@ bool have_task_find_task_list(TaskQueue* q)
             return false;
         }
         for (int i = q->front; i != q->rear; i = (i + 1) % MAX_TASK_SIZE) {
-            if(q->data[i]->task == FINDTODOLIST)
+            if(q->data[i] != NULL && q->data[i]->task == FINDTODOLIST)
             {
                 is_have = true;
             }
@@ -284,10 +312,16 @@ bool have_task_find_task_list(TaskQueue* q)
 void initQueue(TaskQueue *q) {
     q->front = 0;
     q->rear = 0;
+    for (int i = 0; i < MAX_TASK_SIZE; ++i) {
+        q->data[i] = NULL;
+    }
 }
 
 void printTaskList(TaskQueue *q) 
 {
+    if (Task_list_Mutex == NULL) {
+        return;
+    }
     if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
     {
         if (isEmpty(q)) {
@@ -306,10 +340,6 @@ void printTaskList(TaskQueue *q)
 
 
 
-// 定义一个静态缓冲区来存储接收的数据
-static char *response_buffer = NULL;
-static int response_buffer_len = 0;
-
 esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
 {
     switch(evt->event_id) {
@@ -318,9 +348,11 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ERROR:
             ESP_LOGE(HTTP_TAG, "Get_butongbuyang_HTTP_EVENT_ERROR");
+            clear_response_buffer();
             break;
         case HTTP_EVENT_ON_CONNECTED:
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_CONNECTED");
+            clear_response_buffer();
             break;
         case HTTP_EVENT_HEADER_SENT:
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_HEADER_SENT");
@@ -330,13 +362,19 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
         case HTTP_EVENT_ON_DATA:
             if(need_deal_with_music) break;
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-            response_buffer = realloc(response_buffer, response_buffer_len + evt->data_len + 1);
-            if (response_buffer == NULL) {
+            {
+            char *new_buffer = realloc(response_buffer, response_buffer_len + evt->data_len + 1);
+            if (new_buffer == NULL) {
                 ESP_LOGE(HTTP_TAG, "Failed to allocate memory for response buffer");
+                clear_response_buffer();
+                m_http_state = send_fail;
                 return ESP_ERR_NO_MEM;
             }
+            response_buffer = new_buffer;
             memcpy(response_buffer + response_buffer_len, evt->data, evt->data_len);
             response_buffer_len += evt->data_len;
+            response_buffer[response_buffer_len] = '\0';
+            }
             break;
         case HTTP_EVENT_ON_FINISH:
             if(need_deal_with_music) break;
@@ -345,13 +383,15 @@ esp_err_t http_client_event_handler(esp_http_client_event_t *evt)
             {
                 parse_json_response(response_buffer,m_dealing_task,&m_http_state);
                 // 这里可以对完整的响应数据进行处理
-                free(response_buffer); // 释放内存
-                response_buffer = NULL;
-                response_buffer_len = 0;
+                clear_response_buffer();
+            } else {
+                ESP_LOGE(HTTP_TAG, "HTTP_EVENT_ON_FINISH without response payload");
+                m_http_state = send_fail;
             }
             break;
         case HTTP_EVENT_DISCONNECTED:
             // ESP_LOGI(HTTP_TAG, "HTTP_EVENT_DISCONNECTED");
+            clear_response_buffer();
             break;
     }
     return ESP_OK;
@@ -366,6 +406,7 @@ void http_client_sendMsg(http_task_struct* task)
     
     if(get_global_data()->m_usertoken[0]==0) {
         ESP_LOGE(HTTP_TAG,"No usertoken detect\n");
+        m_http_state = send_fail;
         return;
     }
 
@@ -381,7 +422,9 @@ void http_client_sendMsg(http_task_struct* task)
         if (retry_count < MAX_RETRY_COUNT) {
             vTaskDelay(pdMS_TO_TICKS(RETRY_DELAY_MS));
             // 重新初始化客户端
-            esp_http_client_cleanup(client);
+            if (client != NULL) {
+                esp_http_client_cleanup(client);
+            }
             client = esp_http_client_init(&config);
         }
     }
@@ -396,24 +439,15 @@ void http_client_update(void *Parameters )
     while(1)
     {
         vTaskDelay(100 / portTICK_PERIOD_MS); 
+        if (m_dealing_task == NULL) {
+            continue;
+        }
         if(m_http_state == send_waiting)
         { 
             bool need_send = false;
             //如果正在加载音乐，则不发送其他请求
             if(need_deal_with_music) continue;
-            if (xSemaphoreTake(Task_list_Mutex, portMAX_DELAY) == pdTRUE)
-            {
-                if(!isEmpty(&m_taskqueue))   
-                {
-                    xSemaphoreGive(Task_list_Mutex);
-                    dequeue(&m_taskqueue,m_dealing_task);
-                    need_send = true;
-                }
-                else
-                {
-                    xSemaphoreGive(Task_list_Mutex);
-                }
-            }
+            need_send = dequeue(&m_taskqueue,m_dealing_task);
             if(need_send)
             {
                 ESP_LOGI(HTTP_TAG, "Start send task %s.",taskToString(m_dealing_task->task));
@@ -468,17 +502,41 @@ void http_client_init(void)
     client = esp_http_client_init(&config);
     if (client == NULL) {
         ESP_LOGE(HTTP_TAG,"httpclient init error!\r\n");
-    } else {
-        ESP_LOGI(HTTP_TAG,"httpclient init success!\r\n");
+        return;
     }
+    ESP_LOGI(HTTP_TAG,"httpclient init success!\r\n");
 
     initQueue(&m_taskqueue);
     m_http_state = send_waiting;
 
     Task_list_Mutex = xSemaphoreCreateMutex();
-    xTaskCreate(http_client_update, "http_client_update", 4096, NULL, 0, phttp_Task_state);
+    if (Task_list_Mutex == NULL) {
+        ESP_LOGE(HTTP_TAG, "Create Task_list_Mutex failed");
+        esp_http_client_cleanup(client);
+        client = NULL;
+        return;
+    }
 
     m_dealing_task = create_http_task_struct(NO_TASK, NULL, 0 ,false);
+    if (m_dealing_task == NULL) {
+        ESP_LOGE(HTTP_TAG, "Create m_dealing_task failed");
+        vSemaphoreDelete(Task_list_Mutex);
+        Task_list_Mutex = NULL;
+        esp_http_client_cleanup(client);
+        client = NULL;
+        return;
+    }
+
+    if (xTaskCreate(http_client_update, "http_client_update", 4096, NULL, 0, &phttp_Task_state) != pdPASS) {
+        ESP_LOGE(HTTP_TAG, "Create http_client_update task failed");
+        destroy_http_task_struct(m_dealing_task);
+        m_dealing_task = NULL;
+        vSemaphoreDelete(Task_list_Mutex);
+        Task_list_Mutex = NULL;
+        esp_http_client_cleanup(client);
+        client = NULL;
+        phttp_Task_state = NULL;
+    }
 }
 
 bool _send_task(http_task_struct *m_task, bool need_stuck)
@@ -488,16 +546,28 @@ bool _send_task(http_task_struct *m_task, bool need_stuck)
         ESP_LOGE(HTTP_TAG, "Failed to create http_task_struct!");
         return false;
     }
+    if (m_dealing_task == NULL) {
+        ESP_LOGE(HTTP_TAG, "HTTP client is not initialized");
+        destroy_http_task_struct(m_task);
+        return false;
+    }
+    uint64_t waiting_task_id = m_task->unique_id;
     if(need_stuck){
-        enqueue_front(&m_taskqueue,m_task);
+        if (!enqueue_front(&m_taskqueue,m_task)) {
+            destroy_http_task_struct(m_task);
+            return false;
+        }
         //保证正在进行的task是我输入进去的task,下面的while会一直等待直到执行到我输入的task
-        while(m_dealing_task->unique_id != m_task->unique_id) vTaskDelay(100 / portTICK_PERIOD_MS);
+        while(m_dealing_task->unique_id != waiting_task_id) vTaskDelay(100 / portTICK_PERIOD_MS);
         //进入到下一层死循环，指导dealing——task的stuck被置为false跳出循环
         while(m_dealing_task->need_stuck) vTaskDelay(100 / portTICK_PERIOD_MS);
         return m_dealing_task->is_suceess;
     }
     else{
-        enqueue_front(&m_taskqueue,m_task);
+        if (!enqueue_front(&m_taskqueue,m_task)) {
+            destroy_http_task_struct(m_task);
+            return false;
+        }
         return true;
     }
     return false;

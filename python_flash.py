@@ -3,7 +3,7 @@
 """
 烧录脚本 - 通过命令行参数指定端口和固件文件
 用法: python python_flash.py <端口> <固件文件路径>
-示例: python python_flash.py COM10 bin/3.0.39_R01C_EN.bin
+示例: python python_flash.py COM3 bin/3.0.39_R01C_EN.bin
 """
 
 import subprocess

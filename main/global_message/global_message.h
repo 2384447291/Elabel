@@ -87,7 +87,7 @@ void set_task_list_state(task_list_state _task_list_state);
 void cleantodoItem(TodoItem* _todoitem);
 
 // 拷贝 TodoItem
-void copy_write_todo_item(TodoItem* src, TodoItem* dst);
+bool copy_write_todo_item(TodoItem* src, TodoItem* dst);
 
 // 根据 ID 查找 TodoItem
 TodoItem* find_todo_by_id(TodoList *list, int id);

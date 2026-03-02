@@ -7,6 +7,19 @@
 #include "global_message.h"
 #include "global_nvs.h"
 #include "esp_mac.h"
+
+static void safe_copy_cstr(char *dst, size_t dst_size, const char *src)
+{
+    if (dst == NULL || dst_size == 0) {
+        return;
+    }
+    if (src == NULL) {
+        dst[0] = '\0';
+        return;
+    }
+    snprintf(dst, dst_size, "%s", src);
+}
+
 void parse_json_response(char *response, http_task_struct *m_task_struct, http_state *m_http_state) 
 {
     // ESP_LOGI(HTTP_TAG, "Full response: %s", response);
@@ -48,6 +61,12 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {
         // 获取 data 数组
         cJSON *data = cJSON_GetObjectItem(json, "data");
+        if (!cJSON_IsArray(data)) {
+            ESP_LOGE("HTTP", "FINDTODOLIST response data is not an array");
+            cJSON_Delete(json);
+            *m_http_state = send_fail;
+            return;
+        }
         int todo_type_array_size = cJSON_GetArraySize(data);
         clean_todo_list(get_global_data()->m_todo_list);
         // 有这么多类型的datatype
@@ -55,11 +74,20 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         {
             //获取第一个todotype类型组
             cJSON *todotype = cJSON_GetArrayItem(data, i);
+            if (!cJSON_IsObject(todotype)) {
+                continue;
+            }
             cJSON *todolist = cJSON_GetObjectItem(todotype, "todoList");
+            if (!cJSON_IsArray(todolist)) {
+                continue;
+            }
             int todo_array_size = cJSON_GetArraySize(todolist);
             for (int j = 0; j < todo_array_size; j++) 
             {
                 cJSON *item = cJSON_GetArrayItem(todolist, j);
+                if (!cJSON_IsObject(item)) {
+                    continue;
+                }
                 TodoItem todo;
                 cleantodoItem(&todo);
                 // 解析各字段
@@ -79,17 +107,31 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
 
                 todo.remark = cJSON_GetStringValue(cJSON_GetObjectItem(item, "remark"));
 
-                todo.id = cJSON_GetObjectItem(item, "id")->valueint;
+                cJSON *id_obj = cJSON_GetObjectItem(item, "id");
+                cJSON *is_pressing_obj = cJSON_GetObjectItem(item, "isPressing");
+                cJSON *task_type_obj = cJSON_GetObjectItem(item, "taskType");
+                cJSON *is_complete_obj = cJSON_GetObjectItem(item, "isComplete");
+                cJSON *is_focus_obj = cJSON_GetObjectItem(item, "isFocus");
+                cJSON *is_important_obj = cJSON_GetObjectItem(item, "isImportant");
+                if (!cJSON_IsNumber(id_obj) ||
+                    !cJSON_IsNumber(is_pressing_obj) ||
+                    !cJSON_IsNumber(task_type_obj) ||
+                    !cJSON_IsNumber(is_complete_obj) ||
+                    !cJSON_IsNumber(is_focus_obj) ||
+                    !cJSON_IsNumber(is_important_obj)) {
+                    continue;
+                }
+                todo.id = id_obj->valueint;
 
                 todo.title = cJSON_GetStringValue(cJSON_GetObjectItem(item, "title"));
 
-                todo.isPressing = cJSON_GetObjectItem(item, "isPressing")->valueint;
+                todo.isPressing = is_pressing_obj->valueint;
 
                 todo.todoType = cJSON_GetStringValue(cJSON_GetObjectItem(item, "todoType"));
 
-                todo.taskType = cJSON_GetObjectItem(item, "taskType")->valueint;
+                todo.taskType = task_type_obj->valueint;
 
-                todo.isComplete = cJSON_GetObjectItem(item, "isComplete")->valueint;
+                todo.isComplete = is_complete_obj->valueint;
 
                 char *startTime_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "startTime"));
                 if (startTime_str != NULL) {
@@ -101,9 +143,9 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                     todo.fallTiming = atoi(fallTiming_str);
                 }
 
-                todo.isFocus = cJSON_GetObjectItem(item, "isFocus")->valueint;
+                todo.isFocus = is_focus_obj->valueint;
 
-                todo.isImportant = cJSON_GetObjectItem(item, "isImportant")->valueint;
+                todo.isImportant = is_important_obj->valueint;
 
                 Global_data* _global_data = get_global_data();
                 add_or_update_todo_item(_global_data->m_todo_list, todo);
@@ -123,11 +165,11 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             const char *createTime = cJSON_GetStringValue(cJSON_GetObjectItem(data, "createTime"));
             const char *language = cJSON_GetStringValue(cJSON_GetObjectItem(data, "language"));
             const char *content = cJSON_GetStringValue(cJSON_GetObjectItem(data, "content"));
-            if (version) memcpy(get_global_data()->m_version, version, strlen(version));
-            if (deviceModel) memcpy(get_global_data()->m_deviceModel, deviceModel, strlen(deviceModel));
-            if (newest_firmware_url) memcpy(get_global_data()->m_newest_firmware_url, newest_firmware_url, strlen(newest_firmware_url));
-            if (createTime) memcpy(get_global_data()->m_createTime, createTime, strlen(createTime));
-            if (content) memcpy(get_global_data()->m_content, content, strlen(content));
+            safe_copy_cstr(get_global_data()->m_version, sizeof(get_global_data()->m_version), version);
+            safe_copy_cstr(get_global_data()->m_deviceModel, sizeof(get_global_data()->m_deviceModel), deviceModel);
+            safe_copy_cstr(get_global_data()->m_newest_firmware_url, sizeof(get_global_data()->m_newest_firmware_url), newest_firmware_url);
+            safe_copy_cstr(get_global_data()->m_createTime, sizeof(get_global_data()->m_createTime), createTime);
+            safe_copy_cstr(get_global_data()->m_content, sizeof(get_global_data()->m_content), content);
             ESP_LOGI("HTTP", "Successful get response post task is FINDLATESTVERSION," 
                         "version is %s," 
                         "deviceModel is %s," 
@@ -149,7 +191,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
         if (data != NULL) 
         {
             const char *userName = cJSON_GetStringValue(cJSON_GetObjectItem(data, "userName"));
-            memcpy(get_global_data()->m_userName, userName, strlen(userName));
+            safe_copy_cstr(get_global_data()->m_userName, sizeof(get_global_data()->m_userName), userName);
         }
         ESP_LOGI("HTTP", "Successful get response post task is FINDUSER ");
     } 
@@ -157,7 +199,7 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
     {
         // 获取嵌套的 data 对象
         cJSON *data = cJSON_GetObjectItem(json, "data");
-        if (data != NULL) 
+        if (cJSON_IsArray(data)) 
         {
             int array_size = cJSON_GetArraySize(data);
 
@@ -175,10 +217,13 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             for(int i = 0; i < array_size; i++)
             {
                 cJSON *item = cJSON_GetArrayItem(data, i);
+                if (!cJSON_IsObject(item)) {
+                    continue;
+                }
                 // 获取 setting 对象
                 const char *setting_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "setting"));
-                uint8_t mac[6];
-                device_info setting_info;
+                uint8_t mac[6] = {0};
+                device_info setting_info = {0};
                 if (setting_str != NULL) 
                 {
                     ESP_LOGI("HTTP", "setting_str is %s", setting_str);
@@ -232,6 +277,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                         setting_info.language[sizeof(setting_info.language) - 1] = '\0';
                     }
                 }
+                else
+                {
+                    continue;
+                }
                 
                 // 获取并转换 sn 为 MAC 地址
                 const char *sn_str = cJSON_GetStringValue(cJSON_GetObjectItem(item, "sn"));
@@ -239,8 +288,14 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 {
                     // 将字符串形式的 MAC 地址转换为字节数组
 
-                    sscanf(sn_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
-                           &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+                    if (sscanf(sn_str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+                           &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6) {
+                        continue;
+                    }
+                }
+                else
+                {
+                    continue;
                 }
 
                 // 如果是当前主机的设置
@@ -299,8 +354,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
             {
                 ESP_LOGE("HTTP", "Host device info is not get, host " MACSTR " unbind", MAC2STR(get_global_data()->m_mac_uint));
                 get_global_data()->need_update_device = true;
-                memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_mac_uint, 6);
-                get_global_data()->unbind_device_num++;
+                if (get_global_data()->unbind_device_num < (MAX_SLAVE_NUM + 1)) {
+                    memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_mac_uint, 6);
+                    get_global_data()->unbind_device_num++;
+                }
             }
             
             //如果没有收到从机的信息则解绑对应从机
@@ -310,8 +367,10 @@ void parse_json_response(char *response, http_task_struct *m_task_struct, http_s
                 {
                     ESP_LOGE("HTTP", "Slave device info is not get, slave " MACSTR " unbind", MAC2STR(get_global_data()->m_slave_info[i].mac));
                     get_global_data()->need_update_device = true;
-                    memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_slave_info[i].mac, 6);
-                    get_global_data()->unbind_device_num++;
+                    if (get_global_data()->unbind_device_num < (MAX_SLAVE_NUM + 1)) {
+                        memcpy(get_global_data()->unbind_device_mac[get_global_data()->unbind_device_num], get_global_data()->m_slave_info[i].mac, 6);
+                        get_global_data()->unbind_device_num++;
+                    }
                 }
             }
 

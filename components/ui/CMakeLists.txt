@@ -15,74 +15,74 @@ idf_component_register(SRCS screens/ui_HalfmindScreen.c
     components/ui_comp_hook.c
     ui_helpers.c
     images/ui_img_halfmind_png.c
-    images/ui_img_activate1_ch_png.c
-    images/ui_img_activate2_ch_png.c
+    images/ui_img_activate1_png.c
+    images/ui_img_activate2_png.c
     images/ui_img_scollarbar_png.c
-    images/ui_img_cancel_n_ch_png.c
-    images/ui_img_cancel_y_ch_png.c
-    images/ui_img_start_n_ch_png.c
-    images/ui_img_start_y_ch_png.c
-    images/ui_img_retry_n_ch_png.c
-    images/ui_img_retry_y_ch_png.c
-    images/ui_img_seeyounexttime_ch_png.c
+    images/ui_img_cancel_n_png.c
+    images/ui_img_cancel_y_png.c
+    images/ui_img_start_n_png.c
+    images/ui_img_start_y_png.c
+    images/ui_img_retry_n_png.c
+    images/ui_img_retry_y_png.c
+    images/ui_img_seeyounexttime_png.c
     images/ui_img_tips1_png.c
     images/ui_img_tips2_png.c
     images/ui_img_tips3_png.c
-    images/ui_img_recordagain_ch_png.c
+    images/ui_img_recordagain_png.c
     images/ui_img_finish_y_png.c
-    images/ui_img_finish_n_ch_png.c
-    images/ui_img_finish_y_ch_png.c
+    images/ui_img_finish_n_png.c
     images/ui_img_battery_png.c
-    images/ui_img_disconnectwifi_ch_png.c
-    images/ui_img_hostactive_ch_png.c
-    images/ui_img_accept_y_ch_png.c
-    images/ui_img_slaveactivatebad_ch_png.c
-    images/ui_img_slaveactivategood_ch_png.c
-    images/ui_img_slaveactivatetooclose_ch_png.c
-    images/ui_img_slave_activateloseconnection_ch_png.c
+    images/ui_img_disconnectwifi_png.c
+    images/ui_img_hostactive_png.c
+    images/ui_img_accept_y_png.c
+    images/ui_img_slaveactivatebad_png.c
+    images/ui_img_slaveactivategood_png.c
+    images/ui_img_slaveactivatetooclose_png.c
+    images/ui_img_slave_activateloseconnection_png.c
     images/ui_img_timebar_png.c
     images/ui_img_fullbar_png.c
     images/ui_img_record_slave_png.c
     images/ui_img_warning_amber_png.c
     images/ui_img_player_png.c
-    images/ui_img_devide_info_ch_png.c
-    images/ui_img_connecation_info_host_ch_png.c
-    images/ui_img_connection_info_slave_ch_png.c
-    images/ui_img_rebootn_ch_png.c
-    images/ui_img_rebooty_ch_png.c
-    images/ui_img_otan_ch_png.c
-    images/ui_img_otay_ch_png.c
-    images/ui_img_power_info_ch_png.c
-    images/ui_img_accept_n_png.c
-    images/ui_img_accept_n_ch_png.c
-    images/ui_img_accept_y_png.c
-    images/ui_img_activate1_png.c
-    images/ui_img_activate2_png.c
-    images/ui_img_activate3_png.c
-    images/ui_img_buttonpanel_png.c
-    images/ui_img_cancel_n_png.c
-    images/ui_img_cancel_y_png.c
+    images/ui_img_devide_info_png.c
     images/ui_img_connecation_info_host_png.c
     images/ui_img_connection_info_slave_png.c
-    images/ui_img_devide_info_png.c
-    images/ui_img_disconnectwifi_png.c
-    images/ui_img_finish_n_png.c
-    images/ui_img_hostactive_png.c
+    images/ui_img_rebootn_png.c
+    images/ui_img_rebooty_png.c
     images/ui_img_otan_png.c
     images/ui_img_otay_png.c
     images/ui_img_power_info_png.c
-    images/ui_img_rebootn_png.c
-    images/ui_img_rebooty_png.c
-    images/ui_img_recordagain_png.c
-    images/ui_img_retry_n_png.c
-    images/ui_img_retry_y_png.c
-    images/ui_img_seeyounexttime_png.c
-    images/ui_img_slave_activateloseconnection_png.c
-    images/ui_img_slaveactivatebad_png.c
-    images/ui_img_slaveactivategood_png.c
-    images/ui_img_slaveactivatetooclose_png.c
-    images/ui_img_start_n_png.c
-    images/ui_img_start_y_png.c
+    images/ui_img_accept_n_png.c
+    images/ui_img_accept_n_ch_png.c
+    images/ui_img_accept_y_ch_png.c
+    images/ui_img_activate1_ch_png.c
+    images/ui_img_activate2_ch_png.c
+    images/ui_img_activate3_png.c
+    images/ui_img_buttonpanel_png.c
+    images/ui_img_cancel_n_ch_png.c
+    images/ui_img_cancel_y_ch_png.c
+    images/ui_img_connecation_info_host_ch_png.c
+    images/ui_img_connection_info_slave_ch_png.c
+    images/ui_img_devide_info_ch_png.c
+    images/ui_img_disconnectwifi_ch_png.c
+    images/ui_img_finish_n_ch_png.c
+    images/ui_img_finish_y_ch_png.c
+    images/ui_img_hostactive_ch_png.c
+    images/ui_img_otan_ch_png.c
+    images/ui_img_otay_ch_png.c
+    images/ui_img_power_info_ch_png.c
+    images/ui_img_rebootn_ch_png.c
+    images/ui_img_rebooty_ch_png.c
+    images/ui_img_recordagain_ch_png.c
+    images/ui_img_retry_n_ch_png.c
+    images/ui_img_retry_y_ch_png.c
+    images/ui_img_seeyounexttime_ch_png.c
+    images/ui_img_slave_activateloseconnection_ch_png.c
+    images/ui_img_slaveactivatebad_ch_png.c
+    images/ui_img_slaveactivategood_ch_png.c
+    images/ui_img_slaveactivatetooclose_ch_png.c
+    images/ui_img_start_n_ch_png.c
+    images/ui_img_start_y_ch_png.c
     fonts/ui_font_Chinese24.c
     fonts/ui_font_Chinese32.c
     REQUIRES lvgl)

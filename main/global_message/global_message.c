@@ -152,22 +152,32 @@ TodoItem* find_todo_by_title(TodoList *list, const char *title)
 }
 
 //为新的item申请内存
-void copy_write_todo_item(TodoItem* src, TodoItem* dst)
+bool copy_write_todo_item(TodoItem* src, TodoItem* dst)
 {
-    if(src->createBy!=NULL) dst->createBy = strdup(src->createBy);
-    else dst->createBy = strdup("NULL");
+    if (src == NULL || dst == NULL) {
+        return false;
+    }
 
-    if(src->updateBy!=NULL) dst->updateBy = strdup(src->updateBy);
-    else dst->updateBy = strdup("NULL");
+    char *create_by = strdup(src->createBy != NULL ? src->createBy : "NULL");
+    char *update_by = strdup(src->updateBy != NULL ? src->updateBy : "NULL");
+    char *remark = strdup(src->remark != NULL ? src->remark : "NULL");
+    char *title = strdup(src->title != NULL ? src->title : "NULL");
+    char *todo_type = strdup(src->todoType != NULL ? src->todoType : "NULL");
 
-    if(src->remark!=NULL) dst->remark = strdup(src->remark);
-    else dst->remark = strdup("NULL");
+    if (create_by == NULL || update_by == NULL || remark == NULL || title == NULL || todo_type == NULL) {
+        if (create_by != NULL) free(create_by);
+        if (update_by != NULL) free(update_by);
+        if (remark != NULL) free(remark);
+        if (title != NULL) free(title);
+        if (todo_type != NULL) free(todo_type);
+        return false;
+    }
 
-    if(src->title!=NULL) dst->title = strdup(src->title);
-    else dst->title = strdup("NULL");
-
-    if(src->todoType!=NULL) dst->todoType = strdup(src->todoType);
-    else dst->todoType = strdup("NULL");
+    dst->createBy = create_by;
+    dst->updateBy = update_by;
+    dst->remark = remark;
+    dst->title = title;
+    dst->todoType = todo_type;
 
     dst->createTime = src->createTime;
     dst->updateTime = src->updateTime;
@@ -179,6 +189,7 @@ void copy_write_todo_item(TodoItem* src, TodoItem* dst)
     dst->isFocus = src->isFocus;
     dst->isImportant = src->isImportant;
     dst->taskType = src->taskType;
+    return true;
 }
 
 void clean_todo_list(TodoList *list)
@@ -199,6 +210,11 @@ void clean_todo_list(TodoList *list)
 // 向 TodoList 添加一个 TodoItem，使用的是内存拷贝，申请一片新的内存，完全复制TodoItem
 void add_or_update_todo_item(TodoList *list, TodoItem item) 
 {
+    if (list == NULL) {
+        ESP_LOGE("Task_list", "Todo list is NULL");
+        return;
+    }
+
     if(item.isFocus == 1)
     {   
         get_global_data()->m_focus_state->is_focus = 1;
@@ -206,19 +222,23 @@ void add_or_update_todo_item(TodoList *list, TodoItem item)
         ESP_LOGI("Task_list", "A New focus Task show up, its title is %s, its id is %d.\n", item.title, item.id);
     }
 
-    list->items = (TodoItem *)realloc(list->items, (list->size + 1) * sizeof(TodoItem));
+    TodoItem *new_items = (TodoItem *)realloc(list->items, (list->size + 1) * sizeof(TodoItem));
+    if (new_items == NULL) 
+    {
+        ESP_LOGE("Task_list", "Memory allocation error when expanding todo list!");
+        return;
+    }
+    list->items = new_items;
     //申请内存和指针NULL是两个东西。不写这一句，直接调用list->items[list->size].remark会报错
     list->items[list->size].remark = NULL;
     list->items[list->size].createBy = NULL;
     list->items[list->size].updateBy = NULL;
     list->items[list->size].todoType = NULL;
     list->items[list->size].title = NULL;
-    if (list->items == NULL) 
-    {
-        ESP_LOGE("Task_list", "Memory allocation error!\n");
+    if (!copy_write_todo_item(&item,&(list->items[list->size]))) {
+        ESP_LOGE("Task_list", "Memory allocation error when copying todo item!");
         return;
     }
-    copy_write_todo_item(&item,&(list->items[list->size]));
     list->size++;
     ESP_LOGI("Task_list", "Add new item id is %d, title is %s ,total size of todolist is %d, create time is %lld, falling time is %d, foucs_type is %d, Tasktype is %d.\n", list->items[list->size-1].id, list->items[list->size-1].title, list->size, item.startTime, item.fallTiming, item.isFocus, item.taskType);
 }

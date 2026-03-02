@@ -26,28 +26,42 @@ esp_err_t http_send(http_task_struct* m_task_struct)
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造 JSON 数据
         cJSON *root = cJSON_CreateObject();
+        if (root == NULL) {
+            ESP_LOGE(HTTP_TAG, "Failed to create JSON root for ADDTODO");
+            return ESP_ERR_NO_MEM;
+        }
         cJSON_AddStringToObject(root, "title",    m_task_struct->parament[0]);
         cJSON_AddStringToObject(root, "taskType", m_task_struct->parament[1]);
 
         // 将 JSON 数据转换为字符串
-        const char *post_data = cJSON_Print(root);
+        char *post_data = cJSON_PrintUnformatted(root);
+        if (post_data == NULL) {
+            cJSON_Delete(root);
+            ESP_LOGE(HTTP_TAG, "Failed to serialize JSON for ADDTODO");
+            return ESP_ERR_NO_MEM;
+        }
 
         // 将 JSON 数据设置为 HTTP 请求体
         esp_http_client_set_post_field(client, post_data, strlen(post_data));
         // 发送请求
         err = esp_http_client_perform(client);
+        cJSON_free(post_data);
         // 释放 JSON 对象
         cJSON_Delete(root);
     }
     else if(m_task_struct->task==ADD_ENTER_FOCUS)
     {
         esp_http_client_set_method(client,HTTP_METHOD_POST);
-        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/addEnterFocus");\
+        esp_http_client_set_url(client,HTTP_URL"/userApi/todo/addEnterFocus");
         
         esp_http_client_set_header(client,"Content-Type","application/json");
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造 JSON 数据
         cJSON *root = cJSON_CreateObject();
+        if (root == NULL) {
+            ESP_LOGE(HTTP_TAG, "Failed to create JSON root for ADD_ENTER_FOCUS");
+            return ESP_ERR_NO_MEM;
+        }
         cJSON_AddStringToObject(root, "title",    m_task_struct->parament[0]);
         cJSON_AddStringToObject(root, "taskType", m_task_struct->parament[1]);
         cJSON_AddStringToObject(root, "fallTiming", m_task_struct->parament[2]);
@@ -56,12 +70,18 @@ esp_err_t http_send(http_task_struct* m_task_struct)
         cJSON_AddStringToObject(root, "startTime", str_time);
 
         // 将 JSON 数据转换为字符串
-        const char *post_data = cJSON_Print(root);
+        char *post_data = cJSON_PrintUnformatted(root);
+        if (post_data == NULL) {
+            cJSON_Delete(root);
+            ESP_LOGE(HTTP_TAG, "Failed to serialize JSON for ADD_ENTER_FOCUS");
+            return ESP_ERR_NO_MEM;
+        }
 
         // 将 JSON 数据设置为 HTTP 请求体
         esp_http_client_set_post_field(client, post_data, strlen(post_data));
         // 发送请求
         err = esp_http_client_perform(client);
+        cJSON_free(post_data);
         // 释放 JSON 对象
         cJSON_Delete(root);
     }
@@ -168,10 +188,10 @@ esp_err_t http_send(http_task_struct* m_task_struct)
         snprintf(body, sizeof(body),
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"pageNum\"\r\n\r\n"
-            "2\r\n"
+            "1\r\n"
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"pageSize\"\r\n\r\n"
-            "1000\r\n"
+            "30\r\n"
             "--%s\r\n"
             "Content-Disposition: form-data; name=\"isComplete\"\r\n\r\n"
             "2\r\n"
@@ -225,9 +245,9 @@ esp_err_t http_send(http_task_struct* m_task_struct)
         // 设置 userToken
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
-        char body[256];
+        char body[1] = {0};
         // 发送请求体
-        esp_http_client_set_post_field(client, body, strlen(body));
+        esp_http_client_set_post_field(client, body, 0);
         // 发送请求
         err = esp_http_client_perform(client);
     }
@@ -311,9 +331,9 @@ esp_err_t http_send(http_task_struct* m_task_struct)
         // 设置 userToken
         esp_http_client_set_header(client, "userToken", get_global_data()->m_usertoken);
         // 构造请求体
-        char body[256];
+        char body[1] = {0};
         // 发送请求体
-        esp_http_client_set_post_field(client, body, strlen(body));
+        esp_http_client_set_post_field(client, body, 0);
         // 发送请求
         err = esp_http_client_perform(client);
     }
